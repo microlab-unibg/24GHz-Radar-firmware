@@ -1,0 +1,518 @@
+package Model.APPS.DMA_CH.v4_1_8.Templates;
+
+import Model.APPS.DMA_CH.v4_1_8.DMA_CH
+
+out.print("""
+/**
+ * @cond
+ ***********************************************************************************************************************
+ * Copyright (c) 2015, Infineon Technologies AG
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,are permitted provided that the
+ * following conditions are met:
+ *
+ *   Redistributions of source code must retain the above copyright notice, this list of conditions and the  following
+ *   disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *   Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote
+ *   products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT  OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes
+ * with Infineon Technologies AG (dave@infineon.com).
+ ***********************************************************************************************************************
+ *
+ * Change History
+ * --------------
+ *
+ * 2015-02-20:
+ *     - Initial version <br>
+ *
+ * 2015-04-15:
+ *     - Handle src/dst address updates with new APIs in DMA LLD <br>
+ *     - Documentation updates <br>
+ *     - The major, minor and patch numbers are now auto-magically updated using Groovy <br>
+ *
+ * 2015-06-20:
+ *     - Changes in the way src and dst addresses are handled <br>
+ *     - APP_INSTANCE_reload() API updated to add XMC_DMA_CH_SetBlockSize() call <br>
+ *
+ * 2015-07-15:
+ *     - DMA_CH (Request #70158): Fix source and destination address handling <br>
+ * 2015-11-12:
+ *     - Removed the event callback registration and enable event from the DMA_CH_n_reload() for faster reload operation.
+ * @endcond
+ */
+
+/***********************************************************************************************************************
+ * HEADER FILES
+ **********************************************************************************************************************/
+
+#include "dma_ch.h"
+""");
+
+def instance = 0
+def inner_space = '    '
+def outer_space = '  '
+def temp = 0
+def UnitInst 	= null
+def ChannelInst = null
+def s = null // some string
+def MappedUri_channel = null
+def MappedUri_dlr = null
+def which_dma = null
+
+// This gets the GPDMA module (1 or 0)
+def get_gpdma_module (def which_dma) {
+	if (which_dma == 'dma4')
+		return 1
+	return 0
+}
+
+// generates n spaces
+def gen_space (def n) {
+	def str = ""
+	for (int i = 0; i < n; i++) {
+		str += " "
+	}
+	return str
+}
+
+out.print("""
+/**********************************************************************************************************************
+ * DATA STRUCTURES
+ **********************************************************************************************************************/
+""")
+
+for (Object i : appInstancesList) {
+	appInst = i.getInstanceLabel();
+	MappedUri_channel = i.rg_channel.getSolverUri()
+	//MappedUri_src_dlr = i.rg_src_dlr.getSolverUri()
+	//MappedUri_dst_dlr = i.rg_dest_dlr.getSolverUri()
+
+	if (MappedUri_channel != null) {
+
+		which_dma = MappedUri_channel[3]
+		UnitInst = MappedUri_channel[4]
+		ChannelInst = MappedUri_channel[6]
+
+		s = i.gstring_source_address.value
+		if (s != null && s != "" && s.substring(0, 2) != "0x" && s != "NULL") {
+			out.print("""
+extern uint32_t* ${s}; /* Source address symbol */
+""");
+		}
+		s = i.gstring_destination_address.value
+		if (s != null && s != "" && s.substring(0, 2) != "0x" && s != "NULL") {
+			out.print("""
+extern uint32_t* ${s}; /* Destination address symbol */
+""");
+		}
+		
+		s = i.gstring_linked_list_ptr.value
+		if (s != null && s != "" && s.substring(0, 2) != "0x" && s != "NULL") {
+			out.print("""
+extern XMC_DMA_LLI_t *const ${s}; /* Linked list pointer symbol */
+""");
+		}
+
+		out.print("""
+void ${appInst}_reload(DMA_CH_t *obj)
+{""");			
+		//Set block size
+		s = i.gint_block_size.value
+		out.print("\n")
+		out.print(gen_space(2) + "XMC_DMA_CH_SetBlockSize(obj->dma_global->dma, obj->ch_num, ${s});")		
+				
+		// Get source address
+		s = i.gstring_source_address.value
+		if ((s == '') || (s == 'NULL')) {
+			out.print("\n")
+			out.print(gen_space(2) + "XMC_DMA_CH_SetSourceAddress(obj->dma_global->dma, obj->ch_num, (uint32_t)NULL);")
+		} else if (s.substring(0, 2) == "0x") {
+			out.print("\n")
+			out.print(gen_space(2) + "XMC_DMA_CH_SetSourceAddress(obj->dma_global->dma, obj->ch_num, ${s});")
+		} else {
+			if (!i.gcombo_transfer_type.value.contains("source address linked")) {
+				out.print("\n")
+				out.print(gen_space(2) + "XMC_DMA_CH_SetSourceAddress(obj->dma_global->dma, obj->ch_num, (uint32_t)${s});")
+			}
+		}
+
+		// Get destination address
+		s = i.gstring_destination_address.value
+		if ((s == '') || (s == 'NULL')) {
+			out.print("\n")
+			out.print(gen_space(2) + "XMC_DMA_CH_SetDestinationAddress(obj->dma_global->dma, obj->ch_num, (uint32_t)NULL);")
+		} else if (s.substring(0, 2) == "0x") {
+			out.print("\n")
+			out.print(gen_space(2) + "XMC_DMA_CH_SetDestinationAddress(obj->dma_global->dma, obj->ch_num, ${s});")
+		} else {
+			if (!i.gcombo_transfer_type.value.contains("destination address linked")) {
+				out.print("\n")
+				out.print(gen_space(2) + "XMC_DMA_CH_SetDestinationAddress(obj->dma_global->dma, obj->ch_num, (uint32_t)${s});")
+			}
+		}
+		
+		// Get linked list pointer
+		if (i.gstring_linked_list_ptr.enabled) {
+			s = i.gstring_linked_list_ptr.value
+			if ((s == '') || (s == 'NULL')) {
+				out.print("\n")
+				out.print(gen_space(2) + "XMC_DMA_CH_SetLinkedListPointer(obj->dma_global->dma, obj->ch_num, NULL);")
+			} else {
+				out.print("\n")
+				out.print(gen_space(2) + "XMC_DMA_CH_SetLinkedListPointer(obj->dma_global->dma, obj->ch_num, (XMC_DMA_LLI_t *)${s});")
+			}
+		}
+
+		out.print("\n}\n")
+//}
+		//""")
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//////////  Generate XMC_DMA_CH_CONFIG_t structure
+		////////////////////////////////////////////////////////////////////////////////
+		out.print("""
+DMA_CH_CONFIG_t ${appInst}_CONFIG =
+{
+  {
+	{
+""")
+		// Check if DMA interrupt needs to be enabled
+		if (i.gstring_dma_ch_event_handler.enabled) {
+			out.print(gen_space(6) + ".enable_interrupt = true, /* Interrupts enabled */")
+		} else {
+			out.print(gen_space(6) + ".enable_interrupt = false, /* Interrupts disabled */")
+		}
+		
+		// Define transfer width values.
+		//
+		// This is used in both source and destination
+		// transfer width configuration.
+		def transfer_width_values = [
+			'8 bits'  : 0,
+			'16 bits' : 1,
+			'32 bits' : 2
+		]
+
+		// Destination transfer width
+		temp = transfer_width_values[i.gcombo_destination_single_transfer_width.value]
+		dest_transfer_width = "${["XMC_DMA_CH_TRANSFER_WIDTH_8",\
+								  "XMC_DMA_CH_TRANSFER_WIDTH_16",\
+								  "XMC_DMA_CH_TRANSFER_WIDTH_32"][temp]}"
+
+		// Source transfer width
+		temp = transfer_width_values[i.gcombo_source_single_transfer_width.value]
+		src_transfer_width = "${["XMC_DMA_CH_TRANSFER_WIDTH_8",\
+								 "XMC_DMA_CH_TRANSFER_WIDTH_16",\
+								 "XMC_DMA_CH_TRANSFER_WIDTH_32"][temp]}"
+		
+		// Now, generate.
+		out.print("\n")
+		out.print(gen_space(6) + ".dst_transfer_width = ${dest_transfer_width}, /* Destination transfer width */")
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".src_transfer_width = ${src_transfer_width}, /* Source transfer width */")
+		
+		// Define count mode
+		//
+		// This is used in both source and destination
+		// count mode configuration.
+		def count_mode_values = [
+			'Increment'  : 0,
+			'Decrement'  : 1,
+			'No Change'  : 2
+		]
+
+		// Source address count mode
+		temp = count_mode_values[i.gcombo_source_address_counter.value]
+		src_addr_count_mode = "${["XMC_DMA_CH_ADDRESS_COUNT_MODE_INCREMENT",\
+								  "XMC_DMA_CH_ADDRESS_COUNT_MODE_DECREMENT",\
+								  "XMC_DMA_CH_ADDRESS_COUNT_MODE_NO_CHANGE"][temp]}"
+
+		// Destination address count mode
+		temp = count_mode_values[i.gcombo_destination_address_counter.value]
+		dst_addr_count_mode = "${["XMC_DMA_CH_ADDRESS_COUNT_MODE_INCREMENT",\
+								  "XMC_DMA_CH_ADDRESS_COUNT_MODE_DECREMENT",\
+								  "XMC_DMA_CH_ADDRESS_COUNT_MODE_NO_CHANGE"][temp]}"
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".dst_address_count_mode = ${dst_addr_count_mode}, /* Destination address count mode */")
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".src_address_count_mode = ${src_addr_count_mode}, /* Source address count mode */")
+		
+		// Define burst length values.
+		//
+		// This is used in both source and destination
+		// burst length configuration.
+		def burst_len_values = [
+			'1 word' : 0,
+			'4 words' : 1,
+			'8 words' : 2
+		]
+
+		// Source burst length
+		temp = burst_len_values[i.gcombo_source_burst_width.value]
+		src_burst_length = "${["XMC_DMA_CH_BURST_LENGTH_1",\
+							   "XMC_DMA_CH_BURST_LENGTH_4",\
+							   "XMC_DMA_CH_BURST_LENGTH_8"][temp]}"
+
+		// Destination burst length
+		temp  = burst_len_values[i.gcombo_destination_burst_width.value]
+		dest_burst_length = "${["XMC_DMA_CH_BURST_LENGTH_1",\
+								"XMC_DMA_CH_BURST_LENGTH_4",\
+								"XMC_DMA_CH_BURST_LENGTH_8"][temp]}"
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".dst_burst_length = ${dest_burst_length}, /* Destination burst length */")
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".src_burst_length = ${src_burst_length}, /* Source burst length */")
+		
+		// Source gather, destination scatter: enabled?
+		// Simply read the check-box value in the UI.
+		//
+		out.print("\n")
+		out.print(gen_space(6) + ".enable_src_gather = ${i.gcheck_gather_enable.value}, /* Source gather enabled? */")
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".enable_dst_scatter = ${i.gcheck_scatter_enable.value}, /* Destination scatter enabled? */")
+		
+		def transfer_flow_values = [
+			'Memory to memory (DMA flow controller)'                            : 0,
+			'Memory to peripheral (DMA flow controller)'                        : 1,
+			'Peripheral to memory (DMA flow controller)'                        : 2,
+			'Peripheral to peripheral (DMA flow controller)'                    : 3,
+			'Peripheral to memory (Peripheral flow controller)'                 : 4,
+			'Peripheral to peripheral (Source peripheral flow controller)'      : 5,
+			'Memory to peripheral (Peripheral flow controller)'                 : 6,
+			'Peripheral to peripheral (Destination peripheral flow controller)' : 7
+		]
+		
+		//
+		// Transfer flow type
+		//
+		temp = transfer_flow_values[i.gcombo_transfer_flow.value]
+		transfer_flow = "${["XMC_DMA_CH_TRANSFER_FLOW_M2M_DMA",\
+							"XMC_DMA_CH_TRANSFER_FLOW_M2P_DMA",\
+							"XMC_DMA_CH_TRANSFER_FLOW_P2M_DMA",\
+							"XMC_DMA_CH_TRANSFER_FLOW_P2P_DMA",\
+							"XMC_DMA_CH_TRANSFER_FLOW_P2M_PER",\
+							"XMC_DMA_CH_TRANSFER_FLOW_P2P_SRCPER",\
+							"XMC_DMA_CH_TRANSFER_FLOW_M2P_PER",\
+							"XMC_DMA_CH_TRANSFER_FLOW_P2P_DSTPER"][temp]}"
+		
+		out.print("\n")
+		out.print(gen_space(6) + ".transfer_flow = ${transfer_flow}, /* Transfer flow */")
+		
+		// Generate the closing brace
+		out.print("\n")
+		out.print(gen_space(4) + "},")
+				
+		// Source gather settings
+		if (i.gint_gather_count.enabled && i.gint_gather_interval.enabled) {
+			out.print("\n")
+			out.print(gen_space(4) + ".src_gather_count = (uint32_t)${i.gint_gather_count.value}, /* Gather count */")
+			
+			out.print("\n")
+			out.print(gen_space(4) + ".src_gather_interval = (uint32_t)${i.gint_gather_interval.value}, /* Gather interval */")
+		}
+		
+		// Destination scatter settings
+		if (i.gint_scatter_count.enabled && i.gint_scatter_interval.enabled) {
+			out.print("\n")
+			out.print(gen_space(4) + ".dst_scatter_count = (uint32_t)${i.gint_scatter_count.value}, /* Scatter count */")
+			
+			out.print("\n")
+			out.print(gen_space(4) + ".dst_scatter_interval = (uint32_t)${i.gint_scatter_interval.value}, /* Scatter interval */")
+		}
+		
+		// Get block size
+		out.print("\n")
+		out.print(gen_space(4) + ".block_size = ${i.gint_block_size.value}U, /* Block size */")
+		
+		//
+		// Transfer type
+		//
+		def transfer_type_values = [
+			'Single block'                                                       : 0,
+			'Multi-block: source address contiguous, destination address reload' : 1,
+			'Multi-block: source address reload, destination address contiguous' : 2,
+			'Multi-block: source address reload, destination address reload'     : 3,
+			'Multi-block: source address contiguous, destination address linked' : 4,
+			'Multi-block: source address reload, destination address linked'     : 5,
+			'Multi-block: source address linked, destination address contiguous' : 6,
+			'Multi-block: source address linked, destination address reload'     : 7,
+			'Multi-block: source address linked, destination address linked'     : 8
+		]
+		
+		temp = transfer_type_values[i.gcombo_transfer_type.value]
+		transfer_type = "${["XMC_DMA_CH_TRANSFER_TYPE_SINGLE_BLOCK",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_CONTIGUOUS_DSTADR_RELOAD",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_RELOAD_DSTADR_CONTIGUOUS",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_RELOAD_DSTADR_RELOAD",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_CONTIGUOUS_DSTADR_LINKED",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_RELOAD_DSTADR_LINKED",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_LINKED_DSTADR_CONTIGUOUS",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_LINKED_DSTADR_RELOAD",\
+							"XMC_DMA_CH_TRANSFER_TYPE_MULTI_BLOCK_SRCADR_LINKED_DSTADR_LINKED"][temp]}"
+		
+		// Print transfer flow type
+		out.print("\n")
+		out.print(gen_space(4) + ".transfer_type = ${transfer_type}, /* Transfer type */")
+		
+		
+		// Define priority levels
+		//
+		// This is used in priority settings
+		def prio_levels = [
+			'Priority 0 (Lower)'  : 0,
+			'Priority 1'          : 1,
+			'Priority 2'          : 2,
+			'Priority 3'          : 3,
+			'Priority 4'          : 4,
+			'Priority 5'          : 5,
+			'Priority 6'          : 6,
+			'Priority 7 (Higher)' : 7,
+		]
+		
+		temp = prio_levels[i.gcombo_channel_priority.value]
+		priority_level = "${["XMC_DMA_CH_PRIORITY_0",\
+							 "XMC_DMA_CH_PRIORITY_1",\
+							 "XMC_DMA_CH_PRIORITY_2",\
+							 "XMC_DMA_CH_PRIORITY_3",\
+							 "XMC_DMA_CH_PRIORITY_4",\
+							 "XMC_DMA_CH_PRIORITY_5",\
+							 "XMC_DMA_CH_PRIORITY_6",\
+							 "XMC_DMA_CH_PRIORITY_7"][temp]}"
+		
+		out.print("\n")
+		out.print(gen_space(4) + ".priority = ${priority_level}, /* Priority level */")
+		
+		def handshaking_values = [
+			'Hardware' : 0,
+			'Software' : 1
+		]
+		
+		temp = handshaking_values[i.gcombo_source_handshaking.value]
+		src_handshaking = "${["XMC_DMA_CH_SRC_HANDSHAKING_HARDWARE",\
+							  "XMC_DMA_CH_SRC_HANDSHAKING_SOFTWARE"][temp]}"
+		
+		out.print("\n")
+		
+		def src_per = i.rg_channel.getRegValue("cfgh", "cfgh_src_per")
+		def src_srsel_rs = i.rg_src_dlr.getRegValue("dlr", "srsel_rs")
+		if (i.gcombo_source_handshaking.enabled == true) {
+			out.print(gen_space(4) + ".src_handshaking = ${src_handshaking}, /* Source handshaking */")
+			if (i.gcombo_source_handshaking.value == "Hardware") {
+				out.print("\n")
+				out.print(gen_space(4) + ".src_peripheral_request = DMA_PERIPHERAL_REQUEST(${src_per}, ${src_srsel_rs}), /* Source peripheral trigger */")
+			}
+		}
+		else {
+			out.print(gen_space(4) + ".src_handshaking = XMC_DMA_CH_SRC_HANDSHAKING_SOFTWARE, /* Source handshaking */")
+		}
+		
+		temp = handshaking_values[i.gcombo_destination_handshaking.value]
+		dst_handshaking = "${["XMC_DMA_CH_DST_HANDSHAKING_HARDWARE",\
+							  "XMC_DMA_CH_DST_HANDSHAKING_SOFTWARE"][temp]}"
+		
+		out.print("\n")
+		
+		def dest_per = i.rg_channel.getRegValue("cfgh", "cfgh_dest_per")
+		def dest_srsel_rs = i.rg_dest_dlr.getRegValue("dlr", "srsel_rs")
+		if (i.gcombo_destination_handshaking.enabled == true) {
+			out.print(gen_space(4) + ".dst_handshaking = ${dst_handshaking}, /* Destination handshaking */")
+			if (i.gcombo_destination_handshaking.value == "Hardware") {
+				out.print("\n")
+				out.print(gen_space(4) + ".dst_peripheral_request = DMA_PERIPHERAL_REQUEST(${dest_per}, ${dest_srsel_rs}), /* Destination peripheral trigger */")
+			}
+		}
+		else {
+			out.print(gen_space(4) + ".dst_handshaking = XMC_DMA_CH_DST_HANDSHAKING_SOFTWARE  /* Destination handshaking */")
+		}
+
+		// Generate struct closing brace
+		out.print("\n")
+		out.print(gen_space(2) + "},\n")
+
+
+		def dma_events = []
+		// DMA events
+		if ((i.gcheck_en_err_intr.value == true) && (i.gcheck_en_err_intr.enabled)) {
+			dma_events.add("XMC_DMA_CH_EVENT_ERROR")
+		}
+		if ((i.gcheck_en_blk_intr.value == true) && (i.gcheck_en_blk_intr.enabled)) {
+			dma_events.add("XMC_DMA_CH_EVENT_BLOCK_TRANSFER_COMPLETE")
+		}
+		if ((i.gcheck_en_src_trans_intr.value == true) && (i.gcheck_en_src_trans_intr.enabled)) {
+			dma_events.add("XMC_DMA_CH_EVENT_SRC_TRANSACTION_COMPLETE")
+		}
+		if ((i.gcheck_en_dst_trans_intr.value == true) && (i.gcheck_en_dst_trans_intr.enabled)) {
+			dma_events.add("XMC_DMA_CH_EVENT_DST_TRANSACTION_COMPLETE")
+		}
+		if ((i.gcheck_en_trans_intr.value == true) && (i.gcheck_en_trans_intr.enabled)) {
+			dma_events.add("XMC_DMA_CH_EVENT_TRANSFER_COMPLETE")
+		}
+
+		if (dma_events.size() != 0) {
+			out.print(gen_space(2) + "${i.gstring_dma_ch_event_handler.value},\n");
+			out.print(gen_space(2) + dma_events.join(' | '));
+		}
+		else {
+			/* Notice the two spaces between \n and 0? */
+			out.print(gen_space(2) + "NULL,\n  0U");
+		}
+		
+		out.print("\n};\n");
+		
+		////////////////////////////////////////////////////////////////////////////////
+		//////////  Generate DMA_CH_t structure
+		////////////////////////////////////////////////////////////////////////////////
+
+		out.print("""
+DMA_CH_t ${appInst} =
+{
+""")
+		// Which DMA_GLOBAL instance?
+		temp = 	i.ra_nvic_dma.getInstanceLabel()
+		out.print(outer_space + ".dma_global = &${temp}, /* Which DMA_GLOBAL instance? */")
+		
+		// Get channel configuration
+		out.print("\n")
+		out.print(outer_space + ".config = &${appInst}_CONFIG, /* Channel configuration */")
+		
+		// Get channel ID
+		out.print("\n")
+		out.print(outer_space + ".ch_num = ${ChannelInst}U, /* Channel number */")
+		
+		// Get channel ID
+		out.print("\n")
+		out.print(outer_space + ".reload = ${appInst}_reload")
+		
+		// Close outer loop
+		out.print("""
+};
+""")
+	
+	temp = get_gpdma_module(which_dma)
+	} else { // if (MappedUri_channel != null) {
+		out.print("""/* DMA_CH App is not mapped for App instance: ${instance} */""")
+	}
+	instance++;
+}
+
+/* CODE_BLOCK_END */

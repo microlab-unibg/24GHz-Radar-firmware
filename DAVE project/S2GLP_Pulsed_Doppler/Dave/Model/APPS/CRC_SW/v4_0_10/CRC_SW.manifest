@@ -1,0 +1,157 @@
+package Model.APPS.CRC_SW.v4_0_10;
+
+/*
+Copyright (c) 2015-2019, Infineon Technologies AG
+All rights reserved.                       
+                                           
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:  
+                                                                            
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+disclaimer.                       
+ 
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.                      
+ 
+Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote
+products derived from this software without specific prior written permission.                                          
+                                                                            
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                 
+                                                                            
+To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with 
+Infineon Technologies AG: dave@infineon.com. */
+
+/*************** Revision History **********************************************
+ Version       Date        Description 
+
+  4.0.0       16-Feb-2015   Initial version for DAVE v4
+  4.0.1       23-Apr-2015   review comments fixed
+  4.0.2       16-Jun-2015   version updated for public release  
+  4.0.4       09-Oct-2015   Added support for XMC1400 and XMC4800
+  4.0.6       15-Dec-2015   1. Modified to accept the initial crc value as 0x00/0xFF <br>
+                            2. Support added for XMC4300 
+  4.0.8       30-Nov-2017   Fix inversion operation
+  4.0.10      20-Sep-2019   Fix compilation warning when filling tables (sign issues)<br>
+                            Added option to locate CRC tables in flash<br>
+			    Added CRC_SW_UpdateCRC()<br>
+*******************************************************************************/
+// Import statements
+import ifx.davex.app.manifest.*
+
+class CRC_SW extends CRC_SW_GUI {
+
+	// Note  : Following App properties are mandatory and important
+	// Begin : App property section
+	def version            = '4.0.10'
+	
+    def categoriesDescription = ["General Purpose/Miscellaneous"] 
+
+	// Minimum DAVE version required for the App
+	def minDaveVersion           = '4.0.0'
+	
+	// Keywords to search in Apps selection view
+	def keywords      = [
+						 "Software CRC", 
+						 "Polynomial", 
+						 "Checksum", 
+						 "all" ]
+	
+	def softwareIDs   = [
+	                     "XMC4.*.*.*.*":"1.0.0",
+						 "XMC1.*.*.*.*":"1.0.0"
+		                ]
+
+
+	def singleton     = false
+	def initProvider  = true
+	def deprecated    = false
+	def sharable      = true
+
+	// App short description 
+	def description = "Computes the CRC result on a block of data using software CRC implementation."
+	
+	// End   : App property section
+	
+	// Begin : User variable section
+	
+	// End   : User variable section
+
+	// App Constructor
+	public CRC_SW(DaveEnv daveEnv) {
+		gcombo_init_crc_value.enabled = MF({gcheck_init_crc_value.value == true},Boolean)
+		
+		gcombo_init_crc_value.options = MF({ 
+			                                List l =['0','0xFF','0xFFFF','0xFFFFFFFF'];
+											if(gcombo_init_crc_value.enabled == true)
+											{
+												
+												if(gint_crc_width.value == 8)
+												{
+											      l.clear()		
+												  l.add('0')
+												  l.add('0xFF')	
+												}
+											    else if(gint_crc_width.value > 8 && gint_crc_width.value <= 16)
+												{
+													l.clear()
+													l.add('0')
+													l.add('0xFFFF')
+												}
+												else 
+												{
+													l.clear()
+													l.add('0')
+													l.add('0xFFFFFFFF')
+												}
+										    }
+										    else
+										    {
+												0
+										    }	
+										   return l; },List)
+		
+
+		gint_poly.maxValue = MF({  
+									if(gint_crc_width.value == 8)
+									{
+										255
+									}
+									else if(gint_crc_width.value > 8 && gint_crc_width.value <= 16)
+									{
+										(1 << (gint_crc_width.value)) - 1
+									}
+									else if(gint_crc_width.value > 16 && gint_crc_width.value <= 31)
+									{
+										(1 << (gint_crc_width.value)) - 1
+									}
+									else if(gint_crc_width.value == 32)
+									{
+										4294967295
+									}
+									else
+									{
+										0
+									}
+								},Integer)
+		
+		gmessage_valid_polynomial.visible = MF({((gint_poly.value % 2) == 0)}, Boolean)
+				
+	}
+	
+	// File Generation
+	def generateFiles(){
+	 copy("crc_sw.c", "crc_sw.c")
+	 copy("crc_sw.h", "crc_sw.h")
+	 generate("crc_sw_confc.tmpl", "crc_sw_conf.c")
+	 generate("crc_sw_confh.tmpl", "crc_sw_conf.h")
+	 generate("crc_sw_externh.tmpl", "crc_sw_extern.h")
+
+	}
+	
+}

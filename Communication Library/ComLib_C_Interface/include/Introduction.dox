@@ -1,0 +1,132 @@
+/**
+ * \mainpage Radar Communication library
+ *
+ * \section intro_sec Introduction
+ *
+ * The communication protocol is a generic protocol to exchange messages with
+ * microcontroller based devices over a generic byte stream connection
+ * (typically a virtual serial port over USB). The communication is always
+ * initiated by the host, while the connected microcontroller device responds
+ * to messages received from the host.
+ *
+ * The protocol defines two types of messages, payload messages and status
+ * messages. A payload message contains a block of data with arbitrary size
+ * and meaning. A status message contains a 16 bit status code. Messages from
+ * the host to the device are always payload messages. Whenever the device
+ * receives a payload message from the host, it responds with one (and only
+ * one) status message. The device may also send an arbitrary number of
+ * additional payload messages preceding that status message. Once the device
+ * has sent the status message, it won't send any more messages until it
+ * receives a new message from the host.
+ *
+ * Each message from the host to the device is addressed to a certain logical
+ * endpoint and each message from the device to the host is sent from a
+ * logical endpoint. The number of logical endpoints is defined by the device.
+ * Endpoints are continuously enumerated starting with 1. At least one logical
+ * endpoint is always present. Endpoints are used to define functional groups
+ * in the device.
+ *
+ * Each logical endpoint is of a defined type, which defines the meaning of
+ * the message payload exchanged with that endpoint. Additionally each
+ * endpoint has a version number that allows to distinguish between slight
+ * modifications of the endpoints set of known messages. The host can query
+ * type and version of the endpoints present in the device.
+ *
+ * All data received from the connected device is returned through callbacks. 
+ * For each message type that can be received from the device, a separate callback 
+ * function type is defined. 
+ 
+ * The user must register the callback function for each message type. 
+ * If no callback function is registered the received message is ignored. Additionally the 
+ * user can provide a data context pointer for each callback function that will be forwarded with 
+ * any call to that function. 
+ * 
+ * Example for Endpoint enumeration.
+ *
+\code
+#include <stdint.h>
+
+int main (int argc, char *argv[])
+{
+  char pComPortName[] = "COM5"; /* insert true COM port name here */
+  int32_t iProtocolHandle;
+  uint8_t uEndpointRadarBase = 0;
+  
+  iProtocolHandle = protocol_connect(pComPortName);
+  
+  if (iProtocolHandle < 0)
+  {
+    /*
+       An error has occurred. The error can be handled here.
+       In this example the error code is used as exit code.
+     */
+    return iProtocolHandle;
+  }
+
+  /* Check all endpoints for the searched Radar Base endpoint */  
+  for (uint8_t i = 1; i <= protocol_get_num_endpoints(iProtocolHandle); ++i)
+  {
+    int iCompatibility;
+
+    /* use the appropriate endpoint function to check compatibility */
+    iCompatibility = ep_radar_base_is_compatible_endpoint(iProtocolHandle, i);
+                
+    if (iCompatibility == PROTOCOL_ERROR_ENDPOINT_VERSION_TOO_OLD)
+    {
+      /*
+         The current endpoint is not compatible
+         --------------------------------------
+         The endpoint implementation in the library is newer than the endpoint implementation
+         in the connected device.
+         A firmware update of the device is recommended.
+       */
+    }
+    else if (iCompatibility == PROTOCOL_ERROR_ENDPOINT_VERSION_TOO_NEW)
+    {
+      /*
+         The current endpoint is not compatible
+         --------------------------------------
+         The endpoint implementation in the library is older than the endpoint implementation
+         in the connected device.
+         A library update is recommended.
+       */
+    }
+    else if (iCompatibility == 0)
+    {
+      /*
+         The current endpoint is a compatible radar base endpoint,
+         so remember the endpoint number and continue with next endpoint.
+       */
+      uEndpointRadarBase = i;
+      continue;
+    }
+  
+    /*
+       For each required endpoint type the code above can be repeated to find the endpoint numbers.
+     */
+  }
+  
+  if (uEndpointRadarBase == 0)
+  {
+    /*
+       The connected device does not contain an endpoint of type radar base. There is nothing left to do
+       but closing the connection and quit the application.
+     */
+     protocol_disconnect(iProtocolHandle);
+     return -1;
+  }
+  
+  /*
+     Now the protocol can be used. iProtocolHandle and uEndpointRadarBase must be forwarded to all
+     function calls of EndpointRadarBase.
+   */
+
+  /* ... */
+  
+  /* Finally close the connection before quitting the application */
+  protocol_disconnect(iProtocolHandle);
+
+  return 0;
+}
+\endcode
+ */

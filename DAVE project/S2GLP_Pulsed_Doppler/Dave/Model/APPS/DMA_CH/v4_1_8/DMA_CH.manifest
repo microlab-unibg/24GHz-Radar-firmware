@@ -1,0 +1,363 @@
+package Model.APPS.DMA_CH.v4_1_8;
+
+
+/*
+Copyright (c) 2015, Infineon Technologies AG
+All rights reserved.                       
+                                           
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:  
+                                                                            
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+disclaimer.                       
+ 
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided with the distribution.                      
+ 
+Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote
+products derived from this software without specific prior written permission.                                          
+                                                                            
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                 
+                                                                            
+To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with 
+Infineon Technologies AG: dave@infineon.com. */
+
+/*************** Revision History **********************************************
+ Version      Date          Description
+
+  4.0.0      16-Feb-2015   Initial version for DAVEv4
+  4.0.1      20-Feb-2015   1. Handle src/dst address updates with new APIs in DMA LLD <br>
+                           2. Documentation updates <br>
+  4.1.0      20-May-2015   1. Some of the functions are now static inline <br>
+                           2. Minor enhancements in DMA_CH_Init() implementation <br>
+                           3. The major, minor and patch numbers are now auto-magically updated using Groovy. <br>
+                           4. New wrapper APIs added for convenience <br>
+  4.1.2      19-Jun-2015   1. Renamed Channelconfiguration to reload. <br>
+                           2. Added new API DMA_CH_Reload().<br>
+                           3. Renamed the Event Settings tab to Interrupt Settings.<br>
+                           4. Added the constraint (only advanced channels) on DMA channel for scatter/gather support.<br>
+  4.1.4      09-Jul-2015   1. Documentation updates <br>
+                           2. DMA_CH (Request #70158): Fix source and destination address handling <br>
+  4.1.6      09-Oct-2015   Source/destination address: UI tooltip improvements <br>
+  4.1.8      15-Dec-2015   Added support for XMC4300.
+*******************************************************************************/
+
+// Import statements
+import ifx.davex.app.manifest.*
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+class  DMA_CH extends DMA_CH_GUI {
+	def version = '4.1.8'
+
+	def categoriesDescription = [
+		"System"
+	]
+
+	// Minimum DAVE version required for the App
+	def minDaveVersion = '4.0.0'
+
+	// Keywords to search in Apps selection view
+	def keywords = [
+		"DMA",
+		"DMA channel",
+		"Direct Memory Access",
+		"GPDMA",
+		"all"
+	]
+
+	// Software IDs and its required minimum version
+	//
+	// The DMA module is available on the Infineon
+	// XMC4000 series of microcontrollers.
+	def softwareIDs = [	                     
+		                 "XMC4.8.*.*.*":"1.0.0",
+		                 "XMC4.7.*.*.*":"1.0.0",
+		                 "XMC4.5.*.*.*":"1.0.0",
+		                 "XMC4.4.*.*.*":"1.0.0",
+						 "XMC4.3.*.*.*":"1.0.0",
+		                 "XMC4.2.*.*.*":"1.0.0",
+		                 "XMC4.1.*.*.*":"1.0.0"
+					  ]
+
+	def singleton    = false
+	def initProvider = true
+	def deprecated   = false
+	def sharable     = true
+	def ioApp        = false
+
+	// App short description
+	def description = "The DMA_CH APP is used to perform single and multi-block data transfer using the GPDMA module on XMC4000"
+
+	// Begin : User variable section
+	// Resource groups.
+	MVirtualResourceGroup rg_channel
+	MVirtualResourceGroup rg_src_dlr
+	MVirtualResourceGroup rg_dest_dlr
+	
+	// Virtual signals
+	MVirtualSignal event
+	MVirtualSignal channel_src_req
+	MVirtualSignal channel_dest_req
+	
+	MVirtualSignal src_peri_trig
+	MVirtualSignal src_trigger_out
+	MVirtualSignal dst_peri_trig
+	MVirtualSignal dest_trigger_out
+
+	// Required Apps
+	MRequiredApp ra_nvic_dma
+	MVirtualSignalRA nvic_dma_irq
+	
+	// Solver variables
+	SolverVariable DD = SolverVariable()
+	SolverVariable CH = SolverVariable()
+
+	// DMA_CH Constructor
+	public DMA_CH (DaveEnv daveEnv) {
+		String fn_regexp = ~/^[^\d\W]\w*\Z/
+		
+		// What is the required App for DMA_CH?
+		ra_nvic_dma = MRequiredApp("GLOBAL_DMA", "GLOBAL_DMA", RSHARABLE, "4.0.2", true)
+
+		gcombo_source_handshaking.enabled = MF({
+			gcombo_transfer_flow.value != "Memory to memory (DMA flow controller)" &&
+			gcombo_transfer_flow.value != "Memory to peripheral (DMA flow controller)" &&
+			gcombo_transfer_flow.value != "Memory to peripheral (Peripheral flow controller)"
+		}, Boolean)
+
+		gcombo_source_handshaking.options = MF({
+			if (gcombo_transfer_flow.value == "Peripheral to memory (DMA flow controller)" ||
+			    gcombo_transfer_flow.value == "Peripheral to peripheral (DMA flow controller)") {
+				["Software", "Hardware"]
+			}
+			else {
+				["Software"]
+			}		
+		}, List)
+
+		gcombo_destination_handshaking.enabled = MF({		
+			gcombo_transfer_flow.value != "Memory to memory (DMA flow controller)" &&
+			gcombo_transfer_flow.value != "Peripheral to memory (DMA flow controller)" &&
+			gcombo_transfer_flow.value != "Peripheral to memory (Peripheral flow controller)"
+		}, Boolean)
+
+		gcombo_destination_handshaking.options = MF({
+			if (gcombo_transfer_flow.value == "Memory to peripheral (DMA flow controller)" ||
+			    gcombo_transfer_flow.value == "Peripheral to peripheral (DMA flow controller)") {
+				["Software", "Hardware"]
+			}
+			else {
+				["Software"]
+			}
+		}, List)
+		
+		//
+		// If a peripheral is the flow controller, the block size input should
+		// be disabled. Also, if linked-list is enabled, the block-size input is
+		// disabled too!
+		//
+
+		gint_block_size.enabled = MF({
+			(gcombo_transfer_flow.value.contains("DMA flow controller") &&
+			 (gcombo_transfer_type.value.contains("linked") == false))
+		}, Boolean)
+		
+		//
+		// If the transfer type is a linked multi-block then the block size,
+		// source and destination groups should be disabled but the linked list
+		// pointer is enabled. Otherwise the linked list pointer should remain
+		// disabled
+		//
+		
+		gstring_linked_list_ptr.enabled = MF({
+			gcombo_transfer_type.value.contains("linked")
+		}, Boolean)
+		
+		// Linked list specific configuration:
+		// If LL is enabled, disable all other widgets in the source and destination
+		// blocks except the handshaking.
+		
+		gstring_source_address.enabled = MF({
+			(gcombo_transfer_type.value.contains("source address linked") == false)
+		}, Boolean)
+		
+		gcombo_source_address_counter.enabled = MF({
+			(gcombo_transfer_type.value.contains("source address linked") == false)
+		}, Boolean)
+		
+		gcombo_source_single_transfer_width.enabled = MF({
+			(gcombo_transfer_type.value.contains("source address linked") == false)
+		}, Boolean)
+		
+		gcombo_source_burst_width.enabled = MF({
+			(gcombo_transfer_type.value.contains("source address linked") == false)
+		}, Boolean)
+		
+		gstring_destination_address.enabled = MF({
+			(gcombo_transfer_type.value.contains("destination address linked") == false)
+		}, Boolean)
+		
+		gcombo_destination_address_counter.enabled = MF({
+			(gcombo_transfer_type.value.contains("destination address linked") == false)
+		}, Boolean)
+		
+		gcombo_destination_single_transfer_width.enabled = MF({
+			(gcombo_transfer_type.value.contains("destination address linked") == false)
+		}, Boolean)
+		
+		gcombo_destination_burst_width.enabled = MF({
+			(gcombo_transfer_type.value.contains("destination address linked") == false)
+		}, Boolean)
+		
+		//
+		// If none of the interrupt specific check-boxes
+		// are enabled, you simply disable the DMA channel
+		// event handler.
+		//
+		
+		gcheck_en_src_trans_intr.enabled = MF({
+			(gcombo_source_handshaking.value == "Hardware") 
+		}, Boolean)
+
+		gcheck_en_dst_trans_intr.enabled = MF({
+			(gcombo_destination_handshaking.value == "Hardware")			
+		}, Boolean)
+
+		gstring_dma_ch_event_handler.enabled = MF({
+			((gcheck_en_src_trans_intr.value  && gcheck_en_src_trans_intr.enabled) ||
+			 (gcheck_en_dst_trans_intr.value && gcheck_en_dst_trans_intr.enabled) ||
+			 gcheck_en_err_intr.value       ||
+			 gcheck_en_blk_intr.value       ||
+			 gcheck_en_trans_intr.value)
+		}, Boolean)
+		
+		//
+		// Check for the case when the user enters a
+		// syntactically invalid function
+		//
+		gmessage_ch_event_handler.visible = MF({
+			Matcher matcher = (gstring_dma_ch_event_handler.value =~ fn_regexp)
+			Boolean exp_match = !matcher.matches()
+			((gstring_dma_ch_event_handler.enabled) && exp_match)
+		}, Boolean)
+		
+		//
+		// Source gather, destination scatter: Enable widgets only when the
+		// enable check-box is true
+		//
+		
+		// Gather count
+		gint_gather_count.enabled = MF({
+			(gcheck_gather_enable.value)
+		}, Boolean)
+		
+		gint_gather_interval.enabled = MF({
+			(gcheck_gather_enable.value)
+		}, Boolean)
+		
+		gint_scatter_count.enabled = MF({
+			(gcheck_scatter_enable.value)
+		}, Boolean)
+		
+		gint_scatter_interval.enabled = MF({
+			(gcheck_scatter_enable.value)
+		}, Boolean)
+		
+		//
+		// Virtual resource groups
+		//
+		rg_channel =  MVirtualResourceGroup("DMA Channel", ["peripheral", DD, "0", CH, "*"])
+		addUriElementRangeConstraint(DD, MF({
+			if (gcombo_transfer_type.value.contains("Single block")) {
+				["dma4", "dma8"]
+			} else {
+				["dma8"]
+			}
+		}, List))
+		
+		addUriElementRangeConstraint(CH, MF({
+			if (gcombo_transfer_type.value.contains("Single block")) {
+				["ch", "ch_adv"]
+			} else {
+				["ch_adv"]
+			}
+		}, List))
+		
+		addUriElementRangeConstraint(CH, MF({
+			if ((gcheck_scatter_enable.value == true) || (gcheck_gather_enable.value == true)) {
+				["ch_adv"]
+			} 
+		}, List))
+
+		rg_src_dlr = MVirtualResourceGroup("DMA DLR", 
+			                               ["peripheral", "dlr", "0", "ch", "*"], 
+			                               MF({(gcombo_source_handshaking.value == "Hardware") && gcombo_source_handshaking.visible}, Boolean))
+		
+		rg_dest_dlr = MVirtualResourceGroup("DMA DLR",
+			                                ["peripheral", "dlr", "0", "ch", "*"],
+			                                MF({(gcombo_destination_handshaking.value == "Hardware") && gcombo_destination_handshaking.visible}, Boolean))
+		
+		
+		event =  MVirtualSignal(rg_channel, "Channel event", "dma_int", true, false)
+		channel_src_req = MVirtualSignal(rg_channel, "src_req", "src_req", true, false)
+		channel_dest_req = MVirtualSignal(rg_channel, "dest_req", "dest_req", true, false)
+		
+		src_peri_trig = MVirtualSignal(rg_src_dlr,
+									   "source_trigger",
+									   "in",
+									   MF({(gcombo_source_handshaking.value == "Hardware") && gcombo_source_handshaking.visible}, Boolean),
+									   true)
+		
+		src_trigger_out = MVirtualSignal(rg_src_dlr,
+										 "dlr_out",
+										 "out",
+										 MF({(gcombo_source_handshaking.value == "Hardware") && gcombo_source_handshaking.visible}, Boolean),
+										 false)
+		
+		dst_peri_trig = MVirtualSignal(rg_dest_dlr,
+									   "destination_trigger",
+										 "in",
+									   MF({(gcombo_destination_handshaking.value == "Hardware") && gcombo_destination_handshaking.visible}, Boolean),
+									   true)
+		
+		dest_trigger_out = MVirtualSignal(rg_dest_dlr,
+										  "dlr_out",
+										  "out",
+										  MF({(gcombo_destination_handshaking.value == "Hardware") && gcombo_destination_handshaking.visible}, Boolean),
+										  false)
+			
+		//
+		// Virtual signals
+		//
+		nvic_dma_irq = MVirtualSignalRA(ra_nvic_dma, "interrupt_dma")
+		
+		addConnectionConstraint(event, nvic_dma_irq, true)
+		
+		addConnectionConstraint(src_trigger_out,
+								channel_src_req,
+								MF({(gcombo_source_handshaking.value == "Hardware") && gcombo_source_handshaking.visible}, Boolean))
+
+		addConnectionConstraint(dest_trigger_out,
+								channel_dest_req,
+								MF({(gcombo_destination_handshaking.value == "Hardware") && gcombo_destination_handshaking.visible}, Boolean))
+	}
+	
+	//
+	// Generates target files
+	//
+	def generateFiles () {
+		copy("dma_ch.c", "dma_ch.c")
+		copy("dma_ch.h", "dma_ch.h")
+		generate("dma_ch_externh.tmpl", "dma_ch_extern.h")
+		generate("dma_ch_confh.tmpl", "dma_ch_conf.h")
+		generate("dma_ch_confc.tmpl", "dma_ch_conf.c")
+	}
+}

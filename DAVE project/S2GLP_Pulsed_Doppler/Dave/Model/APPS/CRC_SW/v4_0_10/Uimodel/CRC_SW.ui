@@ -1,0 +1,60 @@
+<p1:Tab  xmlns="http://www.eclipse.org/xwt/presentation" xmlns:x="http://www.eclipse.org/xwt" xmlns:p1="clr-namespace:com.ifx.davex.ui.controls.app" x:Class="e" layout="{x:Null}">
+	<p1:TabFolder bounds="5, 5, 500, 600">
+		<p1:GTab text="General Settings" widgetName="gtab_general" visible="true" enabled="true">
+			<p1:GTab.control>
+				<p1:Tab>
+					<p1:Tab.layout>
+						<GridLayout/>
+					</p1:Tab.layout>
+					<p1:GGroup text="CRC Configuration" widgetName="ggroup_crcconfig" description="CRC configuration">
+						<p1:GGroup.layout>
+							<GridLayout numColumns="2"/>
+						</p1:GGroup.layout>
+						<p1:GGroup.layoutData>
+							<GridData widthHint="475" heightHint="137" horizontalAlignment="FILL"/>
+						</p1:GGroup.layoutData>
+						<p1:GCheck text="Initial CRC value:" manifestObj="true" widgetName="gcheck_init_crc_value" description="Enables to assign initial CRC value"/>
+						<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" widgetName="gcombo_init_crc_value" options="0&#13;&#10;0xFF" value="0" description="Initial crc value can be: &lt;br&gt;&#13;&#10;For 8-bit, 0x00 / 0xFF &lt;br&gt;&#13;&#10;For 16-bit, 0x00 / 0xFFFF &lt;br&gt;&#13;&#10;For 32-bit, 0x00 / 0xFFFFFFFF &lt;br&gt;">
+							<p1:GCombo.layoutData>
+								<GridData grabExcessHorizontalSpace="true" widthHint="141"/>
+							</p1:GCombo.layoutData>
+						</p1:GCombo>
+						<p1:GLabel text="CRC width[8-bit to 32-bit]:" visible="true" widgetName="glabel_crc_width"/>
+						<p1:GInteger x:Style="NONE" minValue="8" maxValue="32" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" manifestObj="true" widgetName="gint_crc_width" value="8" description="CRC width" toolTipText="Set the width to get equivalent checksum result.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="34"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+						<p1:GLabel text="Polynomial:" visible="true" widgetName="glabel_poly" description="polynomial"/>
+						<p1:GInteger x:Style="NONE" minValue="1" maxValue="MAX_VALUE" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" manifestObj="true" widgetName="gint_poly" value="0xd5" formatVisible="true" description="Polynomial(MAX_VALUE is proportionate to (1 &lt;&lt; (gint_crc_width.value)) - 1)" toolTipText="Set the CRC polynomial. To increase accuracy, only odd polynomial is allowed.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="143"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+						<p1:GMessage text="Note: Polynomial is invalid" visible="true" manifestObj="true" isError="false" widgetName="gmessage_valid_polynomial" description="Displays polynomial is valid or invalid">
+							<p1:GMessage.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GMessage.layoutData>
+						</p1:GMessage>
+					</p1:GGroup>
+					<p1:GGroup text="Algorithm Control" widgetName="ggroup_algo" description="Algorithm Control" toolTipText="">
+						<p1:GGroup.layout>
+							<GridLayout/>
+						</p1:GGroup.layout>
+						<p1:GGroup.layoutData>
+							<GridData widthHint="269" horizontalAlignment="FILL" heightHint="74"/>
+						</p1:GGroup.layoutData>
+						<p1:GCheck text="Input data bytewise reflection" manifestObj="true" widgetName="gcheck_refin" description="Input data bytewise reflection"/>
+						<p1:GCheck text="Output CRC bitwise reflection" manifestObj="true" widgetName="gcheck_refout" description="Output CRC bitwise reflection"/>
+						<p1:GCheck text="Output CRC inversion" manifestObj="true" widgetName="gcheck_xorout" description="Output CRC inversion"/>
+					</p1:GGroup>
+					<p1:GCheck text="Store tables in ROM" manifestObj="true" widgetName="gcheck_rom_tables" description="By default, our implementation uses tables that are located in RAM. You can store them in ROM by enabling the checkbox." toolTipText="You can store the CRC tables in ROM by enabling this checkbox. This is a RAM-ROM trade-off.">
+						<p1:GCheck.layoutData>
+							<GridData horizontalAlignment="FILL"/>
+						</p1:GCheck.layoutData>
+					</p1:GCheck>
+				</p1:Tab>
+			</p1:GTab.control>
+		</p1:GTab>
+	</p1:TabFolder>
+</p1:Tab>

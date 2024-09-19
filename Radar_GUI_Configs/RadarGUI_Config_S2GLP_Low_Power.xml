@@ -1,0 +1,57 @@
+<Device firmwareVersion="v3.0.0" name="Sense2GoL Pulse">
+  <Acquisition framePeriod_msec="200.0"/>
+  <TjbaEndpoint>
+    <TJBABoardInfo>
+      <major_version>2</major_version>
+      <minor_version>0</minor_version>
+      <rf_shield_type_id>RBBPDV30</rf_shield_type_id>
+      <description>XMC4700 Radar baseboard V2.0</description>
+    </TJBABoardInfo>
+  </TjbaEndpoint>
+  <TjpuEndpoint>
+    <TJPUShieldInfo>
+      <rf_frequency_khz>24050000</rf_frequency_khz>
+      <major_version>3</major_version>
+      <minor_version>0</minor_version>
+      <num_tx_antenna>1</num_tx_antenna>
+      <num_rx_antenna>1</num_rx_antenna>
+      <max_tx_power_dbm>0</max_tx_power_dbm>
+      <rf_shield_type_id>RBBPDV30</rf_shield_type_id>
+      <description>Sense2GoL Pulse BGT24LTR11 shield V3.0</description>
+      <modulation>Pulsed Doppler</modulation>
+    </TJPUShieldInfo>
+    <DeviceInfo>
+      <shortName>Sense2GoL Pulse</shortName>
+      <description>Sense2GoL Pulse BGT24LTR11 shield V3.0</description>
+      <minRfFrequency_kHz>0</minRfFrequency_kHz>
+      <maxRfFrequency_kHz>24050000</maxRfFrequency_kHz>
+      <numAntennasTx>1</numAntennasTx>
+      <numAntennasRx>2</numAntennasRx>
+      <maxTxPowerLevel>0</maxTxPowerLevel>
+      <numTempSensors>0</numTempSensors>
+      <majorVersionHW>3</majorVersionHW>
+      <minorVersionHW>0</minorVersionHW>
+      <interleavedRX>false</interleavedRX>
+      <rxDataFormat>RADAR_RX_DATA_COMPLEX</rxDataFormat>
+    </DeviceInfo>
+    <FrameFormat>
+      <numSamplesPerChirp>64</numSamplesPerChirp>
+      <numChirpsPerFrame>1</numChirpsPerFrame>
+      <rxMask>3</rxMask>
+      <signalPart>RADAR_SIGNAL_I_AND_Q</signalPart>
+    </FrameFormat>
+    <TJPUPulseParaValues>
+      <max_speed_mps>3.0</max_speed_mps>
+      <min_speed_mps>0.2</min_speed_mps>
+      <frame_time_sec>0.2</frame_time_sec>
+      <number_of_samples_nu>64</number_of_samples_nu>
+      <sampling_freq_hz>2000.0</sampling_freq_hz>
+      <doppler_sensitivity_nu>50.0</doppler_sensitivity_nu>
+      <motion_sensitivity_nu>10.0</motion_sensitivity_nu>
+      <use_high_gain_doppler_bool>1</use_high_gain_doppler_bool>
+      <continuous_mode_bool>0</continuous_mode_bool>
+      <number_of_skip_samples_nu>25</number_of_skip_samples_nu>
+      <pulse_width_usec>5</pulse_width_usec>
+    </TJPUPulseParaValues>
+  </TjpuEndpoint>
+</Device>

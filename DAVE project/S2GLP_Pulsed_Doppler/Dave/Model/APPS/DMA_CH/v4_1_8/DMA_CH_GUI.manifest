@@ -1,0 +1,101 @@
+package Model.APPS.DMA_CH.v4_1_8;
+
+// Import statements
+import ifx.davex.app.manifest.*
+
+abstract class DMA_CH_GUI extends AppManifest {
+	/* Begin : UI variable section */
+	 public GTab gtab_ch_config;
+	 public GTab gtab_int_config;
+	 public GInteger gint_block_size;
+	 public GInteger gint_gather_count;
+	 public GInteger gint_gather_interval;
+	 public GInteger gint_scatter_count;
+	 public GInteger gint_scatter_interval;
+	 public GCombo gcombo_transfer_type;
+	 public GCombo gcombo_transfer_flow;
+	 public GCombo gcombo_channel_priority;
+	 public GCombo gcombo_source_address_counter;
+	 public GCombo gcombo_source_single_transfer_width;
+	 public GCombo gcombo_source_burst_width;
+	 public GCombo gcombo_source_handshaking;
+	 public GCombo gcombo_destination_address_counter;
+	 public GCombo gcombo_destination_single_transfer_width;
+	 public GCombo gcombo_destination_burst_width;
+	 public GCombo gcombo_destination_handshaking;
+	 public GString gstring_source_address;
+	 public GString gstring_destination_address;
+	 public GString gstring_linked_list_ptr;
+	 public GString gstring_dma_ch_event_handler;
+	 public GCheck gcheck_gather_enable;
+	 public GCheck gcheck_scatter_enable;
+	 public GCheck gcheck_en_trans_intr;
+	 public GCheck gcheck_en_blk_intr;
+	 public GCheck gcheck_en_src_trans_intr;
+	 public GCheck gcheck_en_dst_trans_intr;
+	 public GCheck gcheck_en_err_intr;
+	 public GLabel glabel_block_size;
+	 public GLabel glabel_source_handshaking;
+	 public GLabel glabel_destination_handshaking;
+	 public GLabel glabel_linked_list_ptr;
+	 public GLabel glabel_gather_count;
+	 public GLabel glabel_gather_interval;
+	 public GLabel glabel_scatter_count;
+	 public GLabel glabel_scatter_interval;
+	 public GLabel glabel_dma_ch_event_handler;
+	 public GGroup group_source_data;
+	 public GGroup group_destination_data;
+	 public GGroup group_scatter_gather_settings;
+	 public GGroup group_event_gen_config;
+	 public GMessage gmessage_ch_event_handler;
+
+	 public DMA_CH_GUI(DaveEnv daveEnv){
+
+	 gtab_ch_config = GTab(widgetName:"gtab_ch_config", text:"Channel Settings", enabled:true, visible:true)
+	 gtab_int_config = GTab(widgetName:"gtab_int_config", text:"Interrupt Settings", enabled:true, visible:true)
+	 gint_block_size = GInteger(widgetName:"gint_block_size", value:1, minValue:1, maxValue:4095, enabled:true, visible:true, isMandatoryValue:false)
+	 gint_gather_count = GInteger(widgetName:"gint_gather_count", value:0, minValue:0, maxValue:4095, enabled:true, visible:true, isMandatoryValue:false)
+	 gint_gather_interval = GInteger(widgetName:"gint_gather_interval", value:0, minValue:0, maxValue:1048575, enabled:true, visible:true, isMandatoryValue:false)
+	 gint_scatter_count = GInteger(widgetName:"gint_scatter_count", value:0, minValue:0, maxValue:4095, enabled:true, visible:true, isMandatoryValue:false)
+	 gint_scatter_interval = GInteger(widgetName:"gint_scatter_interval", value:0, minValue:0, maxValue:1048575, enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_transfer_type = GCombo(widgetName:"gcombo_transfer_type", options:["Single block","Multi-block: source address contiguous, destination address reload","Multi-block: source address reload, destination address contiguous","Multi-block: source address reload, destination address reload","Multi-block: source address contiguous, destination address linked","Multi-block: source address reload, destination address linked","Multi-block: source address linked, destination address contiguous","Multi-block: source address linked, destination address reload","Multi-block: source address linked, destination address linked"], value:"Single block", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_transfer_flow = GCombo(widgetName:"gcombo_transfer_flow", options:["Memory to memory (DMA flow controller)","Memory to peripheral (DMA flow controller)","Peripheral to memory (DMA flow controller)","Peripheral to peripheral (DMA flow controller)","Peripheral to memory (Peripheral flow controller)","Peripheral to peripheral (Source peripheral flow controller)","Memory to peripheral (Peripheral flow controller)","Peripheral to peripheral (Destination peripheral flow controller)"], value:"Memory to memory (DMA flow controller)", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_channel_priority = GCombo(widgetName:"gcombo_channel_priority", options:["Priority 0 (Lower)","Priority 1","Priority 2","Priority 3","Priority 4","Priority 5","Priority 6","Priority 7 (Higher)"], value:"Priority 0 (Lower)", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_source_address_counter = GCombo(widgetName:"gcombo_source_address_counter", options:["Increment","Decrement","No Change"], value:"Increment", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_source_single_transfer_width = GCombo(widgetName:"gcombo_source_single_transfer_width", options:["8 bits","16 bits","32 bits"], value:"32 bits", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_source_burst_width = GCombo(widgetName:"gcombo_source_burst_width", options:["1 word","4 words","8 words"], value:"1 word", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_source_handshaking = GCombo(widgetName:"gcombo_source_handshaking", options:["Hardware","Software"], value:"Software", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_destination_address_counter = GCombo(widgetName:"gcombo_destination_address_counter", options:["Increment","Decrement","No Change"], value:"Increment", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_destination_single_transfer_width = GCombo(widgetName:"gcombo_destination_single_transfer_width", options:["8 bits","16 bits","32 bits"], value:"32 bits", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_destination_burst_width = GCombo(widgetName:"gcombo_destination_burst_width", options:["1 word","4 words","8 words"], value:"1 word", enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_destination_handshaking = GCombo(widgetName:"gcombo_destination_handshaking", options:["Hardware","Software"], value:"Software", enabled:true, visible:true, isMandatoryValue:false)
+	 gstring_source_address = GString(widgetName:"gstring_source_address", value:"0x0", enabled:true, visible:true, isMandatoryValue:false)
+	 gstring_destination_address = GString(widgetName:"gstring_destination_address", value:"0x0", enabled:true, visible:true, isMandatoryValue:false)
+	 gstring_linked_list_ptr = GString(widgetName:"gstring_linked_list_ptr", value:"0x0", enabled:true, visible:true, isMandatoryValue:false)
+	 gstring_dma_ch_event_handler = GString(widgetName:"gstring_dma_ch_event_handler", value:"user_event_handler", enabled:true, visible:true, isMandatoryValue:false)
+	 gcheck_gather_enable = GCheck(widgetName:"gcheck_gather_enable", value:false, enabled:true, visible:true)
+	 gcheck_scatter_enable = GCheck(widgetName:"gcheck_scatter_enable", value:false, enabled:true, visible:true)
+	 gcheck_en_trans_intr = GCheck(widgetName:"gcheck_en_trans_intr", value:false, enabled:true, visible:true)
+	 gcheck_en_blk_intr = GCheck(widgetName:"gcheck_en_blk_intr", value:false, enabled:true, visible:true)
+	 gcheck_en_src_trans_intr = GCheck(widgetName:"gcheck_en_src_trans_intr", value:false, enabled:true, visible:true)
+	 gcheck_en_dst_trans_intr = GCheck(widgetName:"gcheck_en_dst_trans_intr", value:false, enabled:true, visible:true)
+	 gcheck_en_err_intr = GCheck(widgetName:"gcheck_en_err_intr", value:false, enabled:true, visible:true)
+	 glabel_block_size = GLabel(widgetName:"glabel_block_size", text:"Block size:", enabled:true, visible:true)
+	 glabel_source_handshaking = GLabel(widgetName:"glabel_source_handshaking", text:"Handshaking:", enabled:true, visible:true)
+	 glabel_destination_handshaking = GLabel(widgetName:"glabel_destination_handshaking", text:"Handshaking:", enabled:true, visible:true)
+	 glabel_linked_list_ptr = GLabel(widgetName:"glabel_linked_list_ptr", text:"Linked list pointer:", enabled:true, visible:true)
+	 glabel_gather_count = GLabel(widgetName:"glabel_gather_count", text:"Gather count:", enabled:true, visible:true)
+	 glabel_gather_interval = GLabel(widgetName:"glabel_gather_interval", text:"Gather interval:", enabled:true, visible:true)
+	 glabel_scatter_count = GLabel(widgetName:"glabel_scatter_count", text:"Scatter count:", enabled:true, visible:true)
+	 glabel_scatter_interval = GLabel(widgetName:"glabel_scatter_interval", text:"Scatter interval:", enabled:true, visible:true)
+	 glabel_dma_ch_event_handler = GLabel(widgetName:"glabel_dma_ch_event_handler", text:"DMA channel event handler:", enabled:true, visible:true)
+	 group_source_data = GGroup(widgetName:"group_source_data", text:"Source", enabled:true, visible:true)
+	 group_destination_data = GGroup(widgetName:"group_destination_data", text:"Destination", enabled:true, visible:true)
+	 group_scatter_gather_settings = GGroup(widgetName:"group_scatter_gather_settings", text:"Scatter/Gather Settings", enabled:true, visible:true)
+	 group_event_gen_config = GGroup(widgetName:"group_event_gen_config", text:"Channel Transfer Event Settings", enabled:true, visible:true)
+	 gmessage_ch_event_handler = GMessage(widgetName:"gmessage_ch_event_handler", text:"Invalid handler function name", isError:false, visible:true)
+
+
+	 }
+	/* End : UI variable section */
+}

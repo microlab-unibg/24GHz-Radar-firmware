@@ -1,0 +1,33 @@
+package Model.APPS.CRC_SW.v4_0_10;
+
+// Import statements
+import ifx.davex.app.manifest.*
+
+abstract class CRC_SW_GUI extends AppManifest {
+	/* Begin : UI variable section */
+	 public GInteger gint_crc_width;
+	 public GInteger gint_poly;
+	 public GCombo gcombo_init_crc_value;
+	 public GCheck gcheck_init_crc_value;
+	 public GCheck gcheck_refin;
+	 public GCheck gcheck_refout;
+	 public GCheck gcheck_xorout;
+	 public GCheck gcheck_rom_tables;
+	 public GMessage gmessage_valid_polynomial;
+
+	 public CRC_SW_GUI(DaveEnv daveEnv){
+
+	 gint_crc_width = GInteger(widgetName:"gint_crc_width", value:8, minValue:8, maxValue:32, enabled:true, visible:true, isMandatoryValue:false)
+	 gint_poly = GInteger(widgetName:"gint_poly", value:213, minValue:1, maxValue:Long.MAX_VALUE, enabled:true, visible:true, isMandatoryValue:false)
+	 gcombo_init_crc_value = GCombo(widgetName:"gcombo_init_crc_value", options:["0","0xFF"], value:"0", enabled:true, visible:true, isMandatoryValue:false)
+	 gcheck_init_crc_value = GCheck(widgetName:"gcheck_init_crc_value", value:false, enabled:true, visible:true)
+	 gcheck_refin = GCheck(widgetName:"gcheck_refin", value:false, enabled:true, visible:true)
+	 gcheck_refout = GCheck(widgetName:"gcheck_refout", value:false, enabled:true, visible:true)
+	 gcheck_xorout = GCheck(widgetName:"gcheck_xorout", value:false, enabled:true, visible:true)
+	 gcheck_rom_tables = GCheck(widgetName:"gcheck_rom_tables", value:false, enabled:true, visible:true)
+	 gmessage_valid_polynomial = GMessage(widgetName:"gmessage_valid_polynomial", text:"Note: Polynomial is invalid", isError:false, visible:true)
+
+
+	 }
+	/* End : UI variable section */
+}

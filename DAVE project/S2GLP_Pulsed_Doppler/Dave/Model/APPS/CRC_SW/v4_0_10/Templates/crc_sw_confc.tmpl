@@ -1,0 +1,198 @@
+package Model.APPS.CRC_SW.v4_0_10.Templates;
+
+import Model.APPS.CRC_SW.v4_0_10.CRC_SW
+
+out.print("""
+/**
+ * @cond
+ ***********************************************************************************************************************
+ *
+ * Copyright (c) 2015, Infineon Technologies AG
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,are permitted provided that the
+ * following conditions are met:
+ *
+ *   Redistributions of source code must retain the above copyright notice, this list of conditions and the  following
+ *   disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *   following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *   Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote
+ *   products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT  OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes
+ * with Infineon Technologies AG (dave@infineon.com).
+ ***********************************************************************************************************************
+ *
+ * Change History
+ * --------------
+ *
+ * 2015-02-16:
+ *     - Initial version<br>
+ *
+ * 2015-04-06:
+ *     - comments added <br>
+ *
+ * 2017-11-30:
+ *     - Fix inversion
+ *
+ * 2019-06-24:
+ *     - Fix compilation warning when filling tables (sign issues)
+ *     - Added option to locate CRC tables in flash
+ * @endcond
+ *
+ */
+
+/***********************************************************************************************************************
+ * HEADER FILES
+ **********************************************************************************************************************/
+#include "crc_sw.h"	
+
+/**********************************************************************************************************************
+ * DATA STRUCTURES
+ **********************************************************************************************************************/
+""");	
+String appInst  = null; 
+Integer msb_mask = 1;
+Integer crc_shift;
+Integer crc_mask;
+Integer crc = 0;
+Integer i, j;
+Integer poly;
+Integer temp = 0;
+Integer data= 0;
+Integer len = 0;
+List table = [];
+
+for(Object crcInst : appInstancesList ) 
+{
+  appInst   = crcInst.getInstanceLabel()
+
+  msb_mask = 1 << (crcInst.gint_crc_width.value - 1);
+  crc_mask =  (msb_mask - 1) | msb_mask;
+  poly = crcInst.gint_poly.value;
+  poly = poly & crc_mask;
+  
+  for(i = 0; i < 256; i++)
+  {
+    if(crcInst.gcheck_refin.value == true)
+    {
+      data = i; 
+      temp = data & 0x01;
+      
+      for(len = 1; len < 8; len++)
+      {
+      	data = data >> 1;
+      	temp = (temp << 1) | (data & 0x01);
+      }
+      crc = temp; 
+    } 
+    else
+    {
+      crc = i;
+    }
+    crc = crc << (crcInst.gint_crc_width.value - 8);
+
+  for(j = 0; j < 8; j++)
+  {
+  	if ((crc & msb_mask)!= 0)
+  	{
+    	crc = (crc << 1) ^ poly;
+  	}
+  	else
+  	{
+     	crc = crc << 1;
+   	}
+  }
+ 
+  if(crcInst.gcheck_refin.value == true)
+  {
+  	data = crc;
+  	temp = data & 0x01;
+  	len = crcInst.gint_crc_width.value;
+  	for (j = 1; j < len; j++)
+  	{
+  	  data = data >> 1;
+      temp = (temp << 1) | (data & 0x01);
+   	}
+	crc = temp;
+  }
+
+  table[i] = (crc & crc_mask);
+} 
+  
+  int width = crcInst.gint_crc_width.value; 
+  if (width <= 8)
+  {
+out.print("""	  
+/* Look up table for the crc-width ranging from 1-bit to 8-bit CRC computation */
+static ${crcInst.gcheck_rom_tables.value ? "const" : ""} int8_t crc_table_${appInst}[256] = 
+{""");
+  }
+  else if (width > 8 && width <= 16)
+  {
+out.print("""
+/* Look up table for the crc-width ranging from 9-bit to 16-bit CRC computation */
+static ${crcInst.gcheck_rom_tables.value ? "const" : ""} int16_t crc_table_${appInst}[256] = 
+{""");
+  }
+  else 
+  { 
+out.print("""
+/* Look up table for the crc-width ranging from 17-bit to 32-bit CRC computation */
+static ${crcInst.gcheck_rom_tables.value ? "const" : ""} int32_t crc_table_${appInst}[256] = 
+{""");
+  }
+   
+for(i = 0; i < 256; i++)
+{
+out.print("""\n${table[i]},""");
+} 
+out.print("""\n};""");
+out.print("""
+CRC_SW_CONFIG_t ${appInst}_config =
+{
+  .crc_width = ${crcInst.gint_crc_width.value},
+  .crc_poly = ${crcInst.gint_poly.value},
+  .crc_initval = ${crcInst.gcombo_init_crc_value.value},
+  .input_reflection =  ${crcInst.gcheck_refin.value},
+  .output_reflection = ${crcInst.gcheck_refout.value},
+  .output_inversion = 0x${Long.toHexString(crcInst.gcheck_xorout.value ? 0xffffffff : 0x0)}U
+};""");
+
+out.print("""
+CRC_SW_t ${crcInst.getInstanceLabel()} = 
+{
+  .config = &${appInst}_config,
+  .crc_runningval = 0U,
+  .msb_mask = 0U,
+  .crc_mask = 0U,
+  .crc_shift = 0U,
+  .crctable = (uint32_t*)&crc_table_${appInst},""");
+if(crcInst.gint_crc_width.value == 8 )
+{
+  out.print("""\n  .tableoffset = 1U""");
+}
+else if(crcInst.gint_crc_width.value > 8 && crcInst.gint_crc_width.value <= 16 )
+{
+  out.print("""\n  .tableoffset = 2U""");
+}
+else
+{
+  out.print("""\n  .tableoffset = 4U""");
+}
+out.print("""\n};""");
+};
+ 
+
+

@@ -1,0 +1,234 @@
+<p1:Tab  xmlns="http://www.eclipse.org/xwt/presentation" xmlns:x="http://www.eclipse.org/xwt" xmlns:p1="clr-namespace:com.ifx.davex.ui.controls.app" x:Class="e" widgetName="composite1" layout="{x:Null}">
+	<p1:TabFolder bounds="5, 5, 500, 541">
+		<p1:GTab text="Channel Settings" visible="true" enabled="true" manifestObj="true" widgetName="gtab_ch_config">
+			<p1:GTab.control>
+				<p1:Tab widgetName="tab1_composite1">
+					<p1:Tab.layout>
+						<GridLayout numColumns="3" horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10"/>
+					</p1:Tab.layout>
+					<p1:GLabel text="Transfer type:" visible="true" widgetName="glabel_transfer_type">
+						<p1:GLabel.layoutData>
+							<GridData widthHint="103"/>
+						</p1:GLabel.layoutData>
+					</p1:GLabel>
+					<p1:GCombo widgetName="gcombo_transfer_type" options="Single block&#13;&#10;Multi-block: source address contiguous, destination address reload&#13;&#10;Multi-block: source address reload, destination address contiguous&#13;&#10;Multi-block: source address reload, destination address reload&#13;&#10;Multi-block: source address contiguous, destination address linked&#13;&#10;Multi-block: source address reload, destination address linked&#13;&#10;Multi-block: source address linked, destination address contiguous&#13;&#10;Multi-block: source address linked, destination address reload&#13;&#10;Multi-block: source address linked, destination address linked&#13;&#10;" value="Single block" manifestObj="true" description="Select the type of DMA transfer: &lt;br&gt;&lt;br&gt;&#13;&#10;A combo-box is provided to set the configuration." toolTipText="Select DMA transfer type.">
+						<p1:GCombo.layoutData>
+							<GridData widthHint="346" horizontalSpan="2"/>
+						</p1:GCombo.layoutData>
+					</p1:GCombo>
+					<p1:GLabel text="Transfer flow:" visible="true" widgetName="glabel_transfer_flow"/>
+					<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_transfer_flow" options="Memory to memory (DMA flow controller)&#13;&#10;Memory to peripheral (DMA flow controller)&#13;&#10;Peripheral to memory (DMA flow controller)&#13;&#10;Peripheral to peripheral (DMA flow controller)&#13;&#10;Peripheral to memory (Peripheral flow controller)&#13;&#10;Peripheral to peripheral (Source peripheral flow controller)&#13;&#10;Memory to peripheral (Peripheral flow controller)&#13;&#10;Peripheral to peripheral (Destination peripheral flow controller)" manifestObj="true" value="Memory to memory (DMA flow controller)" description="Select the DMA transfer flow type." toolTipText="Select the DMA transfer flow.">
+						<p1:GCombo.layoutData>
+							<GridData widthHint="328" horizontalSpan="2" horizontalAlignment="FILL"/>
+						</p1:GCombo.layoutData>
+					</p1:GCombo>
+					<p1:GLabel text="Priority:" visible="true" widgetName="glabel_channel_priority"/>
+					<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_channel_priority" options="Priority 0 (Lower)&#13;&#10;Priority 1&#13;&#10;Priority 2&#13;&#10;Priority 3&#13;&#10;Priority 4&#13;&#10;Priority 5&#13;&#10;Priority 6&#13;&#10;Priority 7 (Higher)&#13;&#10;" manifestObj="true" value="Priority 0 (Lower)" description="Assign the channel priority." toolTipText="Assign the channel priority.">
+						<p1:GCombo.layoutData>
+							<GridData widthHint="120" horizontalSpan="2" horizontalAlignment="FILL"/>
+						</p1:GCombo.layoutData>
+					</p1:GCombo>
+					<p1:GLabel text="Block size:" visible="true" widgetName="glabel_block_size" manifestObj="true"/>
+					<p1:GInteger x:Style="NONE" minValue="1" maxValue="4095" format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" manifestObj="true" widgetName="gint_block_size" value="1" description="The processor programs the GPDMA with the number of data items (block size) of source transfer width (CTL.SRC_TR_WIDTH) to be transferred by the GPDMA in a block transfer. The unit for block size is the transfer width. e.g: Block size * 16 bits.&lt;br&gt;&lt;br&gt;&#13;&#10;For more information, please refer to section 5.2.2 in the XMC4500 reference manual. &lt;br&gt;&lt;br&gt;&#13;&#10;The maximum value for this field is 0xFFF (4095 in decimal)." toolTipText="Assign the block size.">
+						<p1:GInteger.layoutData>
+							<GridData widthHint="91" horizontalSpan="2" horizontalAlignment="FILL"/>
+						</p1:GInteger.layoutData>
+					</p1:GInteger>
+					<p1:GGroup text="Source" widgetName="group_source_data" manifestObj="true">
+						<p1:GGroup.layoutData>
+							<GridData horizontalSpan="2" horizontalAlignment="CENTER"/>
+						</p1:GGroup.layoutData>
+							<p1:GGroup.layout>
+								<GridLayout numColumns="2" horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10"/>
+							</p1:GGroup.layout>
+							<p1:GLabel text="Address:" visible="true" widgetName="glabel_source_address"/>
+							<p1:GString x:Style="BORDER" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gstring_source_address" manifestObj="true" value="0x0" description="Source address: &lt;br&gt;&lt;br&gt;&#13;&#10;This option permits the configuration of the DMA source address. Alternatively, a C symbol identifier can also be provided here. The C cymbol (a pointer of type uint32_t, to an array perhaps) should be defined in the Main.c file. &lt;br&gt;&lt;br&gt;&#13;&#10;An example is provided below: &lt;br&gt;&lt;br&gt;&#13;&#10;uint32_t tx_buf_arr[256]; &lt;br&gt;&#13;&#10;uint32_t rx_buf_arr[256]; &lt;br&gt;&#13;&#10;uint32_t *tx_ptr = (uint32_t *)tx_buf_arr; &lt;br&gt;&#13;&#10;uint32_t *rx_ptr = (uint32_t *)rx_buf_arr; &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;Consider another example which involves peripheral (ADC) to memory DMA transfer. The source address shall be declared as a global pointer and defined in the main (before DAVE_Init()) like this: &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;uint32_t rx_buf[100]; &lt;br&gt;&#13;&#10;uint32_t *tx_ptr; &lt;br&gt;&#13;&#10;uint32_t *rx_ptr = (uint32_t *)rx_buf; &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;In main(), (before DAVE_Init()): &lt;br&gt;&lt;br&gt;&#13;&#10;tx_ptr = (uint32_t*)&amp;ADC_MEASUREMENT_Channel_A.group_handle-&gt;RES[ADC_MEASUREMENT_Channel_A.ch_handle-&gt;result_reg_number]; &lt;br&gt;&#13;&#10;" toolTipText="DMA source address.&#13;&#10;Absolute address or C symbols are permitted.">
+								<p1:GString.layoutData>
+									<GridData widthHint="80"/>
+								</p1:GString.layoutData>
+							</p1:GString>
+							<p1:GLabel text="Address counter:" visible="true" widgetName="glabel_source_address_counter"/>
+							<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_source_address_counter" text="Increment" options="Increment&#13;&#10;Decrement&#13;&#10;No Change" manifestObj="true" value="Increment" description="Source increment: &lt;br&gt;&lt;br&gt;&#13;&#10;The GPDMA channels can be programmed with the source and destination addresses. The transfer mode can be set to one of the following: &lt;br&gt;&lt;br&gt;&#13;&#10;(1) Address increment&lt;br&gt;&#13;&#10;(2) Address decrement or &lt;br&gt;&#13;&#10;(3) No change.&#13;&#10;" toolTipText="Select the source address count mode.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel text="Transfer width:" visible="true" widgetName="glabel_source_single_transfer_width"/>
+							<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_source_single_transfer_width" options="8 bits&#13;&#10;16 bits&#13;&#10;32 bits" manifestObj="true" value="32 bits" description="Source single transfer width: &lt;br&gt;&lt;br&gt;&#13;&#10;Transfer width times block size should provide the total memory size being transferred.&#13;&#10;" toolTipText="Select DMA source transfer width.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel text="Burst width:" visible="true" widgetName="glabel_source_burst_width"/>
+							<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_source_burst_width" options="1 word&#13;&#10;4 words&#13;&#10;8 words" manifestObj="true" value="1 word" description="Source DMA burst width: &lt;br&gt;&lt;br&gt;&#13;&#10;This permits configuration of the number of elements transferred at once in a single transfer. This combo-box can be used to select one of three valid values: 1, 4 and 8.&#13;&#10;" toolTipText="Select DMA source burst width.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel text="Handshaking:" visible="true" widgetName="glabel_source_handshaking" manifestObj="true"/>
+							<p1:GCombo mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gcombo_source_handshaking" options="Hardware&#13;&#10;Software" manifestObj="true" value="Software" description="Every DMA transaction requires a trigger. This option selects between a hardware and software trigger for a transfer between a peripheral and a memory device. &lt;br&gt;&lt;br&gt;&#13;&#10;For more information please check section 5.2.3 in the XMC4500 reference manual.&#13;&#10;" toolTipText="Select DMA source handshaking mode.">
+								<p1:GCombo.layoutData>
+									<GridData widthHint="89" horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+						</p1:GGroup>
+					<p1:GGroup widgetName="group_destination_data" text="Destination" manifestObj="true">
+						<p1:GGroup.layoutData>
+							<GridData horizontalAlignment="CENTER"/>
+						</p1:GGroup.layoutData>
+							<p1:GGroup.layout>
+								<GridLayout numColumns="2" horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10"/>
+							</p1:GGroup.layout>
+							<p1:GLabel widgetName="glabel_destination_address" text="Address:" visible="true"/>
+							<p1:GString x:Style="BORDER" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" widgetName="gstring_destination_address" manifestObj="true" value="0x0" description="Destination address: &lt;br&gt;&lt;br&gt;&#13;&#10;This option permits the configuration of the DMA destination address. Alternatively, a C symbol identifier can also be provided here. The C cymbol (a pointer of type uint32_t, to an array perhaps) should be defined in the Main.c file.&lt;br&gt;&lt;br&gt;&#13;&#10;An example is provided below: &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;uint32_t tx_buf_arr[256]; &lt;br&gt;&#13;&#10;uint32_t rx_buf_arr[256]; &lt;br&gt;&#13;&#10;uint32_t *tx_ptr = (uint32_t *)tx_buf_arr; &lt;br&gt;&#13;&#10;uint32_t *rx_ptr = (uint32_t *)rx_buf_arr; &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;Consider another example which involves memory to peripheal (UART) DMA transfer. The destination address shall be declared as a global pointer and defined in the main (before DAVE_Init()) like this: &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;uint32_t tx_buf[100]; &lt;br&gt;&#13;&#10;uint32_t *rx_ptr; &lt;br&gt;&#13;&#10;uint32_t *tx_ptr = (uint32_t *)tx_buf; &lt;br&gt;&lt;br&gt;&#13;&#10;&#13;&#10;In main(), (before DAVE_Init()): &lt;br&gt;&lt;br&gt;&#13;&#10;rx_ptr = (uint32_t*)&amp;UART_0.channel-&gt;TBUF; &lt;br&gt;&#13;&#10;" toolTipText="DMA destination address.&#13;&#10;Absolute address or C symbols are permitted.">
+								<p1:GString.layoutData>
+									<GridData horizontalAlignment="FILL" widthHint="80"/>
+								</p1:GString.layoutData>
+							</p1:GString>
+							<p1:GLabel widgetName="glabel_destination_address_counter" text="Address counter:" visible="true"/>
+							<p1:GCombo widgetName="gcombo_destination_address_counter" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" options="Increment&#13;&#10;Decrement&#13;&#10;No Change" manifestObj="true" value="Increment" description="Destination increment: &lt;br&gt;&lt;br&gt;&#13;&#10;The GPDMA channels can be programmed with the source and destination addresses. The transfer mode can be set to one of the following: &lt;br&gt;&lt;br&gt;&#13;&#10;(1) Address increment &lt;br&gt;&#13;&#10;(2) Address decrement or &lt;br&gt;&#13;&#10;(3) No change." toolTipText="Select the destination address count mode.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel widgetName="glabel_destination_single_transfer_width" text="Transfer width:" visible="true"/>
+							<p1:GCombo widgetName="gcombo_destination_single_transfer_width" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" options="8 bits&#13;&#10;16 bits&#13;&#10;32 bits" manifestObj="true" value="32 bits" description="Destination single transfer width: &lt;br&gt;&lt;br&gt;&#13;&#10;Transfer width times block size should provide the total memory size being transferred." toolTipText="Select DMA destination transfer width.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel widgetName="glabel_destination_burst_width" text="Burst width:" visible="true"/>
+							<p1:GCombo widgetName="gcombo_destination_burst_width" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" options="1 word&#13;&#10;4 words&#13;&#10;8 words" manifestObj="true" value="1 word" description="Destination DMA burst width: &lt;br&gt;&lt;br&gt;&#13;&#10;This permits configuration of the number of elements transferred at once in a single transfer. This combo-box can be used to select one of three valid values: 1, 4 and 8." toolTipText="Select DMA destination burst width.">
+								<p1:GCombo.layoutData>
+									<GridData horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+							<p1:GLabel text="Handshaking:" visible="true" widgetName="glabel_destination_handshaking" manifestObj="true"/>
+							<p1:GCombo description="Every DMA transaction requires a trigger. This option selects between a hardware and software trigger for a transfer between a memory device and a peripheral. &lt;br&gt;&lt;br&gt;&#13;&#10;For more information please check section 5.2.3 in the XMC4500 reference manual.&#13;&#10;" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" options="Hardware&#13;&#10;Software" value="Software" widgetName="gcombo_destination_handshaking" toolTipText="Select DMA destination handshaking mode.">
+								<p1:GCombo.layoutData>
+									<GridData grabExcessHorizontalSpace="true" horizontalAlignment="FILL"/>
+								</p1:GCombo.layoutData>
+							</p1:GCombo>
+						</p1:GGroup>
+					<p1:GLabel text="Linked list pointer:" visible="true" widgetName="glabel_linked_list_ptr" manifestObj="true"/>
+					<p1:GString x:Style="BORDER" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" widgetName="gstring_linked_list_ptr" value="0x0" toolTipText="DMA linked-list pointer." description="Linked list pointer: &lt;br&gt;&lt;br&gt;&#13;&#10;This option permits the configuration of the DMA linked-list addresse. Alternatively, a C symbol identifier can also be provided here. The C cymbol (of type XMC_DMA_LLI_t) should be defined in the Main.c file. &lt;br&gt;&lt;br&gt;&#13;&#10;The main DMA_CH handle structure will contain an address or a reference to the C symbol provided here in the text-box.">
+						<p1:GString.layoutData>
+							<GridData widthHint="80" horizontalSpan="2"/>
+						</p1:GString.layoutData>
+					</p1:GString>
+					<p1:GGroup text="Scatter/Gather Settings" manifestObj="true" widgetName="group_scatter_gather_settings">
+						<p1:GGroup.layoutData>
+							<GridData horizontalSpan="3" widthHint="438" horizontalAlignment="FILL"/>
+						</p1:GGroup.layoutData>
+						<p1:GGroup.layout>
+							<GridLayout numColumns="5" horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10"/>
+						</p1:GGroup.layout>
+						<p1:GCheck description="This check-box can be used to enable/disable the gather feature provided by the advanced DMA channels." manifestObj="true" text="Enable source gather" widgetName="gcheck_gather_enable" toolTipText="Enable DMA source gather.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<Label/>
+						<Label/>
+						<Label/>
+						<p1:GLabel manifestObj="true" text="Gather count:" visible="true" widgetName="glabel_gather_count">
+							<p1:GLabel.layoutData>
+								<GridData widthHint="88"/>
+							</p1:GLabel.layoutData>
+						</p1:GLabel>
+						<p1:GInteger description="This widget can be used to configure the gather count.&#13;&#10;" format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" maxValue="4095" minValue="0" widgetName="gint_gather_count" value="0" toolTipText="Assign DMA source gather count.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="71"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+						<Label/>
+						<p1:GLabel manifestObj="true" text="Gather interval:" visible="true" widgetName="glabel_gather_interval">
+							<p1:GLabel.layoutData>
+								<GridData widthHint="89"/>
+							</p1:GLabel.layoutData>
+						</p1:GLabel>
+						<p1:GInteger description="This widget can be used to configure the gather interval." format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" maxValue="1048575" minValue="0" widgetName="gint_gather_interval" value="0x00" toolTipText="Assign DMA source gather interval.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="78"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+						<p1:GCheck description="This check-box can be used to enable/disable the scatter feature provided by the advanced DMA channels.&#13;&#10;" text="Enable destination scatter&#13;&#10;" widgetName="gcheck_scatter_enable" manifestObj="true" toolTipText="Enable DMA destination scatter.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<Label/>
+						<Label/>
+						<Label/>
+						<p1:GLabel manifestObj="true" text="Scatter count:" visible="true" widgetName="glabel_scatter_count"/>
+						<p1:GInteger description="This widget can be used to configure the scatter count." format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" maxValue="4095" minValue="0" widgetName="gint_scatter_count" value="0" toolTipText="Assign DMA destination scatter count.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="66"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+						<Label/>
+						<p1:GLabel manifestObj="true" text="Scatter interval:" visible="true" widgetName="glabel_scatter_interval"/>
+						<p1:GInteger description="This widget can be used to configure the scatter interval." format="(com.ifx.davex.ui.controls.util.AppUiConstants).DEC" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" maxValue="1048575" minValue="0" widgetName="gint_scatter_interval" value="0x00" toolTipText="Assign DMA destination scatter interval.">
+							<p1:GInteger.layoutData>
+								<GridData widthHint="79"/>
+							</p1:GInteger.layoutData>
+						</p1:GInteger>
+					</p1:GGroup>
+				</p1:Tab>
+			</p1:GTab.control>
+		</p1:GTab>
+		<p1:GTab text="Interrupt Settings" widgetName="gtab_int_config" visible="true" enabled="true" manifestObj="true">
+			<p1:GTab.control>
+				<p1:Tab widgetName="composite4">
+					<p1:Tab.layout>
+						<GridLayout numColumns="2" horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10"/>
+					</p1:Tab.layout>
+					<p1:GGroup text="Channel Transfer Event Settings" manifestObj="true" widgetName="group_event_gen_config">
+						<p1:GGroup.layoutData>
+							<GridData horizontalSpan="2" widthHint="457"/>
+						</p1:GGroup.layoutData>
+						<p1:GGroup.layout>
+							<GridLayout horizontalSpacing="10" marginBottom="5" marginLeft="5" marginRight="5" marginTop="5" verticalSpacing="10" numColumns="2"/>
+						</p1:GGroup.layout>
+						<p1:GCheck text="Enable DMA transfer complete event" widgetName="gcheck_en_trans_intr" description="Enable transfer complete interrupt." manifestObj="true" toolTipText="Enable DMA transfer complete event.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2" grabExcessHorizontalSpace="true"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<p1:GCheck text="Enable block transfer complete event" widgetName="gcheck_en_blk_intr" description="Enable block complete interrupt." manifestObj="true" toolTipText="Enable DMA block transfer complete event.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<p1:GCheck text="Enable source transaction complete event" widgetName="gcheck_en_src_trans_intr" manifestObj="true" description="Enable source transaction complete interrupt" toolTipText="Enable DMA source transaction complete event.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<p1:GCheck manifestObj="true" text="Enable destination transaction complete event" widgetName="gcheck_en_dst_trans_intr" description="Enable destination transaction complete interrupt." toolTipText="Enable DMA destination transaction complete event.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<p1:GCheck manifestObj="true" text="Enable error event" widgetName="gcheck_en_err_intr" description="Enable error interrupt." toolTipText="Enable DMA error event.">
+							<p1:GCheck.layoutData>
+								<GridData horizontalSpan="2"/>
+							</p1:GCheck.layoutData>
+						</p1:GCheck>
+						<p1:GLabel text="DMA channel event handler:" visible="true" manifestObj="true" widgetName="glabel_dma_ch_event_handler"/>
+						<p1:GString x:Style="BORDER" mandatory="(com.ifx.davex.ui.controls.util.AppUiConstants).FALSE" manifestObj="true" widgetName="gstring_dma_ch_event_handler" value="user_event_handler" toolTipText="User callback function to process events." description="User event handler (callback): &lt;br&gt;&lt;br&gt;&#13;&#10;This widget configures the DMA user callback for DMA events.  A valid C function identifier must be provided here. The function should be defined in the user code. It should have the following signature:&lt;br&gt;&lt;br&gt;&#13;&#10;void user_event_handler (XMC_DMA_CH_EVENT_t event);&#13;&#10; &lt;br&gt;&lt;br&gt;&#13;&#10;The DMA_CH handle structure will contain a reference to the callback function, the name for which is provided in this text-box.">
+							<p1:GString.layoutData>
+								<GridData horizontalAlignment="FILL"/>
+							</p1:GString.layoutData>
+						</p1:GString>
+					</p1:GGroup>
+					<p1:GMessage text="Invalid handler function name" visible="true" manifestObj="true" isError="false" widgetName="gmessage_ch_event_handler" toolTipText="The entered function name is invalid. Please enter a valid C function name.">
+						<p1:GMessage.layoutData>
+							<GridData heightHint="22" widthHint="388" horizontalSpan="2" horizontalAlignment="FILL"/>
+						</p1:GMessage.layoutData>
+					</p1:GMessage>
+				</p1:Tab>
+			</p1:GTab.control>
+		</p1:GTab>
+	</p1:TabFolder>
+</p1:Tab>
