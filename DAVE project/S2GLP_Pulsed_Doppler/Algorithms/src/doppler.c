@@ -56,6 +56,7 @@ static float   fft_fast_window_buffer[FFT_SIZE];
 static uint32_t fft_fast_window_flag = 0;
 static FFT_Window_Struct_t fft_fast_time_window =
 {
+	//
   .fft_window_type = FFT_WINDOW_CHEBYSHEV,       /* Type of window defined by \ref FFT_Window_Type_t */
   .fft_size = FFT_SIZE_256,                      /* FFT size \ref FFT_Size_t  */
   .fft_window_length = 0,                        /* Number of elements in the FFT window  */
@@ -139,6 +140,8 @@ void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1
 	float if1_real, if1_imag;
 
 	uint8_t motion_detected    = 0U;
+	uint8_t breath_detected    = 0U;
+	uint8_t hearthbeat_detected= 0U;
 	uint8_t motion_departing   = 0U;
 	uint8_t motion_approaching = 0U;
 	float   doppler_frequency  = 0.0f;
@@ -153,9 +156,12 @@ void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1
 	doppler_spectrum[0] = 0; // remove DC from spectrum
 	doppler_spectrum[FFT_SIZE/2] = 0; // remove DC from middle bin
 
-	uint32_t fft_min_check = (uint32_t) ceilf(cp_algo_settings->min_speed_kmph*44.4f*FFT_SIZE/cp_dev_settings->adc_sampling_freq_Hz);
+	///uint32_t fft_min_check = (uint32_t) ceilf(cp_algo_settings->min_speed_kmph*44.4f*FFT_SIZE/cp_dev_settings->adc_sampling_freq_Hz);
+	uint32_t fft_min_check = (uint32_t) ceilf(cp_algo_settings->min_breath_hz*000f*FFT_SIZE/cp_dev_settings->adc_sampling_freq_Hz); 
+	uint32_t fft_max_check = (uint32_t) ceilf(cp_algo_settings->max_heartbeat_hz*000f*FFT_SIZE/cp_dev_settings->adc_sampling_freq_Hz);
 
-	uint32_t size_check = FFT_SIZE - 2*fft_min_check + 1;
+	//uint32_t size_check = FFT_SIZE - 2*fft_min_check + 1;
+	uint32_t size_check = fft_max_heartbeat - fft_min_breath +1;
 
 	/* Calculates maxValue and returns corresponding BIN value */
 	arm_max_f32(&doppler_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
@@ -165,7 +171,7 @@ void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1
 
 	doppler_level = maxVal;
 
-	if (maxVal > (float) cp_algo_settings->speed_detection_threshold) // if the threshold is exceeded, we have a doppler event
+	/*if (maxVal > (float) cp_algo_settings->speed_detection_threshold) // if the threshold is exceeded, we have a doppler event
 	{
 		if (maxBin < FFT_SIZE / 2)
 	    {
@@ -209,6 +215,16 @@ void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1
 	if (maxVal > (float) cp_algo_settings->motion_detection_threshold) // if the threshold is exceeded, we have a doppler event
 	{
 		motion_detected = 1;
+	}*/
+
+	//aggiungo rilevazione parametri respiro
+	if (maxVal >= cp_algo_settings-> min_breath && maxVal <= cp_algo_settings-> max_breath){
+		p_algo_result-> breath_detected = 1;
+	}
+
+	//aggiungo rilevazione parametri battitocardiaco
+	if (maxVal >= cp_algo_settings-> min_heartbeat_threshold && maxVal <= cp_algo_settings-> max_heartbeat_threshold){
+		p_algo_result-> heartbeat_detected = 1;
 	}
 
 	if (p_algo_result)

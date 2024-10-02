@@ -103,6 +103,8 @@ typedef struct
   uint8_t 	target_departing;   				/**< set to 1 if target is departing */
   uint8_t 	target_approaching; 				/**< set to 1 if target is approaching */
   uint8_t   motion_detected;					/**< set to 1 if motion is detected */
+  uint8_t   breath_detected;              /**< set to 1 if breath is detected */
+  uint8_t   hearthbeat_detected;          /**< set to 1 if motion is detected */
   float		doppler_frequency_hz;  				/**< doppler frequency, detected by algorithm */
   float     *p_doppler_spectrum; 				/**< pointer to doppler spectrum */
   uint32_t  doppler_spectrum_elems;				/**< number of spectrum elements */
@@ -119,6 +121,10 @@ typedef struct algo_settings_TAG
   float    speed_detection_threshold;
   float    min_speed_kmph;
   float    max_speed_kmph;
+  float    min_breath;
+  float    max_breath;
+  float    min_herathbeat;
+  float    max_hearthbeat;
   uint32_t use_high_gain_doppler;
   float    motion_detection_threshold;
 } algo_settings_t;
