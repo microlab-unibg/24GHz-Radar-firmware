@@ -14,6 +14,7 @@
 ** This document contains proprietary information of Infineon Technologies AG.
 ** Passing on and copying of this document, and communication of its contents
 ** is not permitted without Infineon's prior written authorization.
+** algoritmo modificato per analizzare battito e respiro.
 ** ===========================================================================
 */
 
