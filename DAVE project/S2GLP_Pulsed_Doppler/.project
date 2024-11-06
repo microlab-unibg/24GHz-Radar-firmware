@@ -25,6 +25,7 @@
 		<nature>com.ifx.davex.daveExpertNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
 	<filteredResources>
 		<filter>

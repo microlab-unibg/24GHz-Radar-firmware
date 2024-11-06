@@ -1,0 +1,782 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_const_structs.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .global arm_rfft_sR_q15_len8192
+  20              	 .global arm_rfft_sR_q15_len4096
+  21              	 .global arm_rfft_sR_q15_len2048
+  22              	 .global arm_rfft_sR_q15_len1024
+  23              	 .global arm_rfft_sR_q15_len512
+  24              	 .global arm_rfft_sR_q15_len256
+  25              	 .global arm_rfft_sR_q15_len128
+  26              	 .global arm_rfft_sR_q15_len64
+  27              	 .global arm_rfft_sR_q15_len32
+  28              	 .global arm_rfft_sR_q31_len8192
+  29              	 .global arm_rfft_sR_q31_len4096
+  30              	 .global arm_rfft_sR_q31_len2048
+  31              	 .global arm_rfft_sR_q31_len1024
+  32              	 .global arm_rfft_sR_q31_len512
+  33              	 .global arm_rfft_sR_q31_len256
+  34              	 .global arm_rfft_sR_q31_len128
+  35              	 .global arm_rfft_sR_q31_len64
+  36              	 .global arm_rfft_sR_q31_len32
+  37              	 .global arm_rfft_fast_sR_f32_len4096
+  38              	 .global arm_rfft_fast_sR_f32_len2048
+  39              	 .global arm_rfft_fast_sR_f32_len1024
+  40              	 .global arm_rfft_fast_sR_f32_len512
+  41              	 .global arm_rfft_fast_sR_f32_len256
+  42              	 .global arm_rfft_fast_sR_f32_len128
+  43              	 .global arm_rfft_fast_sR_f32_len64
+  44              	 .global arm_rfft_fast_sR_f32_len32
+  45              	 .global arm_cfft_sR_q15_len4096
+  46              	 .global arm_cfft_sR_q15_len2048
+  47              	 .global arm_cfft_sR_q15_len1024
+  48              	 .global arm_cfft_sR_q15_len512
+  49              	 .global arm_cfft_sR_q15_len256
+  50              	 .global arm_cfft_sR_q15_len128
+  51              	 .global arm_cfft_sR_q15_len64
+  52              	 .global arm_cfft_sR_q15_len32
+  53              	 .global arm_cfft_sR_q15_len16
+  54              	 .global arm_cfft_sR_q31_len4096
+  55              	 .global arm_cfft_sR_q31_len2048
+  56              	 .global arm_cfft_sR_q31_len1024
+  57              	 .global arm_cfft_sR_q31_len512
+  58              	 .global arm_cfft_sR_q31_len256
+  59              	 .global arm_cfft_sR_q31_len128
+  60              	 .global arm_cfft_sR_q31_len64
+  61              	 .global arm_cfft_sR_q31_len32
+  62              	 .global arm_cfft_sR_q31_len16
+  63              	 .global arm_cfft_sR_f32_len4096
+  64              	 .global arm_cfft_sR_f32_len2048
+  65              	 .global arm_cfft_sR_f32_len1024
+  66              	 .global arm_cfft_sR_f32_len512
+  67              	 .global arm_cfft_sR_f32_len256
+  68              	 .global arm_cfft_sR_f32_len128
+  69              	 .global arm_cfft_sR_f32_len64
+  70              	 .global arm_cfft_sR_f32_len32
+  71              	 .global arm_cfft_sR_f32_len16
+  72              	 .section .rodata.arm_cfft_sR_q31_len32,"a",%progbits
+  73              	 .align 2
+  76              	arm_cfft_sR_q31_len32:
+  77 0000 2000     	 .short 32
+  78 0002 0000     	 .space 2
+  79 0004 00000000 	 .word twiddleCoef_32_q31
+  80 0008 00000000 	 .word armBitRevIndexTable_fixed_32
+  81 000c 1800     	 .short 24
+  82 000e 0000     	 .space 2
+  83              	 .section .rodata.arm_cfft_sR_q15_len256,"a",%progbits
+  84              	 .align 2
+  87              	arm_cfft_sR_q15_len256:
+  88 0000 0001     	 .short 256
+  89 0002 0000     	 .space 2
+  90 0004 00000000 	 .word twiddleCoef_256_q15
+  91 0008 00000000 	 .word armBitRevIndexTable_fixed_256
+  92 000c F000     	 .short 240
+  93 000e 0000     	 .space 2
+  94              	 .section .rodata.arm_rfft_sR_q31_len2048,"a",%progbits
+  95              	 .align 2
+  98              	arm_rfft_sR_q31_len2048:
+  99 0000 00080000 	 .word 2048
+ 100 0004 00       	 .byte 0
+ 101 0005 01       	 .byte 1
+ 102 0006 0000     	 .space 2
+ 103 0008 04000000 	 .word 4
+ 104 000c 00000000 	 .word realCoefAQ31
+ 105 0010 00000000 	 .word realCoefBQ31
+ 106 0014 00000000 	 .word arm_cfft_sR_q31_len1024
+ 107              	 .section .rodata.arm_rfft_sR_q15_len4096,"a",%progbits
+ 108              	 .align 2
+ 111              	arm_rfft_sR_q15_len4096:
+ 112 0000 00100000 	 .word 4096
+ 113 0004 00       	 .byte 0
+ 114 0005 01       	 .byte 1
+ 115 0006 0000     	 .space 2
+ 116 0008 02000000 	 .word 2
+ 117 000c 00000000 	 .word realCoefAQ15
+ 118 0010 00000000 	 .word realCoefBQ15
+ 119 0014 00000000 	 .word arm_cfft_sR_q15_len2048
+ 120              	 .section .rodata.arm_cfft_sR_q15_len128,"a",%progbits
+ 121              	 .align 2
+ 124              	arm_cfft_sR_q15_len128:
+ 125 0000 8000     	 .short 128
+ 126 0002 0000     	 .space 2
+ 127 0004 00000000 	 .word twiddleCoef_128_q15
+ 128 0008 00000000 	 .word armBitRevIndexTable_fixed_128
+ 129 000c 7000     	 .short 112
+ 130 000e 0000     	 .space 2
+ 131              	 .section .rodata.arm_rfft_sR_q31_len4096,"a",%progbits
+ 132              	 .align 2
+ 135              	arm_rfft_sR_q31_len4096:
+ 136 0000 00100000 	 .word 4096
+ 137 0004 00       	 .byte 0
+ 138 0005 01       	 .byte 1
+ 139 0006 0000     	 .space 2
+ 140 0008 02000000 	 .word 2
+ 141 000c 00000000 	 .word realCoefAQ31
+ 142 0010 00000000 	 .word realCoefBQ31
+ 143 0014 00000000 	 .word arm_cfft_sR_q31_len2048
+ 144              	 .section .rodata.arm_rfft_sR_q15_len8192,"a",%progbits
+ 145              	 .align 2
+ 148              	arm_rfft_sR_q15_len8192:
+ 149 0000 00200000 	 .word 8192
+ 150 0004 00       	 .byte 0
+ 151 0005 01       	 .byte 1
+ 152 0006 0000     	 .space 2
+ 153 0008 01000000 	 .word 1
+ 154 000c 00000000 	 .word realCoefAQ15
+ 155 0010 00000000 	 .word realCoefBQ15
+ 156 0014 00000000 	 .word arm_cfft_sR_q15_len4096
+ 157              	 .section .rodata.arm_cfft_sR_f32_len1024,"a",%progbits
+ 158              	 .align 2
+ 161              	arm_cfft_sR_f32_len1024:
+ 162 0000 0004     	 .short 1024
+ 163 0002 0000     	 .space 2
+ 164 0004 00000000 	 .word twiddleCoef_1024
+ 165 0008 00000000 	 .word armBitRevIndexTable1024
+ 166 000c 0807     	 .short 1800
+ 167 000e 0000     	 .space 2
+ 168              	 .section .rodata.arm_rfft_fast_sR_f32_len2048,"a",%progbits
+ 169              	 .align 2
+ 172              	arm_rfft_fast_sR_f32_len2048:
+ 173 0000 0004     	 .short 1024
+ 174 0002 0000     	 .space 2
+ 175 0004 00000000 	 .word twiddleCoef_1024
+ 176 0008 00000000 	 .word armBitRevIndexTable1024
+ 177 000c 0807     	 .short 1800
+ 178 000e 0000     	 .space 2
+ 179 0010 0008     	 .short 2048
+ 180 0012 0000     	 .space 2
+ 181 0014 00000000 	 .word twiddleCoef_rfft_2048
+ 182              	 .section .rodata.arm_rfft_fast_sR_f32_len4096,"a",%progbits
+ 183              	 .align 2
+ 186              	arm_rfft_fast_sR_f32_len4096:
+ 187 0000 0008     	 .short 2048
+ 188 0002 0000     	 .space 2
+ 189 0004 00000000 	 .word twiddleCoef_2048
+ 190 0008 00000000 	 .word armBitRevIndexTable2048
+ 191 000c E00E     	 .short 3808
+ 192 000e 0000     	 .space 2
+ 193 0010 0010     	 .short 4096
+ 194 0012 0000     	 .space 2
+ 195 0014 00000000 	 .word twiddleCoef_rfft_4096
+ 196              	 .section .rodata.arm_rfft_sR_q15_len64,"a",%progbits
+ 197              	 .align 2
+ 200              	arm_rfft_sR_q15_len64:
+ 201 0000 40000000 	 .word 64
+ 202 0004 00       	 .byte 0
+ 203 0005 01       	 .byte 1
+ 204 0006 0000     	 .space 2
+ 205 0008 80000000 	 .word 128
+ 206 000c 00000000 	 .word realCoefAQ15
+ 207 0010 00000000 	 .word realCoefBQ15
+ 208 0014 00000000 	 .word arm_cfft_sR_q15_len32
+ 209              	 .section .rodata.arm_cfft_sR_q15_len512,"a",%progbits
+ 210              	 .align 2
+ 213              	arm_cfft_sR_q15_len512:
+ 214 0000 0002     	 .short 512
+ 215 0002 0000     	 .space 2
+ 216 0004 00000000 	 .word twiddleCoef_512_q15
+ 217 0008 00000000 	 .word armBitRevIndexTable_fixed_512
+ 218 000c E001     	 .short 480
+ 219 000e 0000     	 .space 2
+ 220              	 .section .rodata.arm_rfft_sR_q15_len512,"a",%progbits
+ 221              	 .align 2
+ 224              	arm_rfft_sR_q15_len512:
+ 225 0000 00020000 	 .word 512
+ 226 0004 00       	 .byte 0
+ 227 0005 01       	 .byte 1
+ 228 0006 0000     	 .space 2
+ 229 0008 10000000 	 .word 16
+ 230 000c 00000000 	 .word realCoefAQ15
+ 231 0010 00000000 	 .word realCoefBQ15
+ 232 0014 00000000 	 .word arm_cfft_sR_q15_len256
+ 233              	 .section .rodata.arm_cfft_sR_q15_len1024,"a",%progbits
+ 234              	 .align 2
+ 237              	arm_cfft_sR_q15_len1024:
+ 238 0000 0004     	 .short 1024
+ 239 0002 0000     	 .space 2
+ 240 0004 00000000 	 .word twiddleCoef_1024_q15
+ 241 0008 00000000 	 .word armBitRevIndexTable_fixed_1024
+ 242 000c E003     	 .short 992
+ 243 000e 0000     	 .space 2
+ 244              	 .section .rodata.arm_cfft_sR_q31_len512,"a",%progbits
+ 245              	 .align 2
+ 248              	arm_cfft_sR_q31_len512:
+ 249 0000 0002     	 .short 512
+ 250 0002 0000     	 .space 2
+ 251 0004 00000000 	 .word twiddleCoef_512_q31
+ 252 0008 00000000 	 .word armBitRevIndexTable_fixed_512
+ 253 000c E001     	 .short 480
+ 254 000e 0000     	 .space 2
+ 255              	 .section .rodata.arm_rfft_sR_q15_len32,"a",%progbits
+ 256              	 .align 2
+ 259              	arm_rfft_sR_q15_len32:
+ 260 0000 20000000 	 .word 32
+ 261 0004 00       	 .byte 0
+ 262 0005 01       	 .byte 1
+ 263 0006 0000     	 .space 2
+ 264 0008 00010000 	 .word 256
+ 265 000c 00000000 	 .word realCoefAQ15
+ 266 0010 00000000 	 .word realCoefBQ15
+ 267 0014 00000000 	 .word arm_cfft_sR_q15_len16
+ 268              	 .section .rodata.arm_cfft_sR_q31_len16,"a",%progbits
+ 269              	 .align 2
+ 272              	arm_cfft_sR_q31_len16:
+ 273 0000 1000     	 .short 16
+ 274 0002 0000     	 .space 2
+ 275 0004 00000000 	 .word twiddleCoef_16_q31
+ 276 0008 00000000 	 .word armBitRevIndexTable_fixed_16
+ 277 000c 0C00     	 .short 12
+ 278 000e 0000     	 .space 2
+ 279              	 .section .rodata.arm_rfft_fast_sR_f32_len256,"a",%progbits
+ 280              	 .align 2
+ 283              	arm_rfft_fast_sR_f32_len256:
+ 284 0000 8000     	 .short 128
+ 285 0002 0000     	 .space 2
+ 286 0004 00000000 	 .word twiddleCoef_128
+ 287 0008 00000000 	 .word armBitRevIndexTable128
+ 288 000c D000     	 .short 208
+ 289 000e 0000     	 .space 2
+ 290 0010 0001     	 .short 256
+ 291 0012 0000     	 .space 2
+ 292 0014 00000000 	 .word twiddleCoef_rfft_256
+ 293              	 .section .rodata.arm_rfft_sR_q15_len256,"a",%progbits
+ 294              	 .align 2
+ 297              	arm_rfft_sR_q15_len256:
+ 298 0000 00010000 	 .word 256
+ 299 0004 00       	 .byte 0
+ 300 0005 01       	 .byte 1
+ 301 0006 0000     	 .space 2
+ 302 0008 20000000 	 .word 32
+ 303 000c 00000000 	 .word realCoefAQ15
+ 304 0010 00000000 	 .word realCoefBQ15
+ 305 0014 00000000 	 .word arm_cfft_sR_q15_len128
+ 306              	 .section .rodata.arm_rfft_fast_sR_f32_len64,"a",%progbits
+ 307              	 .align 2
+ 310              	arm_rfft_fast_sR_f32_len64:
+ 311 0000 2000     	 .short 32
+ 312 0002 0000     	 .space 2
+ 313 0004 00000000 	 .word twiddleCoef_32
+ 314 0008 00000000 	 .word armBitRevIndexTable32
+ 315 000c 3000     	 .short 48
+ 316 000e 0000     	 .space 2
+ 317 0010 4000     	 .short 64
+ 318 0012 0000     	 .space 2
+ 319 0014 00000000 	 .word twiddleCoef_rfft_64
+ 320              	 .section .rodata.arm_cfft_sR_f32_len64,"a",%progbits
+ 321              	 .align 2
+ 324              	arm_cfft_sR_f32_len64:
+ 325 0000 4000     	 .short 64
+ 326 0002 0000     	 .space 2
+ 327 0004 00000000 	 .word twiddleCoef_64
+ 328 0008 00000000 	 .word armBitRevIndexTable64
+ 329 000c 3800     	 .short 56
+ 330 000e 0000     	 .space 2
+ 331              	 .section .rodata.arm_cfft_sR_f32_len128,"a",%progbits
+ 332              	 .align 2
+ 335              	arm_cfft_sR_f32_len128:
+ 336 0000 8000     	 .short 128
+ 337 0002 0000     	 .space 2
+ 338 0004 00000000 	 .word twiddleCoef_128
+ 339 0008 00000000 	 .word armBitRevIndexTable128
+ 340 000c D000     	 .short 208
+ 341 000e 0000     	 .space 2
+ 342              	 .section .rodata.arm_rfft_fast_sR_f32_len128,"a",%progbits
+ 343              	 .align 2
+ 346              	arm_rfft_fast_sR_f32_len128:
+ 347 0000 4000     	 .short 64
+ 348 0002 0000     	 .space 2
+ 349 0004 00000000 	 .word twiddleCoef_64
+ 350 0008 00000000 	 .word armBitRevIndexTable64
+ 351 000c 3800     	 .short 56
+ 352 000e 0000     	 .space 2
+ 353 0010 8000     	 .short 128
+ 354 0012 0000     	 .space 2
+ 355 0014 00000000 	 .word twiddleCoef_rfft_128
+ 356              	 .section .rodata.arm_rfft_sR_q15_len128,"a",%progbits
+ 357              	 .align 2
+ 360              	arm_rfft_sR_q15_len128:
+ 361 0000 80000000 	 .word 128
+ 362 0004 00       	 .byte 0
+ 363 0005 01       	 .byte 1
+ 364 0006 0000     	 .space 2
+ 365 0008 40000000 	 .word 64
+ 366 000c 00000000 	 .word realCoefAQ15
+ 367 0010 00000000 	 .word realCoefBQ15
+ 368 0014 00000000 	 .word arm_cfft_sR_q15_len64
+ 369              	 .section .rodata.arm_cfft_sR_q31_len256,"a",%progbits
+ 370              	 .align 2
+ 373              	arm_cfft_sR_q31_len256:
+ 374 0000 0001     	 .short 256
+ 375 0002 0000     	 .space 2
+ 376 0004 00000000 	 .word twiddleCoef_256_q31
+ 377 0008 00000000 	 .word armBitRevIndexTable_fixed_256
+ 378 000c F000     	 .short 240
+ 379 000e 0000     	 .space 2
+ 380              	 .section .rodata.arm_cfft_sR_q31_len1024,"a",%progbits
+ 381              	 .align 2
+ 384              	arm_cfft_sR_q31_len1024:
+ 385 0000 0004     	 .short 1024
+ 386 0002 0000     	 .space 2
+ 387 0004 00000000 	 .word twiddleCoef_1024_q31
+ 388 0008 00000000 	 .word armBitRevIndexTable_fixed_1024
+ 389 000c E003     	 .short 992
+ 390 000e 0000     	 .space 2
+ 391              	 .section .rodata.arm_cfft_sR_q15_len64,"a",%progbits
+ 392              	 .align 2
+ 395              	arm_cfft_sR_q15_len64:
+ 396 0000 4000     	 .short 64
+ 397 0002 0000     	 .space 2
+ 398 0004 00000000 	 .word twiddleCoef_64_q15
+ 399 0008 00000000 	 .word armBitRevIndexTable_fixed_64
+ 400 000c 3800     	 .short 56
+ 401 000e 0000     	 .space 2
+ 402              	 .section .rodata.arm_cfft_sR_f32_len4096,"a",%progbits
+ 403              	 .align 2
+ 406              	arm_cfft_sR_f32_len4096:
+ 407 0000 0010     	 .short 4096
+ 408 0002 0000     	 .space 2
+ 409 0004 00000000 	 .word twiddleCoef_4096
+ 410 0008 00000000 	 .word armBitRevIndexTable4096
+ 411 000c C00F     	 .short 4032
+ 412 000e 0000     	 .space 2
+ 413              	 .section .rodata.arm_rfft_sR_q31_len64,"a",%progbits
+ 414              	 .align 2
+ 417              	arm_rfft_sR_q31_len64:
+ 418 0000 40000000 	 .word 64
+ 419 0004 00       	 .byte 0
+ 420 0005 01       	 .byte 1
+ 421 0006 0000     	 .space 2
+ 422 0008 80000000 	 .word 128
+ 423 000c 00000000 	 .word realCoefAQ31
+ 424 0010 00000000 	 .word realCoefBQ31
+ 425 0014 00000000 	 .word arm_cfft_sR_q31_len32
+ 426              	 .section .rodata.arm_rfft_sR_q31_len8192,"a",%progbits
+ 427              	 .align 2
+ 430              	arm_rfft_sR_q31_len8192:
+ 431 0000 00200000 	 .word 8192
+ 432 0004 00       	 .byte 0
+ 433 0005 01       	 .byte 1
+ 434 0006 0000     	 .space 2
+ 435 0008 01000000 	 .word 1
+ 436 000c 00000000 	 .word realCoefAQ31
+ 437 0010 00000000 	 .word realCoefBQ31
+ 438 0014 00000000 	 .word arm_cfft_sR_q31_len4096
+ 439              	 .section .rodata.arm_cfft_sR_q31_len64,"a",%progbits
+ 440              	 .align 2
+ 443              	arm_cfft_sR_q31_len64:
+ 444 0000 4000     	 .short 64
+ 445 0002 0000     	 .space 2
+ 446 0004 00000000 	 .word twiddleCoef_64_q31
+ 447 0008 00000000 	 .word armBitRevIndexTable_fixed_64
+ 448 000c 3800     	 .short 56
+ 449 000e 0000     	 .space 2
+ 450              	 .section .rodata.arm_cfft_sR_q31_len128,"a",%progbits
+ 451              	 .align 2
+ 454              	arm_cfft_sR_q31_len128:
+ 455 0000 8000     	 .short 128
+ 456 0002 0000     	 .space 2
+ 457 0004 00000000 	 .word twiddleCoef_128_q31
+ 458 0008 00000000 	 .word armBitRevIndexTable_fixed_128
+ 459 000c 7000     	 .short 112
+ 460 000e 0000     	 .space 2
+ 461              	 .section .rodata.arm_cfft_sR_q15_len2048,"a",%progbits
+ 462              	 .align 2
+ 465              	arm_cfft_sR_q15_len2048:
+ 466 0000 0008     	 .short 2048
+ 467 0002 0000     	 .space 2
+ 468 0004 00000000 	 .word twiddleCoef_2048_q15
+ 469 0008 00000000 	 .word armBitRevIndexTable_fixed_2048
+ 470 000c C007     	 .short 1984
+ 471 000e 0000     	 .space 2
+ 472              	 .section .rodata.arm_rfft_sR_q15_len1024,"a",%progbits
+ 473              	 .align 2
+ 476              	arm_rfft_sR_q15_len1024:
+ 477 0000 00040000 	 .word 1024
+ 478 0004 00       	 .byte 0
+ 479 0005 01       	 .byte 1
+ 480 0006 0000     	 .space 2
+ 481 0008 08000000 	 .word 8
+ 482 000c 00000000 	 .word realCoefAQ15
+ 483 0010 00000000 	 .word realCoefBQ15
+ 484 0014 00000000 	 .word arm_cfft_sR_q15_len512
+ 485              	 .section .rodata.arm_cfft_sR_q15_len4096,"a",%progbits
+ 486              	 .align 2
+ 489              	arm_cfft_sR_q15_len4096:
+ 490 0000 0010     	 .short 4096
+ 491 0002 0000     	 .space 2
+ 492 0004 00000000 	 .word twiddleCoef_4096_q15
+ 493 0008 00000000 	 .word armBitRevIndexTable_fixed_4096
+ 494 000c C00F     	 .short 4032
+ 495 000e 0000     	 .space 2
+ 496              	 .section .rodata.arm_cfft_sR_q15_len16,"a",%progbits
+ 497              	 .align 2
+ 500              	arm_cfft_sR_q15_len16:
+ 501 0000 1000     	 .short 16
+ 502 0002 0000     	 .space 2
+ 503 0004 00000000 	 .word twiddleCoef_16_q15
+ 504 0008 00000000 	 .word armBitRevIndexTable_fixed_16
+ 505 000c 0C00     	 .short 12
+ 506 000e 0000     	 .space 2
+ 507              	 .section .rodata.arm_cfft_sR_q15_len32,"a",%progbits
+ 508              	 .align 2
+ 511              	arm_cfft_sR_q15_len32:
+ 512 0000 2000     	 .short 32
+ 513 0002 0000     	 .space 2
+ 514 0004 00000000 	 .word twiddleCoef_32_q15
+ 515 0008 00000000 	 .word armBitRevIndexTable_fixed_32
+ 516 000c 1800     	 .short 24
+ 517 000e 0000     	 .space 2
+ 518              	 .section .rodata.arm_rfft_fast_sR_f32_len512,"a",%progbits
+ 519              	 .align 2
+ 522              	arm_rfft_fast_sR_f32_len512:
+ 523 0000 0001     	 .short 256
+ 524 0002 0000     	 .space 2
+ 525 0004 00000000 	 .word twiddleCoef_256
+ 526 0008 00000000 	 .word armBitRevIndexTable256
+ 527 000c B801     	 .short 440
+ 528 000e 0000     	 .space 2
+ 529 0010 0002     	 .short 512
+ 530 0012 0000     	 .space 2
+ 531 0014 00000000 	 .word twiddleCoef_rfft_512
+ 532              	 .section .rodata.arm_cfft_sR_f32_len512,"a",%progbits
+ 533              	 .align 2
+ 536              	arm_cfft_sR_f32_len512:
+ 537 0000 0002     	 .short 512
+ 538 0002 0000     	 .space 2
+ 539 0004 00000000 	 .word twiddleCoef_512
+ 540 0008 00000000 	 .word armBitRevIndexTable512
+ 541 000c C001     	 .short 448
+ 542 000e 0000     	 .space 2
+ 543              	 .section .rodata.arm_rfft_sR_q31_len512,"a",%progbits
+ 544              	 .align 2
+ 547              	arm_rfft_sR_q31_len512:
+ 548 0000 00020000 	 .word 512
+ 549 0004 00       	 .byte 0
+ 550 0005 01       	 .byte 1
+ 551 0006 0000     	 .space 2
+ 552 0008 10000000 	 .word 16
+ 553 000c 00000000 	 .word realCoefAQ31
+ 554 0010 00000000 	 .word realCoefBQ31
+ 555 0014 00000000 	 .word arm_cfft_sR_q31_len256
+ 556              	 .section .rodata.arm_cfft_sR_q31_len2048,"a",%progbits
+ 557              	 .align 2
+ 560              	arm_cfft_sR_q31_len2048:
+ 561 0000 0008     	 .short 2048
+ 562 0002 0000     	 .space 2
+ 563 0004 00000000 	 .word twiddleCoef_2048_q31
+ 564 0008 00000000 	 .word armBitRevIndexTable_fixed_2048
+ 565 000c C007     	 .short 1984
+ 566 000e 0000     	 .space 2
+ 567              	 .section .rodata.arm_rfft_sR_q31_len1024,"a",%progbits
+ 568              	 .align 2
+ 571              	arm_rfft_sR_q31_len1024:
+ 572 0000 00040000 	 .word 1024
+ 573 0004 00       	 .byte 0
+ 574 0005 01       	 .byte 1
+ 575 0006 0000     	 .space 2
+ 576 0008 08000000 	 .word 8
+ 577 000c 00000000 	 .word realCoefAQ31
+ 578 0010 00000000 	 .word realCoefBQ31
+ 579 0014 00000000 	 .word arm_cfft_sR_q31_len512
+ 580              	 .section .rodata.arm_cfft_sR_f32_len16,"a",%progbits
+ 581              	 .align 2
+ 584              	arm_cfft_sR_f32_len16:
+ 585 0000 1000     	 .short 16
+ 586 0002 0000     	 .space 2
+ 587 0004 00000000 	 .word twiddleCoef_16
+ 588 0008 00000000 	 .word armBitRevIndexTable16
+ 589 000c 1400     	 .short 20
+ 590 000e 0000     	 .space 2
+ 591              	 .section .rodata.arm_cfft_sR_f32_len2048,"a",%progbits
+ 592              	 .align 2
+ 595              	arm_cfft_sR_f32_len2048:
+ 596 0000 0008     	 .short 2048
+ 597 0002 0000     	 .space 2
+ 598 0004 00000000 	 .word twiddleCoef_2048
+ 599 0008 00000000 	 .word armBitRevIndexTable2048
+ 600 000c E00E     	 .short 3808
+ 601 000e 0000     	 .space 2
+ 602              	 .section .rodata.arm_rfft_fast_sR_f32_len32,"a",%progbits
+ 603              	 .align 2
+ 606              	arm_rfft_fast_sR_f32_len32:
+ 607 0000 1000     	 .short 16
+ 608 0002 0000     	 .space 2
+ 609 0004 00000000 	 .word twiddleCoef_32
+ 610 0008 00000000 	 .word armBitRevIndexTable32
+ 611 000c 1400     	 .short 20
+ 612 000e 0000     	 .space 2
+ 613 0010 2000     	 .short 32
+ 614 0012 0000     	 .space 2
+ 615 0014 00000000 	 .word twiddleCoef_rfft_32
+ 616              	 .section .rodata.arm_cfft_sR_q31_len4096,"a",%progbits
+ 617              	 .align 2
+ 620              	arm_cfft_sR_q31_len4096:
+ 621 0000 0010     	 .short 4096
+ 622 0002 0000     	 .space 2
+ 623 0004 00000000 	 .word twiddleCoef_4096_q31
+ 624 0008 00000000 	 .word armBitRevIndexTable_fixed_4096
+ 625 000c C00F     	 .short 4032
+ 626 000e 0000     	 .space 2
+ 627              	 .section .rodata.arm_cfft_sR_f32_len256,"a",%progbits
+ 628              	 .align 2
+ 631              	arm_cfft_sR_f32_len256:
+ 632 0000 0001     	 .short 256
+ 633 0002 0000     	 .space 2
+ 634 0004 00000000 	 .word twiddleCoef_256
+ 635 0008 00000000 	 .word armBitRevIndexTable256
+ 636 000c B801     	 .short 440
+ 637 000e 0000     	 .space 2
+ 638              	 .section .rodata.arm_rfft_sR_q31_len256,"a",%progbits
+ 639              	 .align 2
+ 642              	arm_rfft_sR_q31_len256:
+ 643 0000 00010000 	 .word 256
+ 644 0004 00       	 .byte 0
+ 645 0005 01       	 .byte 1
+ 646 0006 0000     	 .space 2
+ 647 0008 20000000 	 .word 32
+ 648 000c 00000000 	 .word realCoefAQ31
+ 649 0010 00000000 	 .word realCoefBQ31
+ 650 0014 00000000 	 .word arm_cfft_sR_q31_len128
+ 651              	 .section .rodata.arm_rfft_fast_sR_f32_len1024,"a",%progbits
+ 652              	 .align 2
+ 655              	arm_rfft_fast_sR_f32_len1024:
+ 656 0000 0002     	 .short 512
+ 657 0002 0000     	 .space 2
+ 658 0004 00000000 	 .word twiddleCoef_512
+ 659 0008 00000000 	 .word armBitRevIndexTable512
+ 660 000c C001     	 .short 448
+ 661 000e 0000     	 .space 2
+ 662 0010 0004     	 .short 1024
+ 663 0012 0000     	 .space 2
+ 664 0014 00000000 	 .word twiddleCoef_rfft_1024
+ 665              	 .section .rodata.arm_rfft_sR_q15_len2048,"a",%progbits
+ 666              	 .align 2
+ 669              	arm_rfft_sR_q15_len2048:
+ 670 0000 00080000 	 .word 2048
+ 671 0004 00       	 .byte 0
+ 672 0005 01       	 .byte 1
+ 673 0006 0000     	 .space 2
+ 674 0008 04000000 	 .word 4
+ 675 000c 00000000 	 .word realCoefAQ15
+ 676 0010 00000000 	 .word realCoefBQ15
+ 677 0014 00000000 	 .word arm_cfft_sR_q15_len1024
+ 678              	 .section .rodata.arm_rfft_sR_q31_len32,"a",%progbits
+ 679              	 .align 2
+ 682              	arm_rfft_sR_q31_len32:
+ 683 0000 20000000 	 .word 32
+ 684 0004 00       	 .byte 0
+ 685 0005 01       	 .byte 1
+ 686 0006 0000     	 .space 2
+ 687 0008 00010000 	 .word 256
+ 688 000c 00000000 	 .word realCoefAQ31
+ 689 0010 00000000 	 .word realCoefBQ31
+ 690 0014 00000000 	 .word arm_cfft_sR_q31_len16
+ 691              	 .section .rodata.arm_rfft_sR_q31_len128,"a",%progbits
+ 692              	 .align 2
+ 695              	arm_rfft_sR_q31_len128:
+ 696 0000 80000000 	 .word 128
+ 697 0004 00       	 .byte 0
+ 698 0005 01       	 .byte 1
+ 699 0006 0000     	 .space 2
+ 700 0008 40000000 	 .word 64
+ 701 000c 00000000 	 .word realCoefAQ31
+ 702 0010 00000000 	 .word realCoefBQ31
+ 703 0014 00000000 	 .word arm_cfft_sR_q31_len64
+ 704              	 .section .rodata.arm_cfft_sR_f32_len32,"a",%progbits
+ 705              	 .align 2
+ 708              	arm_cfft_sR_f32_len32:
+ 709 0000 2000     	 .short 32
+ 710 0002 0000     	 .space 2
+ 711 0004 00000000 	 .word twiddleCoef_32
+ 712 0008 00000000 	 .word armBitRevIndexTable32
+ 713 000c 3000     	 .short 48
+ 714 000e 0000     	 .space 2
+ 715              	 .text
+ 716              	.Letext0:
+ 717              	 .file 1 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 718              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 719              	 .file 3 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+ 720              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_common_tables.h"
+ 721              	 .file 5 "../Dave/Generated/CMSIS_DSP/CommonTables/arm_const_structs.c"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_const_structs.c
+    {standard input}:148    .rodata.arm_rfft_sR_q15_len8192:00000000 arm_rfft_sR_q15_len8192
+    {standard input}:111    .rodata.arm_rfft_sR_q15_len4096:00000000 arm_rfft_sR_q15_len4096
+    {standard input}:669    .rodata.arm_rfft_sR_q15_len2048:00000000 arm_rfft_sR_q15_len2048
+    {standard input}:476    .rodata.arm_rfft_sR_q15_len1024:00000000 arm_rfft_sR_q15_len1024
+    {standard input}:224    .rodata.arm_rfft_sR_q15_len512:00000000 arm_rfft_sR_q15_len512
+    {standard input}:297    .rodata.arm_rfft_sR_q15_len256:00000000 arm_rfft_sR_q15_len256
+    {standard input}:360    .rodata.arm_rfft_sR_q15_len128:00000000 arm_rfft_sR_q15_len128
+    {standard input}:200    .rodata.arm_rfft_sR_q15_len64:00000000 arm_rfft_sR_q15_len64
+    {standard input}:259    .rodata.arm_rfft_sR_q15_len32:00000000 arm_rfft_sR_q15_len32
+    {standard input}:430    .rodata.arm_rfft_sR_q31_len8192:00000000 arm_rfft_sR_q31_len8192
+    {standard input}:135    .rodata.arm_rfft_sR_q31_len4096:00000000 arm_rfft_sR_q31_len4096
+    {standard input}:98     .rodata.arm_rfft_sR_q31_len2048:00000000 arm_rfft_sR_q31_len2048
+    {standard input}:571    .rodata.arm_rfft_sR_q31_len1024:00000000 arm_rfft_sR_q31_len1024
+    {standard input}:547    .rodata.arm_rfft_sR_q31_len512:00000000 arm_rfft_sR_q31_len512
+    {standard input}:642    .rodata.arm_rfft_sR_q31_len256:00000000 arm_rfft_sR_q31_len256
+    {standard input}:695    .rodata.arm_rfft_sR_q31_len128:00000000 arm_rfft_sR_q31_len128
+    {standard input}:417    .rodata.arm_rfft_sR_q31_len64:00000000 arm_rfft_sR_q31_len64
+    {standard input}:682    .rodata.arm_rfft_sR_q31_len32:00000000 arm_rfft_sR_q31_len32
+    {standard input}:186    .rodata.arm_rfft_fast_sR_f32_len4096:00000000 arm_rfft_fast_sR_f32_len4096
+    {standard input}:172    .rodata.arm_rfft_fast_sR_f32_len2048:00000000 arm_rfft_fast_sR_f32_len2048
+    {standard input}:655    .rodata.arm_rfft_fast_sR_f32_len1024:00000000 arm_rfft_fast_sR_f32_len1024
+    {standard input}:522    .rodata.arm_rfft_fast_sR_f32_len512:00000000 arm_rfft_fast_sR_f32_len512
+    {standard input}:283    .rodata.arm_rfft_fast_sR_f32_len256:00000000 arm_rfft_fast_sR_f32_len256
+    {standard input}:346    .rodata.arm_rfft_fast_sR_f32_len128:00000000 arm_rfft_fast_sR_f32_len128
+    {standard input}:310    .rodata.arm_rfft_fast_sR_f32_len64:00000000 arm_rfft_fast_sR_f32_len64
+    {standard input}:606    .rodata.arm_rfft_fast_sR_f32_len32:00000000 arm_rfft_fast_sR_f32_len32
+    {standard input}:489    .rodata.arm_cfft_sR_q15_len4096:00000000 arm_cfft_sR_q15_len4096
+    {standard input}:465    .rodata.arm_cfft_sR_q15_len2048:00000000 arm_cfft_sR_q15_len2048
+    {standard input}:237    .rodata.arm_cfft_sR_q15_len1024:00000000 arm_cfft_sR_q15_len1024
+    {standard input}:213    .rodata.arm_cfft_sR_q15_len512:00000000 arm_cfft_sR_q15_len512
+    {standard input}:87     .rodata.arm_cfft_sR_q15_len256:00000000 arm_cfft_sR_q15_len256
+    {standard input}:124    .rodata.arm_cfft_sR_q15_len128:00000000 arm_cfft_sR_q15_len128
+    {standard input}:395    .rodata.arm_cfft_sR_q15_len64:00000000 arm_cfft_sR_q15_len64
+    {standard input}:511    .rodata.arm_cfft_sR_q15_len32:00000000 arm_cfft_sR_q15_len32
+    {standard input}:500    .rodata.arm_cfft_sR_q15_len16:00000000 arm_cfft_sR_q15_len16
+    {standard input}:620    .rodata.arm_cfft_sR_q31_len4096:00000000 arm_cfft_sR_q31_len4096
+    {standard input}:560    .rodata.arm_cfft_sR_q31_len2048:00000000 arm_cfft_sR_q31_len2048
+    {standard input}:384    .rodata.arm_cfft_sR_q31_len1024:00000000 arm_cfft_sR_q31_len1024
+    {standard input}:248    .rodata.arm_cfft_sR_q31_len512:00000000 arm_cfft_sR_q31_len512
+    {standard input}:373    .rodata.arm_cfft_sR_q31_len256:00000000 arm_cfft_sR_q31_len256
+    {standard input}:454    .rodata.arm_cfft_sR_q31_len128:00000000 arm_cfft_sR_q31_len128
+    {standard input}:443    .rodata.arm_cfft_sR_q31_len64:00000000 arm_cfft_sR_q31_len64
+    {standard input}:76     .rodata.arm_cfft_sR_q31_len32:00000000 arm_cfft_sR_q31_len32
+    {standard input}:272    .rodata.arm_cfft_sR_q31_len16:00000000 arm_cfft_sR_q31_len16
+    {standard input}:406    .rodata.arm_cfft_sR_f32_len4096:00000000 arm_cfft_sR_f32_len4096
+    {standard input}:595    .rodata.arm_cfft_sR_f32_len2048:00000000 arm_cfft_sR_f32_len2048
+    {standard input}:161    .rodata.arm_cfft_sR_f32_len1024:00000000 arm_cfft_sR_f32_len1024
+    {standard input}:536    .rodata.arm_cfft_sR_f32_len512:00000000 arm_cfft_sR_f32_len512
+    {standard input}:631    .rodata.arm_cfft_sR_f32_len256:00000000 arm_cfft_sR_f32_len256
+    {standard input}:335    .rodata.arm_cfft_sR_f32_len128:00000000 arm_cfft_sR_f32_len128
+    {standard input}:324    .rodata.arm_cfft_sR_f32_len64:00000000 arm_cfft_sR_f32_len64
+    {standard input}:708    .rodata.arm_cfft_sR_f32_len32:00000000 arm_cfft_sR_f32_len32
+    {standard input}:584    .rodata.arm_cfft_sR_f32_len16:00000000 arm_cfft_sR_f32_len16
+    {standard input}:73     .rodata.arm_cfft_sR_q31_len32:00000000 $d
+    {standard input}:84     .rodata.arm_cfft_sR_q15_len256:00000000 $d
+    {standard input}:95     .rodata.arm_rfft_sR_q31_len2048:00000000 $d
+    {standard input}:108    .rodata.arm_rfft_sR_q15_len4096:00000000 $d
+    {standard input}:121    .rodata.arm_cfft_sR_q15_len128:00000000 $d
+    {standard input}:132    .rodata.arm_rfft_sR_q31_len4096:00000000 $d
+    {standard input}:145    .rodata.arm_rfft_sR_q15_len8192:00000000 $d
+    {standard input}:158    .rodata.arm_cfft_sR_f32_len1024:00000000 $d
+    {standard input}:169    .rodata.arm_rfft_fast_sR_f32_len2048:00000000 $d
+    {standard input}:183    .rodata.arm_rfft_fast_sR_f32_len4096:00000000 $d
+    {standard input}:197    .rodata.arm_rfft_sR_q15_len64:00000000 $d
+    {standard input}:210    .rodata.arm_cfft_sR_q15_len512:00000000 $d
+    {standard input}:221    .rodata.arm_rfft_sR_q15_len512:00000000 $d
+    {standard input}:234    .rodata.arm_cfft_sR_q15_len1024:00000000 $d
+    {standard input}:245    .rodata.arm_cfft_sR_q31_len512:00000000 $d
+    {standard input}:256    .rodata.arm_rfft_sR_q15_len32:00000000 $d
+    {standard input}:269    .rodata.arm_cfft_sR_q31_len16:00000000 $d
+    {standard input}:280    .rodata.arm_rfft_fast_sR_f32_len256:00000000 $d
+    {standard input}:294    .rodata.arm_rfft_sR_q15_len256:00000000 $d
+    {standard input}:307    .rodata.arm_rfft_fast_sR_f32_len64:00000000 $d
+    {standard input}:321    .rodata.arm_cfft_sR_f32_len64:00000000 $d
+    {standard input}:332    .rodata.arm_cfft_sR_f32_len128:00000000 $d
+    {standard input}:343    .rodata.arm_rfft_fast_sR_f32_len128:00000000 $d
+    {standard input}:357    .rodata.arm_rfft_sR_q15_len128:00000000 $d
+    {standard input}:370    .rodata.arm_cfft_sR_q31_len256:00000000 $d
+    {standard input}:381    .rodata.arm_cfft_sR_q31_len1024:00000000 $d
+    {standard input}:392    .rodata.arm_cfft_sR_q15_len64:00000000 $d
+    {standard input}:403    .rodata.arm_cfft_sR_f32_len4096:00000000 $d
+    {standard input}:414    .rodata.arm_rfft_sR_q31_len64:00000000 $d
+    {standard input}:427    .rodata.arm_rfft_sR_q31_len8192:00000000 $d
+    {standard input}:440    .rodata.arm_cfft_sR_q31_len64:00000000 $d
+    {standard input}:451    .rodata.arm_cfft_sR_q31_len128:00000000 $d
+    {standard input}:462    .rodata.arm_cfft_sR_q15_len2048:00000000 $d
+    {standard input}:473    .rodata.arm_rfft_sR_q15_len1024:00000000 $d
+    {standard input}:486    .rodata.arm_cfft_sR_q15_len4096:00000000 $d
+    {standard input}:497    .rodata.arm_cfft_sR_q15_len16:00000000 $d
+    {standard input}:508    .rodata.arm_cfft_sR_q15_len32:00000000 $d
+    {standard input}:519    .rodata.arm_rfft_fast_sR_f32_len512:00000000 $d
+    {standard input}:533    .rodata.arm_cfft_sR_f32_len512:00000000 $d
+    {standard input}:544    .rodata.arm_rfft_sR_q31_len512:00000000 $d
+    {standard input}:557    .rodata.arm_cfft_sR_q31_len2048:00000000 $d
+    {standard input}:568    .rodata.arm_rfft_sR_q31_len1024:00000000 $d
+    {standard input}:581    .rodata.arm_cfft_sR_f32_len16:00000000 $d
+    {standard input}:592    .rodata.arm_cfft_sR_f32_len2048:00000000 $d
+    {standard input}:603    .rodata.arm_rfft_fast_sR_f32_len32:00000000 $d
+    {standard input}:617    .rodata.arm_cfft_sR_q31_len4096:00000000 $d
+    {standard input}:628    .rodata.arm_cfft_sR_f32_len256:00000000 $d
+    {standard input}:639    .rodata.arm_rfft_sR_q31_len256:00000000 $d
+    {standard input}:652    .rodata.arm_rfft_fast_sR_f32_len1024:00000000 $d
+    {standard input}:666    .rodata.arm_rfft_sR_q15_len2048:00000000 $d
+    {standard input}:679    .rodata.arm_rfft_sR_q31_len32:00000000 $d
+    {standard input}:692    .rodata.arm_rfft_sR_q31_len128:00000000 $d
+    {standard input}:705    .rodata.arm_cfft_sR_f32_len32:00000000 $d
+
+UNDEFINED SYMBOLS
+twiddleCoef_32_q31
+armBitRevIndexTable_fixed_32
+twiddleCoef_256_q15
+armBitRevIndexTable_fixed_256
+realCoefAQ31
+realCoefBQ31
+realCoefAQ15
+realCoefBQ15
+twiddleCoef_128_q15
+armBitRevIndexTable_fixed_128
+twiddleCoef_1024
+armBitRevIndexTable1024
+twiddleCoef_rfft_2048
+twiddleCoef_2048
+armBitRevIndexTable2048
+twiddleCoef_rfft_4096
+twiddleCoef_512_q15
+armBitRevIndexTable_fixed_512
+twiddleCoef_1024_q15
+armBitRevIndexTable_fixed_1024
+twiddleCoef_512_q31
+twiddleCoef_16_q31
+armBitRevIndexTable_fixed_16
+twiddleCoef_128
+armBitRevIndexTable128
+twiddleCoef_rfft_256
+twiddleCoef_32
+armBitRevIndexTable32
+twiddleCoef_rfft_64
+twiddleCoef_64
+armBitRevIndexTable64
+twiddleCoef_rfft_128
+twiddleCoef_256_q31
+twiddleCoef_1024_q31
+twiddleCoef_64_q15
+armBitRevIndexTable_fixed_64
+twiddleCoef_4096
+armBitRevIndexTable4096
+twiddleCoef_64_q31
+twiddleCoef_128_q31
+twiddleCoef_2048_q15
+armBitRevIndexTable_fixed_2048
+twiddleCoef_4096_q15
+armBitRevIndexTable_fixed_4096
+twiddleCoef_16_q15
+twiddleCoef_32_q15
+twiddleCoef_256
+armBitRevIndexTable256
+twiddleCoef_rfft_512
+twiddleCoef_512
+armBitRevIndexTable512
+twiddleCoef_2048_q31
+twiddleCoef_16
+armBitRevIndexTable16
+twiddleCoef_rfft_32
+twiddleCoef_4096_q31
+twiddleCoef_rfft_1024

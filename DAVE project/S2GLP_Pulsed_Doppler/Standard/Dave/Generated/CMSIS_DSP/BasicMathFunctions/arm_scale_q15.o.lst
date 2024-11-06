@@ -1,0 +1,342 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_scale_q15.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_scale_q15,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_scale_q15
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_scale_q15:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c"
+   1:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Title:        arm_scale_q15.c
+   4:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Description:  Multiplies a Q15 vector by a scalar
+   5:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  29:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  31:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @ingroup groupMath
+  33:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  35:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @addtogroup scale
+  37:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  40:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /**
+  41:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @brief Multiplies a Q15 vector by a scalar.
+  42:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @param[in]       *pSrc points to the input vector
+  43:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @param[in]       scaleFract fractional portion of the scale value
+  44:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @param[in]       shift number of bits to shift the result by
+  45:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @param[out]      *pDst points to the output vector
+  46:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @param[in]       blockSize number of samples in the vector
+  47:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * @return none.
+  48:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  *
+  49:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * <b>Scaling and Overflow Behavior:</b>
+  50:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * \par
+  51:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * The input data <code>*pSrc</code> and <code>scaleFract</code> are in 1.15 format.
+  52:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  * These are multiplied to yield a 2.30 intermediate result and this is shifted with saturation to 
+  53:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****  */
+  54:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  55:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  56:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** void arm_scale_q15(
+  57:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q15_t * pSrc,
+  58:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q15_t scaleFract,
+  59:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   int8_t shift,
+  60:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q15_t * pDst,
+  61:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   uint32_t blockSize)
+  62:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** {
+  28              	 .loc 1 62 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 36
+  36              	 .cfi_offset 4,-36
+  37              	 .cfi_offset 5,-32
+  38              	 .cfi_offset 6,-28
+  39              	 .cfi_offset 7,-24
+  40              	 .cfi_offset 8,-20
+  41              	 .cfi_offset 9,-16
+  42              	 .cfi_offset 10,-12
+  43              	 .cfi_offset 11,-8
+  44              	 .cfi_offset 14,-4
+  45              	 .loc 1 62 0
+  46 0004 DDF82490 	 ldr r9,[sp,#36]
+  63:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   int8_t kShift = 15 - shift;                    /* shift to apply after scaling */
+  47              	 .loc 1 63 0
+  48 0008 C2F10F02 	 rsb r2,r2,#15
+  49              	.LVL1:
+  64:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   uint32_t blkCnt;                               /* loop counter */
+  65:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  66:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** #if defined (ARM_MATH_DSP)
+  67:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  68:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** /* Run the below code for Cortex-M4 and Cortex-M3 */
+  69:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q15_t in1, in2, in3, in4;
+  70:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q31_t inA1, inA2;                              /* Temporary variables */
+  71:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   q31_t out1, out2, out3, out4;
+  72:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  73:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  74:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   /*loop Unrolling */
+  75:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   blkCnt = blockSize >> 2u;
+  76:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  77:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  78:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+  79:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   while (blkCnt > 0u)
+  50              	 .loc 1 79 0
+  51 000c 5FEA990B 	 lsrs fp,r9,#2
+  63:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   int8_t kShift = 15 - shift;                    /* shift to apply after scaling */
+  52              	 .loc 1 63 0
+  53 0010 D2B2     	 uxtb r2,r2
+  54              	.LVL2:
+  55              	 .loc 1 79 0
+  56 0012 3BD0     	 beq .L2
+  57 0014 4FFA82F8 	 sxtb r8,r2
+  58 0018 00F1080C 	 add ip,r0,#8
+  59 001c 03F1080E 	 add lr,r3,#8
+  60 0020 DA46     	 mov r10,fp
+  61              	.LVL3:
+  62              	.L3:
+  80:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+  81:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* Reading 2 inputs from memory */
+  82:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     inA1 = *__SIMD32(pSrc)++;
+  63              	 .loc 1 82 0
+  64 0022 5CF8087C 	 ldr r7,[ip,#-8]
+  65              	.LVL4:
+  83:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     inA2 = *__SIMD32(pSrc)++;
+  66              	 .loc 1 83 0
+  67 0026 5CF8046C 	 ldr r6,[ip,#-4]
+  68              	.LVL5:
+  84:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  85:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* C = A * scale */
+  86:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* Scale the inputs and then store the 2 results in the destination buffer
+  87:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****      * in single cycle by packing the outputs */
+  88:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out1 = (q31_t) ((q15_t) (inA1 >> 16) * scaleFract);
+  89:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out2 = (q31_t) ((q15_t) inA1 * scaleFract);
+  69              	 .loc 1 89 0
+  70 002a BDB2     	 uxth r5,r7
+  90:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out3 = (q31_t) ((q15_t) (inA2 >> 16) * scaleFract);
+  91:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out4 = (q31_t) ((q15_t) inA2 * scaleFract);
+  71              	 .loc 1 91 0
+  72 002c B4B2     	 uxth r4,r6
+  89:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out3 = (q31_t) ((q15_t) (inA2 >> 16) * scaleFract);
+  73              	 .loc 1 89 0
+  74 002e 15FB01F5 	 smulbb r5,r5,r1
+  88:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out2 = (q31_t) ((q15_t) inA1 * scaleFract);
+  75              	 .loc 1 88 0
+  76 0032 3F0C     	 lsrs r7,r7,#16
+  77              	.LVL6:
+  78              	 .loc 1 91 0
+  79 0034 14FB01F4 	 smulbb r4,r4,r1
+  90:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out3 = (q31_t) ((q15_t) (inA2 >> 16) * scaleFract);
+  80              	 .loc 1 90 0
+  81 0038 360C     	 lsrs r6,r6,#16
+  82              	.LVL7:
+  92:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  93:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* apply shifting */
+  94:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out1 = out1 >> kShift;
+  95:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out2 = out2 >> kShift;
+  83              	 .loc 1 95 0
+  84 003a 45FA08F5 	 asr r5,r5,r8
+  88:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out2 = (q31_t) ((q15_t) inA1 * scaleFract);
+  85              	 .loc 1 88 0
+  86 003e 17FB01F7 	 smulbb r7,r7,r1
+  87              	.LVL8:
+  88              	.LBB2:
+  96:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out3 = out3 >> kShift;
+  97:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out4 = out4 >> kShift;
+  98:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  99:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* saturate the output */
+ 100:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in1 = (q15_t) (__SSAT(out1, 16));
+ 101:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in2 = (q15_t) (__SSAT(out2, 16));
+  89              	 .loc 1 101 0
+  90              	
+  91 0042 05F30F05 	 ssat r5,#16,r5
+  92              	
+  93              	 .thumb
+  94              	.LBE2:
+  97:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+  95              	 .loc 1 97 0
+  96 0046 44FA08F4 	 asr r4,r4,r8
+ 102:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in3 = (q15_t) (__SSAT(out3, 16));
+ 103:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in4 = (q15_t) (__SSAT(out4, 16));
+ 104:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+ 105:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* store the result to destination */
+ 106:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     *__SIMD32(pDst)++ = __PKHBT(in2, in1, 16);
+  97              	 .loc 1 106 0
+  98 004a ADB2     	 uxth r5,r5
+  99              	.LBB3:
+ 103:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+ 100              	 .loc 1 103 0
+ 101              	
+ 102 004c 04F30F04 	 ssat r4,#16,r4
+ 103              	
+ 104              	 .thumb
+ 105              	.LBE3:
+  90:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out4 = (q31_t) ((q15_t) inA2 * scaleFract);
+ 106              	 .loc 1 90 0
+ 107 0050 16FB01F6 	 smulbb r6,r6,r1
+ 108              	.LVL9:
+ 107:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     *__SIMD32(pDst)++ = __PKHBT(in4, in3, 16);
+ 109              	 .loc 1 107 0
+ 110 0054 A4B2     	 uxth r4,r4
+  94:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out2 = out2 >> kShift;
+ 111              	 .loc 1 94 0
+ 112 0056 47FA08F7 	 asr r7,r7,r8
+ 113              	.LVL10:
+  96:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     out4 = out4 >> kShift;
+ 114              	 .loc 1 96 0
+ 115 005a 46FA08F6 	 asr r6,r6,r8
+ 116              	.LVL11:
+ 117              	.LBB4:
+ 100:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in2 = (q15_t) (__SSAT(out2, 16));
+ 118              	 .loc 1 100 0
+ 119              	
+ 120 005e 07F30F07 	 ssat r7,#16,r7
+ 121              	
+ 122              	.LVL12:
+ 123              	 .thumb
+ 124              	.LBE4:
+ 125              	.LBB5:
+ 102:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     in4 = (q15_t) (__SSAT(out4, 16));
+ 126              	 .loc 1 102 0
+ 127              	
+ 128 0062 06F30F06 	 ssat r6,#16,r6
+ 129              	
+ 130              	.LVL13:
+ 131              	 .thumb
+ 132              	.LBE5:
+ 106:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     *__SIMD32(pDst)++ = __PKHBT(in4, in3, 16);
+ 133              	 .loc 1 106 0
+ 134 0066 45EA0747 	 orr r7,r5,r7,lsl#16
+ 135              	.LVL14:
+ 136              	 .loc 1 107 0
+ 137 006a 44EA0644 	 orr r4,r4,r6,lsl#16
+  79:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+ 138              	 .loc 1 79 0
+ 139 006e BAF1010A 	 subs r10,r10,#1
+ 140              	.LVL15:
+ 106:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     *__SIMD32(pDst)++ = __PKHBT(in4, in3, 16);
+ 141              	 .loc 1 106 0
+ 142 0072 4EF8087C 	 str r7,[lr,#-8]
+ 143              	.LVL16:
+ 144              	 .loc 1 107 0
+ 145 0076 4EF8044C 	 str r4,[lr,#-4]
+ 146 007a 0CF1080C 	 add ip,ip,#8
+ 147              	.LVL17:
+ 148 007e 0EF1080E 	 add lr,lr,#8
+  79:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+ 149              	 .loc 1 79 0
+ 150 0082 CED1     	 bne .L3
+ 151 0084 4FEACB0B 	 lsl fp,fp,#3
+ 152 0088 5844     	 add r0,r0,fp
+ 153 008a 5B44     	 add r3,r3,fp
+ 154              	.LVL18:
+ 155              	.L2:
+ 108:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+ 109:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* Decrement the loop counter */
+ 110:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     blkCnt--;
+ 111:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   }
+ 112:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+ 113:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
+ 114:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****    ** No loop unrolling is used. */
+ 115:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   blkCnt = blockSize % 0x4u;
+ 116:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c **** 
+ 117:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   while (blkCnt > 0u)
+ 156              	 .loc 1 117 0
+ 157 008c 19F00309 	 ands r9,r9,#3
+ 158              	.LVL19:
+ 159 0090 0ED0     	 beq .L1
+ 160 0092 52B2     	 sxtb r2,r2
+ 161 0094 023B     	 subs r3,r3,#2
+ 162              	.LVL20:
+ 163              	.L5:
+ 164              	.LBB6:
+ 118:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+ 119:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* C = A * scale */
+ 120:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     /* Scale the input and then store the result in the destination buffer. */
+ 121:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****     *pDst++ = (q15_t) (__SSAT(((*pSrc++) * scaleFract) >> kShift, 16));
+ 165              	 .loc 1 121 0
+ 166 0096 30F8024B 	 ldrh r4,[r0],#2
+ 167              	.LVL21:
+ 168              	.LBE6:
+ 117:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+ 169              	 .loc 1 117 0
+ 170 009a B9F10109 	 subs r9,r9,#1
+ 171              	.LVL22:
+ 172              	.LBB7:
+ 173              	 .loc 1 121 0
+ 174 009e 14FB01F4 	 smulbb r4,r4,r1
+ 175              	.LVL23:
+ 176 00a2 44FA02F4 	 asr r4,r4,r2
+ 177              	.LVL24:
+ 178              	
+ 179 00a6 04F30F04 	 ssat r4,#16,r4
+ 180              	
+ 181              	.LVL25:
+ 182              	 .thumb
+ 183              	.LBE7:
+ 184 00aa 23F8024F 	 strh r4,[r3,#2]!
+ 185              	.LVL26:
+ 117:../Dave/Generated/CMSIS_DSP/BasicMathFunctions/arm_scale_q15.c ****   {
+ 186              	 .loc 1 117 0
+ 187 00ae F2D1     	 bne .L5
+ 188              	.LVL27:
+ 189              	.L1:
+ 190 00b0 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 191              	 .cfi_endproc
+ 192              	.LFE135:
+ 194              	 .text
+ 195              	.Letext0:
+ 196              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 197              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 198              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_scale_q15.c
+    {standard input}:20     .text.arm_scale_q15:00000000 $t
+    {standard input}:25     .text.arm_scale_q15:00000000 arm_scale_q15
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

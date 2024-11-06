@@ -123,7 +123,7 @@ typedef struct algo_settings_TAG
   float    max_speed_kmph;
   float    min_breath;
   float    max_breath;
-  float    min_herathbeat;
+  float    min_hearthbeat;
   float    max_hearthbeat;
   uint32_t use_high_gain_doppler;
   float    motion_detection_threshold;

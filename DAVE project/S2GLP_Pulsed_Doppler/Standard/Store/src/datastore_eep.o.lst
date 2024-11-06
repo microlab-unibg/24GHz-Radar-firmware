@@ -1,0 +1,743 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "datastore_eep.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.ds_eeprom_write_settings,"ax",%progbits
+  20              	 .align 2
+  21              	 .global ds_eeprom_write_settings
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	ds_eeprom_write_settings:
+  26              	.LFB529:
+  27              	 .file 1 "../Store/src/datastore_eep.c"
+   1:../Store/src/datastore_eep.c **** /**
+   2:../Store/src/datastore_eep.c ****     @file  datastore_eep.c
+   3:../Store/src/datastore_eep.c **** */
+   4:../Store/src/datastore_eep.c **** 
+   5:../Store/src/datastore_eep.c **** /* ===========================================================================
+   6:../Store/src/datastore_eep.c **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+   7:../Store/src/datastore_eep.c **** ** All rights reserved.
+   8:../Store/src/datastore_eep.c **** ** ===========================================================================
+   9:../Store/src/datastore_eep.c **** **
+  10:../Store/src/datastore_eep.c **** ** ===========================================================================
+  11:../Store/src/datastore_eep.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  12:../Store/src/datastore_eep.c **** ** Passing on and copying of this document, and communication of its contents
+  13:../Store/src/datastore_eep.c **** ** is not permitted without Infineon's prior written authorization.
+  14:../Store/src/datastore_eep.c **** ** ===========================================================================
+  15:../Store/src/datastore_eep.c **** */
+  16:../Store/src/datastore_eep.c **** 
+  17:../Store/src/datastore_eep.c **** /*
+  18:../Store/src/datastore_eep.c **** ==============================================================================
+  19:../Store/src/datastore_eep.c ****    1. INCLUDE FILES
+  20:../Store/src/datastore_eep.c **** ==============================================================================
+  21:../Store/src/datastore_eep.c ****  */
+  22:../Store/src/datastore_eep.c **** 
+  23:../Store/src/datastore_eep.c **** #include "datastore.h"
+  24:../Store/src/datastore_eep.c **** #include "datastore_eep.h"
+  25:../Store/src/datastore_eep.c **** 
+  26:../Store/src/datastore_eep.c **** /*
+  27:../Store/src/datastore_eep.c **** ==============================================================================
+  28:../Store/src/datastore_eep.c ****    2. LOCAL DEFINITIONS
+  29:../Store/src/datastore_eep.c **** ==============================================================================
+  30:../Store/src/datastore_eep.c ****  */
+  31:../Store/src/datastore_eep.c **** 
+  32:../Store/src/datastore_eep.c **** /*
+  33:../Store/src/datastore_eep.c **** ==============================================================================
+  34:../Store/src/datastore_eep.c ****    3. LOCAL TYPES
+  35:../Store/src/datastore_eep.c **** ==============================================================================
+  36:../Store/src/datastore_eep.c ****  */
+  37:../Store/src/datastore_eep.c **** 
+  38:../Store/src/datastore_eep.c **** /*
+  39:../Store/src/datastore_eep.c **** ==============================================================================
+  40:../Store/src/datastore_eep.c ****    4. DATA
+  41:../Store/src/datastore_eep.c **** ==============================================================================
+  42:../Store/src/datastore_eep.c ****  */
+  43:../Store/src/datastore_eep.c **** 
+  44:../Store/src/datastore_eep.c **** /*
+  45:../Store/src/datastore_eep.c **** ==============================================================================
+  46:../Store/src/datastore_eep.c ****    5. LOCAL FUNCTION PROTOTYPES
+  47:../Store/src/datastore_eep.c **** ==============================================================================
+  48:../Store/src/datastore_eep.c ****  */
+  49:../Store/src/datastore_eep.c **** 
+  50:../Store/src/datastore_eep.c **** /*
+  51:../Store/src/datastore_eep.c **** ==============================================================================
+  52:../Store/src/datastore_eep.c ****    6. EXPORTED FUNCTIONS
+  53:../Store/src/datastore_eep.c **** ==============================================================================
+  54:../Store/src/datastore_eep.c ****  */
+  55:../Store/src/datastore_eep.c **** 
+  56:../Store/src/datastore_eep.c **** #ifdef DS_USE_EEPROM
+  57:../Store/src/datastore_eep.c **** 
+  58:../Store/src/datastore_eep.c **** /* Function to write settings into EEPROM */
+  59:../Store/src/datastore_eep.c **** EEPROM_STATUS_t ds_eeprom_write_settings(const void *p_settings, uint32_t struct_size, uint16_t eep
+  60:../Store/src/datastore_eep.c **** {
+  28              	 .loc 1 60 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F843 	 push {r3,r4,r5,r6,r7,r8,r9,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 32
+  36              	 .cfi_offset 3,-32
+  37              	 .cfi_offset 4,-28
+  38              	 .cfi_offset 5,-24
+  39              	 .cfi_offset 6,-20
+  40              	 .cfi_offset 7,-16
+  41              	 .cfi_offset 8,-12
+  42              	 .cfi_offset 9,-8
+  43              	 .cfi_offset 14,-4
+  61:../Store/src/datastore_eep.c ****   uint32_t buffer[struct_size/4 + 2]; /* Plus one extra for the CRC32 */
+  44              	 .loc 1 61 0
+  45 0004 8D08     	 lsrs r5,r1,#2
+  46              	.LVL1:
+  47 0006 AB1C     	 adds r3,r5,#2
+  48              	.LVL2:
+  49 0008 9B00     	 lsls r3,r3,#2
+  50              	.LVL3:
+  51 000a 03F10A04 	 add r4,r3,#10
+  52 000e 24F00704 	 bic r4,r4,#7
+  60:../Store/src/datastore_eep.c ****   uint32_t buffer[struct_size/4 + 2]; /* Plus one extra for the CRC32 */
+  53              	 .loc 1 60 0
+  54 0012 00AF     	 add r7,sp,#0
+  55              	.LCFI1:
+  56              	 .cfi_def_cfa_register 7
+  57              	 .loc 1 61 0
+  58 0014 ADEB040D 	 sub sp,sp,r4
+  59              	.LVL4:
+  62:../Store/src/datastore_eep.c ****   uint32_t buffer_size = 0, crc32 = 0;
+  63:../Store/src/datastore_eep.c **** 
+  64:../Store/src/datastore_eep.c ****   if ((p_settings == NULL) || (struct_size <= 0))
+  60              	 .loc 1 64 0
+  61 0018 00B1     	 cbz r0,.L5
+  62              	 .loc 1 64 0 is_stmt 0 discriminator 1
+  63 001a 19B9     	 cbnz r1,.L11
+  64              	.L5:
+  65:../Store/src/datastore_eep.c ****   {
+  66:../Store/src/datastore_eep.c ****     /* Invalid input parameters */
+  67:../Store/src/datastore_eep.c **** 	return EEPROM_STATUS_FAILURE;
+  65              	 .loc 1 67 0 is_stmt 1
+  66 001c 0220     	 movs r0,#2
+  67              	.LVL5:
+  68:../Store/src/datastore_eep.c ****   }
+  69:../Store/src/datastore_eep.c **** 
+  70:../Store/src/datastore_eep.c ****   /* Get the buffer size for the structure */
+  71:../Store/src/datastore_eep.c ****   if ((struct_size % 4) != 0)
+  72:../Store/src/datastore_eep.c ****   {
+  73:../Store/src/datastore_eep.c ****     buffer_size = struct_size/4 + 1;
+  74:../Store/src/datastore_eep.c ****   }
+  75:../Store/src/datastore_eep.c ****   else
+  76:../Store/src/datastore_eep.c ****   {
+  77:../Store/src/datastore_eep.c **** 	buffer_size = struct_size/4;
+  78:../Store/src/datastore_eep.c ****   }
+  79:../Store/src/datastore_eep.c **** 
+  80:../Store/src/datastore_eep.c ****   /* Clear the transmit buffer */
+  81:../Store/src/datastore_eep.c ****   memset(buffer, 0, sizeof(buffer));
+  82:../Store/src/datastore_eep.c **** 
+  83:../Store/src/datastore_eep.c ****   /* Copy hardware settings structure into transmit buffer */
+  84:../Store/src/datastore_eep.c ****   memcpy(buffer, p_settings, struct_size);
+  85:../Store/src/datastore_eep.c **** 
+  86:../Store/src/datastore_eep.c ****   /*  Get the CRC for all structure */
+  87:../Store/src/datastore_eep.c ****   CRC_SW_CalculateCRC(&CRC_SW_EEPROM, buffer, buffer_size);
+  88:../Store/src/datastore_eep.c ****   crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+  89:../Store/src/datastore_eep.c ****   buffer[buffer_size++] = crc32;
+  90:../Store/src/datastore_eep.c **** 
+  91:../Store/src/datastore_eep.c ****   /* Write hardware settings structure in the EEPROM */
+  92:../Store/src/datastore_eep.c ****   return(bsp_eeprom_24cw128x_write_data(eeprom_address, (uint8_t*)buffer, buffer_size*4));
+  93:../Store/src/datastore_eep.c **** }
+  68              	 .loc 1 93 0
+  69 001e BD46     	 mov sp,r7
+  70              	.LCFI2:
+  71              	 .cfi_remember_state
+  72              	 .cfi_def_cfa_register 13
+  73              	 
+  74 0020 BDE8F883 	 pop {r3,r4,r5,r6,r7,r8,r9,pc}
+  75              	.LVL6:
+  76              	.L11:
+  77              	.LCFI3:
+  78              	 .cfi_restore_state
+  71:../Store/src/datastore_eep.c ****   {
+  79              	 .loc 1 71 0
+  80 0024 8C07     	 lsls r4,r1,#30
+  81 0026 0646     	 mov r6,r0
+  82 0028 9146     	 mov r9,r2
+  83 002a 0C46     	 mov r4,r1
+  81:../Store/src/datastore_eep.c **** 
+  84              	 .loc 1 81 0
+  85 002c 1A46     	 mov r2,r3
+  86              	.LVL7:
+  87 002e 6846     	 mov r0,sp
+  88              	.LVL8:
+  89 0030 4FF00001 	 mov r1,#0
+  90              	.LVL9:
+  73:../Store/src/datastore_eep.c ****   }
+  91              	 .loc 1 73 0
+  92 0034 18BF     	 it ne
+  93 0036 0135     	 addne r5,r5,#1
+  94              	.LVL10:
+  81:../Store/src/datastore_eep.c **** 
+  95              	 .loc 1 81 0
+  96 0038 FFF7FEFF 	 bl memset
+  97              	.LVL11:
+  84:../Store/src/datastore_eep.c **** 
+  98              	 .loc 1 84 0
+  99 003c 3146     	 mov r1,r6
+ 100 003e 2246     	 mov r2,r4
+ 101 0040 6846     	 mov r0,sp
+ 102 0042 FFF7FEFF 	 bl memcpy
+ 103              	.LVL12:
+  87:../Store/src/datastore_eep.c ****   crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+ 104              	 .loc 1 87 0
+ 105 0046 6946     	 mov r1,sp
+ 106 0048 2A46     	 mov r2,r5
+ 107 004a 0848     	 ldr r0,.L12
+ 108 004c FFF7FEFF 	 bl CRC_SW_CalculateCRC
+ 109              	.LVL13:
+  88:../Store/src/datastore_eep.c ****   buffer[buffer_size++] = crc32;
+ 110              	 .loc 1 88 0
+ 111 0050 0648     	 ldr r0,.L12
+ 112 0052 FFF7FEFF 	 bl CRC_SW_GetCRCResult
+ 113              	.LVL14:
+  89:../Store/src/datastore_eep.c **** 
+ 114              	 .loc 1 89 0
+ 115 0056 6A1C     	 adds r2,r5,#1
+ 116              	.LVL15:
+ 117 0058 4DF82500 	 str r0,[sp,r5,lsl#2]
+  92:../Store/src/datastore_eep.c **** }
+ 118              	 .loc 1 92 0
+ 119 005c 9200     	 lsls r2,r2,#2
+ 120              	.LVL16:
+ 121 005e 4846     	 mov r0,r9
+ 122              	.LVL17:
+ 123 0060 6946     	 mov r1,sp
+ 124 0062 FFF7FEFF 	 bl bsp_eeprom_24cw128x_write_data
+ 125              	.LVL18:
+ 126              	 .loc 1 93 0
+ 127 0066 BD46     	 mov sp,r7
+ 128              	.LCFI4:
+ 129              	 .cfi_def_cfa_register 13
+ 130              	 
+ 131 0068 BDE8F883 	 pop {r3,r4,r5,r6,r7,r8,r9,pc}
+ 132              	.LVL19:
+ 133              	.L13:
+ 134              	 .align 2
+ 135              	.L12:
+ 136 006c 00000000 	 .word CRC_SW_EEPROM
+ 137              	 .cfi_endproc
+ 138              	.LFE529:
+ 140              	 .section .text.ds_eeprom_read_settings,"ax",%progbits
+ 141              	 .align 2
+ 142              	 .global ds_eeprom_read_settings
+ 143              	 .thumb
+ 144              	 .thumb_func
+ 146              	ds_eeprom_read_settings:
+ 147              	.LFB530:
+  94:../Store/src/datastore_eep.c **** 
+  95:../Store/src/datastore_eep.c **** //============================================================================
+  96:../Store/src/datastore_eep.c **** 
+  97:../Store/src/datastore_eep.c **** /* Function to read settings from EEPROM */
+  98:../Store/src/datastore_eep.c **** EEPROM_STATUS_t ds_eeprom_read_settings(void *p_settings, uint32_t struct_size, uint16_t eeprom_add
+  99:../Store/src/datastore_eep.c **** {
+ 148              	 .loc 1 99 0
+ 149              	 .cfi_startproc
+ 150              	 
+ 151              	 
+ 152              	.LVL20:
+ 153 0000 2DE9F047 	 push {r4,r5,r6,r7,r8,r9,r10,lr}
+ 154              	.LCFI5:
+ 155              	 .cfi_def_cfa_offset 32
+ 156              	 .cfi_offset 4,-32
+ 157              	 .cfi_offset 5,-28
+ 158              	 .cfi_offset 6,-24
+ 159              	 .cfi_offset 7,-20
+ 160              	 .cfi_offset 8,-16
+ 161              	 .cfi_offset 9,-12
+ 162              	 .cfi_offset 10,-8
+ 163              	 .cfi_offset 14,-4
+ 100:../Store/src/datastore_eep.c ****   uint32_t buffer[struct_size/4 + 2]; /* Plus one extra for the CRC32 */
+ 164              	 .loc 1 100 0
+ 165 0004 8D08     	 lsrs r5,r1,#2
+ 166              	.LVL21:
+ 167 0006 AB1C     	 adds r3,r5,#2
+ 168              	.LVL22:
+ 169 0008 9B00     	 lsls r3,r3,#2
+ 170              	.LVL23:
+ 171 000a 03F10A04 	 add r4,r3,#10
+ 172 000e 24F00704 	 bic r4,r4,#7
+  99:../Store/src/datastore_eep.c ****   uint32_t buffer[struct_size/4 + 2]; /* Plus one extra for the CRC32 */
+ 173              	 .loc 1 99 0
+ 174 0012 00AF     	 add r7,sp,#0
+ 175              	.LCFI6:
+ 176              	 .cfi_def_cfa_register 7
+ 177              	 .loc 1 100 0
+ 178 0014 ADEB040D 	 sub sp,sp,r4
+ 179              	.LVL24:
+ 101:../Store/src/datastore_eep.c ****   uint32_t buffer_size = 0, new_crc32 = 0, old_crc32 = 0;
+ 102:../Store/src/datastore_eep.c ****   EEPROM_STATUS_t ret_status = EEPROM_STATUS_FAILURE;
+ 103:../Store/src/datastore_eep.c **** 
+ 104:../Store/src/datastore_eep.c ****   if ((p_settings == NULL) || (struct_size <= 0))
+ 180              	 .loc 1 104 0
+ 181 0018 00B1     	 cbz r0,.L17
+ 182              	 .loc 1 104 0 is_stmt 0 discriminator 1
+ 183 001a 19B9     	 cbnz r1,.L26
+ 184              	.LVL25:
+ 185              	.L17:
+ 105:../Store/src/datastore_eep.c ****   {
+ 106:../Store/src/datastore_eep.c ****     /* Invalid input parameters */
+ 107:../Store/src/datastore_eep.c **** 	return EEPROM_STATUS_FAILURE;
+ 186              	 .loc 1 107 0 is_stmt 1
+ 187 001c 0220     	 movs r0,#2
+ 188              	.L16:
+ 108:../Store/src/datastore_eep.c ****   }
+ 109:../Store/src/datastore_eep.c **** 
+ 110:../Store/src/datastore_eep.c ****   /* Get the buffer size for the structure */
+ 111:../Store/src/datastore_eep.c ****   if ((struct_size % 4) != 0)
+ 112:../Store/src/datastore_eep.c ****   {
+ 113:../Store/src/datastore_eep.c ****     buffer_size = struct_size/4 + 1;
+ 114:../Store/src/datastore_eep.c ****   }
+ 115:../Store/src/datastore_eep.c ****   else
+ 116:../Store/src/datastore_eep.c ****   {
+ 117:../Store/src/datastore_eep.c **** 	buffer_size = struct_size/4;
+ 118:../Store/src/datastore_eep.c ****   }
+ 119:../Store/src/datastore_eep.c **** 
+ 120:../Store/src/datastore_eep.c ****   /* Clear the receive buffer */
+ 121:../Store/src/datastore_eep.c ****   memset(buffer, 0, sizeof(buffer));
+ 122:../Store/src/datastore_eep.c **** 
+ 123:../Store/src/datastore_eep.c ****   /* Read hardware settings structure from EEPROM */
+ 124:../Store/src/datastore_eep.c ****   ret_status = bsp_eeprom_24cw128x_read_data(eeprom_address, (uint8_t*)buffer, (buffer_size + 1)*4)
+ 125:../Store/src/datastore_eep.c **** 
+ 126:../Store/src/datastore_eep.c ****   /* Get the old CRC and compare it with the new one */
+ 127:../Store/src/datastore_eep.c ****   old_crc32 = buffer[buffer_size];
+ 128:../Store/src/datastore_eep.c ****   CRC_SW_CalculateCRC(&CRC_SW_EEPROM, buffer, buffer_size);
+ 129:../Store/src/datastore_eep.c ****   new_crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+ 130:../Store/src/datastore_eep.c **** 
+ 131:../Store/src/datastore_eep.c ****   /* Check for CRC error */
+ 132:../Store/src/datastore_eep.c ****   if ((new_crc32 == old_crc32) && (ret_status == EEPROM_STATUS_SUCCESS))
+ 133:../Store/src/datastore_eep.c ****   {
+ 134:../Store/src/datastore_eep.c ****     /* Valid CRC: copy buffer into the HW settings structure */
+ 135:../Store/src/datastore_eep.c **** 	memcpy(p_settings, buffer, struct_size);
+ 136:../Store/src/datastore_eep.c **** 
+ 137:../Store/src/datastore_eep.c ****     return EEPROM_STATUS_SUCCESS;
+ 138:../Store/src/datastore_eep.c ****   }
+ 139:../Store/src/datastore_eep.c ****   else
+ 140:../Store/src/datastore_eep.c ****   {
+ 141:../Store/src/datastore_eep.c **** 	return EEPROM_STATUS_FAILURE;
+ 142:../Store/src/datastore_eep.c ****   }
+ 143:../Store/src/datastore_eep.c **** }
+ 189              	 .loc 1 143 0
+ 190 001e BD46     	 mov sp,r7
+ 191              	.LCFI7:
+ 192              	 .cfi_remember_state
+ 193              	 .cfi_def_cfa_register 13
+ 194              	 
+ 195 0020 BDE8F087 	 pop {r4,r5,r6,r7,r8,r9,r10,pc}
+ 196              	.LVL26:
+ 197              	.L26:
+ 198              	.LCFI8:
+ 199              	 .cfi_restore_state
+ 111:../Store/src/datastore_eep.c ****   {
+ 200              	 .loc 1 111 0
+ 201 0024 8C07     	 lsls r4,r1,#30
+ 113:../Store/src/datastore_eep.c ****   }
+ 202              	 .loc 1 113 0
+ 203 0026 18BF     	 it ne
+ 204 0028 0135     	 addne r5,r5,#1
+ 205              	.LVL27:
+ 206 002a 1446     	 mov r4,r2
+ 207 002c 0646     	 mov r6,r0
+ 121:../Store/src/datastore_eep.c **** 
+ 208              	 .loc 1 121 0
+ 209 002e 1A46     	 mov r2,r3
+ 210              	.LVL28:
+ 211 0030 8946     	 mov r9,r1
+ 212 0032 6846     	 mov r0,sp
+ 213              	.LVL29:
+ 214 0034 0021     	 movs r1,#0
+ 215              	.LVL30:
+ 216 0036 FFF7FEFF 	 bl memset
+ 217              	.LVL31:
+ 124:../Store/src/datastore_eep.c **** 
+ 218              	 .loc 1 124 0
+ 219 003a 6A1C     	 adds r2,r5,#1
+ 220 003c 2046     	 mov r0,r4
+ 221 003e 9200     	 lsls r2,r2,#2
+ 222 0040 6946     	 mov r1,sp
+ 223 0042 FFF7FEFF 	 bl bsp_eeprom_24cw128x_read_data
+ 224              	.LVL32:
+ 128:../Store/src/datastore_eep.c ****   new_crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+ 225              	 .loc 1 128 0
+ 226 0046 6946     	 mov r1,sp
+ 227 0048 2A46     	 mov r2,r5
+ 124:../Store/src/datastore_eep.c **** 
+ 228              	 .loc 1 124 0
+ 229 004a 0446     	 mov r4,r0
+ 230              	.LVL33:
+ 128:../Store/src/datastore_eep.c ****   new_crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+ 231              	 .loc 1 128 0
+ 232 004c 0948     	 ldr r0,.L27
+ 127:../Store/src/datastore_eep.c ****   CRC_SW_CalculateCRC(&CRC_SW_EEPROM, buffer, buffer_size);
+ 233              	 .loc 1 127 0
+ 234 004e 5DF825A0 	 ldr r10,[sp,r5,lsl#2]
+ 235              	.LVL34:
+ 128:../Store/src/datastore_eep.c ****   new_crc32 = CRC_SW_GetCRCResult(&CRC_SW_EEPROM);
+ 236              	 .loc 1 128 0
+ 237 0052 FFF7FEFF 	 bl CRC_SW_CalculateCRC
+ 238              	.LVL35:
+ 129:../Store/src/datastore_eep.c **** 
+ 239              	 .loc 1 129 0
+ 240 0056 0748     	 ldr r0,.L27
+ 241 0058 FFF7FEFF 	 bl CRC_SW_GetCRCResult
+ 242              	.LVL36:
+ 132:../Store/src/datastore_eep.c ****   {
+ 243              	 .loc 1 132 0
+ 244 005c 5045     	 cmp r0,r10
+ 245 005e DDD1     	 bne .L17
+ 132:../Store/src/datastore_eep.c ****   {
+ 246              	 .loc 1 132 0 is_stmt 0 discriminator 1
+ 247 0060 012C     	 cmp r4,#1
+ 248 0062 DBD1     	 bne .L17
+ 135:../Store/src/datastore_eep.c **** 
+ 249              	 .loc 1 135 0 is_stmt 1
+ 250 0064 3046     	 mov r0,r6
+ 251              	.LVL37:
+ 252 0066 6946     	 mov r1,sp
+ 253 0068 4A46     	 mov r2,r9
+ 254 006a FFF7FEFF 	 bl memcpy
+ 255              	.LVL38:
+ 137:../Store/src/datastore_eep.c ****   }
+ 256              	 .loc 1 137 0
+ 257 006e 2046     	 mov r0,r4
+ 258 0070 D5E7     	 b .L16
+ 259              	.L28:
+ 260 0072 00BF     	 .align 2
+ 261              	.L27:
+ 262 0074 00000000 	 .word CRC_SW_EEPROM
+ 263              	 .cfi_endproc
+ 264              	.LFE530:
+ 266              	 .section .text.ds_eeprom_read_board_id,"ax",%progbits
+ 267              	 .align 2
+ 268              	 .global ds_eeprom_read_board_id
+ 269              	 .thumb
+ 270              	 .thumb_func
+ 272              	ds_eeprom_read_board_id:
+ 273              	.LFB531:
+ 144:../Store/src/datastore_eep.c **** 
+ 145:../Store/src/datastore_eep.c **** //============================================================================
+ 146:../Store/src/datastore_eep.c **** 
+ 147:../Store/src/datastore_eep.c **** /* Function to read board ID from EEPROM
+ 148:../Store/src/datastore_eep.c ****    !!! Only 32 bytes are reserved for the RF board ID */
+ 149:../Store/src/datastore_eep.c **** RF_SHIELD_STATUS_t ds_eeprom_read_board_id(char *board_id, uint8_t id_size)
+ 150:../Store/src/datastore_eep.c **** {
+ 274              	 .loc 1 150 0
+ 275              	 .cfi_startproc
+ 276              	 
+ 277              	 
+ 278              	.LVL39:
+ 151:../Store/src/datastore_eep.c ****   uint16_t eeprom_address = DS_EEPROM_ADDRESS_BOARD_ID;
+ 152:../Store/src/datastore_eep.c **** 
+ 153:../Store/src/datastore_eep.c ****   uint8_t buffer[32], index = 0;
+ 154:../Store/src/datastore_eep.c ****   char *id = board_id;
+ 155:../Store/src/datastore_eep.c ****   RF_SHIELD_STATUS_t shield_status = RF_SHIELD_BOARD_NOT_CONNECTED;
+ 156:../Store/src/datastore_eep.c **** 
+ 157:../Store/src/datastore_eep.c ****   if ((board_id == NULL) || (id_size > 32) || (id_size == 0))
+ 279              	 .loc 1 157 0
+ 280 0000 10B1     	 cbz r0,.L36
+ 281              	 .loc 1 157 0 is_stmt 0 discriminator 2
+ 282 0002 4B1E     	 subs r3,r1,#1
+ 283 0004 1F2B     	 cmp r3,#31
+ 284 0006 01D9     	 bls .L42
+ 285              	.L36:
+ 158:../Store/src/datastore_eep.c ****   {
+ 159:../Store/src/datastore_eep.c **** 	return RF_SHIELD_BOARD_INVALID_PARAM;
+ 286              	 .loc 1 159 0 is_stmt 1
+ 287 0008 0120     	 movs r0,#1
+ 288              	.LVL40:
+ 160:../Store/src/datastore_eep.c ****   }
+ 161:../Store/src/datastore_eep.c **** 
+ 162:../Store/src/datastore_eep.c ****   /* Clear the receive buffer */
+ 163:../Store/src/datastore_eep.c ****   memset(buffer, 0, sizeof(buffer));
+ 164:../Store/src/datastore_eep.c **** 
+ 165:../Store/src/datastore_eep.c ****   /*  Read RF board ID from EEPROM and check if a valid board ID is written in EEPROM */
+ 166:../Store/src/datastore_eep.c ****   if (bsp_eeprom_24cw128x_read_data(eeprom_address, buffer, id_size) == EEPROM_STATUS_SUCCESS)
+ 167:../Store/src/datastore_eep.c ****   {
+ 168:../Store/src/datastore_eep.c ****     do
+ 169:../Store/src/datastore_eep.c ****     {
+ 170:../Store/src/datastore_eep.c ****       if ((index == id_size) && (*id == '\0'))
+ 171:../Store/src/datastore_eep.c ****       {
+ 172:../Store/src/datastore_eep.c ****         /* Valid board ID */
+ 173:../Store/src/datastore_eep.c ****         shield_status = RF_SHIELD_BOARD_SUPPORTED;
+ 174:../Store/src/datastore_eep.c ****         break;
+ 175:../Store/src/datastore_eep.c ****       }
+ 176:../Store/src/datastore_eep.c ****       else if (*id == buffer[index])
+ 177:../Store/src/datastore_eep.c ****       {
+ 178:../Store/src/datastore_eep.c ****         /* Go to the next char */
+ 179:../Store/src/datastore_eep.c ****         id++;
+ 180:../Store/src/datastore_eep.c ****         index++;
+ 181:../Store/src/datastore_eep.c ****       }
+ 182:../Store/src/datastore_eep.c ****       else  /* Invalid board ID */
+ 183:../Store/src/datastore_eep.c ****       {
+ 184:../Store/src/datastore_eep.c ****     	if (index >= 3)
+ 185:../Store/src/datastore_eep.c ****     	{
+ 186:../Store/src/datastore_eep.c ****           /* RF shield board is not compatible and is not supported in the current Firmware.
+ 187:../Store/src/datastore_eep.c ****       	   Shield programmed with the wrong ID, For example RBBxxxxx */
+ 188:../Store/src/datastore_eep.c ****           shield_status = RF_SHIELD_BOARD_UNSUPPORTED;
+ 189:../Store/src/datastore_eep.c ****     	}
+ 190:../Store/src/datastore_eep.c ****     	else
+ 191:../Store/src/datastore_eep.c ****     	{
+ 192:../Store/src/datastore_eep.c ****     	  /* Invalid RF shield board.
+ 193:../Store/src/datastore_eep.c ****     	  RF shield is not programmed or it contains invalid data */
+ 194:../Store/src/datastore_eep.c ****           shield_status = RF_SHIELD_BOARD_NOT_PROGRAMMED;
+ 195:../Store/src/datastore_eep.c ****     	}
+ 196:../Store/src/datastore_eep.c ****         break;
+ 197:../Store/src/datastore_eep.c ****       }
+ 198:../Store/src/datastore_eep.c ****     }while (index <= id_size);
+ 199:../Store/src/datastore_eep.c ****   }
+ 200:../Store/src/datastore_eep.c ****   else /* In case of I2C error */
+ 201:../Store/src/datastore_eep.c ****   {
+ 202:../Store/src/datastore_eep.c ****     shield_status = RF_SHIELD_BOARD_NOT_CONNECTED;
+ 203:../Store/src/datastore_eep.c ****   }
+ 204:../Store/src/datastore_eep.c **** 
+ 205:../Store/src/datastore_eep.c ****   return shield_status;
+ 206:../Store/src/datastore_eep.c **** }
+ 289              	 .loc 1 206 0
+ 290 000a 7047     	 bx lr
+ 291              	.LVL41:
+ 292              	.L42:
+ 150:../Store/src/datastore_eep.c ****   uint16_t eeprom_address = DS_EEPROM_ADDRESS_BOARD_ID;
+ 293              	 .loc 1 150 0
+ 294 000c F0B5     	 push {r4,r5,r6,r7,lr}
+ 295              	.LCFI9:
+ 296              	 .cfi_def_cfa_offset 20
+ 297              	 .cfi_offset 4,-20
+ 298              	 .cfi_offset 5,-16
+ 299              	 .cfi_offset 6,-12
+ 300              	 .cfi_offset 7,-8
+ 301              	 .cfi_offset 14,-4
+ 163:../Store/src/datastore_eep.c **** 
+ 302              	 .loc 1 163 0
+ 303 000e 0024     	 movs r4,#0
+ 150:../Store/src/datastore_eep.c ****   uint16_t eeprom_address = DS_EEPROM_ADDRESS_BOARD_ID;
+ 304              	 .loc 1 150 0
+ 305 0010 89B0     	 sub sp,sp,#36
+ 306              	.LCFI10:
+ 307              	 .cfi_def_cfa_offset 56
+ 308 0012 0F46     	 mov r7,r1
+ 309 0014 0546     	 mov r5,r0
+ 166:../Store/src/datastore_eep.c ****   {
+ 310              	 .loc 1 166 0
+ 311 0016 6946     	 mov r1,sp
+ 312              	.LVL42:
+ 313 0018 2046     	 mov r0,r4
+ 314              	.LVL43:
+ 315 001a 3A46     	 mov r2,r7
+ 163:../Store/src/datastore_eep.c **** 
+ 316              	 .loc 1 163 0
+ 317 001c 0094     	 str r4,[sp]
+ 318 001e 0194     	 str r4,[sp,#4]
+ 319 0020 0294     	 str r4,[sp,#8]
+ 320 0022 0394     	 str r4,[sp,#12]
+ 321 0024 0494     	 str r4,[sp,#16]
+ 322 0026 0594     	 str r4,[sp,#20]
+ 323 0028 0694     	 str r4,[sp,#24]
+ 324 002a 0794     	 str r4,[sp,#28]
+ 166:../Store/src/datastore_eep.c ****   {
+ 325              	 .loc 1 166 0
+ 326 002c FFF7FEFF 	 bl bsp_eeprom_24cw128x_read_data
+ 327              	.LVL44:
+ 328 0030 0128     	 cmp r0,#1
+ 329 0032 02D0     	 beq .L43
+ 330              	.LVL45:
+ 331              	.L37:
+ 202:../Store/src/datastore_eep.c ****   }
+ 332              	 .loc 1 202 0
+ 333 0034 0520     	 movs r0,#5
+ 334              	.L30:
+ 335              	 .loc 1 206 0
+ 336 0036 09B0     	 add sp,sp,#36
+ 337              	.LCFI11:
+ 338              	 .cfi_remember_state
+ 339              	 .cfi_def_cfa_offset 20
+ 340              	 
+ 341 0038 F0BD     	 pop {r4,r5,r6,r7,pc}
+ 342              	.LVL46:
+ 343              	.L43:
+ 344              	.LCFI12:
+ 345              	 .cfi_restore_state
+ 346 003a 791C     	 adds r1,r7,#1
+ 347 003c 2846     	 mov r0,r5
+ 166:../Store/src/datastore_eep.c ****   {
+ 348              	 .loc 1 166 0
+ 349 003e 2346     	 mov r3,r4
+ 350 0040 C9B2     	 uxtb r1,r1
+ 351 0042 0DF1FF32 	 add r2,sp,#-1
+ 352 0046 04E0     	 b .L31
+ 353              	.LVL47:
+ 354              	.L45:
+ 180:../Store/src/datastore_eep.c ****       }
+ 355              	 .loc 1 180 0
+ 356 0048 F3B2     	 uxtb r3,r6
+ 357              	.LVL48:
+ 198:../Store/src/datastore_eep.c ****   }
+ 358              	 .loc 1 198 0
+ 359 004a 8B42     	 cmp r3,r1
+ 360 004c F2D0     	 beq .L37
+ 170:../Store/src/datastore_eep.c ****       {
+ 361              	 .loc 1 170 0
+ 362 004e 9F42     	 cmp r7,r3
+ 363 0050 0CD0     	 beq .L44
+ 364              	.LVL49:
+ 365              	.L31:
+ 176:../Store/src/datastore_eep.c ****       {
+ 366              	 .loc 1 176 0
+ 367 0052 10F8014B 	 ldrb r4,[r0],#1
+ 368              	.LVL50:
+ 369 0056 12F8015F 	 ldrb r5,[r2,#1]!
+ 370 005a A542     	 cmp r5,r4
+ 180:../Store/src/datastore_eep.c ****       }
+ 371              	 .loc 1 180 0
+ 372 005c 03F10106 	 add r6,r3,#1
+ 176:../Store/src/datastore_eep.c ****       {
+ 373              	 .loc 1 176 0
+ 374 0060 F2D0     	 beq .L45
+ 194:../Store/src/datastore_eep.c ****     	}
+ 375              	 .loc 1 194 0
+ 376 0062 022B     	 cmp r3,#2
+ 377 0064 8CBF     	 ite hi
+ 378 0066 0320     	 movhi r0,#3
+ 379              	.LVL51:
+ 380 0068 0420     	 movls r0,#4
+ 381 006a E4E7     	 b .L30
+ 382              	.LVL52:
+ 383              	.L44:
+ 170:../Store/src/datastore_eep.c ****       {
+ 384              	 .loc 1 170 0 discriminator 1
+ 385 006c 0478     	 ldrb r4,[r0]
+ 386 006e 002C     	 cmp r4,#0
+ 387 0070 EFD1     	 bne .L31
+ 173:../Store/src/datastore_eep.c ****         break;
+ 388              	 .loc 1 173 0
+ 389 0072 0220     	 movs r0,#2
+ 390              	.LVL53:
+ 391 0074 DFE7     	 b .L30
+ 392              	 .cfi_endproc
+ 393              	.LFE531:
+ 395 0076 00BF     	 .section .text.ds_eeprom_write_inital_board_id,"ax",%progbits
+ 396              	 .align 2
+ 397              	 .global ds_eeprom_write_inital_board_id
+ 398              	 .thumb
+ 399              	 .thumb_func
+ 401              	ds_eeprom_write_inital_board_id:
+ 402              	.LFB532:
+ 207:../Store/src/datastore_eep.c **** 
+ 208:../Store/src/datastore_eep.c **** //============================================================================
+ 209:../Store/src/datastore_eep.c **** 
+ 210:../Store/src/datastore_eep.c **** /* TODO: remove for release! */
+ 211:../Store/src/datastore_eep.c **** 
+ 212:../Store/src/datastore_eep.c **** uint8_t ds_eeprom_write_inital_board_id(void)
+ 213:../Store/src/datastore_eep.c **** {
+ 403              	 .loc 1 213 0
+ 404              	 .cfi_startproc
+ 405              	 
+ 406              	 
+ 407 0000 00B5     	 push {lr}
+ 408              	.LCFI13:
+ 409              	 .cfi_def_cfa_offset 4
+ 410              	 .cfi_offset 14,-4
+ 214:../Store/src/datastore_eep.c ****   uint8_t buffer[] = RF_BOARD_ID;
+ 411              	 .loc 1 214 0
+ 412 0002 074B     	 ldr r3,.L48
+ 413 0004 93E80700 	 ldmia r3,{r0,r1,r2}
+ 213:../Store/src/datastore_eep.c ****   uint8_t buffer[] = RF_BOARD_ID;
+ 414              	 .loc 1 213 0
+ 415 0008 85B0     	 sub sp,sp,#20
+ 416              	.LCFI14:
+ 417              	 .cfi_def_cfa_offset 24
+ 418              	 .loc 1 214 0
+ 419 000a 01AB     	 add r3,sp,#4
+ 420 000c 03C3     	 stmia r3!,{r0,r1}
+ 215:../Store/src/datastore_eep.c **** 
+ 216:../Store/src/datastore_eep.c ****   /* Read RF board ID from EEPROM */
+ 217:../Store/src/datastore_eep.c ****   return bsp_eeprom_24cw128x_write_data(DS_EEPROM_ADDRESS_BOARD_ID, buffer, sizeof(buffer));
+ 421              	 .loc 1 217 0
+ 422 000e 01A9     	 add r1,sp,#4
+ 214:../Store/src/datastore_eep.c **** 
+ 423              	 .loc 1 214 0
+ 424 0010 1A70     	 strb r2,[r3]
+ 425              	 .loc 1 217 0
+ 426 0012 0020     	 movs r0,#0
+ 427 0014 0922     	 movs r2,#9
+ 428 0016 FFF7FEFF 	 bl bsp_eeprom_24cw128x_write_data
+ 429              	.LVL54:
+ 218:../Store/src/datastore_eep.c **** }
+ 430              	 .loc 1 218 0
+ 431 001a 05B0     	 add sp,sp,#20
+ 432              	.LCFI15:
+ 433              	 .cfi_def_cfa_offset 4
+ 434              	 
+ 435 001c 5DF804FB 	 ldr pc,[sp],#4
+ 436              	.L49:
+ 437              	 .align 2
+ 438              	.L48:
+ 439 0020 00000000 	 .word .LC0
+ 440              	 .cfi_endproc
+ 441              	.LFE532:
+ 443              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 444              	 .align 2
+ 445              	.LC0:
+ 446 0000 52424250 	 .ascii "RBBPDV30\000"
+ 446      44563330 
+ 446      00
+ 447 0009 000000   	 .text
+ 448              	.Letext0:
+ 449              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 450              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 451              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 452              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 453              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 454              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 455              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 456              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CRC_SW/crc_sw.h"
+ 457              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/radar_mcu4/inc/radar_mcu4_bsp.h"
+ 458              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore_eep.h"
+ 459              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 460              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 461              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 462              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 463              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CRC_SW/crc_sw_extern.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 datastore_eep.c
+    {standard input}:20     .text.ds_eeprom_write_settings:00000000 $t
+    {standard input}:25     .text.ds_eeprom_write_settings:00000000 ds_eeprom_write_settings
+    {standard input}:136    .text.ds_eeprom_write_settings:0000006c $d
+    {standard input}:141    .text.ds_eeprom_read_settings:00000000 $t
+    {standard input}:146    .text.ds_eeprom_read_settings:00000000 ds_eeprom_read_settings
+    {standard input}:262    .text.ds_eeprom_read_settings:00000074 $d
+    {standard input}:267    .text.ds_eeprom_read_board_id:00000000 $t
+    {standard input}:272    .text.ds_eeprom_read_board_id:00000000 ds_eeprom_read_board_id
+    {standard input}:396    .text.ds_eeprom_write_inital_board_id:00000000 $t
+    {standard input}:401    .text.ds_eeprom_write_inital_board_id:00000000 ds_eeprom_write_inital_board_id
+    {standard input}:439    .text.ds_eeprom_write_inital_board_id:00000020 $d
+    {standard input}:444    .rodata.str1.4:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+memset
+memcpy
+CRC_SW_CalculateCRC
+CRC_SW_GetCRCResult
+bsp_eeprom_24cw128x_write_data
+CRC_SW_EEPROM
+bsp_eeprom_24cw128x_read_data

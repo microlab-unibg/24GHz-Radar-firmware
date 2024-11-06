@@ -1,0 +1,222 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_fill_q7.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_fill_q7,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_fill_q7
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_fill_q7:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c"
+   1:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Title:        arm_fill_q7.c
+   4:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Description:  Fills a constant value into a Q7 vector
+   5:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  29:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  31:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @ingroup groupSupport
+  33:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  35:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @addtogroup Fill
+  37:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  40:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** /**
+  41:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @brief Fills a constant value into a Q7 vector.
+  42:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @param[in]       value input value to be filled
+  43:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @param[out]      *pDst points to output vector
+  44:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @param[in]       blockSize length of the output vector
+  45:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  * @return none.
+  46:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  *
+  47:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****  */
+  48:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  49:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** void arm_fill_q7(
+  50:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   q7_t value,
+  51:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   q7_t * pDst,
+  52:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   uint32_t blockSize)
+  53:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** {
+  28              	 .loc 1 53 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  34 0000 70B4     	 push {r4,r5,r6}
+  35              	.LCFI0:
+  36              	 .cfi_def_cfa_offset 12
+  37              	 .cfi_offset 4,-12
+  38              	 .cfi_offset 5,-8
+  39              	 .cfi_offset 6,-4
+  40              	 .loc 1 53 0
+  41 0002 0646     	 mov r6,r0
+  54:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   uint32_t blkCnt;                               /* loop counter */
+  55:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  56:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** #if defined (ARM_MATH_DSP)
+  57:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  58:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  59:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  60:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   q31_t packedValue;                             /* value packed to 32 bits */
+  61:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  62:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /*loop Unrolling */
+  63:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   blkCnt = blockSize >> 2u;
+  64:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  65:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* Packing four 8 bit values to 32 bit value in order to use SIMD */
+  66:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   packedValue = __PACKq7(value, value, value, value);
+  42              	 .loc 1 66 0
+  43 0004 C5B2     	 uxtb r5,r0
+  44 0006 0002     	 lsls r0,r0,#8
+  45              	.LVL1:
+  46 0008 80B2     	 uxth r0,r0
+  47 000a 45EA0665 	 orr r5,r5,r6,lsl#24
+  48              	.LVL2:
+  49 000e 3304     	 lsls r3,r6,#16
+  50              	.LVL3:
+  51 0010 0543     	 orrs r5,r5,r0
+  52 0012 03F47F03 	 and r3,r3,#16711680
+  67:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  68:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  69:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+  70:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   while (blkCnt > 0u)
+  53              	 .loc 1 70 0
+  54 0016 9008     	 lsrs r0,r2,#2
+  55              	.LVL4:
+  66:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  56              	 .loc 1 66 0
+  57 0018 45EA0305 	 orr r5,r5,r3
+  58              	.LVL5:
+  59              	 .loc 1 70 0
+  60 001c 07D0     	 beq .L2
+  61 001e 0C46     	 mov r4,r1
+  62 0020 0346     	 mov r3,r0
+  63              	.LVL6:
+  64              	.L3:
+  65 0022 013B     	 subs r3,r3,#1
+  66              	.LVL7:
+  71:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   {
+  72:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* C = value */
+  73:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* Fill the value in the destination buffer */
+  74:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     *__SIMD32(pDst)++ = packedValue;
+  67              	 .loc 1 74 0
+  68 0024 44F8045B 	 str r5,[r4],#4
+  69              	.LVL8:
+  70:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   {
+  70              	 .loc 1 70 0
+  71 0028 FBD1     	 bne .L3
+  72 002a 01EB8001 	 add r1,r1,r0,lsl#2
+  73              	.LVL9:
+  74              	.L2:
+  75:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  76:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* Decrement the loop counter */
+  77:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     blkCnt--;
+  78:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   }
+  79:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  80:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
+  81:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****    ** No loop unrolling is used. */
+  82:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   blkCnt = blockSize % 0x4u;
+  83:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  84:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** #else
+  85:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  86:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* Run the below code for Cortex-M0 */
+  87:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  88:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   /* Loop over blockSize number of values */
+  89:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   blkCnt = blockSize;
+  90:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  91:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** #endif /* #if defined (ARM_MATH_DSP) */
+  92:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  93:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   while (blkCnt > 0u)
+  75              	 .loc 1 93 0
+  76 002e 12F00302 	 ands r2,r2,#3
+  77              	.LVL10:
+  78 0032 04D0     	 beq .L9
+  79 0034 0846     	 mov r0,r1
+  80 0036 3146     	 mov r1,r6
+  81              	.LVL11:
+  94:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   {
+  95:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* C = value */
+  96:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* Fill the value in the destination buffer */
+  97:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     *pDst++ = value;
+  98:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** 
+  99:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     /* Decrement the loop counter */
+ 100:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****     blkCnt--;
+ 101:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c ****   }
+ 102:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_fill_q7.c **** }
+  82              	 .loc 1 102 0
+  83 0038 70BC     	 pop {r4,r5,r6}
+  84              	.LCFI1:
+  85              	 .cfi_remember_state
+  86              	 .cfi_restore 6
+  87              	 .cfi_restore 5
+  88              	 .cfi_restore 4
+  89              	 .cfi_def_cfa_offset 0
+  90              	.LVL12:
+  91 003a FFF7FEBF 	 b memset
+  92              	.LVL13:
+  93              	.L9:
+  94              	.LCFI2:
+  95              	 .cfi_restore_state
+  96 003e 70BC     	 pop {r4,r5,r6}
+  97              	.LCFI3:
+  98              	 .cfi_restore 6
+  99              	 .cfi_restore 5
+ 100              	 .cfi_restore 4
+ 101              	 .cfi_def_cfa_offset 0
+ 102              	.LVL14:
+ 103 0040 7047     	 bx lr
+ 104              	 .cfi_endproc
+ 105              	.LFE135:
+ 107 0042 00BF     	 .text
+ 108              	.Letext0:
+ 109              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 110              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 111              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+ 112              	 .file 5 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_fill_q7.c
+    {standard input}:20     .text.arm_fill_q7:00000000 $t
+    {standard input}:25     .text.arm_fill_q7:00000000 arm_fill_q7
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+memset

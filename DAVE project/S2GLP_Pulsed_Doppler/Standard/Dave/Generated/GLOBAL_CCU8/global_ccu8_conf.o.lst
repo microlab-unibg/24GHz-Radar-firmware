@@ -1,0 +1,59 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "global_ccu8_conf.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .global GLOBAL_CCU8_1
+  20              	 .global GLOBAL_CCU8_0
+  21              	 .section .data.GLOBAL_CCU8_0,"aw",%progbits
+  22              	 .align 2
+  25              	GLOBAL_CCU8_0:
+  26 0000 00449508 	 .word 144000000
+  27 0004 0002     	 .short 512
+  28 0006 0000     	 .space 2
+  29 0008 00400240 	 .word 1073889280
+  30 000c 00       	 .byte 0
+  31 000d 00       	 .byte 0
+  32 000e 0000     	 .space 2
+  33              	 .section .data.GLOBAL_CCU8_1,"aw",%progbits
+  34              	 .align 2
+  37              	GLOBAL_CCU8_1:
+  38 0000 00449508 	 .word 144000000
+  39 0004 0001     	 .short 256
+  40 0006 0000     	 .space 2
+  41 0008 00000240 	 .word 1073872896
+  42 000c 00       	 .byte 0
+  43 000d 00       	 .byte 0
+  44 000e 0000     	 .space 2
+  45              	 .text
+  46              	.Letext0:
+  47              	 .file 1 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+  48              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+  49              	 .file 3 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+  50              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu8.h"
+  51              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
+  52              	 .file 6 "../Dave/Generated/GLOBAL_CCU8/global_ccu8.h"
+  53              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+  54              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+  55              	 .file 9 "../Dave/Generated/GLOBAL_CCU8/global_ccu8_conf.c"
+DEFINED SYMBOLS
+                            *ABS*:00000000 global_ccu8_conf.c
+    {standard input}:37     .data.GLOBAL_CCU8_1:00000000 GLOBAL_CCU8_1
+    {standard input}:25     .data.GLOBAL_CCU8_0:00000000 GLOBAL_CCU8_0
+    {standard input}:22     .data.GLOBAL_CCU8_0:00000000 $d
+    {standard input}:34     .data.GLOBAL_CCU8_1:00000000 $d
+
+NO UNDEFINED SYMBOLS

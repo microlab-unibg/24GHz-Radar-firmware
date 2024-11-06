@@ -1,0 +1,1704 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_correlate_f32.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_correlate_f32,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_correlate_f32
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_correlate_f32:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c"
+   1:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Title:        arm_correlate_f32.c
+   4:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Description:  Correlation of floating-point sequences
+   5:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+  29:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+  31:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @ingroup groupFilters
+  33:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+  35:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @defgroup Corr Correlation
+  37:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  38:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Correlation is a mathematical operation that is similar to convolution.
+  39:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * As with convolution, correlation uses two signals to produce a third signal.
+  40:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The underlying algorithms in correlation and convolution are identical except that one of the in
+  41:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Correlation is commonly used to measure the similarity between two signals.
+  42:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * It has applications in pattern recognition, cryptanalysis, and searching.
+  43:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The CMSIS library provides correlation functions for Q7, Q15, Q31 and floating-point data types.
+  44:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Fast versions of the Q15 and Q31 functions are also provided.
+  45:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  46:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par Algorithm
+  47:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Let <code>a[n]</code> and <code>b[n]</code> be sequences of length <code>srcALen</code> and <cod
+  48:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The convolution of the two signals is denoted by
+  49:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <pre>
+  50:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *                   c[n] = a[n] * b[n]
+  51:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * </pre>
+  52:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * In correlation, one of the signals is flipped in time
+  53:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <pre>
+  54:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *                   c[n] = a[n] * b[-n]
+  55:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * </pre>
+  56:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  57:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  58:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * and this is mathematically defined as
+  59:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \image html CorrelateEquation.gif
+  60:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  61:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The <code>pSrcA</code> points to the first input vector of length <code>srcALen</code> and <code
+  62:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The result <code>c[n]</code> is of length <code>2 * max(srcALen, srcBLen) - 1</code> and is defi
+  63:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The output result is written to <code>pDst</code> and the calling function must allocate <code>2
+  64:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  65:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <b>Note</b>
+  66:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  67:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * The <code>pDst</code> should be initialized to all zeros before being used.
+  68:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  69:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <b>Fixed-Point Behavior</b>
+  70:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  71:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Correlation requires summing up a large number of intermediate products.
+  72:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * As such, the Q7, Q15, and Q31 functions run a risk of overflow and saturation.
+  73:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Refer to the function specific documentation below for further details of the particular algorit
+  74:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <b>Fast Versions</b>
+  77:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  78:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  79:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Fast versions are supported for Q31 and Q15.  Cycles for Fast versions are less compared to Q31 
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * the input signals should be scaled down to avoid intermediate overflows.
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  82:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  83:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * <b>Opt Versions</b>
+  84:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  *
+  85:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * \par
+  86:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * Opt versions are supported for Q15 and Q7.  Design uses internal scratch buffer for getting good
+  87:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * These versions are optimised in cycles and consumes more memory(Scratch memory) compared to Q15 
+  88:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  */
+  89:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+  90:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /**
+  91:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @addtogroup Corr
+  92:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @{
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  */
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** /**
+  95:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @brief Correlation of floating-point sequences.
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @param[in]  *pSrcA points to the first input sequence.
+  97:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @param[in]  srcALen length of the first input sequence.
+  98:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @param[in]  *pSrcB points to the second input sequence.
+  99:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @param[in]  srcBLen length of the second input sequence.
+ 100:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @param[out] *pDst points to the location where the output result is written.  Length 2 * max(src
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  * @return none.
+ 102:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****  */
+ 103:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 104:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** void arm_correlate_f32(
+ 105:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t * pSrcA,
+ 106:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t srcALen,
+ 107:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t * pSrcB,
+ 108:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t srcBLen,
+ 109:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t * pDst)
+ 110:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** {
+  28              	 .loc 1 110 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 36
+  36              	 .cfi_offset 4,-36
+  37              	 .cfi_offset 5,-32
+  38              	 .cfi_offset 6,-28
+  39              	 .cfi_offset 7,-24
+  40              	 .cfi_offset 8,-20
+  41              	 .cfi_offset 9,-16
+  42              	 .cfi_offset 10,-12
+  43              	 .cfi_offset 11,-8
+  44              	 .cfi_offset 14,-4
+  45 0004 87B0     	 sub sp,sp,#28
+  46              	.LCFI1:
+  47              	 .cfi_def_cfa_offset 64
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 112:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 113:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** #if defined (ARM_MATH_DSP)
+ 114:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 115:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+ 116:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 117:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pIn1;                               /* inputA pointer */
+ 118:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pIn2;                               /* inputB pointer */
+ 119:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pOut = pDst;                        /* output pointer */
+ 120:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *px;                                 /* Intermediate inputA pointer */
+ 121:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *py;                                 /* Intermediate inputB pointer */
+ 122:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pSrc1;                              /* Intermediate pointers */
+ 123:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t sum, acc0, acc1, acc2, acc3;         /* Accumulators */
+ 124:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t x0, x1, x2, x3, c0;                  /* temporary variables for holding input and coeff
+ 125:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t j, k = 0u, count, blkCnt, outBlockSize, blockSize1, blockSize2, blockSize3;  /* loop cou
+ 126:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   int32_t inc = 1;                               /* Destination address modifier */
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 128:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 129:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* The algorithm implementation is based on the lengths of the inputs. */
+ 130:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* srcB is always made to slide across srcA. */
+ 131:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* So srcBLen is always considered as shorter or equal to srcALen */
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* But CORR(x, y) is reverse of CORR(y, x) */
+ 133:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* So, when srcBLen > srcALen, output pointer is made to point to the end of the output buffer */
+ 134:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* and the destination pointer modifier, inc is set to -1 */
+ 135:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If srcALen > srcBLen, zero pad has to be done to srcB to make the two inputs of same length */
+ 136:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* But to improve the performance,
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * we assume zeroes in the output instead of zero padding either of the the inputs*/
+ 138:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If srcALen > srcBLen,
+ 139:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * (srcALen - srcBLen) zeroes has to included in the starting of the output buffer */
+ 140:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If srcALen < srcBLen,
+ 141:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * (srcALen - srcBLen) zeroes has to included in the ending of the output buffer */
+ 142:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   if (srcALen >= srcBLen)
+  48              	 .loc 1 142 0
+  49 0006 9942     	 cmp r1,r3
+ 110:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+  50              	 .loc 1 110 0
+  51 0008 8446     	 mov ip,r0
+  52 000a 109C     	 ldr r4,[sp,#64]
+  53              	.LVL1:
+  54              	 .loc 1 142 0
+  55 000c C0F09B80 	 bcc .L2
+  56              	.LVL2:
+ 143:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 144:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization of inputA pointer */
+ 145:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn1 = pSrcA;
+ 146:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 147:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization of inputB pointer */
+ 148:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn2 = pSrcB;
+ 149:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 150:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Number of output samples is calculated */
+ 151:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     outBlockSize = (2u * srcALen) - 1u;
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 153:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* When srcALen > srcBLen, zero padding has to be done to srcB
+ 154:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      * to make their lengths equal.
+ 155:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      * Instead, (outBlockSize - (srcALen + srcBLen - 1))
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      * number of output samples are made zero */
+ 157:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     j = outBlockSize - (srcALen + (srcBLen - 1u));
+  57              	 .loc 1 157 0
+  58 0010 C3EB010E 	 rsb lr,r3,r1
+ 158:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 159:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Updating the pointer position to non zero value */
+ 160:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pOut += j;
+  59              	 .loc 1 160 0
+  60 0014 04EB8E0E 	 add lr,r4,lr,lsl#2
+  61              	.LVL3:
+  62 0018 0427     	 movs r7,#4
+  63              	.LVL4:
+  64              	.L3:
+ 161:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 162:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //while (j > 0u)
+ 163:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //{
+ 164:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //  /* Zero is stored in the destination buffer */
+ 165:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //  *pOut++ = 0.0f;
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 167:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //  /* Decrement the loop counter */
+ 168:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //  j--;
+ 169:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     //}
+ 170:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 172:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   else
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 174:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization of inputA pointer */
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn1 = pSrcB;
+ 176:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 177:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization of inputB pointer */
+ 178:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn2 = pSrcA;
+ 179:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 180:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* srcBLen is always considered as shorter or equal to srcALen */
+ 181:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     j = srcBLen;
+ 182:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     srcBLen = srcALen;
+ 183:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     srcALen = j;
+ 184:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* CORR(x, y) = Reverse order(CORR(y, x)) */
+ 186:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Hence set the destination pointer to point to the last output sample */
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pOut = pDst + ((srcALen + srcBLen) - 2u);
+ 188:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 189:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Destination address modifier is set to -1 */
+ 190:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     inc = -1;
+ 191:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 192:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 193:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 194:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* The function is internally
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * divided into three parts according to the number of multiplications that has to be
+ 196:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * taken place between inputA samples and inputB samples. In the first part of the
+ 197:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * algorithm, the multiplications increase by one for every iteration.
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * In the second part of the algorithm, srcBLen number of multiplications are done.
+ 199:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * In the third part of the algorithm, the multiplications decrease by one
+ 200:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * for every iteration.*/
+ 201:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* The algorithm is implemented in three stages.
+ 202:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * The loop counters of each stage is initiated here. */
+ 203:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   blockSize1 = srcBLen - 1u;
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   blockSize2 = srcALen - (srcBLen - 1u);
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   blockSize3 = blockSize1;
+ 206:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 207:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* --------------------------
+ 208:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Initializations of stage1
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * -------------------------*/
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 211:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* sum = x[0] * y[srcBlen - 1]
+ 212:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum = x[0] * y[srcBlen-2] + x[1] * y[srcBlen - 1]
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ....
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum = x[0] * y[0] + x[1] * y[1] +...+ x[srcBLen - 1] * y[srcBLen - 1]
+ 215:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    */
+ 216:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 217:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* In this stage the MAC operations are increased by 1 for every iteration.
+ 218:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      The count variable holds the number of MAC operations performed */
+ 219:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   count = 1u;
+ 220:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 221:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputA */
+ 222:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   px = pIn1;
+ 223:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 224:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputB */
+ 225:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   pSrc1 = pIn2 + (srcBLen - 1u);
+  65              	 .loc 1 225 0
+  66 001a 03F18040 	 add r0,r3,#1073741824
+  67 001e 0131     	 adds r1,r1,#1
+  68              	.LVL5:
+  69 0020 0138     	 subs r0,r0,#1
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   blockSize3 = blockSize1;
+  70              	 .loc 1 204 0
+  71 0022 C91A     	 subs r1,r1,r3
+  72              	.LVL6:
+ 226:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   py = pSrc1;
+ 227:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* ------------------------
+ 229:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Stage1 process
+ 230:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ----------------------*/
+ 231:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 232:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* The first stage starts here */
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   while (blockSize1 > 0u)
+  73              	 .loc 1 233 0
+  74 0024 5E1E     	 subs r6,r3,#1
+  75              	.LVL7:
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   blockSize3 = blockSize1;
+  76              	 .loc 1 204 0
+  77 0026 0091     	 str r1,[sp]
+  78              	.LVL8:
+ 225:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   py = pSrc1;
+  79              	 .loc 1 225 0
+  80 0028 02EB8000 	 add r0,r2,r0,lsl#2
+  81              	.LVL9:
+  82              	 .loc 1 233 0
+  83 002c 4BD0     	 beq .L4
+ 234:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 235:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Accumulator is made zero for every iteration */
+ 236:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     sum = 0.0f;
+  84              	 .loc 1 236 0
+  85 002e DFED667A 	 flds s15,.L89
+  86 0032 A0F10408 	 sub r8,r0,#4
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+  87              	 .loc 1 233 0
+  88 0036 F146     	 mov r9,lr
+  89 0038 6446     	 mov r4,ip
+  90 003a 0125     	 movs r5,#1
+  91              	.LVL10:
+  92              	.L5:
+ 237:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 238:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 239:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     k = count >> 2u;
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 241:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 242:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (k > 0u)
+ 244:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 245:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[0] * y[srcBLen - 4] */
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 247:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[1] * y[srcBLen - 3] */
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 249:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[2] * y[srcBLen - 2] */
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 251:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[3] * y[srcBLen - 1] */
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 253:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 254:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 255:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k--;
+ 256:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 257:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 258:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* If the count is not a multiple of 4, compute any remaining MACs here.
+ 259:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      ** No loop unrolling is used. */
+ 260:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     k = count % 0x4u;
+ 261:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (k > 0u)
+  93              	 .loc 1 262 0
+  94 003c 15F00301 	 ands r1,r5,#3
+  95              	.LVL11:
+  96 0040 07D0     	 beq .L8
+  97              	.LVL12:
+  98              	.L9:
+ 263:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 264:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Perform the multiply-accumulate */
+ 265:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[0] * y[srcBLen - 1] */
+ 266:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+  99              	 .loc 1 266 0
+ 100 0042 F4EC016A 	 fldmias r4!,{s13}
+ 101              	.LVL13:
+ 102 0046 B0EC017A 	 fldmias r0!,{s14}
+ 103              	.LVL14:
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 104              	 .loc 1 262 0
+ 105 004a 0139     	 subs r1,r1,#1
+ 106              	.LVL15:
+ 107              	 .loc 1 266 0
+ 108 004c E6EE877A 	 vfma.f32 s15,s13,s14
+ 109              	.LVL16:
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 110              	 .loc 1 262 0
+ 111 0050 F7D1     	 bne .L9
+ 112              	.L8:
+ 267:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 268:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 269:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k--;
+ 270:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 271:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 272:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Store the result in the accumulator in the destination buffer. */
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     *pOut = sum;
+ 274:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Destination pointer is updated according to the address modifier, inc */
+ 275:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pOut += inc;
+ 276:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 277:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Update the inputA and inputB pointers for next MAC calculation */
+ 278:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     py = pSrc1 - count;
+ 279:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     px = pIn1;
+ 280:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 281:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Increment the MAC count */
+ 282:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     count++;
+ 113              	 .loc 1 282 0
+ 114 0052 0135     	 adds r5,r5,#1
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 115              	 .loc 1 233 0
+ 116 0054 9D42     	 cmp r5,r3
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Destination pointer is updated according to the address modifier, inc */
+ 117              	 .loc 1 273 0
+ 118 0056 C9ED007A 	 fsts s15,[r9]
+ 278:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     px = pIn1;
+ 119              	 .loc 1 278 0
+ 120 005a 4046     	 mov r0,r8
+ 121              	.LVL17:
+ 275:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 122              	 .loc 1 275 0
+ 123 005c B944     	 add r9,r9,r7
+ 124              	.LVL18:
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 125              	 .loc 1 233 0
+ 126 005e 30D0     	 beq .L85
+ 127              	.LVL19:
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 128              	 .loc 1 243 0
+ 129 0060 5FEA950A 	 lsrs r10,r5,#2
+ 130              	.LVL20:
+ 131 0064 DFED587A 	 flds s15,.L89
+ 132 0068 00F00C82 	 beq .L39
+ 133 006c 0CF11000 	 add r0,ip,#16
+ 134              	.LVL21:
+ 135 0070 08F11001 	 add r1,r8,#16
+ 136 0074 5446     	 mov r4,r10
+ 137              	.LVL22:
+ 138              	.L7:
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[1] * y[srcBLen - 3] */
+ 139              	 .loc 1 246 0
+ 140 0076 50ED043A 	 flds s7,[r0,#-16]
+ 141 007a 11ED044A 	 flds s8,[r1,#-16]
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[2] * y[srcBLen - 2] */
+ 142              	 .loc 1 248 0
+ 143 007e 50ED034A 	 flds s9,[r0,#-12]
+ 144 0082 11ED035A 	 flds s10,[r1,#-12]
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[3] * y[srcBLen - 1] */
+ 145              	 .loc 1 250 0
+ 146 0086 50ED025A 	 flds s11,[r0,#-8]
+ 147 008a 11ED026A 	 flds s12,[r1,#-8]
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 148              	 .loc 1 252 0
+ 149 008e 50ED016A 	 flds s13,[r0,#-4]
+ 150 0092 11ED017A 	 flds s14,[r1,#-4]
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[1] * y[srcBLen - 3] */
+ 151              	 .loc 1 246 0
+ 152 0096 E3EE847A 	 vfma.f32 s15,s7,s8
+ 153              	.LVL23:
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 154              	 .loc 1 243 0
+ 155 009a 013C     	 subs r4,r4,#1
+ 156              	.LVL24:
+ 157 009c 00F11000 	 add r0,r0,#16
+ 158              	.LVL25:
+ 159 00a0 01F11001 	 add r1,r1,#16
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[2] * y[srcBLen - 2] */
+ 160              	 .loc 1 248 0
+ 161 00a4 E4EE857A 	 vfma.f32 s15,s9,s10
+ 162              	.LVL26:
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* x[3] * y[srcBLen - 1] */
+ 163              	 .loc 1 250 0
+ 164 00a8 E5EE867A 	 vfma.f32 s15,s11,s12
+ 165              	.LVL27:
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 166              	 .loc 1 252 0
+ 167 00ac E6EE877A 	 vfma.f32 s15,s13,s14
+ 168              	.LVL28:
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 169              	 .loc 1 243 0
+ 170 00b0 E1D1     	 bne .L7
+ 171 00b2 4FEA0A10 	 lsl r0,r10,#4
+ 172 00b6 0CEB0004 	 add r4,ip,r0
+ 173 00ba 4044     	 add r0,r0,r8
+ 174              	.LVL29:
+ 175              	.L6:
+ 176 00bc A8F10408 	 sub r8,r8,#4
+ 177 00c0 BCE7     	 b .L5
+ 178              	.LVL30:
+ 179              	.L85:
+ 180 00c2 07FB06EE 	 mla lr,r7,r6,lr
+ 181              	.LVL31:
+ 182              	.L4:
+ 283:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 284:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Decrement the loop counter */
+ 285:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     blockSize1--;
+ 286:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 287:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 288:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* --------------------------
+ 289:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Initializations of stage2
+ 290:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ------------------------*/
+ 291:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 292:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* sum = x[0] * y[0] + x[1] * y[1] +...+ x[srcBLen-1] * y[srcBLen-1]
+ 293:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum = x[1] * y[0] + x[2] * y[1] +...+ x[srcBLen] * y[srcBLen-1]
+ 294:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ....
+ 295:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum = x[srcALen-srcBLen-2] * y[0] + x[srcALen-srcBLen-1] * y[1] +...+ x[srcALen-1] * y[srcBLen
+ 296:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    */
+ 297:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 298:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputA */
+ 299:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   px = pIn1;
+ 300:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 301:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputB */
+ 302:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   py = pIn2;
+ 303:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* count is index by which the pointer pIn1 to be incremented */
+ 305:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   count = 0u;
+ 306:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 307:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* -------------------
+ 308:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Stage2 process
+ 309:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ------------------*/
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 311:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Stage2 depends on srcBLen as in this stage srcBLen number of MACS are performed.
+ 312:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * So, to loop unroll over blockSize2,
+ 313:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * srcBLen should be greater than or equal to 4, to loop unroll the srcBLen loop */
+ 314:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   if (srcBLen >= 4u)
+ 183              	 .loc 1 314 0
+ 184 00c6 032B     	 cmp r3,#3
+ 315:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 316:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Loop unroll over blockSize2, by 4 */
+ 317:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     blkCnt = blockSize2 >> 2u;
+ 318:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (blkCnt > 0u)
+ 185              	 .loc 1 319 0
+ 186 00c8 0099     	 ldr r1,[sp]
+ 314:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 187              	 .loc 1 314 0
+ 188 00ca 4BD8     	 bhi .L11
+ 189              	.LVL32:
+ 320:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 321:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Set all accumulators to zero */
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc0 = 0.0f;
+ 323:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc1 = 0.0f;
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc2 = 0.0f;
+ 325:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc3 = 0.0f;
+ 326:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 327:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* read x[0], x[1], x[2] samples */
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       x0 = *(px++);
+ 329:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       x1 = *(px++);
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       x2 = *(px++);
+ 331:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 332:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 333:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k = srcBLen >> 2u;
+ 334:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****        ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       do
+ 338:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 339:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read y[0] sample */
+ 340:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         c0 = *(py++);
+ 341:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 342:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read x[3] sample */
+ 343:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x3 = *(px++);
+ 344:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 345:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulate */
+ 346:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc0 +=  x[0] * y[0] */
+ 347:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc0 += x0 * c0;
+ 348:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[1] * y[0] */
+ 349:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc1 += x1 * c0;
+ 350:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[2] * y[0] */
+ 351:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc2 += x2 * c0;
+ 352:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[3] * y[0] */
+ 353:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc3 += x3 * c0;
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 355:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read y[1] sample */
+ 356:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         c0 = *(py++);
+ 357:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 358:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read x[4] sample */
+ 359:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x0 = *(px++);
+ 360:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 361:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulate */
+ 362:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc0 +=  x[1] * y[1] */
+ 363:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc0 += x1 * c0;
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[2] * y[1] */
+ 365:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc1 += x2 * c0;
+ 366:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[3] * y[1] */
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc2 += x3 * c0;
+ 368:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[4] * y[1] */
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc3 += x0 * c0;
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 371:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read y[2] sample */
+ 372:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         c0 = *(py++);
+ 373:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 374:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read x[5] sample */
+ 375:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x1 = *(px++);
+ 376:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 377:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulates */
+ 378:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc0 +=  x[2] * y[2] */
+ 379:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc0 += x2 * c0;
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[3] * y[2] */
+ 381:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc1 += x3 * c0;
+ 382:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[4] * y[2] */
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc2 += x0 * c0;
+ 384:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[5] * y[2] */
+ 385:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc3 += x1 * c0;
+ 386:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 387:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read y[3] sample */
+ 388:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         c0 = *(py++);
+ 389:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 390:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read x[6] sample */
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x2 = *(px++);
+ 392:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 393:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulates */
+ 394:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc0 +=  x[3] * y[3] */
+ 395:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc0 += x3 * c0;
+ 396:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[4] * y[3] */
+ 397:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc1 += x0 * c0;
+ 398:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[5] * y[3] */
+ 399:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc2 += x1 * c0;
+ 400:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[6] * y[3] */
+ 401:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc3 += x2 * c0;
+ 402:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 403:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       } while (--k);
+ 405:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 406:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* If the srcBLen is not a multiple of 4, compute any remaining MACs here.
+ 407:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****        ** No loop unrolling is used. */
+ 408:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k = srcBLen % 0x4u;
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       while (k > 0u)
+ 411:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 412:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read y[4] sample */
+ 413:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         c0 = *(py++);
+ 414:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 415:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Read x[7] sample */
+ 416:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x3 = *(px++);
+ 417:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 418:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulates */
+ 419:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc0 +=  x[4] * y[4] */
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc0 += x0 * c0;
+ 421:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[5] * y[4] */
+ 422:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc1 += x1 * c0;
+ 423:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[6] * y[4] */
+ 424:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc2 += x2 * c0;
+ 425:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[7] * y[4] */
+ 426:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         acc3 += x3 * c0;
+ 427:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 428:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Reuse the present samples for the next MAC */
+ 429:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x0 = x1;
+ 430:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x1 = x2;
+ 431:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         x2 = x3;
+ 432:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 433:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Decrement the loop counter */
+ 434:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         k--;
+ 435:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       }
+ 436:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 437:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Store the result in the accumulator in the destination buffer. */
+ 438:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = acc0;
+ 439:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 440:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 441:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 442:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = acc1;
+ 443:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 444:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 445:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = acc2;
+ 446:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 447:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 448:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = acc3;
+ 449:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 450:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 451:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Increment the pointer pIn1 index, count by 4 */
+ 452:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       count += 4u;
+ 453:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 454:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 455:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       px = pIn1 + count;
+ 456:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       py = pIn2;
+ 457:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 458:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 459:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       blkCnt--;
+ 460:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 461:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 462:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* If the blockSize2 is not a multiple of 4, compute any remaining output samples here.
+ 463:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      ** No loop unrolling is used. */
+ 464:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     blkCnt = blockSize2 % 0x4u;
+ 465:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (blkCnt > 0u)
+ 467:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Accumulator is made zero for every iteration */
+ 469:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum = 0.0f;
+ 470:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 471:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 472:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k = srcBLen >> 2u;
+ 473:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 474:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 475:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****        ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 476:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       while (k > 0u)
+ 477:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulates */
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 482:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 483:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 484:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Decrement the loop counter */
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         k--;
+ 486:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       }
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 488:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* If the srcBLen is not a multiple of 4, compute any remaining MACs here.
+ 489:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****        ** No loop unrolling is used. */
+ 490:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k = srcBLen % 0x4u;
+ 491:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       while (k > 0u)
+ 493:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 494:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulate */
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 496:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Decrement the loop counter */
+ 498:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         k--;
+ 499:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       }
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 501:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Store the result in the accumulator in the destination buffer. */
+ 502:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = sum;
+ 503:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 504:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 505:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 506:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Increment the pointer pIn1 index, count by 1 */
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       count++;
+ 508:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 509:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 510:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       px = pIn1 + count;
+ 511:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       py = pIn2;
+ 512:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 513:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 514:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       blkCnt--;
+ 515:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 516:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 517:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   else
+ 518:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 519:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* If the srcBLen is not a multiple of 4,
+ 520:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      * the blockSize2 loop cannot be unrolled by 4 */
+ 521:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     blkCnt = blockSize2;
+ 522:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (blkCnt > 0u)
+ 190              	 .loc 1 523 0
+ 191 00cc 0029     	 cmp r1,#0
+ 192 00ce 00F09581 	 beq .L86
+ 193 00d2 002B     	 cmp r3,#0
+ 194 00d4 00F09781 	 beq .L13
+ 195 00d8 002E     	 cmp r6,#0
+ 196 00da 00F0A081 	 beq .L14
+ 197 00de 022B     	 cmp r3,#2
+ 198 00e0 009B     	 ldr r3,[sp]
+ 199              	.LVL33:
+ 200 00e2 4FEA8303 	 lsl r3,r3,#2
+ 201 00e6 00F0B081 	 beq .L15
+ 524:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 525:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Accumulator is made zero for every iteration */
+ 526:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum = 0.0f;
+ 527:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 528:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Loop over srcBLen */
+ 529:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k = srcBLen;
+ 530:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 531:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       while (k > 0u)
+ 532:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 533:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Perform the multiply-accumulate */
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 202              	 .loc 1 534 0
+ 203 00ea DFED374A 	 flds s9,.L89
+ 204 00ee 0CEB0305 	 add r5,ip,r3
+ 205 00f2 6446     	 mov r4,ip
+ 206 00f4 0CF10400 	 add r0,ip,#4
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 207              	 .loc 1 523 0
+ 208 00f8 7146     	 mov r1,lr
+ 209              	.LVL34:
+ 210              	.L16:
+ 211              	 .loc 1 534 0
+ 212 00fa B4EC015A 	 fldmias r4!,{s10}
+ 213              	.LVL35:
+ 214 00fe D2ED007A 	 flds s15,[r2]
+ 215 0102 D0ED005A 	 flds s11,[r0]
+ 216 0106 92ED016A 	 flds s12,[r2,#4]
+ 217 010a D0ED016A 	 flds s13,[r0,#4]
+ 218 010e 92ED027A 	 flds s14,[r2,#8]
+ 219 0112 B0EE644A 	 fcpys s8,s9
+ 220 0116 A5EE274A 	 vfma.f32 s8,s10,s15
+ 221 011a 0430     	 adds r0,r0,#4
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 222              	 .loc 1 523 0
+ 223 011c AC42     	 cmp r4,r5
+ 224              	 .loc 1 534 0
+ 225 011e F0EE447A 	 fcpys s15,s8
+ 226              	.LVL36:
+ 227 0122 E5EE867A 	 vfma.f32 s15,s11,s12
+ 228              	.LVL37:
+ 229 0126 E6EE877A 	 vfma.f32 s15,s13,s14
+ 535:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 536:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* Decrement the loop counter */
+ 537:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         k--;
+ 538:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       }
+ 539:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 540:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Store the result in the accumulator in the destination buffer. */
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pOut = sum;
+ 230              	 .loc 1 541 0
+ 231 012a C1ED007A 	 fsts s15,[r1]
+ 542:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 232              	 .loc 1 543 0
+ 233 012e 3944     	 add r1,r1,r7
+ 234              	.LVL38:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 235              	 .loc 1 523 0
+ 236 0130 E3D1     	 bne .L16
+ 237              	.LVL39:
+ 238              	.L81:
+ 239 0132 0099     	 ldr r1,[sp]
+ 544:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 545:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Increment the pointer pIn1 index, count by 1 */
+ 546:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       count++;
+ 547:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 548:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 549:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       px = pIn1 + count;
+ 550:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       py = pIn2;
+ 551:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 552:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 553:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       blkCnt--;
+ 554:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 555:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 556:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 557:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* --------------------------
+ 558:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Initializations of stage3
+ 559:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * -------------------------*/
+ 560:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 561:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* sum += x[srcALen-srcBLen+1] * y[0] + x[srcALen-srcBLen+2] * y[1] +...+ x[srcALen-1] * y[srcBLe
+ 562:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum += x[srcALen-srcBLen+2] * y[0] + x[srcALen-srcBLen+3] * y[1] +...+ x[srcALen-1] * y[srcBLe
+ 563:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ....
+ 564:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum +=  x[srcALen-2] * y[0] + x[srcALen-1] * y[1]
+ 565:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * sum +=  x[srcALen-1] * y[0]
+ 566:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    */
+ 567:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 568:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* In this stage the MAC operations are decreased by 1 for every iteration.
+ 569:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      The count variable holds the number of MAC operations performed */
+ 570:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   count = srcBLen - 1u;
+ 571:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 572:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputA */
+ 573:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   pSrc1 = pIn1 + (srcALen - (srcBLen - 1u));
+ 240              	 .loc 1 573 0
+ 241 0134 9C44     	 add ip,ip,r3
+ 242              	.LVL40:
+ 243 0136 07FB01EE 	 mla lr,r7,r1,lr
+ 244              	.LVL41:
+ 574:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   px = pSrc1;
+ 575:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 576:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Working pointer of inputB */
+ 577:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   py = pIn2;
+ 578:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 579:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* -------------------
+ 580:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * Stage3 process
+ 581:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ------------------*/
+ 582:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 583:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   while (blockSize3 > 0u)
+ 245              	 .loc 1 583 0
+ 246 013a 002E     	 cmp r6,#0
+ 247 013c 40F01981 	 bne .L37
+ 248              	.LVL42:
+ 249              	.L1:
+ 584:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 585:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Accumulator is made zero for every iteration */
+ 586:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     sum = 0.0f;
+ 587:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 588:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 589:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     k = count >> 2u;
+ 590:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 591:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 592:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 593:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (k > 0u)
+ 594:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 595:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Perform the multiply-accumulates */
+ 596:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 4] * y[3] */
+ 597:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 598:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 3] * y[2] */
+ 599:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 600:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 2] * y[1] */
+ 601:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 602:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 1] * y[0] */
+ 603:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 604:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 605:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 606:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k--;
+ 607:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 608:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 609:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* If the count is not a multiple of 4, compute any remaining MACs here.
+ 610:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****      ** No loop unrolling is used. */
+ 611:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     k = count % 0x4u;
+ 612:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 613:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     while (k > 0u)
+ 614:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 615:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Perform the multiply-accumulates */
+ 616:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       sum += *px++ * *py++;
+ 617:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 618:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Decrement the loop counter */
+ 619:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       k--;
+ 620:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 621:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 622:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Store the result in the accumulator in the destination buffer. */
+ 623:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     *pOut = sum;
+ 624:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Destination pointer is updated according to the address modifier, inc */
+ 625:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pOut += inc;
+ 626:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 627:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Update the inputA and inputB pointers for next MAC calculation */
+ 628:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     px = ++pSrc1;
+ 629:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     py = pIn2;
+ 630:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 631:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Decrement the MAC count */
+ 632:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     count--;
+ 633:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 634:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Decrement the loop counter */
+ 635:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     blockSize3--;
+ 636:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 637:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 638:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** #else
+ 639:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 640:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Run the below code for Cortex-M0 */
+ 641:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 642:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pIn1 = pSrcA;                       /* inputA pointer */
+ 643:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t *pIn2 = pSrcB + (srcBLen - 1u);      /* inputB pointer */
+ 644:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   float32_t sum;                                 /* Accumulator */
+ 645:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t i = 0u, j;                            /* loop counters */
+ 646:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t inv = 0u;                             /* Reverse order flag */
+ 647:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   uint32_t tot = 0u;                             /* Length */
+ 648:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 649:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* The algorithm implementation is based on the lengths of the inputs. */
+ 650:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* srcB is always made to slide across srcA. */
+ 651:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* So srcBLen is always considered as shorter or equal to srcALen */
+ 652:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* But CORR(x, y) is reverse of CORR(y, x) */
+ 653:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* So, when srcBLen > srcALen, output pointer is made to point to the end of the output buffer */
+ 654:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* and a varaible, inv is set to 1 */
+ 655:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If lengths are not equal then zero pad has to be done to  make the two
+ 656:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * inputs of same length. But to improve the performance, we assume zeroes
+ 657:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * in the output instead of zero padding either of the the inputs*/
+ 658:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If srcALen > srcBLen, (srcALen - srcBLen) zeroes has to included in the
+ 659:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * starting of the output buffer */
+ 660:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* If srcALen < srcBLen, (srcALen - srcBLen) zeroes has to included in the
+ 661:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * ending of the output buffer */
+ 662:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Once the zero padding is done the remaining of the output is calcualted
+ 663:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****    * using convolution but with the shorter signal time shifted. */
+ 664:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 665:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Calculate the length of the remaining sequence */
+ 666:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   tot = ((srcALen + srcBLen) - 2u);
+ 667:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 668:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   if (srcALen > srcBLen)
+ 669:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 670:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Calculating the number of zeros to be padded to the output */
+ 671:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     j = srcALen - srcBLen;
+ 672:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 673:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialise the pointer after zero padding */
+ 674:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pDst += j;
+ 675:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 676:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 677:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   else if (srcALen < srcBLen)
+ 678:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 679:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization to inputB pointer */
+ 680:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn1 = pSrcB;
+ 681:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 682:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialization to the end of inputA pointer */
+ 683:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pIn2 = pSrcA + (srcALen - 1u);
+ 684:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 685:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialisation of the pointer after zero padding */
+ 686:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     pDst = pDst + tot;
+ 687:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 688:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Swapping the lengths */
+ 689:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     j = srcALen;
+ 690:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     srcALen = srcBLen;
+ 691:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     srcBLen = j;
+ 692:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 693:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Setting the reverse flag */
+ 694:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     inv = 1;
+ 695:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 696:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 697:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 698:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   /* Loop to calculate convolution for output length number of times */
+ 699:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   for (i = 0u; i <= tot; i++)
+ 700:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 701:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Initialize sum with zero to carry on MAC operations */
+ 702:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     sum = 0.0f;
+ 703:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 704:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Loop to perform MAC operations according to convolution equation */
+ 705:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     for (j = 0u; j <= i; j++)
+ 706:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 707:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Check the array limitations */
+ 708:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       if ((((i - j) < srcBLen) && (j < srcALen)))
+ 709:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 710:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* z[i] += x[i-j] * y[j] */
+ 711:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += pIn1[j] * pIn2[-((int32_t) i - j)];
+ 712:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       }
+ 713:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     }
+ 714:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Store the output in the destination buffer */
+ 715:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     if (inv == 1)
+ 716:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pDst-- = sum;
+ 717:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     else
+ 718:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       *pDst++ = sum;
+ 719:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   }
+ 720:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 721:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** #endif /*   #if defined (ARM_MATH_DSP) */
+ 722:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 723:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** }
+ 250              	 .loc 1 723 0
+ 251 0140 07B0     	 add sp,sp,#28
+ 252              	.LCFI2:
+ 253              	 .cfi_remember_state
+ 254              	 .cfi_def_cfa_offset 36
+ 255              	.LVL43:
+ 256              	 
+ 257 0142 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 258              	.LVL44:
+ 259              	.L2:
+ 260              	.LCFI3:
+ 261              	 .cfi_restore_state
+ 262 0146 03F18040 	 add r0,r3,#1073741824
+ 263              	.LVL45:
+ 264 014a 0238     	 subs r0,r0,#2
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 265              	 .loc 1 187 0
+ 266 014c 6646     	 mov r6,ip
+ 267 014e 0844     	 add r0,r0,r1
+ 268 0150 0D46     	 mov r5,r1
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 269              	 .loc 1 175 0
+ 270 0152 9446     	 mov ip,r2
+ 271              	.LVL46:
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 272              	 .loc 1 187 0
+ 273 0154 1946     	 mov r1,r3
+ 274              	.LVL47:
+ 275 0156 04EB800E 	 add lr,r4,r0,lsl#2
+ 276              	.LVL48:
+ 178:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 277              	 .loc 1 178 0
+ 278 015a 3246     	 mov r2,r6
+ 279              	.LVL49:
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 280              	 .loc 1 187 0
+ 281 015c 6FF00307 	 mvn r7,#3
+ 282 0160 2B46     	 mov r3,r5
+ 283 0162 5AE7     	 b .L3
+ 284              	.LVL50:
+ 285              	.L11:
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 286              	 .loc 1 319 0
+ 287 0164 8908     	 lsrs r1,r1,#2
+ 288 0166 0191     	 str r1,[sp,#4]
+ 289 0168 00F04A81 	 beq .L40
+ 290 016c 0901     	 lsls r1,r1,#4
+ 291 016e 4FEA930A 	 lsr r10,r3,#2
+ 292 0172 0291     	 str r1,[sp,#8]
+ 293 0174 4FEA0A1B 	 lsl fp,r10,#4
+ 294 0178 0C31     	 adds r1,r1,#12
+ 295 017a 6144     	 add r1,ip,r1
+ 296 017c 03F00309 	 and r9,r3,#3
+ 297 0180 02EB0B00 	 add r0,r2,fp
+ 298 0184 02F11004 	 add r4,r2,#16
+ 299 0188 0CF10C05 	 add r5,ip,#12
+ 300 018c F046     	 mov r8,lr
+ 301 018e CDF80CE0 	 str lr,[sp,#12]
+ 302 0192 0496     	 str r6,[sp,#16]
+ 303 0194 CDF814C0 	 str ip,[sp,#20]
+ 304 0198 4E46     	 mov r6,r9
+ 305              	.LVL51:
+ 306 019a 8E46     	 mov lr,r1
+ 307              	.LVL52:
+ 308 019c 8146     	 mov r9,r0
+ 309 019e A446     	 mov ip,r4
+ 310              	.LVL53:
+ 311              	.L27:
+ 325:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 312              	 .loc 1 325 0
+ 313 01a0 DFED097A 	 flds s15,.L89
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       x1 = *(px++);
+ 314              	 .loc 1 328 0
+ 315 01a4 55ED034A 	 flds s9,[r5,#-12]
+ 316              	.LVL54:
+ 329:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       x2 = *(px++);
+ 317              	 .loc 1 329 0
+ 318 01a8 55ED025A 	 flds s11,[r5,#-8]
+ 319              	.LVL55:
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 320              	 .loc 1 330 0
+ 321 01ac 15ED015A 	 flds s10,[r5,#-4]
+ 322              	.LVL56:
+ 323 01b0 95ED004A 	 flds s8,[r5]
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc3 = 0.0f;
+ 324              	 .loc 1 324 0
+ 325 01b4 B0EE677A 	 fcpys s14,s15
+ 323:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc2 = 0.0f;
+ 326              	 .loc 1 323 0
+ 327 01b8 F0EE676A 	 fcpys s13,s15
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       acc1 = 0.0f;
+ 328              	 .loc 1 322 0
+ 329 01bc B0EE676A 	 fcpys s12,s15
+ 330 01c0 6146     	 mov r1,ip
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 331              	 .loc 1 330 0
+ 332 01c2 2846     	 mov r0,r5
+ 333:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 333              	 .loc 1 333 0
+ 334 01c4 5446     	 mov r4,r10
+ 335 01c6 04E0     	 b .L24
+ 336              	.L90:
+ 337              	 .align 2
+ 338              	.L89:
+ 339 01c8 00000000 	 .word 0
+ 340              	.LVL57:
+ 341              	.L87:
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 342              	 .loc 1 391 0
+ 343 01cc 1030     	 adds r0,r0,#16
+ 344 01ce 90ED004A 	 flds s8,[r0]
+ 345              	.LVL58:
+ 346              	.L24:
+ 340:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 347              	 .loc 1 340 0 discriminator 1
+ 348 01d2 11ED042A 	 flds s4,[r1,#-16]
+ 349              	.LVL59:
+ 356:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 350              	 .loc 1 356 0 discriminator 1
+ 351 01d6 51ED032A 	 flds s5,[r1,#-12]
+ 372:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 352              	 .loc 1 372 0 discriminator 1
+ 353 01da 11ED023A 	 flds s6,[r1,#-8]
+ 388:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 354              	 .loc 1 388 0 discriminator 1
+ 355 01de 51ED013A 	 flds s7,[r1,#-4]
+ 347:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[1] * y[0] */
+ 356              	 .loc 1 347 0 discriminator 1
+ 357 01e2 A4EE826A 	 vfma.f32 s12,s9,s4
+ 358              	.LVL60:
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 359              	 .loc 1 404 0 discriminator 1
+ 360 01e6 013C     	 subs r4,r4,#1
+ 361              	.LVL61:
+ 362 01e8 01F11001 	 add r1,r1,#16
+ 363              	.LVL62:
+ 349:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[2] * y[0] */
+ 364              	 .loc 1 349 0 discriminator 1
+ 365 01ec E5EE826A 	 vfma.f32 s13,s11,s4
+ 366              	.LVL63:
+ 351:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[3] * y[0] */
+ 367              	 .loc 1 351 0 discriminator 1
+ 368 01f0 A5EE027A 	 vfma.f32 s14,s10,s4
+ 369              	.LVL64:
+ 353:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 370              	 .loc 1 353 0 discriminator 1
+ 371 01f4 E4EE027A 	 vfma.f32 s15,s8,s4
+ 372              	.LVL65:
+ 359:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 373              	 .loc 1 359 0 discriminator 1
+ 374 01f8 D0ED014A 	 flds s9,[r0,#4]
+ 375              	.LVL66:
+ 363:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[2] * y[1] */
+ 376              	 .loc 1 363 0 discriminator 1
+ 377 01fc A5EEA26A 	 vfma.f32 s12,s11,s5
+ 378              	.LVL67:
+ 365:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[3] * y[1] */
+ 379              	 .loc 1 365 0 discriminator 1
+ 380 0200 E5EE226A 	 vfma.f32 s13,s10,s5
+ 381              	.LVL68:
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[4] * y[1] */
+ 382              	 .loc 1 367 0 discriminator 1
+ 383 0204 A4EE227A 	 vfma.f32 s14,s8,s5
+ 384              	.LVL69:
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 385              	 .loc 1 369 0 discriminator 1
+ 386 0208 E4EEA27A 	 vfma.f32 s15,s9,s5
+ 387              	.LVL70:
+ 375:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 388              	 .loc 1 375 0 discriminator 1
+ 389 020c D0ED025A 	 flds s11,[r0,#8]
+ 390              	.LVL71:
+ 379:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[3] * y[2] */
+ 391              	 .loc 1 379 0 discriminator 1
+ 392 0210 A5EE036A 	 vfma.f32 s12,s10,s6
+ 393              	.LVL72:
+ 381:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[4] * y[2] */
+ 394              	 .loc 1 381 0 discriminator 1
+ 395 0214 E4EE036A 	 vfma.f32 s13,s8,s6
+ 396              	.LVL73:
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[5] * y[2] */
+ 397              	 .loc 1 383 0 discriminator 1
+ 398 0218 A4EE837A 	 vfma.f32 s14,s9,s6
+ 399              	.LVL74:
+ 385:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 400              	 .loc 1 385 0 discriminator 1
+ 401 021c E5EE837A 	 vfma.f32 s15,s11,s6
+ 402              	.LVL75:
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 403              	 .loc 1 391 0 discriminator 1
+ 404 0220 90ED035A 	 flds s10,[r0,#12]
+ 405              	.LVL76:
+ 395:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[4] * y[3] */
+ 406              	 .loc 1 395 0 discriminator 1
+ 407 0224 A4EE236A 	 vfma.f32 s12,s8,s7
+ 408              	.LVL77:
+ 397:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[5] * y[3] */
+ 409              	 .loc 1 397 0 discriminator 1
+ 410 0228 E4EEA36A 	 vfma.f32 s13,s9,s7
+ 411              	.LVL78:
+ 399:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[6] * y[3] */
+ 412              	 .loc 1 399 0 discriminator 1
+ 413 022c A5EEA37A 	 vfma.f32 s14,s11,s7
+ 414              	.LVL79:
+ 401:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 415              	 .loc 1 401 0 discriminator 1
+ 416 0230 E5EE237A 	 vfma.f32 s15,s10,s7
+ 417              	.LVL80:
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 418              	 .loc 1 404 0 discriminator 1
+ 419 0234 CAD1     	 bne .L87
+ 420 0236 05EB0B00 	 add r0,r5,fp
+ 421              	.LVL81:
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 422              	 .loc 1 410 0
+ 423 023a AEB1     	 cbz r6,.L25
+ 424 023c 3146     	 mov r1,r6
+ 425 023e 4C46     	 mov r4,r9
+ 426              	.LVL82:
+ 427              	.L26:
+ 413:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 428              	 .loc 1 413 0
+ 429 0240 B4EC014A 	 fldmias r4!,{s8}
+ 430              	.LVL83:
+ 416:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 431              	 .loc 1 416 0
+ 432 0244 F0EC013A 	 fldmias r0!,{s7}
+ 433              	.LVL84:
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 434              	 .loc 1 410 0
+ 435 0248 0139     	 subs r1,r1,#1
+ 436              	.LVL85:
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc1 +=  x[5] * y[4] */
+ 437              	 .loc 1 420 0
+ 438 024a A4EE846A 	 vfma.f32 s12,s9,s8
+ 439              	.LVL86:
+ 422:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc2 +=  x[6] * y[4] */
+ 440              	 .loc 1 422 0
+ 441 024e E5EE846A 	 vfma.f32 s13,s11,s8
+ 442              	.LVL87:
+ 424:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         /* acc3 +=  x[7] * y[4] */
+ 443              	 .loc 1 424 0
+ 444 0252 A5EE047A 	 vfma.f32 s14,s10,s8
+ 445              	.LVL88:
+ 446 0256 F0EE654A 	 fcpys s9,s11
+ 447              	.LVL89:
+ 426:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 448              	 .loc 1 426 0
+ 449 025a E3EE847A 	 vfma.f32 s15,s7,s8
+ 450              	.LVL90:
+ 451 025e F0EE455A 	 fcpys s11,s10
+ 452              	.LVL91:
+ 431:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 453              	 .loc 1 431 0
+ 454 0262 B0EE635A 	 fcpys s10,s7
+ 455              	.LVL92:
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 456              	 .loc 1 410 0
+ 457 0266 EBD1     	 bne .L26
+ 458              	.LVL93:
+ 459              	.L25:
+ 460 0268 08EB0701 	 add r1,r8,r7
+ 461              	.LVL94:
+ 462 026c C819     	 adds r0,r1,r7
+ 463              	.LVL95:
+ 464 026e 1035     	 adds r5,r5,#16
+ 438:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 465              	 .loc 1 438 0
+ 466 0270 88ED006A 	 fsts s12,[r8]
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 467              	 .loc 1 319 0
+ 468 0274 7545     	 cmp r5,lr
+ 469 0276 00EB0708 	 add r8,r0,r7
+ 470              	.LVL96:
+ 442:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 471              	 .loc 1 442 0
+ 472 027a C1ED006A 	 fsts s13,[r1]
+ 445:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 473              	 .loc 1 445 0
+ 474 027e 80ED007A 	 fsts s14,[r0]
+ 448:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       pOut += inc;
+ 475              	 .loc 1 448 0
+ 476 0282 C8ED007A 	 fsts s15,[r8]
+ 477 0286 B844     	 add r8,r8,r7
+ 478              	.LVL97:
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 479              	 .loc 1 319 0
+ 480 0288 8AD1     	 bne .L27
+ 481 028a DDF814C0 	 ldr ip,[sp,#20]
+ 482 028e 0298     	 ldr r0,[sp,#8]
+ 483 0290 019C     	 ldr r4,[sp,#4]
+ 484 0292 DDF80CE0 	 ldr lr,[sp,#12]
+ 485 0296 049E     	 ldr r6,[sp,#16]
+ 486 0298 B900     	 lsls r1,r7,#2
+ 487 029a 6044     	 add r0,r0,ip
+ 488 029c 0546     	 mov r5,r0
+ 489 029e 04FB01EE 	 mla lr,r4,r1,lr
+ 490 02a2 4FEA8408 	 lsl r8,r4,#2
+ 491              	.LVL98:
+ 492              	.L22:
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 493              	 .loc 1 466 0
+ 494 02a6 0099     	 ldr r1,[sp]
+ 495 02a8 11F00301 	 ands r1,r1,#3
+ 496              	.LVL99:
+ 497 02ac 0191     	 str r1,[sp,#4]
+ 498 02ae 5AD0     	 beq .L80
+ 499 02b0 4FEA930B 	 lsr fp,r3,#2
+ 500 02b4 0131     	 adds r1,r1,#1
+ 501              	.LVL100:
+ 502 02b6 4144     	 add r1,r1,r8
+ 503 02b8 4FEA0B1A 	 lsl r10,fp,#4
+ 504 02bc 0CEB8101 	 add r1,ip,r1,lsl#2
+ 505 02c0 08F10108 	 add r8,r8,#1
+ 506              	.LVL101:
+ 507 02c4 03F00300 	 and r0,r3,#3
+ 508 02c8 02F11004 	 add r4,r2,#16
+ 509 02cc 02EB0A03 	 add r3,r2,r10
+ 510              	.LVL102:
+ 511 02d0 0CEB8808 	 add r8,ip,r8,lsl#2
+ 512              	.LVL103:
+ 513 02d4 F146     	 mov r9,lr
+ 514 02d6 CDF808E0 	 str lr,[sp,#8]
+ 515 02da 0396     	 str r6,[sp,#12]
+ 516 02dc CDF810C0 	 str ip,[sp,#16]
+ 517 02e0 0E46     	 mov r6,r1
+ 518 02e2 9C46     	 mov ip,r3
+ 519 02e4 A646     	 mov lr,r4
+ 520              	.LVL104:
+ 521              	.L31:
+ 469:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 522              	 .loc 1 469 0
+ 523 02e6 5FED487A 	 flds s15,.L89
+ 524 02ea 05F11001 	 add r1,r5,#16
+ 525 02ee 7346     	 mov r3,lr
+ 472:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 526              	 .loc 1 472 0
+ 527 02f0 5C46     	 mov r4,fp
+ 528              	.LVL105:
+ 529              	.L28:
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 530              	 .loc 1 479 0
+ 531 02f2 51ED043A 	 flds s7,[r1,#-16]
+ 532 02f6 13ED044A 	 flds s8,[r3,#-16]
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 533              	 .loc 1 480 0
+ 534 02fa 51ED034A 	 flds s9,[r1,#-12]
+ 535 02fe 13ED035A 	 flds s10,[r3,#-12]
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 536              	 .loc 1 481 0
+ 537 0302 51ED025A 	 flds s11,[r1,#-8]
+ 538 0306 13ED026A 	 flds s12,[r3,#-8]
+ 482:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 539              	 .loc 1 482 0
+ 540 030a 51ED016A 	 flds s13,[r1,#-4]
+ 541 030e 13ED017A 	 flds s14,[r3,#-4]
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 542              	 .loc 1 479 0
+ 543 0312 E3EE847A 	 vfma.f32 s15,s7,s8
+ 544              	.LVL106:
+ 476:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 545              	 .loc 1 476 0
+ 546 0316 013C     	 subs r4,r4,#1
+ 547              	.LVL107:
+ 548 0318 01F11001 	 add r1,r1,#16
+ 549              	.LVL108:
+ 550 031c 03F11003 	 add r3,r3,#16
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 551              	 .loc 1 480 0
+ 552 0320 E4EE857A 	 vfma.f32 s15,s9,s10
+ 553              	.LVL109:
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****         sum += *px++ * *py++;
+ 554              	 .loc 1 481 0
+ 555 0324 E5EE867A 	 vfma.f32 s15,s11,s12
+ 556              	.LVL110:
+ 482:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 557              	 .loc 1 482 0
+ 558 0328 E6EE877A 	 vfma.f32 s15,s13,s14
+ 559              	.LVL111:
+ 476:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 560              	 .loc 1 476 0
+ 561 032c E1D1     	 bne .L28
+ 562 032e 5544     	 add r5,r5,r10
+ 563              	.LVL112:
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 564              	 .loc 1 492 0
+ 565 0330 48B1     	 cbz r0,.L29
+ 566 0332 0346     	 mov r3,r0
+ 567 0334 6146     	 mov r1,ip
+ 568              	.LVL113:
+ 569              	.L30:
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 570              	 .loc 1 495 0
+ 571 0336 F5EC016A 	 fldmias r5!,{s13}
+ 572              	.LVL114:
+ 573 033a B1EC017A 	 fldmias r1!,{s14}
+ 574              	.LVL115:
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 575              	 .loc 1 492 0
+ 576 033e 013B     	 subs r3,r3,#1
+ 577              	.LVL116:
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 578              	 .loc 1 495 0
+ 579 0340 E6EE877A 	 vfma.f32 s15,s13,s14
+ 580              	.LVL117:
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       {
+ 581              	 .loc 1 492 0
+ 582 0344 F7D1     	 bne .L30
+ 583              	.LVL118:
+ 584              	.L29:
+ 510:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       py = pIn2;
+ 585              	 .loc 1 510 0
+ 586 0346 4546     	 mov r5,r8
+ 587              	.LVL119:
+ 588 0348 08F10408 	 add r8,r8,#4
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 589              	 .loc 1 466 0
+ 590 034c B045     	 cmp r8,r6
+ 502:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 591              	 .loc 1 502 0
+ 592 034e C9ED007A 	 fsts s15,[r9]
+ 504:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 593              	 .loc 1 504 0
+ 594 0352 B944     	 add r9,r9,r7
+ 595              	.LVL120:
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 596              	 .loc 1 466 0
+ 597 0354 C7D1     	 bne .L31
+ 598 0356 DDF808E0 	 ldr lr,[sp,#8]
+ 599 035a 019B     	 ldr r3,[sp,#4]
+ 600 035c 039E     	 ldr r6,[sp,#12]
+ 601 035e DDF810C0 	 ldr ip,[sp,#16]
+ 602 0362 07FB03EE 	 mla lr,r7,r3,lr
+ 603              	.LVL121:
+ 604              	.L80:
+ 605 0366 009B     	 ldr r3,[sp]
+ 606 0368 9B00     	 lsls r3,r3,#2
+ 607              	.L12:
+ 608              	.LVL122:
+ 573:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   px = pSrc1;
+ 609              	 .loc 1 573 0
+ 610 036a 9C44     	 add ip,ip,r3
+ 611              	.LVL123:
+ 583:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 612              	 .loc 1 583 0
+ 613 036c 002E     	 cmp r6,#0
+ 614 036e 3FF4E7AE 	 beq .L1
+ 615              	.L37:
+ 616              	.LVL124:
+ 593:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 617              	 .loc 1 593 0
+ 618 0372 B408     	 lsrs r4,r6,#2
+ 619              	.LVL125:
+ 620 0374 5FED6C7A 	 flds s15,.L89
+ 621 0378 3DD0     	 beq .L41
+ 622              	.L88:
+ 623 037a 0CF11001 	 add r1,ip,#16
+ 624 037e 02F11003 	 add r3,r2,#16
+ 625 0382 2046     	 mov r0,r4
+ 626              	.LVL126:
+ 627              	.L34:
+ 597:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 3] * y[2] */
+ 628              	 .loc 1 597 0
+ 629 0384 51ED043A 	 flds s7,[r1,#-16]
+ 630 0388 13ED044A 	 flds s8,[r3,#-16]
+ 599:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 2] * y[1] */
+ 631              	 .loc 1 599 0
+ 632 038c 51ED034A 	 flds s9,[r1,#-12]
+ 633 0390 13ED035A 	 flds s10,[r3,#-12]
+ 601:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 1] * y[0] */
+ 634              	 .loc 1 601 0
+ 635 0394 51ED025A 	 flds s11,[r1,#-8]
+ 636 0398 13ED026A 	 flds s12,[r3,#-8]
+ 603:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 637              	 .loc 1 603 0
+ 638 039c 51ED016A 	 flds s13,[r1,#-4]
+ 639 03a0 13ED017A 	 flds s14,[r3,#-4]
+ 597:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 3] * y[2] */
+ 640              	 .loc 1 597 0
+ 641 03a4 E3EE847A 	 vfma.f32 s15,s7,s8
+ 642              	.LVL127:
+ 593:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 643              	 .loc 1 593 0
+ 644 03a8 0138     	 subs r0,r0,#1
+ 645              	.LVL128:
+ 646 03aa 01F11001 	 add r1,r1,#16
+ 647              	.LVL129:
+ 648 03ae 03F11003 	 add r3,r3,#16
+ 599:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 2] * y[1] */
+ 649              	 .loc 1 599 0
+ 650 03b2 E4EE857A 	 vfma.f32 s15,s9,s10
+ 651              	.LVL130:
+ 601:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* sum += x[srcALen - srcBLen + 1] * y[0] */
+ 652              	 .loc 1 601 0
+ 653 03b6 E5EE867A 	 vfma.f32 s15,s11,s12
+ 654              	.LVL131:
+ 603:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 655              	 .loc 1 603 0
+ 656 03ba E6EE877A 	 vfma.f32 s15,s13,s14
+ 657              	.LVL132:
+ 593:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 658              	 .loc 1 593 0
+ 659 03be E1D1     	 bne .L34
+ 660 03c0 2101     	 lsls r1,r4,#4
+ 661 03c2 0CEB0100 	 add r0,ip,r1
+ 662 03c6 1144     	 add r1,r1,r2
+ 663              	.LVL133:
+ 664              	.L33:
+ 613:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 665              	 .loc 1 613 0
+ 666 03c8 16F00303 	 ands r3,r6,#3
+ 667              	.LVL134:
+ 668 03cc 07D0     	 beq .L35
+ 669              	.LVL135:
+ 670              	.L36:
+ 616:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 671              	 .loc 1 616 0
+ 672 03ce F0EC016A 	 fldmias r0!,{s13}
+ 673              	.LVL136:
+ 674 03d2 B1EC017A 	 fldmias r1!,{s14}
+ 675              	.LVL137:
+ 613:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 676              	 .loc 1 613 0
+ 677 03d6 013B     	 subs r3,r3,#1
+ 678              	.LVL138:
+ 616:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 679              	 .loc 1 616 0
+ 680 03d8 E6EE877A 	 vfma.f32 s15,s13,s14
+ 681              	.LVL139:
+ 613:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 682              	 .loc 1 613 0
+ 683 03dc F7D1     	 bne .L36
+ 684              	.L35:
+ 583:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 685              	 .loc 1 583 0
+ 686 03de 013E     	 subs r6,r6,#1
+ 687              	.LVL140:
+ 623:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     /* Destination pointer is updated according to the address modifier, inc */
+ 688              	 .loc 1 623 0
+ 689 03e0 CEED007A 	 fsts s15,[lr]
+ 628:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     py = pIn2;
+ 690              	 .loc 1 628 0
+ 691 03e4 0CF1040C 	 add ip,ip,#4
+ 692              	.LVL141:
+ 625:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 693              	 .loc 1 625 0
+ 694 03e8 BE44     	 add lr,lr,r7
+ 695              	.LVL142:
+ 583:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****   {
+ 696              	 .loc 1 583 0
+ 697 03ea 3FF4A9AE 	 beq .L1
+ 698              	.LVL143:
+ 593:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 699              	 .loc 1 593 0
+ 700 03ee B408     	 lsrs r4,r6,#2
+ 701              	.LVL144:
+ 702 03f0 5FED8B7A 	 flds s15,.L89
+ 703 03f4 C1D1     	 bne .L88
+ 704              	.L41:
+ 705 03f6 1146     	 mov r1,r2
+ 706 03f8 6046     	 mov r0,ip
+ 707 03fa E5E7     	 b .L33
+ 708              	.LVL145:
+ 709              	.L86:
+ 710 03fc 0B46     	 mov r3,r1
+ 711              	.LVL146:
+ 712 03fe B4E7     	 b .L12
+ 713              	.LVL147:
+ 714              	.L40:
+ 715 0400 8846     	 mov r8,r1
+ 299:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 716              	 .loc 1 299 0
+ 717 0402 6546     	 mov r5,ip
+ 718 0404 4FE7     	 b .L22
+ 719              	.LVL148:
+ 720              	.L13:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 721              	 .loc 1 523 0
+ 722 0406 0099     	 ldr r1,[sp]
+ 723              	.LVL149:
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 724              	 .loc 1 541 0
+ 725 0408 0020     	 movs r0,#0
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 726              	 .loc 1 523 0
+ 727 040a 7346     	 mov r3,lr
+ 728              	.LVL150:
+ 729              	.L20:
+ 730 040c 0139     	 subs r1,r1,#1
+ 731              	.LVL151:
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 732              	 .loc 1 541 0
+ 733 040e 1860     	 str r0,[r3]
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 734              	 .loc 1 543 0
+ 735 0410 3B44     	 add r3,r3,r7
+ 736              	.LVL152:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 737              	 .loc 1 523 0
+ 738 0412 FBD1     	 bne .L20
+ 739 0414 0099     	 ldr r1,[sp]
+ 740 0416 07FB01EE 	 mla lr,r7,r1,lr
+ 741 041a 8B00     	 lsls r3,r1,#2
+ 742              	.LVL153:
+ 743 041c A5E7     	 b .L12
+ 744              	.LVL154:
+ 745              	.L14:
+ 746 041e 009B     	 ldr r3,[sp]
+ 747              	.LVL155:
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 748              	 .loc 1 534 0
+ 749 0420 5FED976A 	 flds s13,.L89
+ 750 0424 9B00     	 lsls r3,r3,#2
+ 751 0426 0CEB0304 	 add r4,ip,r3
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 752              	 .loc 1 523 0
+ 753 042a 6046     	 mov r0,ip
+ 754 042c 7146     	 mov r1,lr
+ 755              	.LVL156:
+ 756              	.L19:
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 757              	 .loc 1 534 0
+ 758 042e B0EC017A 	 fldmias r0!,{s14}
+ 759              	.LVL157:
+ 760 0432 D2ED007A 	 flds s15,[r2]
+ 761 0436 B0EE666A 	 fcpys s12,s13
+ 762 043a A7EE276A 	 vfma.f32 s12,s14,s15
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 763              	 .loc 1 523 0
+ 764 043e A042     	 cmp r0,r4
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 765              	 .loc 1 541 0
+ 766 0440 81ED006A 	 fsts s12,[r1]
+ 767              	.LVL158:
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 768              	 .loc 1 543 0
+ 769 0444 3944     	 add r1,r1,r7
+ 770              	.LVL159:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 771              	 .loc 1 523 0
+ 772 0446 F2D1     	 bne .L19
+ 773 0448 73E6     	 b .L81
+ 774              	.LVL160:
+ 775              	.L15:
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 776              	 .loc 1 534 0
+ 777 044a 5FEDA15A 	 flds s11,.L89
+ 778 044e 0CEB0304 	 add r4,ip,r3
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 779              	 .loc 1 523 0
+ 780 0452 6146     	 mov r1,ip
+ 781              	.LVL161:
+ 782 0454 7046     	 mov r0,lr
+ 783              	.LVL162:
+ 784              	.L17:
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 785              	 .loc 1 534 0
+ 786 0456 91ED006A 	 flds s12,[r1]
+ 787 045a D2ED007A 	 flds s15,[r2]
+ 788 045e D1ED016A 	 flds s13,[r1,#4]
+ 789 0462 92ED017A 	 flds s14,[r2,#4]
+ 790 0466 B0EE655A 	 fcpys s10,s11
+ 791 046a A6EE275A 	 vfma.f32 s10,s12,s15
+ 792 046e 0431     	 adds r1,r1,#4
+ 793              	.LVL163:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 794              	 .loc 1 523 0
+ 795 0470 A142     	 cmp r1,r4
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 796              	 .loc 1 534 0
+ 797 0472 F0EE457A 	 fcpys s15,s10
+ 798              	.LVL164:
+ 799 0476 E6EE877A 	 vfma.f32 s15,s13,s14
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****       /* Destination pointer is updated according to the address modifier, inc */
+ 800              	 .loc 1 541 0
+ 801 047a C0ED007A 	 fsts s15,[r0]
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c **** 
+ 802              	 .loc 1 543 0
+ 803 047e 3844     	 add r0,r0,r7
+ 804              	.LVL165:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 805              	 .loc 1 523 0
+ 806 0480 E9D1     	 bne .L17
+ 807 0482 56E6     	 b .L81
+ 808              	.LVL166:
+ 809              	.L39:
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_correlate_f32.c ****     {
+ 810              	 .loc 1 243 0
+ 811 0484 6446     	 mov r4,ip
+ 812 0486 19E6     	 b .L6
+ 813              	 .cfi_endproc
+ 814              	.LFE135:
+ 816              	 .text
+ 817              	.Letext0:
+ 818              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 819              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 820              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_correlate_f32.c
+    {standard input}:20     .text.arm_correlate_f32:00000000 $t
+    {standard input}:25     .text.arm_correlate_f32:00000000 arm_correlate_f32
+    {standard input}:339    .text.arm_correlate_f32:000001c8 $d
+    {standard input}:343    .text.arm_correlate_f32:000001cc $t
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,1759 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "xmc_rtc.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.XMC_RTC_Start,"ax",%progbits
+  20              	 .align 2
+  21              	 .global XMC_RTC_Start
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	XMC_RTC_Start:
+  26              	.LFB164:
+  27              	 .file 1 "../Libraries/XMCLib/src/xmc_rtc.c"
+   1:../Libraries/XMCLib/src/xmc_rtc.c **** /**
+   2:../Libraries/XMCLib/src/xmc_rtc.c ****  * @file xmc_rtc.c
+   3:../Libraries/XMCLib/src/xmc_rtc.c ****  * @date 2015-05-19
+   4:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+   5:../Libraries/XMCLib/src/xmc_rtc.c ****  * @cond
+   6:../Libraries/XMCLib/src/xmc_rtc.c ****  **************************************************************************************************
+   7:../Libraries/XMCLib/src/xmc_rtc.c ****  * XMClib v2.1.16 - XMC Peripheral Driver Library 
+   8:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+   9:../Libraries/XMCLib/src/xmc_rtc.c ****  * Copyright (c) 2015-2017, Infineon Technologies AG
+  10:../Libraries/XMCLib/src/xmc_rtc.c ****  * All rights reserved.                        
+  11:../Libraries/XMCLib/src/xmc_rtc.c ****  *                                             
+  12:../Libraries/XMCLib/src/xmc_rtc.c ****  * Redistribution and use in source and binary forms, with or without modification,are permitted pr
+  13:../Libraries/XMCLib/src/xmc_rtc.c ****  * following conditions are met:   
+  14:../Libraries/XMCLib/src/xmc_rtc.c ****  *                                                                              
+  15:../Libraries/XMCLib/src/xmc_rtc.c ****  * Redistributions of source code must retain the above copyright notice, this list of conditions a
+  16:../Libraries/XMCLib/src/xmc_rtc.c ****  * disclaimer.                        
+  17:../Libraries/XMCLib/src/xmc_rtc.c ****  * 
+  18:../Libraries/XMCLib/src/xmc_rtc.c ****  * Redistributions in binary form must reproduce the above copyright notice, this list of condition
+  19:../Libraries/XMCLib/src/xmc_rtc.c ****  * disclaimer in the documentation and/or other materials provided with the distribution.          
+  20:../Libraries/XMCLib/src/xmc_rtc.c ****  * 
+  21:../Libraries/XMCLib/src/xmc_rtc.c ****  * Neither the name of the copyright holders nor the names of its contributors may be used to endor
+  22:../Libraries/XMCLib/src/xmc_rtc.c ****  * products derived from this software without specific prior written permission.                  
+  23:../Libraries/XMCLib/src/xmc_rtc.c ****  *                                                                              
+  24:../Libraries/XMCLib/src/xmc_rtc.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR I
+  25:../Libraries/XMCLib/src/xmc_rtc.c ****  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTI
+  26:../Libraries/XMCLib/src/xmc_rtc.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, IN
+  27:../Libraries/XMCLib/src/xmc_rtc.c ****  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBS
+  28:../Libraries/XMCLib/src/xmc_rtc.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THE
+  29:../Libraries/XMCLib/src/xmc_rtc.c ****  * WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+  30:../Libraries/XMCLib/src/xmc_rtc.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                            
+  31:../Libraries/XMCLib/src/xmc_rtc.c ****  *                                                                              
+  32:../Libraries/XMCLib/src/xmc_rtc.c ****  * To improve the quality of the software, users are encouraged to share modifications, enhancement
+  33:../Libraries/XMCLib/src/xmc_rtc.c ****  * Infineon Technologies AG dave@infineon.com).                                                    
+  34:../Libraries/XMCLib/src/xmc_rtc.c ****  **************************************************************************************************
+  35:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  36:../Libraries/XMCLib/src/xmc_rtc.c ****  * Change History
+  37:../Libraries/XMCLib/src/xmc_rtc.c ****  * --------------
+  38:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  39:../Libraries/XMCLib/src/xmc_rtc.c ****  * 2015-02-20:
+  40:../Libraries/XMCLib/src/xmc_rtc.c ****  *     - Initial <br>
+  41:../Libraries/XMCLib/src/xmc_rtc.c ****  *      
+  42:../Libraries/XMCLib/src/xmc_rtc.c ****  * 2015-06-20:
+  43:../Libraries/XMCLib/src/xmc_rtc.c ****  *     - Removed GetDriverVersion API
+  44:../Libraries/XMCLib/src/xmc_rtc.c ****  * 
+  45:../Libraries/XMCLib/src/xmc_rtc.c ****  * 2016-05-19:
+  46:../Libraries/XMCLib/src/xmc_rtc.c ****  *     - Added XMC_RTC_SetTimeStdFormat() and XMC_RTC_SetAlarmStdFormat()
+  47:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  48:../Libraries/XMCLib/src/xmc_rtc.c ****  * @endcond 
+  49:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  50:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+  51:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  52:../Libraries/XMCLib/src/xmc_rtc.c **** /**
+  53:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  54:../Libraries/XMCLib/src/xmc_rtc.c ****  * @brief RTC driver for XMC microcontroller family.
+  55:../Libraries/XMCLib/src/xmc_rtc.c ****  *
+  56:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+  57:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  58:../Libraries/XMCLib/src/xmc_rtc.c **** /**************************************************************************************************
+  59:../Libraries/XMCLib/src/xmc_rtc.c ****  * HEADER FILES
+  60:../Libraries/XMCLib/src/xmc_rtc.c ****  **************************************************************************************************
+  61:../Libraries/XMCLib/src/xmc_rtc.c ****  
+  62:../Libraries/XMCLib/src/xmc_rtc.c **** #include "xmc_scu.h"
+  63:../Libraries/XMCLib/src/xmc_rtc.c **** #include "xmc_rtc.h"
+  64:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  65:../Libraries/XMCLib/src/xmc_rtc.c **** /**************************************************************************************************
+  66:../Libraries/XMCLib/src/xmc_rtc.c ****  * MACROS
+  67:../Libraries/XMCLib/src/xmc_rtc.c ****  **************************************************************************************************
+  68:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  69:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXSECONDS  (59U)   /**< RTC time : Maximum seconds */
+  70:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXMINUTES  (59U)   /**< RTC time : Maximum minutes */
+  71:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXHOURS    (23U)   /**< RTC time : Maximum hours */
+  72:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXDAYS     (31U)   /**< RTC time : Maximum days */
+  73:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXDAYSOFWEEK  (7U) /**< RTC time : Maximum days of week */
+  74:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXMONTH  (12U)     /**< RTC time : Maximum month */
+  75:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXYEAR  (0xFFFFU)  /**< RTC time : Maximum year */
+  76:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_MAXPRESCALER  (0xFFFFU)  /**< RTC time : Maximum prescaler */
+  77:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_YEAR_OFFSET (1900U)      /**< RTC year offset : Year offset */
+  78:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  79:../Libraries/XMCLib/src/xmc_rtc.c **** #if (UC_FAMILY == XMC4)
+  80:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_INIT_SEQUENCE  (1U)
+  81:../Libraries/XMCLib/src/xmc_rtc.c **** #endif
+  82:../Libraries/XMCLib/src/xmc_rtc.c **** #if (UC_FAMILY == XMC1)
+  83:../Libraries/XMCLib/src/xmc_rtc.c **** #define XMC_RTC_INIT_SEQUENCE  (0U)
+  84:../Libraries/XMCLib/src/xmc_rtc.c **** #endif
+  85:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  86:../Libraries/XMCLib/src/xmc_rtc.c **** /**************************************************************************************************
+  87:../Libraries/XMCLib/src/xmc_rtc.c ****  * API IMPLEMENTATION
+  88:../Libraries/XMCLib/src/xmc_rtc.c ****  **************************************************************************************************
+  89:../Libraries/XMCLib/src/xmc_rtc.c **** 
+  90:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+  91:../Libraries/XMCLib/src/xmc_rtc.c ****  * Enables RTC peripheral to start counting time
+  92:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+  93:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_Start(void)
+  94:../Libraries/XMCLib/src/xmc_rtc.c **** {
+  28              	 .loc 1 94 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LBB28:
+  34              	.LBB29:
+  35              	 .file 2 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_scu.h"
+   1:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+   2:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @file xmc_scu.h
+   3:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @date 2016-03-09
+   4:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+   5:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @cond
+   6:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+   7:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMClib v2.1.16 - XMC Peripheral Driver Library 
+   8:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+   9:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Copyright (c) 2015-2017, Infineon Technologies AG
+  10:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * All rights reserved.                        
+  11:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                                             
+  12:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Redistribution and use in source and binary forms, with or without modification,are permitted pr
+  13:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * following conditions are met:   
+  14:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                                                                              
+  15:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Redistributions of source code must retain the above copyright notice, this list of conditions a
+  16:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * disclaimer.                        
+  17:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 
+  18:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Redistributions in binary form must reproduce the above copyright notice, this list of condition
+  19:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * disclaimer in the documentation and/or other materials provided with the distribution.          
+  20:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 
+  21:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Neither the name of the copyright holders nor the names of its contributors may be used to endor
+  22:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * products derived from this software without specific prior written permission.                  
+  23:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                                                                              
+  24:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR I
+  25:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTI
+  26:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, IN
+  27:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBS
+  28:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THE
+  29:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+  30:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                            
+  31:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                                                                              
+  32:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * To improve the quality of the software, users are encouraged to share modifications, enhancement
+  33:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Infineon Technologies AG dave@infineon.com).                                                    
+  34:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+  35:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  36:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Change History
+  37:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * --------------
+  38:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  39:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 2015-02-20:
+  40:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Initial <br>
+  41:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  42:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 2015-05-20:
+  43:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Documentation improved <br>
+  44:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - XMC_ASSERT() hanging issues have fixed for XMC4 devices. <br>
+  45:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  46:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 2015-06-20:
+  47:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Removed version macros and declaration of GetDriverVersion API
+  48:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Removed STATIC_INLINE property for the below APIs and declared as void
+  49:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *       XMC_SCU_INTERRUPT_EnableEvent, XMC_SCU_INTERRUPT_DisableEvent,
+  50:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *       XMC_SCU_INTERRUPT_TriggerEvent, XMC_SCU_INTERUPT_GetEventStatus,
+  51:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *       XMC_SCU_INTERUPT_ClearEventStatus
+  52:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  53:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 2015-11-30:
+  54:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Documentation improved <br>
+  55:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *      
+  56:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 2016-03-09:
+  57:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *     - Optimization of write only registers
+  58:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *      
+  59:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @endcond 
+  60:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  61:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+  62:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #ifndef XMC_SCU_H
+  63:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #define XMC_SCU_H
+  64:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+  65:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+  66:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * HEADER FILES
+  67:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+  68:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #include <xmc_common.h>
+  69:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+  70:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+  71:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @addtogroup XMClib XMC Peripheral Library
+  72:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @{
+  73:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+  74:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+  75:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+  76:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @addtogroup SCU
+  77:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @brief System Control Unit(SCU) driver for XMC microcontroller family.
+  78:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  79:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * System control unit is the SoC power, reset and a clock manager with additional responsibility o
+  80:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * providing system stability protection and other auxiliary functions.<br>
+  81:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * SCU provides the following features,
+  82:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Power control
+  83:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4 
+  84:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Hibernate control 
+  85:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+  86:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Reset control
+  87:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Clock control
+  88:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Miscellaneous control(boot mode, system interrupts etc.)<br><br>
+  89:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  90:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The SCU driver is divided in to clock control logic, reset control logic, system interrupt contr
+  91:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4
+  92:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * , hibernate control logic, trap control logic, parity control logic 
+  93:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+  94:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * and miscellaneous control logic.<br>
+  95:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+  96:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Clock driver features:
+  97:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows clock configuration using the structure XMC_SCU_CLOCK_CONFIG_t and API XMC_SCU_CLOCK_I
+  98:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4
+  99:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides structure XMC_SCU_CLOCK_SYSPLL_CONFIG_t for configuring the system PLL
+ 100:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows selection of clock source for system PLL, XMC_SCU_CLOCK_GetSystemPllClockSource()
+ 101:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides APIs for configuring different module clock frequencies XMC_SCU_CLOCK_SetWdtClockDiv
+ 102:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows selection of clock source for external output, XMC_SCU_CLOCK_SetExternalOutputClockSou
+ 103:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides APIs for enabling external high power oscillator and ultra low power oscillator, XMC
+ 104:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides APIs for getting various clock frequencies XMC_SCU_CLOCK_GetPeripheralClockFrequency
+ 105:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  XMC_SCU_CLOCK_GetCpuClockFrequency(), XMC_SCU_CLOCK_GetSystemClockFrequency()<br>
+ 106:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 107:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC1
+ 108:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows selection of peripheral clock frequency, XMC_SCU_CLOCK_SetFastPeripheralClockSource()
+ 109:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides API to get the peripheral clock frequency, XMC_SCU_CLOCK_GetFastPeripheralClockFrequ
+ 110:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 111:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 112:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Reset driver features:
+ 113:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4
+ 114:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows to handle peripheral reset XMC_SCU_RESET_AssertPeripheralReset(), XMC_SCU_RESET_Deasse
+ 115:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows configuration of NMI generation for selected events, XMC_SCU_INTERRUPT_EnableNmiReques
+ 116:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 117:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC1
+ 118:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows to trigger device reset XMC_SCU_RESET_AssertMasterReset()
+ 119:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows to configure multiple sources for reset, XMC_SCU_RESET_EnableResetRequest()
+ 120:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif <br>
+ 121:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 122:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Interrupt driver features:
+ 123:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides APIs for enabling/ disabling interrupt event generation XMC_SCU_INTERRUPT_EnableEven
+ 124:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  XMC_SCU_INTERRUPT_DisableEvent()
+ 125:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides API for registering callback function for events XMC_SCU_INTERRUPT_SetEventHandler()
+ 126:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 127:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4
+ 128:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Hibernate driver features:
+ 129:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows configuration of hibernate domain XMC_SCU_HIB_EnableHibernateDomain(), XMC_SCU_HIB_Dis
+ 130:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows selection of standby clock source, XMC_SCU_HIB_SetStandbyClockSource()
+ 131:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows selection of RTC clock source, XMC_SCU_HIB_SetRtcClockSource()
+ 132:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Provides API for enabling slow internal clock used for backup clock, XMC_SCU_HIB_EnableIntern
+ 133:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 134:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Trap driver features:
+ 135:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows handling of trap XMC_SCU_TRAP_Enable(), XMC_SCU_TRAP_GetStatus(), XMC_SCU_TRAP_Trigger
+ 136:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 137:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Parity driver features:
+ 138:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Parity error generated by on-chip RAM can be monitored, XMC_SCU_PARITY_Enable(), XMC_SCU_PARI
+ 139:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows configuration of trap generation on detection of parity error, XMC_SCU_PARITY_EnableTr
+ 140:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 141:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Power driver features:
+ 142:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows to power the USB module XMC_SCU_POWER_EnableUsb(), XMC_SCU_POWER_DisableUsb()
+ 143:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 144:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 145:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Miscellaneous features:
+ 146:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows to trigger multiple capture compare unit(CCU) channels to be started together XMC_SCU_
+ 147:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC4
+ 148:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Enables configuration of out of range comparator (ORC) XMC_SCU_EnableOutOfRangeComparator()
+ 149:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Enables configuration of die temperature sensor XMC_SCU_EnableTemperatureSensor(), XMC_SCU_Ca
+ 150:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Enables configuration of device boot mode XMC_SCU_SetBootMode()<br>
+ 151:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 152:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \if XMC1
+ 153:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Enables configuration of die temperature sensor XMC_SCU_StartTempMeasurement(), XMC_SCU_SetRa
+ 154:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows configuring supply monitor unit using the structure XMC_SCU_SUPPLYMONITOR_t and API XM
+ 155:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * -# Allows handling of protected bits XMC_SCU_LockProtectedBits(), XMC_SCU_UnlockProtectedBits()<
+ 156:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  \endif
+ 157:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @{
+ 158:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 159:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+ 160:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+ 161:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * MACROS
+ 162:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+ 163:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 164:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+ 165:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * ENUMS
+ 166:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+ 167:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 168:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *  Defines the status of SCU API execution, used to verify the SCU related API calls.
+ 169:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 170:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** typedef enum XMC_SCU_STATUS 
+ 171:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 172:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   XMC_SCU_STATUS_OK   = 0UL, /**< SCU related operation successfully completed.*/
+ 173:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   XMC_SCU_STATUS_ERROR,      /**< SCU related operation failed. When API cannot fulfill request, th
+ 174:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   XMC_SCU_STATUS_BUSY,       /**< Cannot execute the SCU related operation request because
+ 175:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****                                   another operation is in progress. \a XMC_SCU_STATUS_BUSY is retur
+ 176:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****                                   processing another request. */
+ 177:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** } XMC_SCU_STATUS_t;
+ 178:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 179:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 180:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+ 181:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * DATA TYPES
+ 182:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+ 183:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 184:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 185:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Function pointer type used for registering callback functions on SCU event occurrence.
+ 186:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 187:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** typedef void (*XMC_SCU_INTERRUPT_EVENT_HANDLER_t)(void);
+ 188:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 189:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+ 190:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * DEVICE EXTENSIONS
+ 191:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+ 192:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 193:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #if (UC_FAMILY == XMC1)
+ 194:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #include <xmc1_scu.h>
+ 195:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #elif (UC_FAMILY == XMC4)
+ 196:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #include <xmc4_scu.h>
+ 197:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #else
+ 198:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #error "Unspecified chipset"
+ 199:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #endif
+ 200:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 201:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**************************************************************************************************
+ 202:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * API Prototypes
+ 203:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  **************************************************************************************************
+ 204:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 205:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #ifdef __cplusplus
+ 206:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** extern "C" {
+ 207:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #endif
+ 208:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 209:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 210:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 211:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 212:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param trigger    CCU slices to be triggered synchronously via software. The value is a bitmask 
+ 213:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    in the register CCUCON. <br>
+ 214:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    \b Range: Use type @ref XMC_SCU_CCU_TRIGGER_t for bitmask of individual CCU s
+ 215:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    combined using \a OR operation.
+ 216:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 217:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 218:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 219:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 220:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Generates active edge(low to high) trigger for multiple CCU units at the same time.\n\n
+ 221:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Before executing this API, all the required CCU timers should configure external start.
+ 222:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The edge of the start signal should be selected as active edge.
+ 223:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The input signal for the CCU slice should be selected as SCU input.
+ 224:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The above mentioned configurations can be made using the CCU LLD API XMC_CCU4_SLICE_StartConfig(
+ 225:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * CCU timer slice should be started using XMC_CCU4_SLICE_StartTimer() before triggering 
+ 226:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the timer using this API.<BR>
+ 227:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 228:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_CCU4_SLICE_StartConfig(), XMC_CCU4_SLICE_SetInput(), XMC_SCU_SetCcuTriggerLow()\n\n\n
+ 229:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 230:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE void XMC_SCU_SetCcuTriggerHigh(const uint32_t trigger)
+ 231:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 232:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   SCU_GENERAL->CCUCON |= (uint32_t)trigger;
+ 233:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** }
+ 234:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 235:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 236:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 237:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param trigger  CCU slices to be triggered synchronously via software. The value is a bitmask of
+ 238:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    in the register CCUCON. <br>
+ 239:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    \b Range: Use type @ref XMC_SCU_CCU_TRIGGER_t for bitmask of individual CCU s
+ 240:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    combined using \a OR operation.
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 242:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 243:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 244:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 245:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Generates passive edge(high to low) trigger for multiple CCU units at the same time.\n\n
+ 246:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Before executing this API, all the required CCU timers should configure external start.
+ 247:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The edge of the start signal should be selected as passive edge.
+ 248:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The input signal for the CCU slice should be selected as SCU input.
+ 249:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The above mentioned configurations can be made using the CCU LLD API XMC_CCU4_SLICE_StartConfig(
+ 250:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * CCU timer slice should be started using XMC_CCU4_SLICE_StartTimer() before triggering 
+ 251:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the timer using this API.<BR>
+ 252:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 253:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_CCU4_SLICE_StartConfig(), XMC_CCU4_SLICE_SetInput(), XMC_SCU_SetCcuTriggerHigh()\n\n\n
+ 254:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 255:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE void XMC_SCU_SetCcuTriggerLow(const uint32_t trigger)
+ 256:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 257:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   SCU_GENERAL->CCUCON &= (uint32_t)~trigger;
+ 258:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** }
+ 259:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 261:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 262:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param config Pointer to structure holding the clock prescaler values and divider values for 
+ 263:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                configuring clock generators and clock tree.\n
+ 264:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                \b Range: Configure the members of structure @ref XMC_SCU_CLOCK_CONFIG_t for vari
+ 265:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                parameters of clock setup.
+ 266:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 267:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 268:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 269:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 270:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Initializes clock generators and clock tree.\n\n
+ 271:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC1
+ 272:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Peripheral clock and system clock are configured based on the input configuration \a config.
+ 273:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The system clock frequency is tuned by configuring the FDIV and IDIV values of CLKCR register.
+ 274:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The values of FDIV and IDIV can be provided as part of input configuration.
+ 275:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The PCLK divider determines the ratio of peripheral clock to the system clock. 
+ 276:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The source of RTC clock is set based on the input configuration. 
+ 277:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \a SystemCoreClock variable will be updated with the value of
+ 278:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * system clock frequency. Access to protected bit fields are handled internally.
+ 279:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 280:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC4
+ 281:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Enables the high precision oscillator(fOHP) input and configures the system and peripheral clock
+ 282:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Based on the system clock source selected in \a config, either fPLL or fOFI will be chosen as sy
+ 283:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Based on PLL mode(normal or prescaler mode) used, PLL ramps up in steps to achieve target freque
+ 284:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The clock dividers for CPU, CCU and peripheral clocks will be set based on the input configurati
+ 285:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The \a SystemCoreClock variable is set with the value of system clock frequency.
+ 286:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 287:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 288:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_GetPeripheralClockFrequency(), XMC_SCU_CLOCK_GetCpuClockFrequency() \n\n\n
+ 289:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 290:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_CLOCK_Init(const XMC_SCU_CLOCK_CONFIG_t *const config);
+ 291:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 292:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 293:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 294:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param event  Bit mask of the event to enable. \b Range: Use type @ref XMC_SCU_INTERRUPT_EVENT_t
+ 295:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                for providing the input value. Multiple events can be combined using the \a OR op
+ 296:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 297:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 298:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 299:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 300:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Enables the generation of interrupt for the input events.\n\n
+ 301:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The events are enabled by setting the respective bit fields in the SRMSK register. \n
+ 302:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Note: User should separately enable the NVIC node responsible for handling the SCU interrupt.
+ 303:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The interrupt will be generated when the respective event occurs.
+ 304:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 305:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * NVIC_EnableIRQ(), XMC_SCU_INTERRUPT_DisableEvent()\n\n\n
+ 306:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 307:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_INTERRUPT_EnableEvent(const XMC_SCU_INTERRUPT_EVENT_t event);
+ 308:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 309:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 310:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 311:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 312:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param event  Bit mask of the event to disable. \b Range: Use type @ref XMC_SCU_INTERRUPT_EVENT_
+ 313:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                for providing the input value. Multiple events can be combined using the \a OR op
+ 314:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 315:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 316:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 317:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 318:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Disables generation of interrupt on occurrence of the input event.\n\n
+ 319:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The events are disabled by resetting the respective bit fields in the SRMSK register. \n
+ 320:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 321:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * NVIC_DisableIRQ(), XMC_SCU_INTERRUPT_EnableEvent()\n\n\n
+ 322:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 323:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_INTERRUPT_DisableEvent(const XMC_SCU_INTERRUPT_EVENT_t event);
+ 324:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 325:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 326:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 327:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param event Bit mask of the event to be triggered. \b Range: Use type @ref XMC_SCU_INTERRUPT_EV
+ 328:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                for providing the input value. Multiple events can be combined using the \a OR op
+ 329:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 330:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 331:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 332:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 333:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Triggers the event as if the hardware raised it.\n\n
+ 334:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Event will be triggered by setting the respective bitfield in the SRSET register.\n
+ 335:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Note: User should enable the NVIC node that handles the respective event for interrupt generatio
+ 336:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 337:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * NVIC_EnableIRQ(), XMC_SCU_INTERUPT_GetEventStatus(), XMC_SCU_INTERRUPT_ClearEventStatus() \n\n\n
+ 338:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 339:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_INTERRUPT_TriggerEvent(const XMC_SCU_INTERRUPT_EVENT_t  event);
+ 340:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 341:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 342:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return uint32_t  Status of the SCU events.
+ 343:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 344:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 345:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Provides the status of all SCU events.\n\n
+ 346:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The status is read from the SRRAW register. To check the status of a particular 
+ 347:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * event, the returned value should be masked with the bit mask of the event. The bitmask
+ 348:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * of events can be obtained using the type @ref XMC_SCU_INTERRUPT_EVENT_t. Multiple events'
+ 349:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * status can be checked by combining the bit masks using \a OR operation. 
+ 350:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * After detecting the event, the event status should be cleared using software to detect the event
+ 351:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 352:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_INTERRUPT_ClearEventStatus(), XMC_SCU_INTERRUPT_TriggerEvent(), XMC_SCU_INTERRUPT_SetEve
+ 353:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 354:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** XMC_SCU_INTERRUPT_EVENT_t XMC_SCU_INTERUPT_GetEventStatus(void);
+ 355:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 356:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 357:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 358:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param event  Bit mask of the events to clear. \b Range: Use type @ref XMC_SCU_INTERRUPT_EVENT_t
+ 359:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                for providing the input value. Multiple events can be combined using the \a OR op
+ 360:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 361:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 362:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 363:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 364:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Clears the event status bit in SRRAW register.\n\n
+ 365:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The events are cleared by writing value 1 to their bit positions in the SRCLR register.
+ 366:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The API can be used when polling method is used. After detecting the event, the event status
+ 367:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * should be cleared using software to detect the event again.
+ 368:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 369:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 370:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_INTERUPT_GetEventStatus(), XMC_SCU_INTERRUPT_TriggerEvent() \n\n\n
+ 371:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 372:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_INTERRUPT_ClearEventStatus(const XMC_SCU_INTERRUPT_EVENT_t event);
+ 373:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 374:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 375:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 376:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return uint32_t  Status representing the reason for device reset.
+ 377:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 378:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 379:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Provides the value representing the reason for device reset.\n\n
+ 380:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The return value is an encoded word, which can indicate multiple reasons for the last reset. Eac
+ 381:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * returned word is representative of a last reset cause. The returned value should be appropriatel
+ 382:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the cause of reset. 
+ 383:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The cause of the last reset gets automatically stored in 
+ 384:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the \a SCU_RSTSTAT register. The reset status shall be reset after each
+ 385:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * startup in order to ensure consistent source indication after the next reset.
+ 386:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \b Range: The type @ref XMC_SCU_RESET_REASON_t can be used to get the bit masks of the reset cau
+ 387:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 388:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 389:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_RESET_ClearDeviceResetReason() \n\n\n
+ 390:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 391:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE uint32_t XMC_SCU_RESET_GetDeviceResetReason(void)
+ 392:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 393:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   return ((SCU_RESET->RSTSTAT) & SCU_RESET_RSTSTAT_RSTSTAT_Msk);
+ 394:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** }
+ 395:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 396:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None 
+ 397:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 398:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 399:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Clears the reset reason bits in the reset status register. \n\n
+ 400:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Clearing of the reset status information in the \a SCU_RSTSTAT register via register bit \a RSTC
+ 401:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * recommended to ensure a clear indication of the cause of next reset.
+ 402:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 403:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 404:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_RESET_GetDeviceResetReason() \n\n\n
+ 405:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 406:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE void XMC_SCU_RESET_ClearDeviceResetReason(void)
+ 407:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 408:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   /* Clear RSTSTAT.RSTSTAT bitfield */
+ 409:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   SCU_RESET->RSTCLR = (uint32_t)SCU_RESET_RSTCLR_RSCLR_Msk;
+ 410:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** }
+ 411:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+ 412:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 413:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return uint32_t  Value of CPU clock frequency.
+ 414:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 415:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 416:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Provides the vlaue of CPU clock frequency.\n\n
+ 417:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The value is stored in a global variable \a \b SystemCoreClock.
+ 418:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * It is updated when the clock configuration is done using the SCU LLD APIs.
+ 419:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The value represents the frequency of clock used for CPU operation.
+ 420:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \b Range: Value is of type uint32_t, and gives the value of frequency in Hertz.
+ 421:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 422:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 423:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_GetPeripheralClockFrequency(), XMC_SCU_CLOCK_GatePeripheralClock() \n\n\n
+ 424:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 425:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE uint32_t XMC_SCU_CLOCK_GetCpuClockFrequency(void)
+ 426:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 427:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   return SystemCoreClock;
+ 428:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** }
+ 429:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 430:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 431:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return uint32_t  Value of peripheral clock frequency in Hertz.
+ 432:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 433:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 434:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Provides the vlaue of clock frequency at which the peripherals are working.\n\n
+ 435:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The value is derived from the CPU frequency. \b Range: Value is of type uint32_t. It is represen
+ 436:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 437:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_GetCpuClockFrequency(),XMC_SCU_CLOCK_GatePeripheralClock() \n\n\n
+ 438:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 439:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** uint32_t XMC_SCU_CLOCK_GetPeripheralClockFrequency(void); 
+ 440:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 441:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #if(UC_SERIES != XMC45)
+ 442:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+ 443:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 444:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 445:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param  peripheral The peripheral for which the clock has to be gated. \b Range: Use type @ref X
+ 446:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    to identify the peripheral clock to be gated.
+ 447:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 448:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 449:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 450:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 451:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Blocks the supply of clock to the selected peripheral.\n\n
+ 452:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Clock gating helps in reducing the power consumption. User can selectively gate the clocks of un
+ 453:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC1
+ 454:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * fPCLK is the source of clock to various peripherals. Some peripherals support clock gate. Such a
+ 455:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the clock supply for the selected peripheral.
+ 456:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Software can request for individual gating of such peripheral clocks by enabling the \a SCU_CGAT
+ 457:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * register bit field. Every bit in \a SCU_CGATSET0 register is protected by the bit protection sch
+ 458:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * bit fields are handled internally.
+ 459:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 460:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC4
+ 461:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * fPERI is the source of clock to various peripherals. Some peripherals support clock gate. Such a
+ 462:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * the clock supply for the selected peripheral.
+ 463:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Software can request for individual gating of such peripheral clocks by enabling one of the \a
+ 464:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * SCU_CGATSET0, \a SCU_CGATSET1 or \a SCU_CGATSET2 register bitfields.
+ 465:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * 
+ 466:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 467:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Note: Clock gating shall not be activated unless the module is in reset state. So use \a
+ 468:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_IsPeripheralClockGated() API before enabling the gating of any peripheral.
+ 469:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 470:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_IsPeripheralClockGated(), XMC_SCU_CLOCK_UngatePeripheralClock() \n\n\n
+ 471:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 472:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_CLOCK_GatePeripheralClock(const XMC_SCU_PERIPHERAL_CLOCK_t peripheral);
+ 473:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  
+ 474:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 475:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 476:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param  peripheral  The peripheral for which the clock has to be ungated. \b Range: Use type @re
+ 477:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    to identify the peripheral.
+ 478:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 479:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return None
+ 480:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 481:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 482:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Enables the supply of clock to the selected peripheral.\n\n
+ 483:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * By default when the device powers on, the peripheral clock will be gated for the 
+ 484:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * peripherals that support clock gating.
+ 485:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The peripheral clock should be enabled before using it for any functionality.
+ 486:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC1
+ 487:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * fPCLK is the source of clock to various peripherals. Some peripherals support clock gate.
+ 488:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Software can request for individual ungating of such peripheral clocks by setting respective bit
+ 489:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * in the \a SCU_CGATCLR0 register.
+ 490:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 491:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC4
+ 492:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * fPERI is the source of clock to various peripherals. Some peripherals support clock gate.
+ 493:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Software can request for individual ungating of such peripheral clocks by setting the respective
+ 494:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * SCU_CGATCLR0, \a SCU_CGATCLR1 or \a SCU_CGATCLR2 registers.
+ 495:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 496:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 497:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 498:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_IsPeripheralClockGated(), XMC_SCU_CLOCK_GatePeripheralClock() \n\n\n
+ 499:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 500:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** void XMC_SCU_CLOCK_UngatePeripheralClock(const XMC_SCU_PERIPHERAL_CLOCK_t peripheral);
+ 501:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 502:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 503:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 504:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @param  peripheral  The peripheral for which the check for clock gating has to be done. 
+ 505:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    \b Range: Use type @ref XMC_SCU_PERIPHERAL_CLOCK_t to identify the peripheral
+ 506:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 507:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return bool Status of the peripheral clock gating. \b Range: true if the peripheral clock is ga
+ 508:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *              false if the peripheral clock ungated(gate de-asserted).
+ 509:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 510:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 511:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Gives the status of peripheral clock gating.\n\n
+ 512:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC1
+ 513:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Checks the status of peripheral clock gating using the register CGATSTAT0.
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 515:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \if XMC4
+ 516:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Checks the status of peripheral clock gating using one of CGATSTAT0, CGATSTAT1 or CGATSTAT2 regi
+ 517:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \endif
+ 518:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * It is recommended to use this API before
+ 519:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * enabling the gating of any peripherals through \a XMC_SCU_CLOCK_GatePeripheralClock() API.
+ 520:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 521:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Related APIs:</b><BR>
+ 522:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * XMC_SCU_CLOCK_UngatePeripheralClock(), XMC_SCU_CLOCK_GatePeripheralClock() \n\n\n
+ 523:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 524:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** bool XMC_SCU_CLOCK_IsPeripheralClockGated(const XMC_SCU_PERIPHERAL_CLOCK_t peripheral);
+ 525:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** #endif
+ 526:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 527:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** 
+ 528:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** /**
+ 529:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * @return  uint32_t  Status of the register mirror update.\n
+ 530:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    \b Range: Use the bit mask of the SCU_GENERAL_MIRRSTS register for the mirror
+ 531:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    interest. e.g.: SCU_GENERAL_MIRRSTS_RTC_CTR_Msk. Multiple update events can b
+ 532:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *                    using \a OR operation.
+ 533:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  *
+ 534:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * \par<b>Description</b><br>
+ 535:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Provides the status of hibernate domain register update, when the respective mirror registers ar
+ 536:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * The hibernate domain is connected to the core domain via SPI serial communication. MIRRSTS is a 
+ 537:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * representing the communication of changed value of a mirror register to its corresponding regist
+ 538:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * hibernate domain. The bit fields of the register indicate
+ 539:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * that a corresponding register of the hibernate domain is ready to accept a write or that the com
+ 540:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * is busy with executing the previous operation.\n
+ 541:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  * Note: There is no hibernate domain in XMC1x devices. This register is retained for legacy purpos
+ 542:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****  */
+ 543:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** __STATIC_INLINE uint32_t XMC_SCU_GetMirrorStatus(void)
+ 544:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h **** {
+ 545:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_scu.h ****   return(SCU_GENERAL->MIRRSTS);
+  36              	 .loc 2 545 0
+  37 0000 054A     	 ldr r2,.L5
+  38              	.L2:
+  39              	 .loc 2 545 0 is_stmt 0 discriminator 1
+  40 0002 D2F8C430 	 ldr r3,[r2,#196]
+  41              	.LBE29:
+  42              	.LBE28:
+  95:../Libraries/XMCLib/src/xmc_rtc.c ****   while((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_CTR_Msk) != 0U)
+  43              	 .loc 1 95 0 is_stmt 1 discriminator 1
+  44 0006 DB05     	 lsls r3,r3,#23
+  45 0008 FBD4     	 bmi .L2
+  96:../Libraries/XMCLib/src/xmc_rtc.c ****   {
+  97:../Libraries/XMCLib/src/xmc_rtc.c ****     /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+  98:../Libraries/XMCLib/src/xmc_rtc.c ****   }
+  99:../Libraries/XMCLib/src/xmc_rtc.c ****   RTC->CTR |= (uint32_t)RTC_CTR_ENB_Msk;
+  46              	 .loc 1 99 0
+  47 000a 044A     	 ldr r2,.L5+4
+  48 000c 5368     	 ldr r3,[r2,#4]
+  49 000e 43F00103 	 orr r3,r3,#1
+  50 0012 5360     	 str r3,[r2,#4]
+  51 0014 7047     	 bx lr
+  52              	.L6:
+  53 0016 00BF     	 .align 2
+  54              	.L5:
+  55 0018 00400050 	 .word 1342193664
+  56 001c 004A0050 	 .word 1342196224
+  57              	 .cfi_endproc
+  58              	.LFE164:
+  60              	 .section .text.XMC_RTC_Stop,"ax",%progbits
+  61              	 .align 2
+  62              	 .global XMC_RTC_Stop
+  63              	 .thumb
+  64              	 .thumb_func
+  66              	XMC_RTC_Stop:
+  67              	.LFB165:
+ 100:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 101:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 102:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 103:../Libraries/XMCLib/src/xmc_rtc.c ****  * Disables RTC peripheral to start counting time
+ 104:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 105:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_Stop(void)
+ 106:../Libraries/XMCLib/src/xmc_rtc.c **** {
+  68              	 .loc 1 106 0
+  69              	 .cfi_startproc
+  70              	 
+  71              	 
+  72              	 
+  73              	.LBB30:
+  74              	.LBB31:
+  75              	 .loc 2 545 0
+  76 0000 054A     	 ldr r2,.L10
+  77              	.L8:
+  78              	 .loc 2 545 0 is_stmt 0 discriminator 1
+  79 0002 D2F8C430 	 ldr r3,[r2,#196]
+  80              	.LBE31:
+  81              	.LBE30:
+ 107:../Libraries/XMCLib/src/xmc_rtc.c ****   while((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_CTR_Msk) != 0U)
+  82              	 .loc 1 107 0 is_stmt 1 discriminator 1
+  83 0006 DB05     	 lsls r3,r3,#23
+  84 0008 FBD4     	 bmi .L8
+ 108:../Libraries/XMCLib/src/xmc_rtc.c ****   {
+ 109:../Libraries/XMCLib/src/xmc_rtc.c ****     /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 110:../Libraries/XMCLib/src/xmc_rtc.c ****   }
+ 111:../Libraries/XMCLib/src/xmc_rtc.c ****   RTC->CTR &= ~(uint32_t)RTC_CTR_ENB_Msk;
+  85              	 .loc 1 111 0
+  86 000a 044A     	 ldr r2,.L10+4
+  87 000c 5368     	 ldr r3,[r2,#4]
+  88 000e 23F00103 	 bic r3,r3,#1
+  89 0012 5360     	 str r3,[r2,#4]
+  90 0014 7047     	 bx lr
+  91              	.L11:
+  92 0016 00BF     	 .align 2
+  93              	.L10:
+  94 0018 00400050 	 .word 1342193664
+  95 001c 004A0050 	 .word 1342196224
+  96              	 .cfi_endproc
+  97              	.LFE165:
+  99              	 .section .text.XMC_RTC_SetPrescaler,"ax",%progbits
+ 100              	 .align 2
+ 101              	 .global XMC_RTC_SetPrescaler
+ 102              	 .thumb
+ 103              	 .thumb_func
+ 105              	XMC_RTC_SetPrescaler:
+ 106              	.LFB166:
+ 112:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 113:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 114:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 115:../Libraries/XMCLib/src/xmc_rtc.c ****  * Sets the RTC module prescaler value
+ 116:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 117:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_SetPrescaler(uint16_t prescaler)
+ 118:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 107              	 .loc 1 118 0
+ 108              	 .cfi_startproc
+ 109              	 
+ 110              	 
+ 111              	 
+ 112              	.LVL0:
+ 113              	.LBB32:
+ 114              	.LBB33:
+ 115              	 .loc 2 545 0
+ 116 0000 054A     	 ldr r2,.L15
+ 117              	.L13:
+ 118              	 .loc 2 545 0 is_stmt 0 discriminator 1
+ 119 0002 D2F8C430 	 ldr r3,[r2,#196]
+ 120              	.LBE33:
+ 121              	.LBE32:
+ 119:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetPrescaler:Wrong prescaler value", (prescaler < XMC_RTC_MAXPRESCALER));
+ 120:../Libraries/XMCLib/src/xmc_rtc.c ****   
+ 121:../Libraries/XMCLib/src/xmc_rtc.c ****   while((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_CTR_Msk) != 0U)
+ 122              	 .loc 1 121 0 is_stmt 1 discriminator 1
+ 123 0006 DB05     	 lsls r3,r3,#23
+ 124 0008 FBD4     	 bmi .L13
+ 122:../Libraries/XMCLib/src/xmc_rtc.c ****   {
+ 123:../Libraries/XMCLib/src/xmc_rtc.c ****     /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 124:../Libraries/XMCLib/src/xmc_rtc.c ****   }
+ 125:../Libraries/XMCLib/src/xmc_rtc.c ****   RTC->CTR = (RTC->CTR & ~(uint32_t)RTC_CTR_DIV_Msk) |
+ 125              	 .loc 1 125 0
+ 126 000a 044A     	 ldr r2,.L15+4
+ 127 000c 5368     	 ldr r3,[r2,#4]
+ 128 000e 9BB2     	 uxth r3,r3
+ 129 0010 43EA0040 	 orr r0,r3,r0,lsl#16
+ 130              	.LVL1:
+ 131 0014 5060     	 str r0,[r2,#4]
+ 132 0016 7047     	 bx lr
+ 133              	.L16:
+ 134              	 .align 2
+ 135              	.L15:
+ 136 0018 00400050 	 .word 1342193664
+ 137 001c 004A0050 	 .word 1342196224
+ 138              	 .cfi_endproc
+ 139              	.LFE166:
+ 141              	 .section .text.XMC_RTC_SetTime,"ax",%progbits
+ 142              	 .align 2
+ 143              	 .global XMC_RTC_SetTime
+ 144              	 .thumb
+ 145              	 .thumb_func
+ 147              	XMC_RTC_SetTime:
+ 148              	.LFB167:
+ 126:../Libraries/XMCLib/src/xmc_rtc.c ****              ((uint32_t)prescaler << (uint32_t)RTC_CTR_DIV_Pos);
+ 127:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 128:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 129:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 130:../Libraries/XMCLib/src/xmc_rtc.c ****  * Sets the RTC_TIM0, RTC_TIM1 registers with time values
+ 131:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 132:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_SetTime(const XMC_RTC_TIME_t *const time)
+ 133:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 149              	 .loc 1 133 0
+ 150              	 .cfi_startproc
+ 151              	 
+ 152              	 
+ 153              	 
+ 154              	.LVL2:
+ 155              	.LBB34:
+ 156              	.LBB35:
+ 157              	 .loc 2 545 0
+ 158 0000 084A     	 ldr r2,.L22
+ 159              	.L18:
+ 160              	 .loc 2 545 0 is_stmt 0 discriminator 1
+ 161 0002 D2F8C430 	 ldr r3,[r2,#196]
+ 162              	.LBE35:
+ 163              	.LBE34:
+ 134:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong seconds value", ((uint32_t)time->seconds < XMC_RTC_MAXSECONDS))
+ 135:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong minutes value", ((uint32_t)time->minutes < XMC_RTC_MAXMINUTES))
+ 136:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong hours value", ((uint32_t)time->hours < XMC_RTC_MAXHOURS));
+ 137:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong month day value", ((uint32_t)time->days < XMC_RTC_MAXDAYS));
+ 138:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong week day value", ((uint32_t)time->daysofweek < XMC_RTC_MAXDAYSO
+ 139:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong month value", ((uint32_t)time->month < XMC_RTC_MAXMONTH));
+ 140:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetTime:Wrong year value", ((uint32_t)time->year < XMC_RTC_MAXYEAR));
+ 141:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 142:../Libraries/XMCLib/src/xmc_rtc.c ****   #if (XMC_RTC_INIT_SEQUENCE == 1U)
+ 143:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_TIM0_Msk) != 0U)
+ 164              	 .loc 1 143 0 is_stmt 1 discriminator 1
+ 165 0006 1905     	 lsls r1,r3,#20
+ 166 0008 FBD4     	 bmi .L18
+ 144:../Libraries/XMCLib/src/xmc_rtc.c ****       { 
+ 145:../Libraries/XMCLib/src/xmc_rtc.c ****          /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 146:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 147:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->TIM0 = time->raw0;
+ 167              	 .loc 1 147 0
+ 168 000a 074B     	 ldr r3,.L22+4
+ 169 000c 0168     	 ldr r1,[r0]
+ 170              	.LBB36:
+ 171              	.LBB37:
+ 172              	 .loc 2 545 0
+ 173 000e 054A     	 ldr r2,.L22
+ 174              	.LBE37:
+ 175              	.LBE36:
+ 176              	 .loc 1 147 0
+ 177 0010 1962     	 str r1,[r3,#32]
+ 178              	.L19:
+ 179              	.LBB39:
+ 180              	.LBB38:
+ 181              	 .loc 2 545 0 discriminator 1
+ 182 0012 D2F8C430 	 ldr r3,[r2,#196]
+ 183              	.LBE38:
+ 184              	.LBE39:
+ 148:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 149:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_TIM1_Msk) != 0U)
+ 185              	 .loc 1 149 0 discriminator 1
+ 186 0016 DB04     	 lsls r3,r3,#19
+ 187 0018 FBD4     	 bmi .L19
+ 150:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 151:../Libraries/XMCLib/src/xmc_rtc.c ****         /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 152:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 153:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->TIM1 = time->raw1;	     
+ 188              	 .loc 1 153 0
+ 189 001a 034B     	 ldr r3,.L22+4
+ 190 001c 4268     	 ldr r2,[r0,#4]
+ 191 001e 5A62     	 str r2,[r3,#36]
+ 192 0020 7047     	 bx lr
+ 193              	.L23:
+ 194 0022 00BF     	 .align 2
+ 195              	.L22:
+ 196 0024 00400050 	 .word 1342193664
+ 197 0028 004A0050 	 .word 1342196224
+ 198              	 .cfi_endproc
+ 199              	.LFE167:
+ 201              	 .section .text.XMC_RTC_GetTime,"ax",%progbits
+ 202              	 .align 2
+ 203              	 .global XMC_RTC_GetTime
+ 204              	 .thumb
+ 205              	 .thumb_func
+ 207              	XMC_RTC_GetTime:
+ 208              	.LFB168:
+ 154:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif
+ 155:../Libraries/XMCLib/src/xmc_rtc.c ****   #if (XMC_RTC_INIT_SEQUENCE == 0U)
+ 156:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & (SCU_GENERAL_MIRRSTS_RTC_TIM0_Msk | SCU_GENERAL_MIRRSTS_R
+ 157:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 158:../Libraries/XMCLib/src/xmc_rtc.c ****         /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 159:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 160:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->TIM0 = time->raw0;
+ 161:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->TIM1 = time->raw1;	; 
+ 162:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif  
+ 163:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 164:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 165:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 166:../Libraries/XMCLib/src/xmc_rtc.c ****  * Gets the RTC module time value
+ 167:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 168:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_GetTime(XMC_RTC_TIME_t *const time)
+ 169:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 209              	 .loc 1 169 0
+ 210              	 .cfi_startproc
+ 211              	 
+ 212              	 
+ 213              	 
+ 214              	.LVL3:
+ 170:../Libraries/XMCLib/src/xmc_rtc.c ****   time->raw0 = RTC->TIM0;
+ 215              	 .loc 1 170 0
+ 216 0000 024B     	 ldr r3,.L25
+ 217 0002 1A6A     	 ldr r2,[r3,#32]
+ 218 0004 0260     	 str r2,[r0]
+ 171:../Libraries/XMCLib/src/xmc_rtc.c ****   time->raw1 = RTC->TIM1;
+ 219              	 .loc 1 171 0
+ 220 0006 5B6A     	 ldr r3,[r3,#36]
+ 221 0008 4360     	 str r3,[r0,#4]
+ 222 000a 7047     	 bx lr
+ 223              	.L26:
+ 224              	 .align 2
+ 225              	.L25:
+ 226 000c 004A0050 	 .word 1342196224
+ 227              	 .cfi_endproc
+ 228              	.LFE168:
+ 230              	 .section .text.XMC_RTC_SetTimeStdFormat,"ax",%progbits
+ 231              	 .align 2
+ 232              	 .global XMC_RTC_SetTimeStdFormat
+ 233              	 .thumb
+ 234              	 .thumb_func
+ 236              	XMC_RTC_SetTimeStdFormat:
+ 237              	.LFB169:
+ 172:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 173:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 174:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 175:../Libraries/XMCLib/src/xmc_rtc.c ****  * Sets the RTC module time values in standard format
+ 176:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 177:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_SetTimeStdFormat(const struct tm *const stdtime)
+ 178:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 238              	 .loc 1 178 0
+ 239              	 .cfi_startproc
+ 240              	 
+ 241              	 
+ 242              	.LVL4:
+ 243 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+ 244              	.LCFI0:
+ 245              	 .cfi_def_cfa_offset 36
+ 246              	 .cfi_offset 4,-36
+ 247              	 .cfi_offset 5,-32
+ 248              	 .cfi_offset 6,-28
+ 249              	 .cfi_offset 7,-24
+ 250              	 .cfi_offset 8,-20
+ 251              	 .cfi_offset 9,-16
+ 252              	 .cfi_offset 10,-12
+ 253              	 .cfi_offset 11,-8
+ 254              	 .cfi_offset 14,-4
+ 255 0004 83B0     	 sub sp,sp,#12
+ 256              	.LCFI1:
+ 257              	 .cfi_def_cfa_offset 48
+ 179:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 180:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_TIME_t time;
+ 181:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 182:../Libraries/XMCLib/src/xmc_rtc.c ****   time.seconds = stdtime->tm_sec;
+ 183:../Libraries/XMCLib/src/xmc_rtc.c ****   time.minutes = stdtime->tm_min;
+ 184:../Libraries/XMCLib/src/xmc_rtc.c ****   time.hours = stdtime->tm_hour;
+ 185:../Libraries/XMCLib/src/xmc_rtc.c ****   time.days = stdtime->tm_mday - 1;
+ 258              	 .loc 1 185 0
+ 259 0006 C168     	 ldr r1,[r0,#12]
+ 182:../Libraries/XMCLib/src/xmc_rtc.c ****   time.minutes = stdtime->tm_min;
+ 260              	 .loc 1 182 0
+ 261 0008 D0F800A0 	 ldr r10,[r0]
+ 183:../Libraries/XMCLib/src/xmc_rtc.c ****   time.hours = stdtime->tm_hour;
+ 262              	 .loc 1 183 0
+ 263 000c D0F80490 	 ldr r9,[r0,#4]
+ 184:../Libraries/XMCLib/src/xmc_rtc.c ****   time.days = stdtime->tm_mday - 1;
+ 264              	 .loc 1 184 0
+ 265 0010 D0F80880 	 ldr r8,[r0,#8]
+ 186:../Libraries/XMCLib/src/xmc_rtc.c ****   time.month = stdtime->tm_mon;
+ 266              	 .loc 1 186 0
+ 267 0014 D0F810C0 	 ldr ip,[r0,#16]
+ 187:../Libraries/XMCLib/src/xmc_rtc.c ****   time.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 268              	 .loc 1 187 0
+ 269 0018 4369     	 ldr r3,[r0,#20]
+ 188:../Libraries/XMCLib/src/xmc_rtc.c ****   time.daysofweek = stdtime->tm_wday;
+ 270              	 .loc 1 188 0
+ 271 001a D0F818B0 	 ldr fp,[r0,#24]
+ 185:../Libraries/XMCLib/src/xmc_rtc.c ****   time.month = stdtime->tm_mon;
+ 272              	 .loc 1 185 0
+ 273 001e 9DF803E0 	 ldrb lr,[sp,#3]
+ 182:../Libraries/XMCLib/src/xmc_rtc.c ****   time.minutes = stdtime->tm_min;
+ 274              	 .loc 1 182 0
+ 275 0022 9DF80070 	 ldrb r7,[sp]
+ 183:../Libraries/XMCLib/src/xmc_rtc.c ****   time.hours = stdtime->tm_hour;
+ 276              	 .loc 1 183 0
+ 277 0026 9DF80160 	 ldrb r6,[sp,#1]
+ 184:../Libraries/XMCLib/src/xmc_rtc.c ****   time.days = stdtime->tm_mday - 1;
+ 278              	 .loc 1 184 0
+ 279 002a 9DF80250 	 ldrb r5,[sp,#2]
+ 186:../Libraries/XMCLib/src/xmc_rtc.c ****   time.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 280              	 .loc 1 186 0
+ 281 002e 9DF80540 	 ldrb r4,[sp,#5]
+ 282              	 .loc 1 188 0
+ 283 0032 9DF80400 	 ldrb r0,[sp,#4]
+ 284              	.LVL5:
+ 285              	.LBB40:
+ 286              	.LBB41:
+ 287              	.LBB42:
+ 288              	.LBB43:
+ 289              	 .loc 2 545 0
+ 290 0036 184A     	 ldr r2,.L33
+ 291              	.LBE43:
+ 292              	.LBE42:
+ 293              	.LBE41:
+ 294              	.LBE40:
+ 185:../Libraries/XMCLib/src/xmc_rtc.c ****   time.month = stdtime->tm_mon;
+ 295              	 .loc 1 185 0
+ 296 0038 0139     	 subs r1,r1,#1
+ 297 003a 61F3040E 	 bfi lr,r1,#0,#5
+ 182:../Libraries/XMCLib/src/xmc_rtc.c ****   time.minutes = stdtime->tm_min;
+ 298              	 .loc 1 182 0
+ 299 003e 6AF30507 	 bfi r7,r10,#0,#6
+ 183:../Libraries/XMCLib/src/xmc_rtc.c ****   time.hours = stdtime->tm_hour;
+ 300              	 .loc 1 183 0
+ 301 0042 69F30506 	 bfi r6,r9,#0,#6
+ 184:../Libraries/XMCLib/src/xmc_rtc.c ****   time.days = stdtime->tm_mday - 1;
+ 302              	 .loc 1 184 0
+ 303 0046 68F30405 	 bfi r5,r8,#0,#5
+ 186:../Libraries/XMCLib/src/xmc_rtc.c ****   time.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 304              	 .loc 1 186 0
+ 305 004a 6CF30304 	 bfi r4,ip,#0,#4
+ 187:../Libraries/XMCLib/src/xmc_rtc.c ****   time.daysofweek = stdtime->tm_wday;
+ 306              	 .loc 1 187 0
+ 307 004e 03F26C73 	 addw r3,r3,#1900
+ 308              	 .loc 1 188 0
+ 309 0052 6BF30200 	 bfi r0,fp,#0,#3
+ 185:../Libraries/XMCLib/src/xmc_rtc.c ****   time.month = stdtime->tm_mon;
+ 310              	 .loc 1 185 0
+ 311 0056 8DF803E0 	 strb lr,[sp,#3]
+ 182:../Libraries/XMCLib/src/xmc_rtc.c ****   time.minutes = stdtime->tm_min;
+ 312              	 .loc 1 182 0
+ 313 005a 8DF80070 	 strb r7,[sp]
+ 183:../Libraries/XMCLib/src/xmc_rtc.c ****   time.hours = stdtime->tm_hour;
+ 314              	 .loc 1 183 0
+ 315 005e 8DF80160 	 strb r6,[sp,#1]
+ 184:../Libraries/XMCLib/src/xmc_rtc.c ****   time.days = stdtime->tm_mday - 1;
+ 316              	 .loc 1 184 0
+ 317 0062 8DF80250 	 strb r5,[sp,#2]
+ 186:../Libraries/XMCLib/src/xmc_rtc.c ****   time.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 318              	 .loc 1 186 0
+ 319 0066 8DF80540 	 strb r4,[sp,#5]
+ 187:../Libraries/XMCLib/src/xmc_rtc.c ****   time.daysofweek = stdtime->tm_wday;
+ 320              	 .loc 1 187 0
+ 321 006a ADF80630 	 strh r3,[sp,#6]
+ 322              	 .loc 1 188 0
+ 323 006e 8DF80400 	 strb r0,[sp,#4]
+ 324              	.LVL6:
+ 325              	.L28:
+ 326              	.LBB51:
+ 327              	.LBB50:
+ 328              	.LBB45:
+ 329              	.LBB44:
+ 330              	 .loc 2 545 0
+ 331 0072 D2F8C430 	 ldr r3,[r2,#196]
+ 332              	.LBE44:
+ 333              	.LBE45:
+ 143:../Libraries/XMCLib/src/xmc_rtc.c ****       { 
+ 334              	 .loc 1 143 0
+ 335 0076 1905     	 lsls r1,r3,#20
+ 336 0078 FBD4     	 bmi .L28
+ 147:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 337              	 .loc 1 147 0
+ 338 007a 084B     	 ldr r3,.L33+4
+ 339 007c 0099     	 ldr r1,[sp]
+ 340              	.LBB46:
+ 341              	.LBB47:
+ 342              	 .loc 2 545 0
+ 343 007e 064A     	 ldr r2,.L33
+ 344              	.LBE47:
+ 345              	.LBE46:
+ 147:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 346              	 .loc 1 147 0
+ 347 0080 1962     	 str r1,[r3,#32]
+ 348              	.L29:
+ 349              	.LBB49:
+ 350              	.LBB48:
+ 351              	 .loc 2 545 0
+ 352 0082 D2F8C430 	 ldr r3,[r2,#196]
+ 353              	.LBE48:
+ 354              	.LBE49:
+ 149:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 355              	 .loc 1 149 0
+ 356 0086 DB04     	 lsls r3,r3,#19
+ 357 0088 FBD4     	 bmi .L29
+ 153:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif
+ 358              	 .loc 1 153 0
+ 359 008a 044B     	 ldr r3,.L33+4
+ 360 008c 019A     	 ldr r2,[sp,#4]
+ 361 008e 5A62     	 str r2,[r3,#36]
+ 362              	.LBE50:
+ 363              	.LBE51:
+ 189:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 190:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_SetTime(&time);
+ 191:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 364              	 .loc 1 191 0
+ 365 0090 03B0     	 add sp,sp,#12
+ 366              	.LCFI2:
+ 367              	 .cfi_def_cfa_offset 36
+ 368              	.LVL7:
+ 369              	 
+ 370 0092 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 371              	.LVL8:
+ 372              	.L34:
+ 373 0096 00BF     	 .align 2
+ 374              	.L33:
+ 375 0098 00400050 	 .word 1342193664
+ 376 009c 004A0050 	 .word 1342196224
+ 377              	 .cfi_endproc
+ 378              	.LFE169:
+ 380              	 .section .text.XMC_RTC_GetTimeStdFormat,"ax",%progbits
+ 381              	 .align 2
+ 382              	 .global XMC_RTC_GetTimeStdFormat
+ 383              	 .thumb
+ 384              	 .thumb_func
+ 386              	XMC_RTC_GetTimeStdFormat:
+ 387              	.LFB170:
+ 192:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 193:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 194:../Libraries/XMCLib/src/xmc_rtc.c ****  * Gets the RTC module time values in standard format
+ 195:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 196:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_GetTimeStdFormat(struct tm *const stdtime)
+ 197:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 388              	 .loc 1 197 0
+ 389              	 .cfi_startproc
+ 390              	 
+ 391              	 
+ 392              	 
+ 393              	.LVL9:
+ 394 0000 F0B4     	 push {r4,r5,r6,r7}
+ 395              	.LCFI3:
+ 396              	 .cfi_def_cfa_offset 16
+ 397              	 .cfi_offset 4,-16
+ 398              	 .cfi_offset 5,-12
+ 399              	 .cfi_offset 6,-8
+ 400              	 .cfi_offset 7,-4
+ 198:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_TIME_t time;
+ 199:../Libraries/XMCLib/src/xmc_rtc.c ****   time.raw0 = RTC->TIM0;
+ 401              	 .loc 1 199 0
+ 402 0002 134B     	 ldr r3,.L37
+ 197:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_TIME_t time;
+ 403              	 .loc 1 197 0
+ 404 0004 82B0     	 sub sp,sp,#8
+ 405              	.LCFI4:
+ 406              	 .cfi_def_cfa_offset 24
+ 407              	 .loc 1 199 0
+ 408 0006 1A6A     	 ldr r2,[r3,#32]
+ 409 0008 0092     	 str r2,[sp]
+ 200:../Libraries/XMCLib/src/xmc_rtc.c ****   time.raw1 = RTC->TIM1;
+ 410              	 .loc 1 200 0
+ 411 000a 5B6A     	 ldr r3,[r3,#36]
+ 201:../Libraries/XMCLib/src/xmc_rtc.c ****   
+ 202:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_sec = (int8_t)time.seconds;
+ 203:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)time.minutes;
+ 204:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)time.hours;
+ 205:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)time.days + (int8_t)1);
+ 412              	 .loc 1 205 0
+ 413 000c 9DF80320 	 ldrb r2,[sp,#3]
+ 202:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)time.minutes;
+ 414              	 .loc 1 202 0
+ 415 0010 9DF80060 	 ldrb r6,[sp]
+ 203:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)time.hours;
+ 416              	 .loc 1 203 0
+ 417 0014 9DF80150 	 ldrb r5,[sp,#1]
+ 204:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)time.days + (int8_t)1);
+ 418              	 .loc 1 204 0
+ 419 0018 9DF80240 	 ldrb r4,[sp,#2]
+ 206:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)time.month;
+ 207:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_year = (int32_t)time.year - (int32_t)XMC_RTC_YEAR_OFFSET;
+ 420              	 .loc 1 207 0
+ 421 001c 190C     	 lsrs r1,r3,#16
+ 205:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)time.month;
+ 422              	 .loc 1 205 0
+ 423 001e 02F01F02 	 and r2,r2,#31
+ 206:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)time.month;
+ 424              	 .loc 1 206 0
+ 425 0022 C3F30327 	 ubfx r7,r3,#8,#4
+ 202:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)time.minutes;
+ 426              	 .loc 1 202 0
+ 427 0026 06F03F06 	 and r6,r6,#63
+ 203:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)time.hours;
+ 428              	 .loc 1 203 0
+ 429 002a 05F03F05 	 and r5,r5,#63
+ 204:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)time.days + (int8_t)1);
+ 430              	 .loc 1 204 0
+ 431 002e 04F01F04 	 and r4,r4,#31
+ 205:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)time.month;
+ 432              	 .loc 1 205 0
+ 433 0032 0132     	 adds r2,r2,#1
+ 434              	 .loc 1 207 0
+ 435 0034 A1F26C71 	 subw r1,r1,#1900
+ 208:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_wday = (int8_t)time.daysofweek;
+ 436              	 .loc 1 208 0
+ 437 0038 03F00703 	 and r3,r3,#7
+ 202:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)time.minutes;
+ 438              	 .loc 1 202 0
+ 439 003c 0660     	 str r6,[r0]
+ 203:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)time.hours;
+ 440              	 .loc 1 203 0
+ 441 003e 4560     	 str r5,[r0,#4]
+ 204:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)time.days + (int8_t)1);
+ 442              	 .loc 1 204 0
+ 443 0040 8460     	 str r4,[r0,#8]
+ 205:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)time.month;
+ 444              	 .loc 1 205 0
+ 445 0042 C260     	 str r2,[r0,#12]
+ 206:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_year = (int32_t)time.year - (int32_t)XMC_RTC_YEAR_OFFSET;
+ 446              	 .loc 1 206 0
+ 447 0044 0761     	 str r7,[r0,#16]
+ 207:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_wday = (int8_t)time.daysofweek;
+ 448              	 .loc 1 207 0
+ 449 0046 4161     	 str r1,[r0,#20]
+ 450              	 .loc 1 208 0
+ 451 0048 8361     	 str r3,[r0,#24]
+ 209:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 452              	 .loc 1 209 0
+ 453 004a 02B0     	 add sp,sp,#8
+ 454              	.LCFI5:
+ 455              	 .cfi_def_cfa_offset 16
+ 456              	 
+ 457 004c F0BC     	 pop {r4,r5,r6,r7}
+ 458              	.LCFI6:
+ 459              	 .cfi_restore 7
+ 460              	 .cfi_restore 6
+ 461              	 .cfi_restore 5
+ 462              	 .cfi_restore 4
+ 463              	 .cfi_def_cfa_offset 0
+ 464 004e 7047     	 bx lr
+ 465              	.L38:
+ 466              	 .align 2
+ 467              	.L37:
+ 468 0050 004A0050 	 .word 1342196224
+ 469              	 .cfi_endproc
+ 470              	.LFE170:
+ 472              	 .section .text.XMC_RTC_SetAlarm,"ax",%progbits
+ 473              	 .align 2
+ 474              	 .global XMC_RTC_SetAlarm
+ 475              	 .thumb
+ 476              	 .thumb_func
+ 478              	XMC_RTC_SetAlarm:
+ 479              	.LFB171:
+ 210:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 211:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 212:../Libraries/XMCLib/src/xmc_rtc.c ****  * Sets the RTC module alarm time value
+ 213:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 214:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_SetAlarm(const XMC_RTC_ALARM_t *const alarm)
+ 215:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 480              	 .loc 1 215 0
+ 481              	 .cfi_startproc
+ 482              	 
+ 483              	 
+ 484              	 
+ 485              	.LVL10:
+ 486              	.LBB52:
+ 487              	.LBB53:
+ 488              	 .loc 2 545 0
+ 489 0000 084A     	 ldr r2,.L44
+ 490              	.L40:
+ 491              	 .loc 2 545 0 is_stmt 0 discriminator 1
+ 492 0002 D2F8C430 	 ldr r3,[r2,#196]
+ 493              	.LBE53:
+ 494              	.LBE52:
+ 216:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong seconds value", ((uint32_t)alarm->seconds < XMC_RTC_MAXSECONDS
+ 217:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong minutes value", ((uint32_t)alarm->minutes < XMC_RTC_MAXMINUTES
+ 218:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong hours value", ((uint32_t)alarm->hours < XMC_RTC_MAXHOURS));
+ 219:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong days value", ((uint32_t)alarm->days < XMC_RTC_MAXDAYS));
+ 220:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong month value", ((uint32_t)alarm->month < XMC_RTC_MAXMONTH));
+ 221:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_ASSERT("XMC_RTC_SetAlarm:Wrong year value", ((uint32_t)alarm->year < XMC_RTC_MAXYEAR));
+ 222:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 223:../Libraries/XMCLib/src/xmc_rtc.c ****   #if (XMC_RTC_INIT_SEQUENCE == 1U)
+ 224:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_ATIM0_Msk) != 0U)
+ 495              	 .loc 1 224 0 is_stmt 1 discriminator 1
+ 496 0006 9905     	 lsls r1,r3,#22
+ 497 0008 FBD4     	 bmi .L40
+ 225:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 226:../Libraries/XMCLib/src/xmc_rtc.c ****         /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 227:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 228:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->ATIM0 = alarm->raw0;
+ 498              	 .loc 1 228 0
+ 499 000a 074B     	 ldr r3,.L44+4
+ 500 000c 0168     	 ldr r1,[r0]
+ 501              	.LBB54:
+ 502              	.LBB55:
+ 503              	 .loc 2 545 0
+ 504 000e 054A     	 ldr r2,.L44
+ 505              	.LBE55:
+ 506              	.LBE54:
+ 507              	 .loc 1 228 0
+ 508 0010 9961     	 str r1,[r3,#24]
+ 509              	.L41:
+ 510              	.LBB57:
+ 511              	.LBB56:
+ 512              	 .loc 2 545 0 discriminator 1
+ 513 0012 D2F8C430 	 ldr r3,[r2,#196]
+ 514              	.LBE56:
+ 515              	.LBE57:
+ 229:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 230:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & SCU_GENERAL_MIRRSTS_RTC_ATIM1_Msk) != 0U)
+ 516              	 .loc 1 230 0 discriminator 1
+ 517 0016 5B05     	 lsls r3,r3,#21
+ 518 0018 FBD4     	 bmi .L41
+ 231:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 232:../Libraries/XMCLib/src/xmc_rtc.c ****         /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 233:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 234:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->ATIM1 = alarm->raw1; 
+ 519              	 .loc 1 234 0
+ 520 001a 034B     	 ldr r3,.L44+4
+ 521 001c 4268     	 ldr r2,[r0,#4]
+ 522 001e DA61     	 str r2,[r3,#28]
+ 523 0020 7047     	 bx lr
+ 524              	.L45:
+ 525 0022 00BF     	 .align 2
+ 526              	.L44:
+ 527 0024 00400050 	 .word 1342193664
+ 528 0028 004A0050 	 .word 1342196224
+ 529              	 .cfi_endproc
+ 530              	.LFE171:
+ 532              	 .section .text.XMC_RTC_GetAlarm,"ax",%progbits
+ 533              	 .align 2
+ 534              	 .global XMC_RTC_GetAlarm
+ 535              	 .thumb
+ 536              	 .thumb_func
+ 538              	XMC_RTC_GetAlarm:
+ 539              	.LFB172:
+ 235:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif
+ 236:../Libraries/XMCLib/src/xmc_rtc.c ****   #if (XMC_RTC_INIT_SEQUENCE == 0U)
+ 237:../Libraries/XMCLib/src/xmc_rtc.c ****       while ((XMC_SCU_GetMirrorStatus() & (SCU_GENERAL_MIRRSTS_RTC_ATIM0_Msk | SCU_GENERAL_MIRRSTS_
+ 238:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 239:../Libraries/XMCLib/src/xmc_rtc.c ****         /* check SCU_MIRRSTS to ensure that no transfer over serial interface is pending */
+ 240:../Libraries/XMCLib/src/xmc_rtc.c ****       }
+ 241:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->ATIM0 = alarm->raw0;
+ 242:../Libraries/XMCLib/src/xmc_rtc.c ****       RTC->ATIM1 = alarm->raw1; 
+ 243:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif  
+ 244:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 245:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 246:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 247:../Libraries/XMCLib/src/xmc_rtc.c ****  * Gets the RTC module alarm time value
+ 248:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 249:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_GetAlarm(XMC_RTC_ALARM_t *const alarm)
+ 250:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 540              	 .loc 1 250 0
+ 541              	 .cfi_startproc
+ 542              	 
+ 543              	 
+ 544              	 
+ 545              	.LVL11:
+ 251:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm->raw0 = RTC->ATIM0;
+ 546              	 .loc 1 251 0
+ 547 0000 024B     	 ldr r3,.L47
+ 548 0002 9A69     	 ldr r2,[r3,#24]
+ 549 0004 0260     	 str r2,[r0]
+ 252:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm->raw1 = RTC->ATIM1;
+ 550              	 .loc 1 252 0
+ 551 0006 DB69     	 ldr r3,[r3,#28]
+ 552 0008 4360     	 str r3,[r0,#4]
+ 553 000a 7047     	 bx lr
+ 554              	.L48:
+ 555              	 .align 2
+ 556              	.L47:
+ 557 000c 004A0050 	 .word 1342196224
+ 558              	 .cfi_endproc
+ 559              	.LFE172:
+ 561              	 .section .text.XMC_RTC_SetAlarmStdFormat,"ax",%progbits
+ 562              	 .align 2
+ 563              	 .global XMC_RTC_SetAlarmStdFormat
+ 564              	 .thumb
+ 565              	 .thumb_func
+ 567              	XMC_RTC_SetAlarmStdFormat:
+ 568              	.LFB173:
+ 253:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 254:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 255:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 256:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 257:../Libraries/XMCLib/src/xmc_rtc.c ****  * Sets the RTC module alarm time value in standard format
+ 258:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 259:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_SetAlarmStdFormat(const struct tm *const stdtime)
+ 260:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 569              	 .loc 1 260 0
+ 570              	 .cfi_startproc
+ 571              	 
+ 572              	 
+ 573              	.LVL12:
+ 574 0000 2DE9F043 	 push {r4,r5,r6,r7,r8,r9,lr}
+ 575              	.LCFI7:
+ 576              	 .cfi_def_cfa_offset 28
+ 577              	 .cfi_offset 4,-28
+ 578              	 .cfi_offset 5,-24
+ 579              	 .cfi_offset 6,-20
+ 580              	 .cfi_offset 7,-16
+ 581              	 .cfi_offset 8,-12
+ 582              	 .cfi_offset 9,-8
+ 583              	 .cfi_offset 14,-4
+ 584 0004 83B0     	 sub sp,sp,#12
+ 585              	.LCFI8:
+ 586              	 .cfi_def_cfa_offset 40
+ 261:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_ALARM_t alarm;
+ 262:../Libraries/XMCLib/src/xmc_rtc.c ****   
+ 263:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 264:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.seconds = stdtime->tm_sec;
+ 265:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.minutes = stdtime->tm_min;
+ 266:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.hours = stdtime->tm_hour;
+ 267:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.days = stdtime->tm_mday - 1;
+ 587              	 .loc 1 267 0
+ 588 0006 C168     	 ldr r1,[r0,#12]
+ 264:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.minutes = stdtime->tm_min;
+ 589              	 .loc 1 264 0
+ 590 0008 D0F80090 	 ldr r9,[r0]
+ 265:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.hours = stdtime->tm_hour;
+ 591              	 .loc 1 265 0
+ 592 000c D0F80480 	 ldr r8,[r0,#4]
+ 266:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.days = stdtime->tm_mday - 1;
+ 593              	 .loc 1 266 0
+ 594 0010 D0F808C0 	 ldr ip,[r0,#8]
+ 268:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.month = stdtime->tm_mon;
+ 595              	 .loc 1 268 0
+ 596 0014 D0F810E0 	 ldr lr,[r0,#16]
+ 269:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 597              	 .loc 1 269 0
+ 598 0018 4369     	 ldr r3,[r0,#20]
+ 267:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.month = stdtime->tm_mon;
+ 599              	 .loc 1 267 0
+ 600 001a 9DF80370 	 ldrb r7,[sp,#3]
+ 264:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.minutes = stdtime->tm_min;
+ 601              	 .loc 1 264 0
+ 602 001e 9DF80060 	 ldrb r6,[sp]
+ 265:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.hours = stdtime->tm_hour;
+ 603              	 .loc 1 265 0
+ 604 0022 9DF80150 	 ldrb r5,[sp,#1]
+ 266:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.days = stdtime->tm_mday - 1;
+ 605              	 .loc 1 266 0
+ 606 0026 9DF80240 	 ldrb r4,[sp,#2]
+ 268:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 607              	 .loc 1 268 0
+ 608 002a 9DF80500 	 ldrb r0,[sp,#5]
+ 609              	.LVL13:
+ 610              	.LBB58:
+ 611              	.LBB59:
+ 612              	.LBB60:
+ 613              	.LBB61:
+ 614              	 .loc 2 545 0
+ 615 002e 164A     	 ldr r2,.L55
+ 616              	.LBE61:
+ 617              	.LBE60:
+ 618              	.LBE59:
+ 619              	.LBE58:
+ 267:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.month = stdtime->tm_mon;
+ 620              	 .loc 1 267 0
+ 621 0030 0139     	 subs r1,r1,#1
+ 622 0032 61F30407 	 bfi r7,r1,#0,#5
+ 264:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.minutes = stdtime->tm_min;
+ 623              	 .loc 1 264 0
+ 624 0036 69F30506 	 bfi r6,r9,#0,#6
+ 265:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.hours = stdtime->tm_hour;
+ 625              	 .loc 1 265 0
+ 626 003a 68F30505 	 bfi r5,r8,#0,#6
+ 266:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.days = stdtime->tm_mday - 1;
+ 627              	 .loc 1 266 0
+ 628 003e 6CF30404 	 bfi r4,ip,#0,#5
+ 629              	 .loc 1 269 0
+ 630 0042 03F26C73 	 addw r3,r3,#1900
+ 268:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 631              	 .loc 1 268 0
+ 632 0046 6EF30300 	 bfi r0,lr,#0,#4
+ 267:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.month = stdtime->tm_mon;
+ 633              	 .loc 1 267 0
+ 634 004a 8DF80370 	 strb r7,[sp,#3]
+ 264:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.minutes = stdtime->tm_min;
+ 635              	 .loc 1 264 0
+ 636 004e 8DF80060 	 strb r6,[sp]
+ 265:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.hours = stdtime->tm_hour;
+ 637              	 .loc 1 265 0
+ 638 0052 8DF80150 	 strb r5,[sp,#1]
+ 266:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.days = stdtime->tm_mday - 1;
+ 639              	 .loc 1 266 0
+ 640 0056 8DF80240 	 strb r4,[sp,#2]
+ 641              	 .loc 1 269 0
+ 642 005a ADF80630 	 strh r3,[sp,#6]
+ 643              	.LVL14:
+ 268:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.year = stdtime->tm_year + XMC_RTC_YEAR_OFFSET;
+ 644              	 .loc 1 268 0
+ 645 005e 8DF80500 	 strb r0,[sp,#5]
+ 646              	.L50:
+ 647              	.LBB69:
+ 648              	.LBB68:
+ 649              	.LBB63:
+ 650              	.LBB62:
+ 651              	 .loc 2 545 0
+ 652 0062 D2F8C430 	 ldr r3,[r2,#196]
+ 653              	.LBE62:
+ 654              	.LBE63:
+ 224:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 655              	 .loc 1 224 0
+ 656 0066 9905     	 lsls r1,r3,#22
+ 657 0068 FBD4     	 bmi .L50
+ 228:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 658              	 .loc 1 228 0
+ 659 006a 084B     	 ldr r3,.L55+4
+ 660 006c 0099     	 ldr r1,[sp]
+ 661              	.LBB64:
+ 662              	.LBB65:
+ 663              	 .loc 2 545 0
+ 664 006e 064A     	 ldr r2,.L55
+ 665              	.LBE65:
+ 666              	.LBE64:
+ 228:../Libraries/XMCLib/src/xmc_rtc.c ****       
+ 667              	 .loc 1 228 0
+ 668 0070 9961     	 str r1,[r3,#24]
+ 669              	.L51:
+ 670              	.LBB67:
+ 671              	.LBB66:
+ 672              	 .loc 2 545 0
+ 673 0072 D2F8C430 	 ldr r3,[r2,#196]
+ 674              	.LBE66:
+ 675              	.LBE67:
+ 230:../Libraries/XMCLib/src/xmc_rtc.c ****       {
+ 676              	 .loc 1 230 0
+ 677 0076 5B05     	 lsls r3,r3,#21
+ 678 0078 FBD4     	 bmi .L51
+ 234:../Libraries/XMCLib/src/xmc_rtc.c ****   #endif
+ 679              	 .loc 1 234 0
+ 680 007a 044B     	 ldr r3,.L55+4
+ 681 007c 019A     	 ldr r2,[sp,#4]
+ 682 007e DA61     	 str r2,[r3,#28]
+ 683              	.LBE68:
+ 684              	.LBE69:
+ 270:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 271:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_SetAlarm(&alarm);
+ 272:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 685              	 .loc 1 272 0
+ 686 0080 03B0     	 add sp,sp,#12
+ 687              	.LCFI9:
+ 688              	 .cfi_def_cfa_offset 28
+ 689              	.LVL15:
+ 690              	 
+ 691 0082 BDE8F083 	 pop {r4,r5,r6,r7,r8,r9,pc}
+ 692              	.LVL16:
+ 693              	.L56:
+ 694 0086 00BF     	 .align 2
+ 695              	.L55:
+ 696 0088 00400050 	 .word 1342193664
+ 697 008c 004A0050 	 .word 1342196224
+ 698              	 .cfi_endproc
+ 699              	.LFE173:
+ 701              	 .section .text.XMC_RTC_GetAlarmStdFormat,"ax",%progbits
+ 702              	 .align 2
+ 703              	 .global XMC_RTC_GetAlarmStdFormat
+ 704              	 .thumb
+ 705              	 .thumb_func
+ 707              	XMC_RTC_GetAlarmStdFormat:
+ 708              	.LFB174:
+ 273:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 274:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 275:../Libraries/XMCLib/src/xmc_rtc.c ****  * Gets the RTC module alarm time value in standard format
+ 276:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 277:../Libraries/XMCLib/src/xmc_rtc.c **** void XMC_RTC_GetAlarmStdFormat(struct tm *const stdtime)
+ 278:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 709              	 .loc 1 278 0
+ 710              	 .cfi_startproc
+ 711              	 
+ 712              	 
+ 713              	 
+ 714              	.LVL17:
+ 715 0000 70B4     	 push {r4,r5,r6}
+ 716              	.LCFI10:
+ 717              	 .cfi_def_cfa_offset 12
+ 718              	 .cfi_offset 4,-12
+ 719              	 .cfi_offset 5,-8
+ 720              	 .cfi_offset 6,-4
+ 279:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_ALARM_t alarm;
+ 280:../Libraries/XMCLib/src/xmc_rtc.c ****   
+ 281:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.raw0 = RTC->ATIM0;
+ 721              	 .loc 1 281 0
+ 722 0002 124B     	 ldr r3,.L59
+ 278:../Libraries/XMCLib/src/xmc_rtc.c ****   XMC_RTC_ALARM_t alarm;
+ 723              	 .loc 1 278 0
+ 724 0004 83B0     	 sub sp,sp,#12
+ 725              	.LCFI11:
+ 726              	 .cfi_def_cfa_offset 24
+ 727              	 .loc 1 281 0
+ 728 0006 9A69     	 ldr r2,[r3,#24]
+ 729 0008 0092     	 str r2,[sp]
+ 282:../Libraries/XMCLib/src/xmc_rtc.c ****   alarm.raw1 = RTC->ATIM1;
+ 730              	 .loc 1 282 0
+ 731 000a DA69     	 ldr r2,[r3,#28]
+ 283:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 284:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_sec = (int8_t)alarm.seconds;
+ 285:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)alarm.minutes;
+ 286:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)alarm.hours;
+ 287:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)alarm.days + (int8_t)1);
+ 732              	 .loc 1 287 0
+ 733 000c 9DF80330 	 ldrb r3,[sp,#3]
+ 284:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)alarm.minutes;
+ 734              	 .loc 1 284 0
+ 735 0010 9DF80060 	 ldrb r6,[sp]
+ 285:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)alarm.hours;
+ 736              	 .loc 1 285 0
+ 737 0014 9DF80150 	 ldrb r5,[sp,#1]
+ 286:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)alarm.days + (int8_t)1);
+ 738              	 .loc 1 286 0
+ 739 0018 9DF80240 	 ldrb r4,[sp,#2]
+ 288:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)alarm.month;
+ 289:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_year = (int32_t)alarm.year - (int32_t)XMC_RTC_YEAR_OFFSET;
+ 740              	 .loc 1 289 0
+ 741 001c 110C     	 lsrs r1,r2,#16
+ 287:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)alarm.month;
+ 742              	 .loc 1 287 0
+ 743 001e 03F01F03 	 and r3,r3,#31
+ 284:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)alarm.minutes;
+ 744              	 .loc 1 284 0
+ 745 0022 06F03F06 	 and r6,r6,#63
+ 285:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)alarm.hours;
+ 746              	 .loc 1 285 0
+ 747 0026 05F03F05 	 and r5,r5,#63
+ 286:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)alarm.days + (int8_t)1);
+ 748              	 .loc 1 286 0
+ 749 002a 04F01F04 	 and r4,r4,#31
+ 287:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)alarm.month;
+ 750              	 .loc 1 287 0
+ 751 002e 0133     	 adds r3,r3,#1
+ 288:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_year = (int32_t)alarm.year - (int32_t)XMC_RTC_YEAR_OFFSET;
+ 752              	 .loc 1 288 0
+ 753 0030 C2F30322 	 ubfx r2,r2,#8,#4
+ 754              	 .loc 1 289 0
+ 755 0034 A1F26C71 	 subw r1,r1,#1900
+ 284:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_min = (int8_t)alarm.minutes;
+ 756              	 .loc 1 284 0
+ 757 0038 0660     	 str r6,[r0]
+ 285:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_hour = (int8_t)alarm.hours;
+ 758              	 .loc 1 285 0
+ 759 003a 4560     	 str r5,[r0,#4]
+ 286:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mday = ((int8_t)alarm.days + (int8_t)1);
+ 760              	 .loc 1 286 0
+ 761 003c 8460     	 str r4,[r0,#8]
+ 287:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_mon = (int8_t)alarm.month;
+ 762              	 .loc 1 287 0
+ 763 003e C360     	 str r3,[r0,#12]
+ 288:../Libraries/XMCLib/src/xmc_rtc.c ****   stdtime->tm_year = (int32_t)alarm.year - (int32_t)XMC_RTC_YEAR_OFFSET;
+ 764              	 .loc 1 288 0
+ 765 0040 0261     	 str r2,[r0,#16]
+ 766              	 .loc 1 289 0
+ 767 0042 4161     	 str r1,[r0,#20]
+ 290:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 768              	 .loc 1 290 0
+ 769 0044 03B0     	 add sp,sp,#12
+ 770              	.LCFI12:
+ 771              	 .cfi_def_cfa_offset 12
+ 772              	 
+ 773 0046 70BC     	 pop {r4,r5,r6}
+ 774              	.LCFI13:
+ 775              	 .cfi_restore 6
+ 776              	 .cfi_restore 5
+ 777              	 .cfi_restore 4
+ 778              	 .cfi_def_cfa_offset 0
+ 779 0048 7047     	 bx lr
+ 780              	.L60:
+ 781 004a 00BF     	 .align 2
+ 782              	.L59:
+ 783 004c 004A0050 	 .word 1342196224
+ 784              	 .cfi_endproc
+ 785              	.LFE174:
+ 787              	 .section .text.XMC_RTC_GetEventStatus,"ax",%progbits
+ 788              	 .align 2
+ 789              	 .global XMC_RTC_GetEventStatus
+ 790              	 .thumb
+ 791              	 .thumb_func
+ 793              	XMC_RTC_GetEventStatus:
+ 794              	.LFB175:
+ 291:../Libraries/XMCLib/src/xmc_rtc.c **** 
+ 292:../Libraries/XMCLib/src/xmc_rtc.c **** /*
+ 293:../Libraries/XMCLib/src/xmc_rtc.c ****  * Gets the RTC periodic and alarm event(s) status
+ 294:../Libraries/XMCLib/src/xmc_rtc.c ****  */
+ 295:../Libraries/XMCLib/src/xmc_rtc.c **** uint32_t XMC_RTC_GetEventStatus(void)
+ 296:../Libraries/XMCLib/src/xmc_rtc.c **** {
+ 795              	 .loc 1 296 0
+ 796              	 .cfi_startproc
+ 797              	 
+ 798              	 
+ 799              	 
+ 297:../Libraries/XMCLib/src/xmc_rtc.c ****   return RTC->STSSR;
+ 800              	 .loc 1 297 0
+ 801 0000 014B     	 ldr r3,.L62
+ 802 0002 D868     	 ldr r0,[r3,#12]
+ 298:../Libraries/XMCLib/src/xmc_rtc.c **** }
+ 803              	 .loc 1 298 0
+ 804 0004 7047     	 bx lr
+ 805              	.L63:
+ 806 0006 00BF     	 .align 2
+ 807              	.L62:
+ 808 0008 004A0050 	 .word 1342196224
+ 809              	 .cfi_endproc
+ 810              	.LFE175:
+ 812              	 .text
+ 813              	.Letext0:
+ 814              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 815              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 816              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 817              	 .file 6 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\time.h"
+ 818              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_rtc.h"
+ 819              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 820              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 xmc_rtc.c
+    {standard input}:20     .text.XMC_RTC_Start:00000000 $t
+    {standard input}:25     .text.XMC_RTC_Start:00000000 XMC_RTC_Start
+    {standard input}:55     .text.XMC_RTC_Start:00000018 $d
+    {standard input}:61     .text.XMC_RTC_Stop:00000000 $t
+    {standard input}:66     .text.XMC_RTC_Stop:00000000 XMC_RTC_Stop
+    {standard input}:94     .text.XMC_RTC_Stop:00000018 $d
+    {standard input}:100    .text.XMC_RTC_SetPrescaler:00000000 $t
+    {standard input}:105    .text.XMC_RTC_SetPrescaler:00000000 XMC_RTC_SetPrescaler
+    {standard input}:136    .text.XMC_RTC_SetPrescaler:00000018 $d
+    {standard input}:142    .text.XMC_RTC_SetTime:00000000 $t
+    {standard input}:147    .text.XMC_RTC_SetTime:00000000 XMC_RTC_SetTime
+    {standard input}:196    .text.XMC_RTC_SetTime:00000024 $d
+    {standard input}:202    .text.XMC_RTC_GetTime:00000000 $t
+    {standard input}:207    .text.XMC_RTC_GetTime:00000000 XMC_RTC_GetTime
+    {standard input}:226    .text.XMC_RTC_GetTime:0000000c $d
+    {standard input}:231    .text.XMC_RTC_SetTimeStdFormat:00000000 $t
+    {standard input}:236    .text.XMC_RTC_SetTimeStdFormat:00000000 XMC_RTC_SetTimeStdFormat
+    {standard input}:375    .text.XMC_RTC_SetTimeStdFormat:00000098 $d
+    {standard input}:381    .text.XMC_RTC_GetTimeStdFormat:00000000 $t
+    {standard input}:386    .text.XMC_RTC_GetTimeStdFormat:00000000 XMC_RTC_GetTimeStdFormat
+    {standard input}:468    .text.XMC_RTC_GetTimeStdFormat:00000050 $d
+    {standard input}:473    .text.XMC_RTC_SetAlarm:00000000 $t
+    {standard input}:478    .text.XMC_RTC_SetAlarm:00000000 XMC_RTC_SetAlarm
+    {standard input}:527    .text.XMC_RTC_SetAlarm:00000024 $d
+    {standard input}:533    .text.XMC_RTC_GetAlarm:00000000 $t
+    {standard input}:538    .text.XMC_RTC_GetAlarm:00000000 XMC_RTC_GetAlarm
+    {standard input}:557    .text.XMC_RTC_GetAlarm:0000000c $d
+    {standard input}:562    .text.XMC_RTC_SetAlarmStdFormat:00000000 $t
+    {standard input}:567    .text.XMC_RTC_SetAlarmStdFormat:00000000 XMC_RTC_SetAlarmStdFormat
+    {standard input}:696    .text.XMC_RTC_SetAlarmStdFormat:00000088 $d
+    {standard input}:702    .text.XMC_RTC_GetAlarmStdFormat:00000000 $t
+    {standard input}:707    .text.XMC_RTC_GetAlarmStdFormat:00000000 XMC_RTC_GetAlarmStdFormat
+    {standard input}:783    .text.XMC_RTC_GetAlarmStdFormat:0000004c $d
+    {standard input}:788    .text.XMC_RTC_GetEventStatus:00000000 $t
+    {standard input}:793    .text.XMC_RTC_GetEventStatus:00000000 XMC_RTC_GetEventStatus
+    {standard input}:808    .text.XMC_RTC_GetEventStatus:00000008 $d
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS
