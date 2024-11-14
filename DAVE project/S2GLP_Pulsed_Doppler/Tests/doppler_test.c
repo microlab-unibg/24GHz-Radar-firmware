@@ -104,6 +104,10 @@ void test_doppler_algorithm() {
     printf("Rilevato movimento: %d\n", algo_result.motion_detected);
 }
 
+int main() {
+    test_doppler_calc_speed();
+    return 0;
+}
 
 
 
