@@ -1,0 +1,403 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_cmplx_mult_real_f32.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_cmplx_mult_real_f32,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_cmplx_mult_real_f32
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_cmplx_mult_real_f32:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c"
+   1:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Title:        arm_cmplx_mult_real_f32.c
+   4:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Description:  Floating-point complex by real multiplication
+   5:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  29:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  31:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @ingroup groupCmplxMath
+  33:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  35:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @defgroup CmplxByRealMult Complex-by-Real Multiplication
+  37:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  38:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * Multiplies a complex vector by a real vector and generates a complex result.
+  39:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * The data in the complex arrays is stored in an interleaved fashion
+  40:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * (real, imag, real, imag, ...).
+  41:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * The parameter <code>numSamples</code> represents the number of complex
+  42:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * samples processed.  The complex arrays have a total of <code>2*numSamples</code>
+  43:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * real values while the real array has a total of <code>numSamples</code>
+  44:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * real values.
+  45:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  46:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * The underlying algorithm is used:
+  47:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  48:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * <pre>
+  49:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * for(n=0; n<numSamples; n++) {
+  50:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *     pCmplxDst[(2*n)+0] = pSrcCmplx[(2*n)+0] * pSrcReal[n];
+  51:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *     pCmplxDst[(2*n)+1] = pSrcCmplx[(2*n)+1] * pSrcReal[n];
+  52:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * }
+  53:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * </pre>
+  54:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  *
+  55:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * There are separate functions for floating-point, Q15, and Q31 data types.
+  56:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  */
+  57:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  58:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /**
+  59:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @addtogroup CmplxByRealMult
+  60:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @{
+  61:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  */
+  62:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  63:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  64:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** /**
+  65:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @brief  Floating-point complex-by-real multiplication
+  66:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @param[in]  *pSrcCmplx points to the complex input vector
+  67:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @param[in]  *pSrcReal points to the real input vector
+  68:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @param[out]  *pCmplxDst points to the complex output vector
+  69:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @param[in]  numSamples number of samples in each vector
+  70:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  * @return none.
+  71:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****  */
+  72:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  73:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** void arm_cmplx_mult_real_f32(
+  74:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t * pSrcCmplx,
+  75:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t * pSrcReal,
+  76:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t * pCmplxDst,
+  77:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   uint32_t numSamples)
+  78:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** {
+  28              	 .loc 1 78 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 F0B5     	 push {r4,r5,r6,r7,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 20
+  36              	 .cfi_offset 4,-20
+  37              	 .cfi_offset 5,-16
+  38              	 .cfi_offset 6,-12
+  39              	 .cfi_offset 7,-8
+  40              	 .cfi_offset 14,-4
+  79:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t in;                                  /* Temporary variable to store input value */
+  80:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   uint32_t blkCnt;                               /* loop counters */
+  81:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  82:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** #if defined (ARM_MATH_DSP)
+  83:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  84:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  85:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t inA1, inA2, inA3, inA4;              /* Temporary variables to hold input data */
+  86:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t inA5, inA6, inA7, inA8;              /* Temporary variables to hold input data */
+  87:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t inB1, inB2, inB3, inB4;              /* Temporary variables to hold input data */
+  88:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t out1, out2, out3, out4;              /* Temporary variables to hold output data */
+  89:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   float32_t out5, out6, out7, out8;              /* Temporary variables to hold output data */
+  90:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  91:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   /* loop Unrolling */
+  92:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   blkCnt = numSamples >> 2u;
+  93:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  94:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  95:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+  96:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   while (blkCnt > 0u)
+  41              	 .loc 1 96 0
+  42 0002 5FEA930E 	 lsrs lr,r3,#2
+  43              	.LVL1:
+  44 0006 4CD0     	 beq .L2
+  45 0008 00F12005 	 add r5,r0,#32
+  46 000c 01F11006 	 add r6,r1,#16
+  47 0010 02F12004 	 add r4,r2,#32
+  48 0014 7746     	 mov r7,lr
+  49              	.LVL2:
+  50              	.L3:
+  97:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+  98:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* C[2 * i] = A[2 * i] * B[i].            */
+  99:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* C[2 * i + 1] = A[2 * i + 1] * B[i].        */
+ 100:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 101:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA1 = pSrcCmplx[0];
+ 102:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA2 = pSrcCmplx[1];
+ 103:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from real input buffer */
+ 104:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inB1 = pSrcReal[0];
+  51              	 .loc 1 104 0
+  52 0016 56ED043A 	 flds s7,[r6,#-16]
+  53              	.LVL3:
+ 105:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 106:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 107:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA3 = pSrcCmplx[2];
+ 108:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 109:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer real input with real buffer input */
+ 110:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out1 = inA1 * inB1;
+ 111:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 112:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 113:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA4 = pSrcCmplx[3];
+ 114:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 115:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer imaginary input with real buffer input */
+ 116:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out2 = inA2 * inB1;
+ 117:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 118:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from real input buffer */
+ 119:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inB2 = pSrcReal[1];
+  54              	 .loc 1 119 0
+  55 001a 16ED037A 	 flds s14,[r6,#-12]
+ 120:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 121:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA5 = pSrcCmplx[4];
+ 122:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 123:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer real input with real buffer input */
+ 124:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out3 = inA3 * inB2;
+ 125:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 126:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 127:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA6 = pSrcCmplx[5];
+ 128:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from real input buffer */
+ 129:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inB3 = pSrcReal[2];
+  56              	 .loc 1 129 0
+  57 001e 56ED027A 	 flds s15,[r6,#-8]
+ 130:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 131:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer imaginary input with real buffer input */
+ 132:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out4 = inA4 * inB2;
+ 133:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 134:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 135:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA7 = pSrcCmplx[6];
+ 136:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 137:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer real input with real buffer input */
+ 138:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out5 = inA5 * inB3;
+ 139:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 140:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from complex input buffer */
+ 141:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inA8 = pSrcCmplx[7];
+ 142:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 143:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer imaginary input with real buffer input */
+ 144:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out6 = inA6 * inB3;
+ 145:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 146:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* read input from real input buffer */
+ 147:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     inB4 = pSrcReal[3];
+  58              	 .loc 1 147 0
+  59 0022 16ED013A 	 flds s6,[r6,#-4]
+ 116:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  60              	 .loc 1 116 0
+  61 0026 15ED074A 	 flds s8,[r5,#-28]
+ 124:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  62              	 .loc 1 124 0
+  63 002a 55ED064A 	 flds s9,[r5,#-24]
+ 132:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  64              	 .loc 1 132 0
+  65 002e 15ED052A 	 flds s4,[r5,#-20]
+ 135:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  66              	 .loc 1 135 0
+  67 0032 55ED025A 	 flds s11,[r5,#-8]
+ 138:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  68              	 .loc 1 138 0
+  69 0036 15ED045A 	 flds s10,[r5,#-16]
+ 141:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  70              	 .loc 1 141 0
+  71 003a 15ED016A 	 flds s12,[r5,#-4]
+ 144:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  72              	 .loc 1 144 0
+  73 003e 55ED032A 	 flds s5,[r5,#-12]
+ 110:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  74              	 .loc 1 110 0
+  75 0042 55ED086A 	 flds s13,[r5,#-32]
+ 124:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  76              	 .loc 1 124 0
+  77 0046 67EE244A 	 fmuls s9,s14,s9
+ 138:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  78              	 .loc 1 138 0
+  79 004a 27EE855A 	 fmuls s10,s15,s10
+ 116:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  80              	 .loc 1 116 0
+  81 004e 23EE844A 	 fmuls s8,s7,s8
+  82              	.LVL4:
+ 132:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  83              	 .loc 1 132 0
+  84 0052 27EE027A 	 fmuls s14,s14,s4
+  85              	.LVL5:
+ 144:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  86              	 .loc 1 144 0
+  87 0056 67EEA27A 	 fmuls s15,s15,s5
+  88              	.LVL6:
+ 148:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 149:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store result to destination bufer */
+ 150:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[0] = out1;
+ 151:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 152:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer real input with real buffer input */
+ 153:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out7 = inA7 * inB4;
+  89              	 .loc 1 153 0
+  90 005a 65EE835A 	 fmuls s11,s11,s6
+  91              	.LVL7:
+ 154:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 155:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store result to destination bufer */
+ 156:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[1] = out2;
+ 157:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 158:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* multiply complex buffer imaginary input with real buffer input */
+ 159:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     out8 = inA8 * inB4;
+  92              	 .loc 1 159 0
+  93 005e 26EE036A 	 fmuls s12,s12,s6
+  94              	.LVL8:
+ 110:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+  95              	 .loc 1 110 0
+  96 0062 66EEA36A 	 fmuls s13,s13,s7
+  97              	.LVL9:
+  96:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+  98              	 .loc 1 96 0
+  99 0066 013F     	 subs r7,r7,#1
+ 100              	.LVL10:
+ 156:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 101              	 .loc 1 156 0
+ 102 0068 04ED074A 	 fsts s8,[r4,#-28]
+ 103              	.LVL11:
+ 160:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 161:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store result to destination bufer */
+ 162:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[2] = out3;
+ 104              	 .loc 1 162 0
+ 105 006c 44ED064A 	 fsts s9,[r4,#-24]
+ 163:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[3] = out4;
+ 106              	 .loc 1 163 0
+ 107 0070 04ED057A 	 fsts s14,[r4,#-20]
+ 164:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[4] = out5;
+ 108              	 .loc 1 164 0
+ 109 0074 04ED045A 	 fsts s10,[r4,#-16]
+ 165:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 166:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* incremnet complex input buffer by 8 to process next samples */
+ 167:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pSrcCmplx += 8u;
+ 168:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 169:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store result to destination bufer */
+ 170:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[5] = out6;
+ 110              	 .loc 1 170 0
+ 111 0078 44ED037A 	 fsts s15,[r4,#-12]
+ 171:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 172:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* increment real input buffer by 4 to process next samples */
+ 173:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pSrcReal += 4u;
+ 174:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 175:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store result to destination bufer */
+ 176:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[6] = out7;
+ 112              	 .loc 1 176 0
+ 113 007c 44ED025A 	 fsts s11,[r4,#-8]
+ 177:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst[7] = out8;
+ 114              	 .loc 1 177 0
+ 115 0080 04ED016A 	 fsts s12,[r4,#-4]
+ 150:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 116              	 .loc 1 150 0
+ 117 0084 44ED086A 	 fsts s13,[r4,#-32]
+ 118              	.LVL12:
+ 119 0088 06F11006 	 add r6,r6,#16
+ 120 008c 05F12005 	 add r5,r5,#32
+ 121              	.LVL13:
+ 122 0090 04F12004 	 add r4,r4,#32
+  96:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+ 123              	 .loc 1 96 0
+ 124 0094 BFD1     	 bne .L3
+ 125 0096 4FEA4E14 	 lsl r4,lr,#5
+ 126              	.LVL14:
+ 127 009a 01EB0E11 	 add r1,r1,lr,lsl#4
+ 128              	.LVL15:
+ 129 009e 2044     	 add r0,r0,r4
+ 130              	.LVL16:
+ 131 00a0 2244     	 add r2,r2,r4
+ 132              	.LVL17:
+ 133              	.L2:
+ 178:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 179:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* increment destination buffer by 8 to process next sampels */
+ 180:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     pCmplxDst += 8u;
+ 181:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 182:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* Decrement the numSamples loop counter */
+ 183:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     blkCnt--;
+ 184:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   }
+ 185:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 186:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   /* If the numSamples is not a multiple of 4, compute any remaining output samples here.
+ 187:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****    ** No loop unrolling is used. */
+ 188:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   blkCnt = numSamples % 0x4u;
+ 189:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 190:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** #else
+ 191:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 192:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   /* Run the below code for Cortex-M0 */
+ 193:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   blkCnt = numSamples;
+ 194:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 195:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** #endif /* #if defined (ARM_MATH_DSP) */
+ 196:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c **** 
+ 197:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   while (blkCnt > 0u)
+ 134              	 .loc 1 197 0
+ 135 00a2 13F00303 	 ands r3,r3,#3
+ 136              	.LVL18:
+ 137 00a6 15D0     	 beq .L1
+ 138 00a8 0832     	 adds r2,r2,#8
+ 139              	.LVL19:
+ 140 00aa 0830     	 adds r0,r0,#8
+ 141              	.LVL20:
+ 142              	.L5:
+ 198:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+ 199:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* C[2 * i] = A[2 * i] * B[i].            */
+ 200:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* C[2 * i + 1] = A[2 * i + 1] * B[i].        */
+ 201:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     in = *pSrcReal++;
+ 143              	 .loc 1 201 0
+ 144 00ac F1EC016A 	 fldmias r1!,{s13}
+ 145              	.LVL21:
+ 202:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     /* store the result in the destination buffer. */
+ 203:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     *pCmplxDst++ = (*pSrcCmplx++) * (in);
+ 146              	 .loc 1 203 0
+ 147 00b0 10ED027A 	 flds s14,[r0,#-8]
+ 148 00b4 27EE267A 	 fmuls s14,s14,s13
+ 197:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+ 149              	 .loc 1 197 0
+ 150 00b8 013B     	 subs r3,r3,#1
+ 151              	.LVL22:
+ 152              	 .loc 1 203 0
+ 153 00ba 02ED027A 	 fsts s14,[r2,#-8]
+ 154              	.LVL23:
+ 204:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****     *pCmplxDst++ = (*pSrcCmplx++) * (in);
+ 155              	 .loc 1 204 0
+ 156 00be 50ED017A 	 flds s15,[r0,#-4]
+ 157 00c2 67EEA67A 	 fmuls s15,s15,s13
+ 158 00c6 00F10800 	 add r0,r0,#8
+ 159              	.LVL24:
+ 160 00ca 42ED017A 	 fsts s15,[r2,#-4]
+ 161 00ce 02F10802 	 add r2,r2,#8
+ 197:../Dave/Generated/CMSIS_DSP/ComplexMathFunctions/arm_cmplx_mult_real_f32.c ****   {
+ 162              	 .loc 1 197 0
+ 163 00d2 EBD1     	 bne .L5
+ 164              	.LVL25:
+ 165              	.L1:
+ 166 00d4 F0BD     	 pop {r4,r5,r6,r7,pc}
+ 167              	 .cfi_endproc
+ 168              	.LFE135:
+ 170 00d6 00BF     	 .text
+ 171              	.Letext0:
+ 172              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 173              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 174              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_cmplx_mult_real_f32.c
+    {standard input}:20     .text.arm_cmplx_mult_real_f32:00000000 $t
+    {standard input}:25     .text.arm_cmplx_mult_real_f32:00000000 arm_cmplx_mult_real_f32
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

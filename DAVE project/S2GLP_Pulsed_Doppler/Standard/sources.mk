@@ -73,6 +73,5 @@ Libraries/XMCLib/src \
 Radar_Control/src \
 Startup \
 Store/src \
-Tests \
 . \
 

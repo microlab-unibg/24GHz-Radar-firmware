@@ -1,0 +1,404 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "radar_mcubase.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.radar_get_consumption_labels,"ax",%progbits
+  20              	 .align 2
+  21              	 .global radar_get_consumption_labels
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	radar_get_consumption_labels:
+  26              	.LFB529:
+  27              	 .file 1 "../Radar_Control/src/radar_mcubase.c"
+   1:../Radar_Control/src/radar_mcubase.c **** /**
+   2:../Radar_Control/src/radar_mcubase.c ****     @file  radar_mcubase.c
+   3:../Radar_Control/src/radar_mcubase.c **** */
+   4:../Radar_Control/src/radar_mcubase.c **** 
+   5:../Radar_Control/src/radar_mcubase.c **** /* ===========================================================================
+   6:../Radar_Control/src/radar_mcubase.c **** ** Copyright (C) 2021 Infineon Technologies AG
+   7:../Radar_Control/src/radar_mcubase.c **** ** All rights reserved.
+   8:../Radar_Control/src/radar_mcubase.c **** ** ===========================================================================
+   9:../Radar_Control/src/radar_mcubase.c **** **
+  10:../Radar_Control/src/radar_mcubase.c **** ** ===========================================================================
+  11:../Radar_Control/src/radar_mcubase.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  12:../Radar_Control/src/radar_mcubase.c **** ** Passing on and copying of this document, and communication of its contents
+  13:../Radar_Control/src/radar_mcubase.c **** ** is not permitted without Infineon's prior written authorization.
+  14:../Radar_Control/src/radar_mcubase.c **** ** ===========================================================================
+  15:../Radar_Control/src/radar_mcubase.c **** */
+  16:../Radar_Control/src/radar_mcubase.c **** 
+  17:../Radar_Control/src/radar_mcubase.c **** /*
+  18:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  19:../Radar_Control/src/radar_mcubase.c ****     1. INCLUDE FILES
+  20:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  21:../Radar_Control/src/radar_mcubase.c ****  */
+  22:../Radar_Control/src/radar_mcubase.c **** 
+  23:../Radar_Control/src/radar_mcubase.c **** #include "EndpointRadarMcuBase.h"
+  24:../Radar_Control/src/radar_mcubase.c **** 
+  25:../Radar_Control/src/radar_mcubase.c **** /*
+  26:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  27:../Radar_Control/src/radar_mcubase.c ****    2. LOCAL DEFINITIONS
+  28:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  29:../Radar_Control/src/radar_mcubase.c ****  */
+  30:../Radar_Control/src/radar_mcubase.c **** 
+  31:../Radar_Control/src/radar_mcubase.c **** #define NB_OF_ELEMENTS(a)  (sizeof(a)/sizeof(a[0]))
+  32:../Radar_Control/src/radar_mcubase.c **** 
+  33:../Radar_Control/src/radar_mcubase.c **** /*
+  34:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  35:../Radar_Control/src/radar_mcubase.c ****    3. LOCAL TYPES
+  36:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  37:../Radar_Control/src/radar_mcubase.c ****  */
+  38:../Radar_Control/src/radar_mcubase.c **** 
+  39:../Radar_Control/src/radar_mcubase.c **** /*
+  40:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  41:../Radar_Control/src/radar_mcubase.c ****    4. DATA
+  42:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  43:../Radar_Control/src/radar_mcubase.c ****  */
+  44:../Radar_Control/src/radar_mcubase.c **** 
+  45:../Radar_Control/src/radar_mcubase.c **** /* set application parameter */
+  46:../Radar_Control/src/radar_mcubase.c **** char *consumption_labels[] = { "Current Consumption" };
+  47:../Radar_Control/src/radar_mcubase.c **** para_consumption_def_t consumption_defs = { .p_consumption_labels = consumption_labels, .num_labels
+  48:../Radar_Control/src/radar_mcubase.c **** para_consumption_def_t *p_consumption_def = &consumption_defs;
+  49:../Radar_Control/src/radar_mcubase.c **** 
+  50:../Radar_Control/src/radar_mcubase.c **** static size_t consumption_repeat_count = 0;
+  51:../Radar_Control/src/radar_mcubase.c **** 
+  52:../Radar_Control/src/radar_mcubase.c **** /*
+  53:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  54:../Radar_Control/src/radar_mcubase.c ****    5. LOCAL FUNCTION PROTOTYPES
+  55:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  56:../Radar_Control/src/radar_mcubase.c ****  */
+  57:../Radar_Control/src/radar_mcubase.c **** 
+  58:../Radar_Control/src/radar_mcubase.c **** /*
+  59:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  60:../Radar_Control/src/radar_mcubase.c ****    6. EXPORTED FUNCTIONS
+  61:../Radar_Control/src/radar_mcubase.c **** ==============================================================================
+  62:../Radar_Control/src/radar_mcubase.c ****  */
+  63:../Radar_Control/src/radar_mcubase.c **** 
+  64:../Radar_Control/src/radar_mcubase.c **** para_consumption_def_t *radar_get_consumption_labels(void)
+  65:../Radar_Control/src/radar_mcubase.c **** {
+  28              	 .loc 1 65 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  66:../Radar_Control/src/radar_mcubase.c **** 	return p_consumption_def;
+  33              	 .loc 1 66 0
+  34 0000 014B     	 ldr r3,.L2
+  67:../Radar_Control/src/radar_mcubase.c **** }
+  35              	 .loc 1 67 0
+  36 0002 1868     	 ldr r0,[r3]
+  37 0004 7047     	 bx lr
+  38              	.L3:
+  39 0006 00BF     	 .align 2
+  40              	.L2:
+  41 0008 00000000 	 .word .LANCHOR0
+  42              	 .cfi_endproc
+  43              	.LFE529:
+  45              	 .section .text.radar_send_consumption_to_host,"ax",%progbits
+  46              	 .align 2
+  47              	 .global radar_send_consumption_to_host
+  48              	 .thumb
+  49              	 .thumb_func
+  51              	radar_send_consumption_to_host:
+  52              	.LFB530:
+  68:../Radar_Control/src/radar_mcubase.c **** 
+  69:../Radar_Control/src/radar_mcubase.c **** //============================================================================
+  70:../Radar_Control/src/radar_mcubase.c **** 
+  71:../Radar_Control/src/radar_mcubase.c **** /* so far we only have on consumption "sensor" */
+  72:../Radar_Control/src/radar_mcubase.c **** uint16_t radar_send_consumption_to_host(int8_t index, float value, char *p_unit)
+  73:../Radar_Control/src/radar_mcubase.c **** {
+  53              	 .loc 1 73 0
+  54              	 .cfi_startproc
+  55              	 
+  56              	 
+  57              	.LVL0:
+  58 0000 00B5     	 push {lr}
+  59              	.LCFI0:
+  60              	 .cfi_def_cfa_offset 4
+  61              	 .cfi_offset 14,-4
+  62 0002 85B0     	 sub sp,sp,#20
+  63              	.LCFI1:
+  64              	 .cfi_def_cfa_offset 24
+  74:../Radar_Control/src/radar_mcubase.c **** 	consumption_response_t consumption;
+  75:../Radar_Control/src/radar_mcubase.c **** 	consumption.index = index;
+  65              	 .loc 1 75 0
+  66 0004 8DF80400 	 strb r0,[sp,#4]
+  76:../Radar_Control/src/radar_mcubase.c **** 	consumption.value = value;
+  67              	 .loc 1 76 0
+  68 0008 0291     	 str r1,[sp,#8]
+  77:../Radar_Control/src/radar_mcubase.c **** 	consumption.p_unit = p_unit;
+  78:../Radar_Control/src/radar_mcubase.c **** 
+  79:../Radar_Control/src/radar_mcubase.c **** 	return send_consumption_response(1, &consumption);
+  69              	 .loc 1 79 0
+  70 000a 0120     	 movs r0,#1
+  71              	.LVL1:
+  72 000c 01A9     	 add r1,sp,#4
+  73              	.LVL2:
+  77:../Radar_Control/src/radar_mcubase.c **** 	consumption.p_unit = p_unit;
+  74              	 .loc 1 77 0
+  75 000e 0392     	 str r2,[sp,#12]
+  76              	 .loc 1 79 0
+  77 0010 FFF7FEFF 	 bl send_consumption_response
+  78              	.LVL3:
+  80:../Radar_Control/src/radar_mcubase.c **** }
+  79              	 .loc 1 80 0
+  80 0014 05B0     	 add sp,sp,#20
+  81              	.LCFI2:
+  82              	 .cfi_def_cfa_offset 4
+  83              	 
+  84 0016 5DF804FB 	 ldr pc,[sp],#4
+  85              	 .cfi_endproc
+  86              	.LFE530:
+  88 001a 00BF     	 .section .text.set_consumption_repeat_count,"ax",%progbits
+  89              	 .align 2
+  90              	 .global set_consumption_repeat_count
+  91              	 .thumb
+  92              	 .thumb_func
+  94              	set_consumption_repeat_count:
+  95              	.LFB531:
+  81:../Radar_Control/src/radar_mcubase.c **** 
+  82:../Radar_Control/src/radar_mcubase.c **** //============================================================================
+  83:../Radar_Control/src/radar_mcubase.c **** 
+  84:../Radar_Control/src/radar_mcubase.c **** void set_consumption_repeat_count(size_t count)
+  85:../Radar_Control/src/radar_mcubase.c **** {
+  96              	 .loc 1 85 0
+  97              	 .cfi_startproc
+  98              	 
+  99              	 
+ 100              	 
+ 101              	.LVL4:
+  86:../Radar_Control/src/radar_mcubase.c **** 	consumption_repeat_count = count;
+ 102              	 .loc 1 86 0
+ 103 0000 014B     	 ldr r3,.L7
+ 104 0002 1860     	 str r0,[r3]
+ 105 0004 7047     	 bx lr
+ 106              	.L8:
+ 107 0006 00BF     	 .align 2
+ 108              	.L7:
+ 109 0008 00000000 	 .word .LANCHOR1
+ 110              	 .cfi_endproc
+ 111              	.LFE531:
+ 113              	 .section .text.inc_consumption_repeat_count,"ax",%progbits
+ 114              	 .align 2
+ 115              	 .global inc_consumption_repeat_count
+ 116              	 .thumb
+ 117              	 .thumb_func
+ 119              	inc_consumption_repeat_count:
+ 120              	.LFB532:
+  87:../Radar_Control/src/radar_mcubase.c **** }
+  88:../Radar_Control/src/radar_mcubase.c **** 
+  89:../Radar_Control/src/radar_mcubase.c **** //============================================================================
+  90:../Radar_Control/src/radar_mcubase.c **** 
+  91:../Radar_Control/src/radar_mcubase.c **** void inc_consumption_repeat_count(size_t count)
+  92:../Radar_Control/src/radar_mcubase.c **** {
+ 121              	 .loc 1 92 0
+ 122              	 .cfi_startproc
+ 123              	 
+ 124              	 
+ 125              	 
+ 126              	.LVL5:
+  93:../Radar_Control/src/radar_mcubase.c **** 	consumption_repeat_count += count;
+ 127              	 .loc 1 93 0
+ 128 0000 024A     	 ldr r2,.L10
+ 129 0002 1368     	 ldr r3,[r2]
+ 130 0004 1844     	 add r0,r0,r3
+ 131              	.LVL6:
+ 132 0006 1060     	 str r0,[r2]
+ 133 0008 7047     	 bx lr
+ 134              	.L11:
+ 135 000a 00BF     	 .align 2
+ 136              	.L10:
+ 137 000c 00000000 	 .word .LANCHOR1
+ 138              	 .cfi_endproc
+ 139              	.LFE532:
+ 141              	 .section .text.mcu_base_updates,"ax",%progbits
+ 142              	 .align 2
+ 143              	 .global mcu_base_updates
+ 144              	 .thumb
+ 145              	 .thumb_func
+ 147              	mcu_base_updates:
+ 148              	.LFB533:
+  94:../Radar_Control/src/radar_mcubase.c **** }
+  95:../Radar_Control/src/radar_mcubase.c **** 
+  96:../Radar_Control/src/radar_mcubase.c **** //============================================================================
+  97:../Radar_Control/src/radar_mcubase.c **** 
+  98:../Radar_Control/src/radar_mcubase.c **** void mcu_base_updates(void)
+  99:../Radar_Control/src/radar_mcubase.c **** {
+ 149              	 .loc 1 99 0
+ 150              	 .cfi_startproc
+ 151              	 
+ 152              	 
+ 153 0000 10B5     	 push {r4,lr}
+ 154              	.LCFI3:
+ 155              	 .cfi_def_cfa_offset 8
+ 156              	 .cfi_offset 4,-8
+ 157              	 .cfi_offset 14,-4
+ 100:../Radar_Control/src/radar_mcubase.c **** 	if (consumption_repeat_count > 0)
+ 158              	 .loc 1 100 0
+ 159 0002 0B4C     	 ldr r4,.L19
+ 160 0004 2368     	 ldr r3,[r4]
+  99:../Radar_Control/src/radar_mcubase.c **** 	if (consumption_repeat_count > 0)
+ 161              	 .loc 1 99 0
+ 162 0006 84B0     	 sub sp,sp,#16
+ 163              	.LCFI4:
+ 164              	 .cfi_def_cfa_offset 24
+ 165              	 .loc 1 100 0
+ 166 0008 83B1     	 cbz r3,.L12
+ 167              	.LBB5:
+ 101:../Radar_Control/src/radar_mcubase.c **** 	{
+ 102:../Radar_Control/src/radar_mcubase.c **** 		device_settings_t *pDev = ds_device_get_settings();
+ 168              	 .loc 1 102 0
+ 169 000a FFF7FEFF 	 bl ds_device_get_settings
+ 170              	.LVL7:
+ 103:../Radar_Control/src/radar_mcubase.c **** 		extern float calcCurrentConsumption_mA(device_settings_t *pDev);
+ 104:../Radar_Control/src/radar_mcubase.c **** 		float consumption = calcCurrentConsumption_mA(pDev);
+ 171              	 .loc 1 104 0
+ 172 000e FFF7FEFF 	 bl calcCurrentConsumption_mA
+ 173              	.LVL8:
+ 174              	.LBB6:
+ 175              	.LBB7:
+  77:../Radar_Control/src/radar_mcubase.c **** 
+ 176              	 .loc 1 77 0
+ 177 0012 084B     	 ldr r3,.L19+4
+  76:../Radar_Control/src/radar_mcubase.c **** 	consumption.p_unit = p_unit;
+ 178              	 .loc 1 76 0
+ 179 0014 0290     	 str r0,[sp,#8]
+  75:../Radar_Control/src/radar_mcubase.c **** 	consumption.value = value;
+ 180              	 .loc 1 75 0
+ 181 0016 0022     	 movs r2,#0
+  79:../Radar_Control/src/radar_mcubase.c **** }
+ 182              	 .loc 1 79 0
+ 183 0018 0120     	 movs r0,#1
+ 184              	.LVL9:
+ 185 001a 01A9     	 add r1,sp,#4
+  77:../Radar_Control/src/radar_mcubase.c **** 
+ 186              	 .loc 1 77 0
+ 187 001c 0393     	 str r3,[sp,#12]
+  75:../Radar_Control/src/radar_mcubase.c **** 	consumption.value = value;
+ 188              	 .loc 1 75 0
+ 189 001e 8DF80420 	 strb r2,[sp,#4]
+  79:../Radar_Control/src/radar_mcubase.c **** }
+ 190              	 .loc 1 79 0
+ 191 0022 FFF7FEFF 	 bl send_consumption_response
+ 192              	.LVL10:
+ 193              	.LBE7:
+ 194              	.LBE6:
+ 105:../Radar_Control/src/radar_mcubase.c **** 
+ 106:../Radar_Control/src/radar_mcubase.c **** 		radar_send_consumption_to_host(0, consumption, "mA");
+ 107:../Radar_Control/src/radar_mcubase.c **** 		consumption_repeat_count -= 1;
+ 195              	 .loc 1 107 0
+ 196 0026 2368     	 ldr r3,[r4]
+ 197 0028 013B     	 subs r3,r3,#1
+ 198 002a 2360     	 str r3,[r4]
+ 199              	.LVL11:
+ 200              	.L12:
+ 201              	.LBE5:
+ 108:../Radar_Control/src/radar_mcubase.c **** 	}
+ 109:../Radar_Control/src/radar_mcubase.c **** }
+ 202              	 .loc 1 109 0
+ 203 002c 04B0     	 add sp,sp,#16
+ 204              	.LCFI5:
+ 205              	 .cfi_def_cfa_offset 8
+ 206              	 
+ 207 002e 10BD     	 pop {r4,pc}
+ 208              	.L20:
+ 209              	 .align 2
+ 210              	.L19:
+ 211 0030 00000000 	 .word .LANCHOR1
+ 212 0034 00000000 	 .word .LC0
+ 213              	 .cfi_endproc
+ 214              	.LFE533:
+ 216              	 .global p_consumption_def
+ 217              	 .global consumption_defs
+ 218              	 .global consumption_labels
+ 219              	 .section .data.consumption_defs,"aw",%progbits
+ 220              	 .align 2
+ 223              	consumption_defs:
+ 224 0000 01000000 	 .word 1
+ 225 0004 00000000 	 .word consumption_labels
+ 226              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 227              	 .align 2
+ 228              	.LC0:
+ 229 0000 6D4100   	 .ascii "mA\000"
+ 230 0003 00       	 .space 1
+ 231              	.LC1:
+ 232 0004 43757272 	 .ascii "Current Consumption\000"
+ 232      656E7420 
+ 232      436F6E73 
+ 232      756D7074 
+ 232      696F6E00 
+ 233              	 .section .data.consumption_labels,"aw",%progbits
+ 234              	 .align 2
+ 237              	consumption_labels:
+ 238 0000 04000000 	 .word .LC1
+ 239              	 .section .data.p_consumption_def,"aw",%progbits
+ 240              	 .align 2
+ 241              	 .set .LANCHOR0,.+0
+ 244              	p_consumption_def:
+ 245 0000 00000000 	 .word consumption_defs
+ 246              	 .section .bss.consumption_repeat_count,"aw",%nobits
+ 247              	 .align 2
+ 248              	 .set .LANCHOR1,.+0
+ 251              	consumption_repeat_count:
+ 252 0000 00000000 	 .space 4
+ 253              	 .text
+ 254              	.Letext0:
+ 255              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 256              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 257              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 258              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 259              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 260              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 261              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 262              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 263              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 264              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 265              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/EndpointRadarMcuBase.h"
+ 266              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 267              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 268              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 269              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 radar_mcubase.c
+    {standard input}:20     .text.radar_get_consumption_labels:00000000 $t
+    {standard input}:25     .text.radar_get_consumption_labels:00000000 radar_get_consumption_labels
+    {standard input}:41     .text.radar_get_consumption_labels:00000008 $d
+    {standard input}:46     .text.radar_send_consumption_to_host:00000000 $t
+    {standard input}:51     .text.radar_send_consumption_to_host:00000000 radar_send_consumption_to_host
+    {standard input}:89     .text.set_consumption_repeat_count:00000000 $t
+    {standard input}:94     .text.set_consumption_repeat_count:00000000 set_consumption_repeat_count
+    {standard input}:109    .text.set_consumption_repeat_count:00000008 $d
+    {standard input}:114    .text.inc_consumption_repeat_count:00000000 $t
+    {standard input}:119    .text.inc_consumption_repeat_count:00000000 inc_consumption_repeat_count
+    {standard input}:137    .text.inc_consumption_repeat_count:0000000c $d
+    {standard input}:142    .text.mcu_base_updates:00000000 $t
+    {standard input}:147    .text.mcu_base_updates:00000000 mcu_base_updates
+    {standard input}:211    .text.mcu_base_updates:00000030 $d
+    {standard input}:244    .data.p_consumption_def:00000000 p_consumption_def
+    {standard input}:223    .data.consumption_defs:00000000 consumption_defs
+    {standard input}:237    .data.consumption_labels:00000000 consumption_labels
+    {standard input}:220    .data.consumption_defs:00000000 $d
+    {standard input}:227    .rodata.str1.4:00000000 $d
+    {standard input}:234    .data.consumption_labels:00000000 $d
+    {standard input}:240    .data.p_consumption_def:00000000 $d
+    {standard input}:247    .bss.consumption_repeat_count:00000000 $d
+    {standard input}:251    .bss.consumption_repeat_count:00000000 consumption_repeat_count
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+send_consumption_response
+ds_device_get_settings
+calcCurrentConsumption_mA

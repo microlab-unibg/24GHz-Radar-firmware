@@ -1,0 +1,177 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_sin_q31.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_sin_q31,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_sin_q31
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_sin_q31:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c"
+   1:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Title:        arm_sin_q31.c
+   4:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Description:  Fast sine calculation for Q31 values
+   5:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  29:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** #include "CMSIS_DSP/arm_common_tables.h"
+  31:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  32:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** /**
+  33:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @ingroup groupFastMath
+  34:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  */
+  35:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  36:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  /**
+  37:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @addtogroup sin
+  38:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @{
+  39:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  */
+  40:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  41:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** /**
+  42:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @brief Fast approximation to the trigonometric sine function for Q31 data.
+  43:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @param[in] x Scaled input value in radians.
+  44:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * @return  sin(x).
+  45:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  *
+  46:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****  * The Q31 input value is in the range [0 +0.9999] and is mapped to a radian value in the range [0 
+  47:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  48:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** q31_t arm_sin_q31(
+  49:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   q31_t x)
+  50:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** {
+  28              	 .loc 1 50 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  34 0000 2DE9F003 	 push {r4,r5,r6,r7,r8,r9}
+  35              	.LCFI0:
+  36              	 .cfi_def_cfa_offset 24
+  37              	 .cfi_offset 4,-24
+  38              	 .cfi_offset 5,-20
+  39              	 .cfi_offset 6,-16
+  40              	 .cfi_offset 7,-12
+  41              	 .cfi_offset 8,-8
+  42              	 .cfi_offset 9,-4
+  51:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   q31_t sinVal;                                  /* Temporary variables for input, output */
+  52:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   int32_t index;                                 /* Index variables */
+  53:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   q31_t a, b;                                    /* Four nearest output values */
+  54:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   q31_t fract;                                   /* Temporary values for fractional values */
+  55:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  56:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   /* Calculate the nearest index */
+  57:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   index = (uint32_t)x >> FAST_MATH_Q31_SHIFT;
+  43              	 .loc 1 57 0
+  44 0004 830D     	 lsrs r3,r0,#22
+  45              	.LVL1:
+  58:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  59:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   /* Calculation of fractional value */
+  60:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   fract = (x - (index << FAST_MATH_Q31_SHIFT)) << 9;
+  61:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  62:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   /* Read two nearest values of input value from the sin table */
+  63:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   a = sinTable_q31[index];
+  64:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   b = sinTable_q31[index+1];
+  46              	 .loc 1 64 0
+  47 0006 0B4F     	 ldr r7,.L3
+  60:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  48              	 .loc 1 60 0
+  49 0008 C0F31500 	 ubfx r0,r0,#0,#22
+  50              	.LVL2:
+  65:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  66:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   /* Linear interpolation process */
+  67:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   sinVal = (q63_t)(0x80000000-fract)*a >> 32;
+  51              	 .loc 1 67 0
+  52 000c 57F82340 	 ldr r4,[r7,r3,lsl#2]
+  60:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  53              	 .loc 1 60 0
+  54 0010 4002     	 lsls r0,r0,#9
+  55              	.LVL3:
+  64:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  56              	 .loc 1 64 0
+  57 0012 591C     	 adds r1,r3,#1
+  58              	 .loc 1 67 0
+  59 0014 C0F10046 	 rsb r6,r0,#-2147483648
+  60 0018 A6FB0489 	 umull r8,r9,r6,r4
+  61 001c E517     	 asrs r5,r4,#31
+  64:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  62              	 .loc 1 64 0
+  63 001e 57F82110 	 ldr r1,[r7,r1,lsl#2]
+  64              	.LVL4:
+  68:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   sinVal = (q31_t)((((q63_t)sinVal << 32) + ((q63_t)fract*b)) >> 32);
+  65              	 .loc 1 68 0
+  66 0022 06FB0593 	 mla r3,r6,r5,r9
+  67              	.LVL5:
+  68 0026 0022     	 movs r2,#0
+  69 0028 C1FB0023 	 smlal r2,r3,r1,r0
+  69:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** 
+  70:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c ****   return sinVal << 1;
+  71:../Dave/Generated/CMSIS_DSP/FastMathFunctions/arm_sin_q31.c **** }
+  70              	 .loc 1 71 0
+  71 002c 5800     	 lsls r0,r3,#1
+  72              	.LVL6:
+  73 002e BDE8F003 	 pop {r4,r5,r6,r7,r8,r9}
+  74              	.LCFI1:
+  75              	 .cfi_restore 9
+  76              	 .cfi_restore 8
+  77              	 .cfi_restore 7
+  78              	 .cfi_restore 6
+  79              	 .cfi_restore 5
+  80              	 .cfi_restore 4
+  81              	 .cfi_def_cfa_offset 0
+  82 0032 7047     	 bx lr
+  83              	.L4:
+  84              	 .align 2
+  85              	.L3:
+  86 0034 00000000 	 .word sinTable_q31
+  87              	 .cfi_endproc
+  88              	.LFE135:
+  90              	 .text
+  91              	.Letext0:
+  92              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+  93              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+  94              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+  95              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_common_tables.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_sin_q31.c
+    {standard input}:20     .text.arm_sin_q31:00000000 $t
+    {standard input}:25     .text.arm_sin_q31:00000000 arm_sin_q31
+    {standard input}:86     .text.arm_sin_q31:00000034 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sinTable_q31

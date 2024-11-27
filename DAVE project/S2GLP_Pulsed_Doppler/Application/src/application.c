@@ -482,9 +482,13 @@ void update_leds(algo_result_t *pResult)
 {
 	if (pResult->target_approaching)
 	{
-		bsp_led_red_off();
+		/*bsp_led_red_off();
 		bsp_led_blue_off();
-		bsp_led_green_on();
+		bsp_led_green_on();*/
+
+		bsp_led_red_on();
+		bsp_led_blue_off();
+		bsp_led_green_off();
 
 		/* Arduino status IO */
 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
@@ -493,9 +497,13 @@ void update_leds(algo_result_t *pResult)
 	}
 	else if (pResult->target_departing)
 	{
-		bsp_led_red_on();
+		/*bsp_led_red_on();
 		bsp_led_blue_off();
-		bsp_led_green_off();
+		bsp_led_green_off();*/
+
+		bsp_led_red_off();
+		bsp_led_blue_off();
+		bsp_led_green_on();
 
 		/* Arduino IO */
 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);

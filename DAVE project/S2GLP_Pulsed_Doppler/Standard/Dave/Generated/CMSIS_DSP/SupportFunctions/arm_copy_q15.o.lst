@@ -1,0 +1,206 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_copy_q15.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_copy_q15,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_copy_q15
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_copy_q15:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c"
+   1:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Title:        arm_copy_q15.c
+   4:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Description:  Copies the elements of a Q15 vector
+   5:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  29:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  31:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @ingroup groupSupport
+  33:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  35:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @addtogroup copy
+  37:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** /**
+  40:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @brief Copies the elements of a Q15 vector.
+  41:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @param[in]       *pSrc points to input vector
+  42:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @param[out]      *pDst points to output vector
+  43:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @param[in]       blockSize length of the input vector
+  44:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  * @return none.
+  45:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  *
+  46:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****  */
+  47:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  48:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** void arm_copy_q15(
+  49:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   q15_t * pSrc,
+  50:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   q15_t * pDst,
+  51:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   uint32_t blockSize)
+  52:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** {
+  28              	 .loc 1 52 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  34 0000 F0B4     	 push {r4,r5,r6,r7}
+  35              	.LCFI0:
+  36              	 .cfi_def_cfa_offset 16
+  37              	 .cfi_offset 4,-16
+  38              	 .cfi_offset 5,-12
+  39              	 .cfi_offset 6,-8
+  40              	 .cfi_offset 7,-4
+  53:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   uint32_t blkCnt;                               /* loop counter */
+  54:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  55:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** #if defined (ARM_MATH_DSP)
+  56:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  57:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  58:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  59:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /*loop Unrolling */
+  60:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   blkCnt = blockSize >> 2u;
+  61:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  62:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  63:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+  64:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   while (blkCnt > 0u)
+  41              	 .loc 1 64 0
+  42 0002 9708     	 lsrs r7,r2,#2
+  43              	.LVL1:
+  44 0004 15D0     	 beq .L2
+  45 0006 01F10804 	 add r4,r1,#8
+  46 000a 00F10803 	 add r3,r0,#8
+  47 000e 3D46     	 mov r5,r7
+  48              	.LVL2:
+  49              	.L3:
+  65:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   {
+  66:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* C = A */
+  67:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* Read two inputs */
+  68:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     *__SIMD32(pDst)++ = *__SIMD32(pSrc)++;
+  50              	 .loc 1 68 0
+  51 0010 53F8086C 	 ldr r6,[r3,#-8]
+  52 0014 44F8086C 	 str r6,[r4,#-8]
+  53              	.LVL3:
+  69:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     *__SIMD32(pDst)++ = *__SIMD32(pSrc)++;
+  54              	 .loc 1 69 0
+  55 0018 53F8046C 	 ldr r6,[r3,#-4]
+  56 001c 44F8046C 	 str r6,[r4,#-4]
+  64:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   {
+  57              	 .loc 1 64 0
+  58 0020 013D     	 subs r5,r5,#1
+  59              	.LVL4:
+  60 0022 03F10803 	 add r3,r3,#8
+  61              	.LVL5:
+  62 0026 04F10804 	 add r4,r4,#8
+  63 002a F1D1     	 bne .L3
+  64 002c FF00     	 lsls r7,r7,#3
+  65 002e 3944     	 add r1,r1,r7
+  66 0030 3844     	 add r0,r0,r7
+  67              	.LVL6:
+  68              	.L2:
+  70:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  71:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* Decrement the loop counter */
+  72:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     blkCnt--;
+  73:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   }
+  74:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  75:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
+  76:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****    ** No loop unrolling is used. */
+  77:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   blkCnt = blockSize % 0x4u;
+  78:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  79:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  80:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** #else
+  81:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  82:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /* Run the below code for Cortex-M0 */
+  83:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  84:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   /* Loop over blockSize number of values */
+  85:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   blkCnt = blockSize;
+  86:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  87:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** #endif /* #if defined (ARM_MATH_DSP) */
+  88:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  89:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   while (blkCnt > 0u)
+  69              	 .loc 1 89 0
+  70 0032 12F00302 	 ands r2,r2,#3
+  71              	.LVL7:
+  72 0036 06D0     	 beq .L1
+  73 0038 0239     	 subs r1,r1,#2
+  74              	.LVL8:
+  75              	.L5:
+  90:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   {
+  91:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* C = A */
+  92:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* Copy and then store the value in the destination buffer */
+  93:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     *pDst++ = *pSrc++;
+  76              	 .loc 1 93 0
+  77 003a 30F8023B 	 ldrh r3,[r0],#2
+  78              	.LVL9:
+  79 003e 21F8023F 	 strh r3,[r1,#2]!
+  89:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   {
+  80              	 .loc 1 89 0
+  81 0042 013A     	 subs r2,r2,#1
+  82              	.LVL10:
+  83 0044 F9D1     	 bne .L5
+  84              	.L1:
+  94:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** 
+  95:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     /* Decrement the loop counter */
+  96:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****     blkCnt--;
+  97:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c ****   }
+  98:../Dave/Generated/CMSIS_DSP/SupportFunctions/arm_copy_q15.c **** }
+  85              	 .loc 1 98 0
+  86 0046 F0BC     	 pop {r4,r5,r6,r7}
+  87              	.LCFI1:
+  88              	 .cfi_restore 7
+  89              	 .cfi_restore 6
+  90              	 .cfi_restore 5
+  91              	 .cfi_restore 4
+  92              	 .cfi_def_cfa_offset 0
+  93 0048 7047     	 bx lr
+  94              	 .cfi_endproc
+  95              	.LFE135:
+  97 004a 00BF     	 .text
+  98              	.Letext0:
+  99              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 100              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 101              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_copy_q15.c
+    {standard input}:20     .text.arm_copy_q15:00000000 $t
+    {standard input}:25     .text.arm_copy_q15:00000000 arm_copy_q15
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

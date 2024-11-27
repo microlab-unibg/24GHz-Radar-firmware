@@ -1,0 +1,489 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_mat_trans_q15.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_mat_trans_q15,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_mat_trans_q15
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_mat_trans_q15:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c"
+   1:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Title:        arm_mat_trans_q15.c
+   4:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Description:  Q15 matrix transpose
+   5:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  29:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  31:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @ingroup groupMatrix
+  33:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  35:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @addtogroup MatrixTrans
+  37:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  40:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** /*
+  41:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @brief Q15 matrix transpose.
+  42:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @param[in]  *pSrc points to the input matrix
+  43:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @param[out] *pDst points to the output matrix
+  44:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * @return 	The function returns either  <code>ARM_MATH_SIZE_MISMATCH</code>
+  45:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  * or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+  46:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****  */
+  47:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  48:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** arm_status arm_mat_trans_q15(
+  49:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   const arm_matrix_instance_q15 * pSrc,
+  50:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   arm_matrix_instance_q15 * pDst)
+  51:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** {
+  28              	 .loc 1 51 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 36
+  36              	 .cfi_offset 4,-36
+  37              	 .cfi_offset 5,-32
+  38              	 .cfi_offset 6,-28
+  39              	 .cfi_offset 7,-24
+  40              	 .cfi_offset 8,-20
+  41              	 .cfi_offset 9,-16
+  42              	 .cfi_offset 10,-12
+  43              	 .cfi_offset 11,-8
+  44              	 .cfi_offset 14,-4
+  52:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q15_t *pSrcA = pSrc->pData;                    /* input data matrix pointer */
+  53:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q15_t *pOut = pDst->pData;                     /* output data matrix pointer */
+  54:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   uint16_t nRows = pSrc->numRows;                /* number of nRows */
+  55:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   uint16_t nColumns = pSrc->numCols;             /* number of nColumns */
+  56:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   uint16_t col, row = nRows, i = 0u;             /* row and column loop counters */
+  57:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   arm_status status;                             /* status of matrix transpose */
+  58:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  59:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #if defined (ARM_MATH_DSP)
+  60:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  61:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  62:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef UNALIGNED_SUPPORT_DISABLE
+  63:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  64:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q31_t in;                                      /* variable to hold temporary output  */
+  65:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  66:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+  67:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  68:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q15_t in;
+  69:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  70:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif	/*	#ifndef UNALIGNED_SUPPORT_DISABLE	*/
+  71:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  72:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifdef ARM_MATH_MATRIX_CHECK
+  73:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  74:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  75:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   /* Check for matrix mismatch condition */
+  76:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   if ((pSrc->numRows != pDst->numCols) || (pSrc->numCols != pDst->numRows))
+  45              	 .loc 1 76 0
+  46 0004 4A88     	 ldrh r2,[r1,#2]
+  54:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   uint16_t nColumns = pSrc->numCols;             /* number of nColumns */
+  47              	 .loc 1 54 0
+  48 0006 B0F80080 	 ldrh r8,[r0]
+  52:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q15_t *pSrcA = pSrc->pData;                    /* input data matrix pointer */
+  49              	 .loc 1 52 0
+  50 000a 4768     	 ldr r7,[r0,#4]
+  51              	.LVL1:
+  55:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   uint16_t col, row = nRows, i = 0u;             /* row and column loop counters */
+  52              	 .loc 1 55 0
+  53 000c 4388     	 ldrh r3,[r0,#2]
+  54              	.LVL2:
+  55              	 .loc 1 76 0
+  56 000e 4245     	 cmp r2,r8
+  51:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   q15_t *pSrcA = pSrc->pData;                    /* input data matrix pointer */
+  57              	 .loc 1 51 0
+  58 0010 85B0     	 sub sp,sp,#20
+  59              	.LCFI1:
+  60              	 .cfi_def_cfa_offset 56
+  61              	 .loc 1 76 0
+  62 0012 5CD1     	 bne .L9
+  63              	 .loc 1 76 0 is_stmt 0 discriminator 1
+  64 0014 B1F800C0 	 ldrh ip,[r1]
+  65 0018 9C45     	 cmp ip,r3
+  66 001a 58D1     	 bne .L9
+  67 001c 4FEA9C03 	 lsr r3,ip,#2
+  68              	.LVL3:
+  69 0020 0CF00302 	 and r2,ip,#3
+  70 0024 0093     	 str r3,[sp]
+  71 0026 013B     	 subs r3,r3,#1
+  72 0028 9BB2     	 uxth r3,r3
+  73 002a 0192     	 str r2,[sp,#4]
+  74 002c 013A     	 subs r2,r2,#1
+  75 002e 92B2     	 uxth r2,r2
+  76 0030 03F1020A 	 add r10,r3,#2
+  77 0034 D1F804B0 	 ldr fp,[r1,#4]
+  78 0038 0133     	 adds r3,r3,#1
+  79 003a 4FEAC801 	 lsl r1,r8,#3
+  80              	.LVL4:
+  81 003e 501C     	 adds r0,r2,#1
+  82              	.LVL5:
+  83 0040 DC00     	 lsls r4,r3,#3
+  84 0042 01FB03F3 	 mul r3,r1,r3
+  85 0046 4FEA420C 	 lsl ip,r2,#1
+  86 004a 4FEACA0A 	 lsl r10,r10,#3
+  87 004e 0394     	 str r4,[sp,#12]
+  88 0050 0293     	 str r3,[sp,#8]
+  89 0052 4FEA4009 	 lsl r9,r0,#1
+  90 0056 4FEA4802 	 lsl r2,r8,#1
+  91              	 .loc 1 76 0
+  92 005a 4FF0000E 	 mov lr,#0
+  93              	.LVL6:
+  94              	.L7:
+  77:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   {
+  78:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* Set status as ARM_MATH_SIZE_MISMATCH */
+  79:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     status = ARM_MATH_SIZE_MISMATCH;
+  80:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   }
+  81:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   else
+  82:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*      #ifdef ARM_MATH_MATRIX_CHECK    */
+  83:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  84:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   {
+  85:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* Matrix transpose by exchanging the rows with columns */
+  86:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* row loop     */
+  87:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     do
+  88:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     {
+  89:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  90:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* Apply loop unrolling and exchange the columns with row elements */
+  91:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       col = nColumns >> 2u;
+  92:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  93:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* The pointer pOut is set to starting address of the column being processed */
+  94:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       pOut = pDst->pData + i;
+  95:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  96:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  97:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****        ** a second loop below computes the remaining 1 to 3 samples. */
+  98:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       while (col > 0u)
+  95              	 .loc 1 98 0 is_stmt 1
+  96 005e 009B     	 ldr r3,[sp]
+  94:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+  97              	 .loc 1 94 0
+  98 0060 0BEB4E04 	 add r4,fp,lr,lsl#1
+  99              	.LVL7:
+ 100              	 .loc 1 98 0
+ 101 0064 E3B1     	 cbz r3,.L3
+ 102 0066 07F10801 	 add r1,r7,#8
+ 103 006a 07EB0A06 	 add r6,r7,r10
+ 104 006e 2346     	 mov r3,r4
+ 105              	.LVL8:
+ 106              	.L4:
+  99:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 100:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef UNALIGNED_SUPPORT_DISABLE
+ 101:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 102:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read two elements from the row */
+ 103:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *__SIMD32(pSrcA)++;
+ 107              	 .loc 1 103 0
+ 108 0070 51F8085C 	 ldr r5,[r1,#-8]
+ 109              	.LVL9:
+ 104:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 105:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Unpack and store one element in the destination */
+ 106:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef ARM_MATH_BIG_ENDIAN
+ 107:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 108:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) in;
+ 109:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 110:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 111:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 112:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) ((in & (q31_t) 0xffff0000) >> 16);
+ 113:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 114:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifndef ARM_MATH_BIG_ENDIAN    */
+ 115:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 116:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer pOut to point to the next row of the transposed matrix */
+ 117:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 118:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 119:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Unpack and store the second element in the destination */
+ 120:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 121:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef ARM_MATH_BIG_ENDIAN
+ 122:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 123:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) ((in & (q31_t) 0xffff0000) >> 16);
+ 124:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 125:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 126:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 127:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) in;
+ 128:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 129:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifndef ARM_MATH_BIG_ENDIAN    */
+ 130:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 131:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer pOut to point to the next row of the transposed matrix */
+ 132:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 133:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 134:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read two elements from the row */
+ 135:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef ARM_MATH_BIG_ENDIAN
+ 136:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 137:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *__SIMD32(pSrcA)++;
+ 110              	 .loc 1 137 0
+ 111 0074 51F8040C 	 ldr r0,[r1,#-4]
+ 108:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 112              	 .loc 1 108 0
+ 113 0078 1D80     	 strh r5,[r3]
+ 123:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 114              	 .loc 1 123 0
+ 115 007a 2D14     	 asrs r5,r5,#16
+ 116              	.LVL10:
+ 117 007c 9D52     	 strh r5,[r3,r2]
+ 118 007e 0831     	 adds r1,r1,#8
+ 119              	.LVL11:
+ 120 0080 9D18     	 adds r5,r3,r2
+ 121              	.LVL12:
+ 138:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 139:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 140:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 141:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *__SIMD32(pSrcA)++;
+ 142:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 143:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifndef ARM_MATH_BIG_ENDIAN    */
+ 144:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 145:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Unpack and store one element in the destination */
+ 146:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef ARM_MATH_BIG_ENDIAN
+ 147:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 148:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) in;
+ 122              	 .loc 1 148 0
+ 123 0082 23F81200 	 strh r0,[r3,r2,lsl#1]
+  98:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 124              	 .loc 1 98 0
+ 125 0086 B142     	 cmp r1,r6
+ 149:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 150:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 151:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 152:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) ((in & (q31_t) 0xffff0000) >> 16);
+ 153:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 154:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifndef ARM_MATH_BIG_ENDIAN    */
+ 155:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 156:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer pOut to point to the next row of the transposed matrix */
+ 157:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 158:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 159:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Unpack and store the second element in the destination */
+ 160:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifndef ARM_MATH_BIG_ENDIAN
+ 161:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 162:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) ((in & (q31_t) 0xffff0000) >> 16);
+ 126              	 .loc 1 162 0
+ 127 0088 4FEA2040 	 asr r0,r0,#16
+ 128              	.LVL13:
+ 129 008c 05EB4203 	 add r3,r5,r2,lsl#1
+ 130              	.LVL14:
+ 131 0090 25F81200 	 strh r0,[r5,r2,lsl#1]
+ 132 0094 1344     	 add r3,r3,r2
+ 133              	.LVL15:
+  98:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 134              	 .loc 1 98 0
+ 135 0096 EBD1     	 bne .L4
+ 136 0098 039B     	 ldr r3,[sp,#12]
+ 137              	.LVL16:
+ 138 009a 1F44     	 add r7,r7,r3
+ 139 009c 029B     	 ldr r3,[sp,#8]
+ 140 009e 1C44     	 add r4,r4,r3
+ 141              	.LVL17:
+ 142              	.L3:
+ 163:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 164:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 165:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 166:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = (q15_t) in;
+ 167:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 168:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifndef ARM_MATH_BIG_ENDIAN    */
+ 169:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 170:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 171:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read one element from the row */
+ 172:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *pSrcA++;
+ 173:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 174:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Store one element in the destination */
+ 175:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = in;
+ 176:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 177:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer px to point to the next row of the transposed matrix */
+ 178:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 179:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 180:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read one element from the row */
+ 181:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *pSrcA++;
+ 182:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 183:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Store one element in the destination */
+ 184:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = in;
+ 185:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 186:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer px to point to the next row of the transposed matrix */
+ 187:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 188:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 189:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read one element from the row */
+ 190:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *pSrcA++;
+ 191:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 192:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Store one element in the destination */
+ 193:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = in;
+ 194:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 195:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer px to point to the next row of the transposed matrix */
+ 196:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 197:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 198:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read one element from the row */
+ 199:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         in = *pSrcA++;
+ 200:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 201:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Store one element in the destination */
+ 202:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = in;
+ 203:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 204:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif	/*	#ifndef UNALIGNED_SUPPORT_DISABLE	*/
+ 205:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 206:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer pOut to point to the next row of the transposed matrix */
+ 207:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 208:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 209:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Decrement the column loop counter */
+ 210:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         col--;
+ 211:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       }
+ 212:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 213:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* Perform matrix transpose for last 3 samples here. */
+ 214:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       col = nColumns % 0x4u;
+ 215:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 216:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #else
+ 217:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 218:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   /* Run the below code for Cortex-M0 */
+ 219:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 220:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #ifdef ARM_MATH_MATRIX_CHECK
+ 221:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 222:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   /* Check for matrix mismatch condition */
+ 223:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   if ((pSrc->numRows != pDst->numCols) || (pSrc->numCols != pDst->numRows))
+ 224:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   {
+ 225:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* Set status as ARM_MATH_SIZE_MISMATCH */
+ 226:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     status = ARM_MATH_SIZE_MISMATCH;
+ 227:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   }
+ 228:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   else
+ 229:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /*    #ifdef ARM_MATH_MATRIX_CHECK    */
+ 230:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 231:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   {
+ 232:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* Matrix transpose by exchanging the rows with columns */
+ 233:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* row loop     */
+ 234:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     do
+ 235:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     {
+ 236:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* The pointer pOut is set to starting address of the column being processed */
+ 237:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       pOut = pDst->pData + i;
+ 238:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 239:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* Initialize column loop counter */
+ 240:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       col = nColumns;
+ 241:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 242:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** #endif /* #if defined (ARM_MATH_DSP) */
+ 243:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 244:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       while (col > 0u)
+ 143              	 .loc 1 244 0
+ 144 00a0 019B     	 ldr r3,[sp,#4]
+ 145 00a2 4BB1     	 cbz r3,.L5
+ 146 00a4 BB1E     	 subs r3,r7,#2
+ 147 00a6 07EB0C00 	 add r0,r7,ip
+ 148              	.LVL18:
+ 149              	.L6:
+ 245:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 246:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Read and store the input element in the destination */
+ 247:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         *pOut = *pSrcA++;
+ 150              	 .loc 1 247 0
+ 151 00aa 33F8021F 	 ldrh r1,[r3,#2]!
+ 152              	.LVL19:
+ 153 00ae 2180     	 strh r1,[r4]
+ 244:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 154              	 .loc 1 244 0
+ 155 00b0 8342     	 cmp r3,r0
+ 248:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 249:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Update the pointer pOut to point to the next row of the transposed matrix */
+ 250:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         pOut += nRows;
+ 156              	 .loc 1 250 0
+ 157 00b2 1444     	 add r4,r4,r2
+ 158              	.LVL20:
+ 244:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       {
+ 159              	 .loc 1 244 0
+ 160 00b4 F9D1     	 bne .L6
+ 161 00b6 4F44     	 add r7,r7,r9
+ 162              	.LVL21:
+ 163              	.L5:
+ 251:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 252:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         /* Decrement the column loop counter */
+ 253:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****         col--;
+ 254:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       }
+ 255:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 256:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       i++;
+ 164              	 .loc 1 256 0
+ 165 00b8 0EF1010E 	 add lr,lr,#1
+ 166              	.LVL22:
+ 167 00bc 1FFA8EFE 	 uxth lr,lr
+ 168              	.LVL23:
+ 257:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 258:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       /* Decrement the row loop counter */
+ 259:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****       row--;
+ 260:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 261:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     } while (row > 0u);
+ 169              	 .loc 1 261 0
+ 170 00c0 C645     	 cmp lr,r8
+ 171 00c2 CCD1     	 bne .L7
+ 262:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** 
+ 263:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     /* set status as ARM_MATH_SUCCESS */
+ 264:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****     status = ARM_MATH_SUCCESS;
+ 172              	 .loc 1 264 0
+ 173 00c4 0020     	 movs r0,#0
+ 174              	.LVL24:
+ 265:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   }
+ 266:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   /* Return to application */
+ 267:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   return (status);
+ 268:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c **** }
+ 175              	 .loc 1 268 0
+ 176 00c6 40B2     	 sxtb r0,r0
+ 177 00c8 05B0     	 add sp,sp,#20
+ 178              	.LCFI2:
+ 179              	 .cfi_remember_state
+ 180              	 .cfi_def_cfa_offset 36
+ 181              	 
+ 182 00ca BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 183              	.LVL25:
+ 184              	.L9:
+ 185              	.LCFI3:
+ 186              	 .cfi_restore_state
+  79:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_trans_q15.c ****   }
+ 187              	 .loc 1 79 0
+ 188 00ce FD20     	 movs r0,#253
+ 189              	.LVL26:
+ 190              	 .loc 1 268 0
+ 191 00d0 40B2     	 sxtb r0,r0
+ 192 00d2 05B0     	 add sp,sp,#20
+ 193              	.LCFI4:
+ 194              	 .cfi_def_cfa_offset 36
+ 195              	 
+ 196 00d4 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 197              	 .cfi_endproc
+ 198              	.LFE135:
+ 200              	 .text
+ 201              	.Letext0:
+ 202              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 203              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 204              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_mat_trans_q15.c
+    {standard input}:20     .text.arm_mat_trans_q15:00000000 $t
+    {standard input}:25     .text.arm_mat_trans_q15:00000000 arm_mat_trans_q15
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

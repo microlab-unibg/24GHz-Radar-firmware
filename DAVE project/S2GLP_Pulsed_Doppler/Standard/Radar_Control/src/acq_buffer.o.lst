@@ -1,0 +1,509 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "acq_buffer.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.get_buffer_address_by_chirp,"ax",%progbits
+  20              	 .align 2
+  21              	 .global get_buffer_address_by_chirp
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	get_buffer_address_by_chirp:
+  26              	.LFB529:
+  27              	 .file 1 "../Radar_Control/src/acq_buffer.c"
+   1:../Radar_Control/src/acq_buffer.c **** /**
+   2:../Radar_Control/src/acq_buffer.c ****   @file acq_buffer.c
+   3:../Radar_Control/src/acq_buffer.c **** 
+   4:../Radar_Control/src/acq_buffer.c **** */
+   5:../Radar_Control/src/acq_buffer.c **** 
+   6:../Radar_Control/src/acq_buffer.c **** /* ===========================================================================
+   7:../Radar_Control/src/acq_buffer.c **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+   8:../Radar_Control/src/acq_buffer.c **** ** All rights reserved.
+   9:../Radar_Control/src/acq_buffer.c **** ** ===========================================================================
+  10:../Radar_Control/src/acq_buffer.c **** **
+  11:../Radar_Control/src/acq_buffer.c **** ** ===========================================================================
+  12:../Radar_Control/src/acq_buffer.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  13:../Radar_Control/src/acq_buffer.c **** ** Passing on and copying of this document, and communication of its contents
+  14:../Radar_Control/src/acq_buffer.c **** ** is not permitted without Infineon's prior written authorisation.
+  15:../Radar_Control/src/acq_buffer.c **** ** ===========================================================================
+  16:../Radar_Control/src/acq_buffer.c **** */
+  17:../Radar_Control/src/acq_buffer.c **** 
+  18:../Radar_Control/src/acq_buffer.c **** /*
+  19:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  20:../Radar_Control/src/acq_buffer.c ****    1. INCLUDE FILES
+  21:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  22:../Radar_Control/src/acq_buffer.c ****  */
+  23:../Radar_Control/src/acq_buffer.c **** 
+  24:../Radar_Control/src/acq_buffer.c **** #include "radar_api.h"
+  25:../Radar_Control/src/acq_buffer.c **** 
+  26:../Radar_Control/src/acq_buffer.c **** /*
+  27:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  28:../Radar_Control/src/acq_buffer.c ****    2. LOCAL DEFINITIONS
+  29:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  30:../Radar_Control/src/acq_buffer.c ****  */
+  31:../Radar_Control/src/acq_buffer.c **** 
+  32:../Radar_Control/src/acq_buffer.c **** /*
+  33:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  34:../Radar_Control/src/acq_buffer.c ****    3. LOCAL TYPES
+  35:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  36:../Radar_Control/src/acq_buffer.c ****  */
+  37:../Radar_Control/src/acq_buffer.c **** 
+  38:../Radar_Control/src/acq_buffer.c **** /*
+  39:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  40:../Radar_Control/src/acq_buffer.c ****    4. DATA
+  41:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  42:../Radar_Control/src/acq_buffer.c ****  */
+  43:../Radar_Control/src/acq_buffer.c **** 
+  44:../Radar_Control/src/acq_buffer.c **** /*
+  45:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  46:../Radar_Control/src/acq_buffer.c ****    5. LOCAL FUNCTION PROTOTYPES
+  47:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  48:../Radar_Control/src/acq_buffer.c ****  */
+  49:../Radar_Control/src/acq_buffer.c **** 
+  50:../Radar_Control/src/acq_buffer.c **** /*
+  51:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  52:../Radar_Control/src/acq_buffer.c ****    6. EXPORTED FUNCTIONS
+  53:../Radar_Control/src/acq_buffer.c **** ==============================================================================
+  54:../Radar_Control/src/acq_buffer.c ****  */
+  55:../Radar_Control/src/acq_buffer.c **** 
+  56:../Radar_Control/src/acq_buffer.c **** uint8_t *get_buffer_address_by_chirp(acq_buf_obj *p_obj, uint32_t channel_index, uint32_t chirpCnt)
+  57:../Radar_Control/src/acq_buffer.c **** {
+  28              	 .loc 1 57 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  58:../Radar_Control/src/acq_buffer.c ****   size_t offset = 0;
+  59:../Radar_Control/src/acq_buffer.c ****   
+  60:../Radar_Control/src/acq_buffer.c ****   if (p_obj->p_acq_buf == NULL)
+  34              	 .loc 1 60 0
+  35 0000 C36A     	 ldr r3,[r0,#44]
+  36 0002 73B1     	 cbz r3,.L10
+  57:../Radar_Control/src/acq_buffer.c ****   size_t offset = 0;
+  37              	 .loc 1 57 0
+  38 0004 70B4     	 push {r4,r5,r6}
+  39              	.LCFI0:
+  40              	 .cfi_def_cfa_offset 12
+  41              	 .cfi_offset 4,-12
+  42              	 .cfi_offset 5,-8
+  43              	 .cfi_offset 6,-4
+  44 0006 C588     	 ldrh r5,[r0,#6]
+  61:../Radar_Control/src/acq_buffer.c ****     return NULL;
+  62:../Radar_Control/src/acq_buffer.c ****   
+  63:../Radar_Control/src/acq_buffer.c ****   // since the chirps are interleaved, we calculate the buffer base address for a new chirp and the
+  64:../Radar_Control/src/acq_buffer.c ****   offset = (p_obj->internals.chirp_inc * chirpCnt) + (p_obj->internals.channel_inc * channel_index)
+  45              	 .loc 1 64 0
+  46 0008 4469     	 ldr r4,[r0,#20]
+  47 000a 0669     	 ldr r6,[r0,#16]
+  48 000c A942     	 cmp r1,r5
+  49 000e 04FB01F0 	 mul r0,r4,r1
+  50              	.LVL1:
+  51 0012 06FB0202 	 mla r2,r6,r2,r0
+  52              	.LVL2:
+  53 0016 00D3     	 bcc .L3
+  54              	.L8:
+  55 0018 FEE7     	 b .L8
+  56              	.L3:
+  65:../Radar_Control/src/acq_buffer.c ****   
+  66:../Radar_Control/src/acq_buffer.c ****   /*TODO: Throw some error, if channel_index is larger then the internal number of channels! */
+  67:../Radar_Control/src/acq_buffer.c ****   while (channel_index >= p_obj->params.num_of_rx_values);
+  68:../Radar_Control/src/acq_buffer.c **** 
+  69:../Radar_Control/src/acq_buffer.c ****   return &p_obj->p_acq_buf[offset];
+  57              	 .loc 1 69 0
+  58 001a 1344     	 add r3,r3,r2
+  70:../Radar_Control/src/acq_buffer.c **** }
+  59              	 .loc 1 70 0
+  60 001c 1846     	 mov r0,r3
+  61 001e 70BC     	 pop {r4,r5,r6}
+  62              	.LCFI1:
+  63              	 .cfi_restore 6
+  64              	 .cfi_restore 5
+  65              	 .cfi_restore 4
+  66              	 .cfi_def_cfa_offset 0
+  67 0020 7047     	 bx lr
+  68              	.LVL3:
+  69              	.L10:
+  70 0022 1846     	 mov r0,r3
+  71              	.LVL4:
+  72 0024 7047     	 bx lr
+  73              	 .cfi_endproc
+  74              	.LFE529:
+  76 0026 00BF     	 .section .text.create_acq_data_buffer_obj,"ax",%progbits
+  77              	 .align 2
+  78              	 .global create_acq_data_buffer_obj
+  79              	 .thumb
+  80              	 .thumb_func
+  82              	create_acq_data_buffer_obj:
+  83              	.LFB530:
+  71:../Radar_Control/src/acq_buffer.c **** 
+  72:../Radar_Control/src/acq_buffer.c **** //============================================================================
+  73:../Radar_Control/src/acq_buffer.c **** 
+  74:../Radar_Control/src/acq_buffer.c **** acq_buf_obj create_acq_data_buffer_obj(uint8_t *p_allocated_buffer, size_t allocated_buffer_size,
+  75:../Radar_Control/src/acq_buffer.c ****                                        uint16_t max_num_of_chirps_per_frame, uint16_t max_num_of_sa
+  76:../Radar_Control/src/acq_buffer.c ****                                        uint16_t max_num_of_adc_channels, uint16_t adc_resolution,
+  77:../Radar_Control/src/acq_buffer.c ****                                        uint32_t num_sample_skip_count)
+  78:../Radar_Control/src/acq_buffer.c **** {
+  84              	 .loc 1 78 0
+  85              	 .cfi_startproc
+  86              	 
+  87              	 
+  88              	.LVL5:
+  89 0000 2DE9F041 	 push {r4,r5,r6,r7,r8,lr}
+  90              	.LCFI2:
+  91              	 .cfi_def_cfa_offset 24
+  92              	 .cfi_offset 4,-24
+  93              	 .cfi_offset 5,-20
+  94              	 .cfi_offset 6,-16
+  95              	 .cfi_offset 7,-12
+  96              	 .cfi_offset 8,-8
+  97              	 .cfi_offset 14,-4
+  98              	 .loc 1 78 0
+  99 0004 BDF82060 	 ldrh r6,[sp,#32]
+ 100 0008 BDF818C0 	 ldrh ip,[sp,#24]
+ 101 000c BDF81CE0 	 ldrh lr,[sp,#28]
+ 102 0010 099D     	 ldr r5,[sp,#36]
+  79:../Radar_Control/src/acq_buffer.c ****   acq_buf_obj obj;
+  80:../Radar_Control/src/acq_buffer.c ****   size_t required_size = 0;
+  81:../Radar_Control/src/acq_buffer.c ****   size_t value_size = ((adc_resolution - 1) / 8 ) + 1;
+  82:../Radar_Control/src/acq_buffer.c ****   
+  83:../Radar_Control/src/acq_buffer.c ****   obj.status = allocation_ok;
+  84:../Radar_Control/src/acq_buffer.c ****   obj.access_lock = 0;
+  85:../Radar_Control/src/acq_buffer.c ****   obj.acq_timestime = 0;
+  86:../Radar_Control/src/acq_buffer.c ****   obj.internals.is_dynamic_allocated = 0;
+  87:../Radar_Control/src/acq_buffer.c ****   obj.internals.skip_count = num_sample_skip_count;
+ 103              	 .loc 1 87 0
+ 104 0012 C561     	 str r5,[r0,#28]
+  81:../Radar_Control/src/acq_buffer.c ****   
+ 105              	 .loc 1 81 0
+ 106 0014 741E     	 subs r4,r6,#1
+ 107 0016 48BF     	 it mi
+ 108 0018 B41D     	 addmi r4,r6,#6
+ 109 001a E410     	 asrs r4,r4,#3
+  88:../Radar_Control/src/acq_buffer.c ****   
+  89:../Radar_Control/src/acq_buffer.c ****   obj.params.num_of_chirps_per_frame = max_num_of_chirps_per_frame;
+  90:../Radar_Control/src/acq_buffer.c ****   obj.params.num_of_samples_per_chirp = max_num_of_samples_per_chirp;
+  91:../Radar_Control/src/acq_buffer.c ****   obj.params.num_of_rx_values = max_num_of_adc_channels;
+  92:../Radar_Control/src/acq_buffer.c ****   obj.params.size_of_value_in_bytes = value_size;
+  93:../Radar_Control/src/acq_buffer.c ****   
+  94:../Radar_Control/src/acq_buffer.c ****   obj.data_type = data_type_unknown;
+  95:../Radar_Control/src/acq_buffer.c **** 
+  96:../Radar_Control/src/acq_buffer.c **** #if 0
+  97:../Radar_Control/src/acq_buffer.c ****   // data_type currently not used!
+  98:../Radar_Control/src/acq_buffer.c ****   // derive format type from parameters:
+  99:../Radar_Control/src/acq_buffer.c ****   if ((value_size == 2) && (max_num_of_I_values == max_num_of_Q_values) && max_num_of_I_values == 2
+ 100:../Radar_Control/src/acq_buffer.c ****   {
+ 101:../Radar_Control/src/acq_buffer.c ****     obj.data_type = uint16_2x_IandQ;
+ 102:../Radar_Control/src/acq_buffer.c ****   }
+ 103:../Radar_Control/src/acq_buffer.c ****   else if ((value_size == 2) && (max_num_of_I_values == max_num_of_Q_values) && max_num_of_I_values
+ 104:../Radar_Control/src/acq_buffer.c ****   {
+ 105:../Radar_Control/src/acq_buffer.c ****     obj.data_type = uint16_1x_IandQ;
+ 106:../Radar_Control/src/acq_buffer.c ****   }
+ 107:../Radar_Control/src/acq_buffer.c **** #endif
+ 108:../Radar_Control/src/acq_buffer.c ****   
+ 109:../Radar_Control/src/acq_buffer.c ****   // calculate the size of allocation buffer
+ 110:../Radar_Control/src/acq_buffer.c ****   // consider that an internal acquisition buffer needs to be uint32_t bit aligned on ARM!
+ 111:../Radar_Control/src/acq_buffer.c ****   required_size = obj.params.num_of_chirps_per_frame * obj.params.num_of_samples_per_chirp * obj.pa
+ 110              	 .loc 1 111 0
+ 111 001c 0CFB03F7 	 mul r7,ip,r3
+  81:../Radar_Control/src/acq_buffer.c ****   
+ 112              	 .loc 1 81 0
+ 113 0020 0134     	 adds r4,r4,#1
+ 114              	.LVL6:
+ 115              	 .loc 1 111 0
+ 116 0022 0EFB07F7 	 mul r7,lr,r7
+  84:../Radar_Control/src/acq_buffer.c ****   obj.acq_timestime = 0;
+ 117              	 .loc 1 84 0
+ 118 0026 0026     	 movs r6,#0
+ 119              	 .loc 1 111 0
+ 120 0028 07FB04F7 	 mul r7,r7,r4
+ 121              	.LVL7:
+  83:../Radar_Control/src/acq_buffer.c ****   obj.access_lock = 0;
+ 122              	 .loc 1 83 0
+ 123 002c 4FF00108 	 mov r8,#1
+ 112:../Radar_Control/src/acq_buffer.c ****   
+ 113:../Radar_Control/src/acq_buffer.c ****   obj.p_acq_buf = p_allocated_buffer;
+ 114:../Radar_Control/src/acq_buffer.c ****   obj.internals.size_of_acq_buffer = allocated_buffer_size;
+ 115:../Radar_Control/src/acq_buffer.c ****   obj.used_size_of_acq_buffer = required_size;
+ 116:../Radar_Control/src/acq_buffer.c ****   
+ 117:../Radar_Control/src/acq_buffer.c ****   if (max_num_of_adc_channels > MAX_SUPPORTED_RX_SIGNALS_INT)
+ 124              	 .loc 1 117 0
+ 125 0030 BEF1040F 	 cmp lr,#4
+  92:../Radar_Control/src/acq_buffer.c ****   
+ 126              	 .loc 1 92 0
+ 127 0034 0481     	 strh r4,[r0,#8]
+  89:../Radar_Control/src/acq_buffer.c ****   obj.params.num_of_samples_per_chirp = max_num_of_samples_per_chirp;
+ 128              	 .loc 1 89 0
+ 129 0036 8380     	 strh r3,[r0,#4]
+ 115:../Radar_Control/src/acq_buffer.c ****   
+ 130              	 .loc 1 115 0
+ 131 0038 0762     	 str r7,[r0,#32]
+  90:../Radar_Control/src/acq_buffer.c ****   obj.params.num_of_rx_values = max_num_of_adc_channels;
+ 132              	 .loc 1 90 0
+ 133 003a A0F802C0 	 strh ip,[r0,#2]
+  91:../Radar_Control/src/acq_buffer.c ****   obj.params.size_of_value_in_bytes = value_size;
+ 134              	 .loc 1 91 0
+ 135 003e A0F806E0 	 strh lr,[r0,#6]
+ 113:../Radar_Control/src/acq_buffer.c ****   obj.internals.size_of_acq_buffer = allocated_buffer_size;
+ 136              	 .loc 1 113 0
+ 137 0042 C162     	 str r1,[r0,#44]
+ 114:../Radar_Control/src/acq_buffer.c ****   obj.used_size_of_acq_buffer = required_size;
+ 138              	 .loc 1 114 0
+ 139 0044 C260     	 str r2,[r0,#12]
+  83:../Radar_Control/src/acq_buffer.c ****   obj.access_lock = 0;
+ 140              	 .loc 1 83 0
+ 141 0046 80F83080 	 strb r8,[r0,#48]
+  84:../Radar_Control/src/acq_buffer.c ****   obj.acq_timestime = 0;
+ 142              	 .loc 1 84 0
+ 143 004a 8662     	 str r6,[r0,#40]
+  85:../Radar_Control/src/acq_buffer.c ****   obj.internals.is_dynamic_allocated = 0;
+ 144              	 .loc 1 85 0
+ 145 004c 4662     	 str r6,[r0,#36]
+  86:../Radar_Control/src/acq_buffer.c ****   obj.internals.skip_count = num_sample_skip_count;
+ 146              	 .loc 1 86 0
+ 147 004e 8661     	 str r6,[r0,#24]
+  94:../Radar_Control/src/acq_buffer.c **** 
+ 148              	 .loc 1 94 0
+ 149 0050 0670     	 strb r6,[r0]
+ 150              	 .loc 1 117 0
+ 151 0052 1BD8     	 bhi .L21
+ 118:../Radar_Control/src/acq_buffer.c ****   {
+ 119:../Radar_Control/src/acq_buffer.c ****     obj.status = num_of_RX_not_supported;
+ 120:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 121:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 122:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 123:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 124:../Radar_Control/src/acq_buffer.c ****   }
+ 125:../Radar_Control/src/acq_buffer.c ****   
+ 126:../Radar_Control/src/acq_buffer.c ****   if (p_allocated_buffer != NULL && allocated_buffer_size == 0)
+ 152              	 .loc 1 126 0
+ 153 0054 51B3     	 cbz r1,.L16
+ 154              	 .loc 1 126 0 is_stmt 0 discriminator 1
+ 155 0056 8AB1     	 cbz r2,.L22
+ 127:../Radar_Control/src/acq_buffer.c ****   {
+ 128:../Radar_Control/src/acq_buffer.c ****     obj.status = allocation_size_is_zero;
+ 129:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 130:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 131:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 132:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 133:../Radar_Control/src/acq_buffer.c ****   }
+ 134:../Radar_Control/src/acq_buffer.c ****   
+ 135:../Radar_Control/src/acq_buffer.c ****   if (((obj.p_acq_buf != NULL) && (obj.internals.size_of_acq_buffer != 0)) && obj.internals.size_of
+ 156              	 .loc 1 135 0 is_stmt 1 discriminator 2
+ 157 0058 9742     	 cmp r7,r2
+ 158 005a 1FD8     	 bhi .L23
+ 136:../Radar_Control/src/acq_buffer.c ****   {
+ 137:../Radar_Control/src/acq_buffer.c ****     obj.status = allocation_buffer_too_small;
+ 138:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 139:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 140:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 141:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 142:../Radar_Control/src/acq_buffer.c ****   }
+ 143:../Radar_Control/src/acq_buffer.c ****   
+ 144:../Radar_Control/src/acq_buffer.c **** #if defined(USE_MALLOC_FOR_BUFFER) && (USE_MALLOC_FOR_BUFFER)
+ 145:../Radar_Control/src/acq_buffer.c ****   if (obj.p_acq_buf == NULL) {
+ 146:../Radar_Control/src/acq_buffer.c ****     // The buffer was not pre-allocated
+ 147:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = required_size;
+ 148:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = (uint8_t*) malloc(obj.internals.size_of_acq_buffer);
+ 149:../Radar_Control/src/acq_buffer.c ****     if (obj.p_acq_buf == NULL) 
+ 150:../Radar_Control/src/acq_buffer.c ****     {
+ 151:../Radar_Control/src/acq_buffer.c ****       obj.status = allocation_fails;
+ 152:../Radar_Control/src/acq_buffer.c ****       obj.internals.size_of_acq_buffer = 0;
+ 153:../Radar_Control/src/acq_buffer.c ****       return obj;
+ 154:../Radar_Control/src/acq_buffer.c ****     }
+ 155:../Radar_Control/src/acq_buffer.c ****     else 
+ 156:../Radar_Control/src/acq_buffer.c ****     {
+ 157:../Radar_Control/src/acq_buffer.c ****       // allocated by this module?
+ 158:../Radar_Control/src/acq_buffer.c ****       obj.internals.is_dynamic_allocated = 1;
+ 159:../Radar_Control/src/acq_buffer.c ****     }
+ 160:../Radar_Control/src/acq_buffer.c ****   }
+ 161:../Radar_Control/src/acq_buffer.c **** #endif
+ 162:../Radar_Control/src/acq_buffer.c ****   
+ 163:../Radar_Control/src/acq_buffer.c ****   // calculated internal buffer offsets
+ 164:../Radar_Control/src/acq_buffer.c ****   obj.internals.channel_inc = obj.params.num_of_samples_per_chirp * obj.params.size_of_value_in_byt
+ 165:../Radar_Control/src/acq_buffer.c ****   obj.internals.chirp_inc   = obj.internals.channel_inc * obj.params.num_of_rx_values;
+ 166:../Radar_Control/src/acq_buffer.c ****   
+ 167:../Radar_Control/src/acq_buffer.c ****   if (obj.p_acq_buf != NULL)
+ 168:../Radar_Control/src/acq_buffer.c ****   {
+ 169:../Radar_Control/src/acq_buffer.c ****     memset(obj.p_acq_buf, 0, sizeof(obj.used_size_of_acq_buffer));
+ 159              	 .loc 1 169 0
+ 160 005c 0B46     	 mov r3,r1
+ 161              	.LVL8:
+ 164:../Radar_Control/src/acq_buffer.c ****   obj.internals.chirp_inc   = obj.internals.channel_inc * obj.params.num_of_rx_values;
+ 162              	 .loc 1 164 0
+ 163 005e 0CFB04F4 	 mul r4,ip,r4
+ 164              	.LVL9:
+ 165              	 .loc 1 169 0
+ 166 0062 03F8016B 	 strb r6,[r3],#1
+ 167 0066 0133     	 adds r3,r3,#1
+ 168 0068 4E70     	 strb r6,[r1,#1]
+ 169 006a 03F8016B 	 strb r6,[r3],#1
+ 165:../Radar_Control/src/acq_buffer.c ****   
+ 170              	 .loc 1 165 0
+ 171 006e 0EFB04F2 	 mul r2,lr,r4
+ 172              	.LVL10:
+ 173              	 .loc 1 169 0
+ 174 0072 1E70     	 strb r6,[r3]
+ 165:../Radar_Control/src/acq_buffer.c ****   
+ 175              	 .loc 1 165 0
+ 176 0074 0261     	 str r2,[r0,#16]
+ 164:../Radar_Control/src/acq_buffer.c ****   obj.internals.chirp_inc   = obj.internals.channel_inc * obj.params.num_of_rx_values;
+ 177              	 .loc 1 164 0
+ 178 0076 4461     	 str r4,[r0,#20]
+ 179 0078 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 180              	.LVL11:
+ 181              	.L22:
+ 128:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 182              	 .loc 1 128 0
+ 183 007c 0423     	 movs r3,#4
+ 184              	.LVL12:
+ 129:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 185              	 .loc 1 129 0
+ 186 007e C262     	 str r2,[r0,#44]
+ 130:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 187              	 .loc 1 130 0
+ 188 0080 C260     	 str r2,[r0,#12]
+ 131:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 189              	 .loc 1 131 0
+ 190 0082 0262     	 str r2,[r0,#32]
+ 128:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 191              	 .loc 1 128 0
+ 192 0084 80F83030 	 strb r3,[r0,#48]
+ 132:../Radar_Control/src/acq_buffer.c ****   }
+ 193              	 .loc 1 132 0
+ 194 0088 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 195              	.LVL13:
+ 196              	.L21:
+ 119:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 197              	 .loc 1 119 0
+ 198 008c 0523     	 movs r3,#5
+ 199              	.LVL14:
+ 120:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 200              	 .loc 1 120 0
+ 201 008e C662     	 str r6,[r0,#44]
+ 121:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 202              	 .loc 1 121 0
+ 203 0090 C660     	 str r6,[r0,#12]
+ 122:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 204              	 .loc 1 122 0
+ 205 0092 0662     	 str r6,[r0,#32]
+ 119:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 206              	 .loc 1 119 0
+ 207 0094 80F83030 	 strb r3,[r0,#48]
+ 123:../Radar_Control/src/acq_buffer.c ****   }
+ 208              	 .loc 1 123 0
+ 209 0098 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 210              	.LVL15:
+ 211              	.L23:
+ 137:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 212              	 .loc 1 137 0
+ 213 009c 0323     	 movs r3,#3
+ 214              	.LVL16:
+ 138:../Radar_Control/src/acq_buffer.c ****     obj.internals.size_of_acq_buffer = 0;
+ 215              	 .loc 1 138 0
+ 216 009e C662     	 str r6,[r0,#44]
+ 139:../Radar_Control/src/acq_buffer.c ****     obj.used_size_of_acq_buffer = 0;
+ 217              	 .loc 1 139 0
+ 218 00a0 C660     	 str r6,[r0,#12]
+ 140:../Radar_Control/src/acq_buffer.c ****     return obj;
+ 219              	 .loc 1 140 0
+ 220 00a2 0662     	 str r6,[r0,#32]
+ 137:../Radar_Control/src/acq_buffer.c ****     obj.p_acq_buf = NULL;
+ 221              	 .loc 1 137 0
+ 222 00a4 80F83030 	 strb r3,[r0,#48]
+ 141:../Radar_Control/src/acq_buffer.c ****   }
+ 223              	 .loc 1 141 0
+ 224 00a8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 225              	.LVL17:
+ 226              	.L16:
+ 164:../Radar_Control/src/acq_buffer.c ****   obj.internals.chirp_inc   = obj.internals.channel_inc * obj.params.num_of_rx_values;
+ 227              	 .loc 1 164 0
+ 228 00ac 0CFB04F4 	 mul r4,ip,r4
+ 229              	.LVL18:
+ 165:../Radar_Control/src/acq_buffer.c ****   
+ 230              	 .loc 1 165 0
+ 231 00b0 0EFB04F3 	 mul r3,lr,r4
+ 232              	.LVL19:
+ 233 00b4 0361     	 str r3,[r0,#16]
+ 164:../Radar_Control/src/acq_buffer.c ****   obj.internals.chirp_inc   = obj.internals.channel_inc * obj.params.num_of_rx_values;
+ 234              	 .loc 1 164 0
+ 235 00b6 4461     	 str r4,[r0,#20]
+ 170:../Radar_Control/src/acq_buffer.c ****   }
+ 171:../Radar_Control/src/acq_buffer.c ****   
+ 172:../Radar_Control/src/acq_buffer.c ****   return obj;
+ 173:../Radar_Control/src/acq_buffer.c **** }
+ 236              	 .loc 1 173 0
+ 237 00b8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 238              	 .cfi_endproc
+ 239              	.LFE530:
+ 241              	 .section .text.delete_acq_buffer_obj,"ax",%progbits
+ 242              	 .align 2
+ 243              	 .global delete_acq_buffer_obj
+ 244              	 .thumb
+ 245              	 .thumb_func
+ 247              	delete_acq_buffer_obj:
+ 248              	.LFB531:
+ 174:../Radar_Control/src/acq_buffer.c **** 
+ 175:../Radar_Control/src/acq_buffer.c **** //============================================================================
+ 176:../Radar_Control/src/acq_buffer.c **** 
+ 177:../Radar_Control/src/acq_buffer.c **** void delete_acq_buffer_obj(acq_buf_obj *p_obj)
+ 178:../Radar_Control/src/acq_buffer.c **** {
+ 249              	 .loc 1 178 0
+ 250              	 .cfi_startproc
+ 251              	 
+ 252              	 
+ 253              	 
+ 254              	.LVL20:
+ 179:../Radar_Control/src/acq_buffer.c ****   p_obj->status = allocation_is_freed;
+ 255              	 .loc 1 179 0
+ 256 0000 0622     	 movs r2,#6
+ 180:../Radar_Control/src/acq_buffer.c ****   p_obj->used_size_of_acq_buffer = 0;
+ 257              	 .loc 1 180 0
+ 258 0002 0023     	 movs r3,#0
+ 179:../Radar_Control/src/acq_buffer.c ****   p_obj->status = allocation_is_freed;
+ 259              	 .loc 1 179 0
+ 260 0004 80F83020 	 strb r2,[r0,#48]
+ 261              	 .loc 1 180 0
+ 262 0008 0362     	 str r3,[r0,#32]
+ 263 000a 7047     	 bx lr
+ 264              	 .cfi_endproc
+ 265              	.LFE531:
+ 267              	 .text
+ 268              	.Letext0:
+ 269              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 270              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 271              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 272              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 273              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 274              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 275              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 276              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 277              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 278              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 279              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 280              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 281              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 acq_buffer.c
+    {standard input}:20     .text.get_buffer_address_by_chirp:00000000 $t
+    {standard input}:25     .text.get_buffer_address_by_chirp:00000000 get_buffer_address_by_chirp
+    {standard input}:77     .text.create_acq_data_buffer_obj:00000000 $t
+    {standard input}:82     .text.create_acq_data_buffer_obj:00000000 create_acq_data_buffer_obj
+    {standard input}:242    .text.delete_acq_buffer_obj:00000000 $t
+    {standard input}:247    .text.delete_acq_buffer_obj:00000000 delete_acq_buffer_obj
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

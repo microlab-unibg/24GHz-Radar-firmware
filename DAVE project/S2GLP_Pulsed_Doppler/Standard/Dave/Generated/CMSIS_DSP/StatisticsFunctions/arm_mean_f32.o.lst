@@ -1,0 +1,257 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_mean_f32.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_mean_f32,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_mean_f32
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_mean_f32:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c"
+   1:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Title:        arm_mean_f32.c
+   4:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Description:  Mean value of a floating-point vector
+   5:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  29:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  31:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @ingroup groupStats
+  33:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  35:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @defgroup mean Mean
+  37:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  38:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * Calculates the mean of the input vector. Mean is defined as the average of the elements in the v
+  39:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * The underlying algorithm is used:
+  40:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  41:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * <pre>
+  42:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * 	Result = (pSrc[0] + pSrc[1] + pSrc[2] + ... + pSrc[blockSize-1]) / blockSize;
+  43:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * </pre>
+  44:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  *
+  45:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * There are separate functions for floating-point, Q31, Q15, and Q7 data types.
+  46:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  */
+  47:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  48:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /**
+  49:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @addtogroup mean
+  50:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @{
+  51:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  */
+  52:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  53:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  54:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** /**
+  55:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @brief Mean value of a floating-point vector.
+  56:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @param[in]       *pSrc points to the input vector
+  57:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @param[in]       blockSize length of the input vector
+  58:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @param[out]      *pResult mean value returned here
+  59:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  * @return none.
+  60:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****  */
+  61:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  62:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** void arm_mean_f32(
+  63:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   float32_t * pSrc,
+  64:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   uint32_t blockSize,
+  65:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   float32_t * pResult)
+  66:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** {
+  28              	 .loc 1 66 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  34 0000 30B4     	 push {r4,r5}
+  35              	.LCFI0:
+  36              	 .cfi_def_cfa_offset 8
+  37              	 .cfi_offset 4,-8
+  38              	 .cfi_offset 5,-4
+  67:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   float32_t sum = 0.0f;                          /* Temporary result storage */
+  68:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   uint32_t blkCnt;                               /* loop counter */
+  69:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  70:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** #if defined (ARM_MATH_DSP)
+  71:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  72:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  73:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   float32_t in1, in2, in3, in4;
+  74:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  75:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /*loop Unrolling */
+  76:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   blkCnt = blockSize >> 2u;
+  77:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  78:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+  79:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+  80:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   while (blkCnt > 0u)
+  39              	 .loc 1 80 0
+  40 0002 8D08     	 lsrs r5,r1,#2
+  41              	.LVL1:
+  42 0004 DFED177A 	 flds s15,.L14
+  43 0008 18D0     	 beq .L2
+  44 000a 00F11003 	 add r3,r0,#16
+  45 000e 2C46     	 mov r4,r5
+  46              	.LVL2:
+  47              	.L3:
+  81:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+  82:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) */
+  83:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     in1 = *pSrc++;
+  84:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     in2 = *pSrc++;
+  85:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     in3 = *pSrc++;
+  86:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     in4 = *pSrc++;
+  87:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  88:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in1;
+  48              	 .loc 1 88 0
+  49 0010 13ED047A 	 flds s14,[r3,#-16]
+  89:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in2;
+  50              	 .loc 1 89 0
+  51 0014 53ED035A 	 flds s11,[r3,#-12]
+  90:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in3;
+  52              	 .loc 1 90 0
+  53 0018 13ED026A 	 flds s12,[r3,#-8]
+  91:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in4;
+  54              	 .loc 1 91 0
+  55 001c 53ED016A 	 flds s13,[r3,#-4]
+  88:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in2;
+  56              	 .loc 1 88 0
+  57 0020 37EE877A 	 fadds s14,s15,s14
+  58              	.LVL3:
+  80:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+  59              	 .loc 1 80 0
+  60 0024 013C     	 subs r4,r4,#1
+  61              	.LVL4:
+  89:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in3;
+  62              	 .loc 1 89 0
+  63 0026 77EE257A 	 fadds s15,s14,s11
+  64              	.LVL5:
+  65 002a 03F11003 	 add r3,r3,#16
+  66              	.LVL6:
+  90:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += in4;
+  67              	 .loc 1 90 0
+  68 002e 77EE867A 	 fadds s15,s15,s12
+  69              	.LVL7:
+  70              	 .loc 1 91 0
+  71 0032 77EEA67A 	 fadds s15,s15,s13
+  72              	.LVL8:
+  80:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+  73              	 .loc 1 80 0
+  74 0036 EBD1     	 bne .L3
+  75 0038 00EB0510 	 add r0,r0,r5,lsl#4
+  76              	.LVL9:
+  77              	.L2:
+  92:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  93:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     /* Decrement the loop counter */
+  94:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     blkCnt--;
+  95:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   }
+  96:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+  97:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
+  98:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****    ** No loop unrolling is used. */
+  99:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   blkCnt = blockSize % 0x4u;
+ 100:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 101:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** #else
+ 102:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* Run the below code for Cortex-M0 */
+ 103:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 104:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* Loop over blockSize number of values */
+ 105:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   blkCnt = blockSize;
+ 106:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 107:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** #endif /* #if defined (ARM_MATH_DSP) */
+ 108:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 109:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   while (blkCnt > 0u)
+  78              	 .loc 1 109 0
+  79 003c 11F00303 	 ands r3,r1,#3
+  80              	.LVL10:
+  81 0040 05D0     	 beq .L4
+  82              	.LVL11:
+  83              	.L5:
+ 110:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+ 111:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) */
+ 112:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     sum += *pSrc++;
+  84              	 .loc 1 112 0
+  85 0042 B0EC017A 	 fldmias r0!,{s14}
+  86              	.LVL12:
+ 109:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+  87              	 .loc 1 109 0
+  88 0046 013B     	 subs r3,r3,#1
+  89              	.LVL13:
+  90              	 .loc 1 112 0
+  91 0048 77EE877A 	 fadds s15,s15,s14
+  92              	.LVL14:
+ 109:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   {
+  93              	 .loc 1 109 0
+  94 004c F9D1     	 bne .L5
+  95              	.L4:
+ 113:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 114:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     /* Decrement the loop counter */
+ 115:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****     blkCnt--;
+ 116:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   }
+ 117:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** 
+ 118:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) / blockSize  */
+ 119:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   /* Store the result to the destination */
+ 120:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c ****   *pResult = sum / (float32_t) blockSize;
+  96              	 .loc 1 120 0
+  97 004e 07EE101A 	 fmsr s14,r1
+  98 0052 B8EE477A 	 fuitos s14,s14
+ 121:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** }
+  99              	 .loc 1 121 0
+ 100 0056 30BC     	 pop {r4,r5}
+ 101              	.LCFI1:
+ 102              	 .cfi_restore 5
+ 103              	 .cfi_restore 4
+ 104              	 .cfi_def_cfa_offset 0
+ 120:../Dave/Generated/CMSIS_DSP/StatisticsFunctions/arm_mean_f32.c **** }
+ 105              	 .loc 1 120 0
+ 106 0058 C7EE877A 	 fdivs s15,s15,s14
+ 107              	.LVL15:
+ 108 005c C2ED007A 	 fsts s15,[r2]
+ 109              	 .loc 1 121 0
+ 110 0060 7047     	 bx lr
+ 111              	.L15:
+ 112 0062 00BF     	 .align 2
+ 113              	.L14:
+ 114 0064 00000000 	 .word 0
+ 115              	 .cfi_endproc
+ 116              	.LFE135:
+ 118              	 .text
+ 119              	.Letext0:
+ 120              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 121              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 122              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_mean_f32.c
+    {standard input}:20     .text.arm_mean_f32:00000000 $t
+    {standard input}:25     .text.arm_mean_f32:00000000 arm_mean_f32
+    {standard input}:114    .text.arm_mean_f32:00000064 $d
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

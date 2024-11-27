@@ -158,7 +158,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Radar_Control/src/radar_industrial.c|Utilities/micrium_gui.c|Dave/Generated/I2C_MASTER/i2c_master.c|Peripherals/src/pga112.c|BSP/Sense2GoL/src/sense2gol_bsp - Copy.c|HostCommunication.du|API/src/algo_api.c|Application/src/micrium.c|HostCommunication/src/EndpointRadarBase.c|Radar_Control/src/radar_fmcw.c|Algos|Dave/Generated/I2C_MASTER|Dave/Model" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Tests|Radar_Control/src/radar_industrial.c|Utilities/micrium_gui.c|Dave/Generated/I2C_MASTER/i2c_master.c|Peripherals/src/pga112.c|BSP/Sense2GoL/src/sense2gol_bsp - Copy.c|HostCommunication.du|API/src/algo_api.c|Application/src/micrium.c|HostCommunication/src/EndpointRadarBase.c|Radar_Control/src/radar_fmcw.c|Algos|Dave/Generated/I2C_MASTER|Dave/Model" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -242,6 +242,7 @@
 		<project-mappings/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Test"/>
 		<configuration configurationName="Standard">
 			<resource resourceType="PROJECT" workspacePath="/S2GL_Pulsed_Doppler_v2_1"/>
 		</configuration>

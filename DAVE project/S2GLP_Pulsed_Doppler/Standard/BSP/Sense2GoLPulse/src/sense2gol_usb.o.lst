@@ -1,0 +1,177 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "sense2gol_usb.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.bsp_usb_init,"ax",%progbits
+  20              	 .align 2
+  21              	 .global bsp_usb_init
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	bsp_usb_init:
+  26              	.LFB529:
+  27              	 .file 1 "../BSP/Sense2GoLPulse/src/sense2gol_usb.c"
+   1:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /**
+   2:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****     @file: sense2gol_usb.c
+   3:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+   4:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****     @brief: This file provides function to deal with usb.
+   5:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+   6:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+   7:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /* ===========================================================================
+   8:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+   9:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** All rights reserved.
+  10:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** ===========================================================================
+  11:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** **
+  12:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** ===========================================================================
+  13:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  14:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** Passing on and copying of this document, and communication of its contents
+  15:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** is not permitted without Infineon's prior written authorization.
+  16:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ** ===========================================================================
+  17:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** */
+  18:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  19:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  20:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  21:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****    1. INCLUDE FILES
+  22:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  23:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  24:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  25:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** #include "sense2gol_usb.h"
+  26:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  27:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  28:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  29:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****    2. LOCAL DEFINITIONS
+  30:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  31:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  32:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  33:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  34:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  35:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****    3. LOCAL TYPES
+  36:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  37:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  38:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  39:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  40:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  41:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****    4. DATA
+  42:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  43:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  44:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  45:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  46:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  47:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****    5. LOCAL FUNCTION PROTOTYPES
+  48:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  49:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  50:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  51:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** /*
+  52:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  53:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****     6. EXPORTED FUNCTIONS
+  54:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** ==============================================================================
+  55:../BSP/Sense2GoLPulse/src/sense2gol_usb.c ****  */
+  56:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  57:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** uint8_t bsp_usb_init(uint32_t timeout_delay)
+  58:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** {
+  28              	 .loc 1 58 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 38B5     	 push {r3,r4,r5,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 16
+  36              	 .cfi_offset 3,-16
+  37              	 .cfi_offset 4,-12
+  38              	 .cfi_offset 5,-8
+  39              	 .cfi_offset 14,-4
+  40              	 .loc 1 58 0
+  41 0002 0546     	 mov r5,r0
+  59:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	uint32_t timeout_cnt = 0;
+  60:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  61:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	if (USBD_VCOM_Connect() != USBD_VCOM_STATUS_SUCCESS)
+  42              	 .loc 1 61 0
+  43 0004 FFF7FEFF 	 bl USBD_VCOM_Connect
+  44              	.LVL1:
+  45 0008 58B9     	 cbnz r0,.L4
+  62:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	{
+  63:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		return (1); /* Fail */
+  64:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	}
+  65:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  66:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	while (timeout_cnt < timeout_delay)
+  46              	 .loc 1 66 0
+  47 000a 55B1     	 cbz r5,.L4
+  48 000c 0446     	 mov r4,r0
+  49 000e 01E0     	 b .L5
+  50              	.LVL2:
+  51              	.L13:
+  52 0010 AC42     	 cmp r4,r5
+  53 0012 06D0     	 beq .L4
+  54              	.LVL3:
+  55              	.L5:
+  67:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	{
+  68:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		if (USBD_VCOM_IsEnumDone())
+  56              	 .loc 1 68 0
+  57 0014 FFF7FEFF 	 bl USBD_VCOM_IsEnumDone
+  58              	.LVL4:
+  69:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		{
+  70:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 			return (0); /* Success */
+  71:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		}
+  72:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  73:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		timeout_cnt++;
+  59              	 .loc 1 73 0
+  60 0018 0134     	 adds r4,r4,#1
+  61              	.LVL5:
+  68:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		{
+  62              	 .loc 1 68 0
+  63 001a 0028     	 cmp r0,#0
+  64 001c F8D0     	 beq .L13
+  70:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 		}
+  65              	 .loc 1 70 0
+  66 001e 0020     	 movs r0,#0
+  74:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	}
+  75:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 
+  76:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	return (1); /* Fail */
+  77:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** }
+  67              	 .loc 1 77 0
+  68 0020 38BD     	 pop {r3,r4,r5,pc}
+  69              	.LVL6:
+  70              	.L4:
+  63:../BSP/Sense2GoLPulse/src/sense2gol_usb.c **** 	}
+  71              	 .loc 1 63 0
+  72 0022 0120     	 movs r0,#1
+  73 0024 38BD     	 pop {r3,r4,r5,pc}
+  74              	 .cfi_endproc
+  75              	.LFE529:
+  77 0026 00BF     	 .text
+  78              	.Letext0:
+  79              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+  80              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+  81              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+  82              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+  83              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+  84              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+  85              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+  86              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD_VCOM/usbd_vcom.h"
+  87              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+  88              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+  89              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+  90              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 sense2gol_usb.c
+    {standard input}:20     .text.bsp_usb_init:00000000 $t
+    {standard input}:25     .text.bsp_usb_init:00000000 bsp_usb_init
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+USBD_VCOM_Connect
+USBD_VCOM_IsEnumDone

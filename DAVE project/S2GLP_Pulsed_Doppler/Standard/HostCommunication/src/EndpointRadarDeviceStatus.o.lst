@@ -1,0 +1,1369 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "EndpointRadarDeviceStatus.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.send_device_status_response.part.0,"ax",%progbits
+  20              	 .align 2
+  21              	 .thumb
+  22              	 .thumb_func
+  24              	send_device_status_response.part.0:
+  25              	.LFB550:
+  26              	 .file 1 "../HostCommunication/src/EndpointRadarDeviceStatus.c"
+   1:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /**
+   2:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * @file: EndpointRadarDeviceStatus.c
+   3:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  *
+   4:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * @brief: Radar endpoint containing functionality pertinent to Industrial
+   5:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  *         radar demo kits.
+   6:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  */
+   7:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+   8:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /* ===========================================================================
+   9:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+  10:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** All rights reserved.
+  11:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** ===========================================================================
+  12:../HostCommunication/src/EndpointRadarDeviceStatus.c **** **
+  13:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** ===========================================================================
+  14:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  15:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** Passing on and copying of this document, and communication of its contents
+  16:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** is not permitted without Infineon's prior written authorisation.
+  17:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ** ===========================================================================
+  18:../HostCommunication/src/EndpointRadarDeviceStatus.c **** */
+  19:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  20:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /*
+  21:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  22:../HostCommunication/src/EndpointRadarDeviceStatus.c ****    1. INCLUDE FILES
+  23:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  24:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  */
+  25:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #include "EndpointRadarDeviceStatus.h"
+  26:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #include "radar_device_status.h"
+  27:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #include "EndpointRadarChangeCodes.h"
+  28:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #include "PayloadHelper.h"
+  29:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /*
+  30:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  31:../HostCommunication/src/EndpointRadarDeviceStatus.c ****    2. LOCAL DEFINITIONS
+  32:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  33:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  */
+  34:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /**
+  35:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * \defgroup MessageTypes
+  36:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  *
+  37:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * @brief: This end point knows these message types.
+  38:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  *
+  39:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * The first payload byte of every message is one of these codes.
+  40:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  *
+  41:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  * @{
+  42:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  */
+  43:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #define MSG_STATUS_REQ_RES          0x4A /**< A message containing status request */
+  44:../HostCommunication/src/EndpointRadarDeviceStatus.c **** #define MSG_STATUS_REQ_IND          0x4B /**< A message to retrieve status request */
+  45:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  46:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /** @} */
+  47:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  48:../HostCommunication/src/EndpointRadarDeviceStatus.c **** static uint8_t device_status_endpoint = 0;
+  49:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  50:../HostCommunication/src/EndpointRadarDeviceStatus.c **** static void fill_status_response(device_status_response_t *p_status_response)
+  51:../HostCommunication/src/EndpointRadarDeviceStatus.c **** {
+  52:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	Device_Status_t *device_status = NULL;
+  53:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	device_status = device_status_get_handle(device_status);
+  54:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  55:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->error_code = (uint16_t) device_status->latest_error;
+  56:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->error_type = (uint8_t) device_status->state,
+  57:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->frame_count = 0;
+  58:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	if (device_status->state != STATE_NO_ERROR)
+  59:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+  60:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg = device_status_get_error_description(device_status->latest_error);
+  61:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg_size = strlen(p_status_response->error_msg) + 1;  // include the lea
+  62:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	}
+  63:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	else
+  64:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+  65:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg = "No Error";
+  66:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg_size = strlen(p_status_response->error_msg) + 1; // include the lead
+  67:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	}
+  68:../HostCommunication/src/EndpointRadarDeviceStatus.c **** }
+  69:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  70:../HostCommunication/src/EndpointRadarDeviceStatus.c **** /*
+  71:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  72:../HostCommunication/src/EndpointRadarDeviceStatus.c ****    6. EXPORTED FUNCTIONS
+  73:../HostCommunication/src/EndpointRadarDeviceStatus.c **** ==============================================================================
+  74:../HostCommunication/src/EndpointRadarDeviceStatus.c ****  */
+  75:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  76:../HostCommunication/src/EndpointRadarDeviceStatus.c **** uint16_t send_device_status_response()
+  27              	 .loc 1 76 0
+  28              	 .cfi_startproc
+  29              	 
+  30              	 
+  31              	.LVL0:
+  32 0000 2DE9F843 	 push {r3,r4,r5,r6,r7,r8,r9,lr}
+  33              	.LCFI0:
+  34              	 .cfi_def_cfa_offset 32
+  35              	 .cfi_offset 3,-32
+  36              	 .cfi_offset 4,-28
+  37              	 .cfi_offset 5,-24
+  38              	 .cfi_offset 6,-20
+  39              	 .cfi_offset 7,-16
+  40              	 .cfi_offset 8,-12
+  41              	 .cfi_offset 9,-8
+  42              	 .cfi_offset 14,-4
+  43              	.LBB48:
+  44              	.LBB49:
+  45              	.LBB50:
+  53:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  46              	 .loc 1 53 0
+  47 0004 0020     	 movs r0,#0
+  48 0006 FFF7FEFF 	 bl device_status_get_handle
+  49              	.LVL1:
+  55:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->error_type = (uint8_t) device_status->state,
+  50              	 .loc 1 55 0
+  51 000a D0F80490 	 ldr r9,[r0,#4]
+  56:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->frame_count = 0;
+  52              	 .loc 1 56 0
+  53 000e 0678     	 ldrb r6,[r0]
+  55:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	p_status_response->error_type = (uint8_t) device_status->state,
+  54              	 .loc 1 55 0
+  55 0010 1FFA89F8 	 uxth r8,r9
+  56              	.LVL2:
+  58:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+  57              	 .loc 1 58 0
+  58 0014 002E     	 cmp r6,#0
+  59 0016 40F09180 	 bne .L43
+  60              	.LVL3:
+  61              	.LBE50:
+  62              	.LBE49:
+  77:../HostCommunication/src/EndpointRadarDeviceStatus.c **** {
+  78:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	if (device_status_endpoint != 0)
+  79:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+  80:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		device_status_response_t status_response;
+  81:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  82:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		/* fetch device info an fill status response */
+  83:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		fill_status_response(&status_response);
+  84:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  85:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		static uint8_t message[512];  // allocate statically, rather then on the call stack!
+  86:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		memset(message, 0, sizeof(message));
+  63              	 .loc 1 86 0
+  64 001a 5E4D     	 ldr r5,.L44
+  65              	.LBB55:
+  66              	.LBB51:
+  65:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg_size = strlen(p_status_response->error_msg) + 1; // include the lead
+  67              	 .loc 1 65 0
+  68 001c 5E4F     	 ldr r7,.L44+4
+  69              	.LBE51:
+  70              	.LBE55:
+  71              	 .loc 1 86 0
+  72 001e 2846     	 mov r0,r5
+  73              	.LVL4:
+  74 0020 3146     	 mov r1,r6
+  75 0022 4FF40072 	 mov r2,#512
+  76 0026 FFF7FEFF 	 bl memset
+  77              	.LVL5:
+  78              	.LBB56:
+  79              	.LBB57:
+  80              	 .file 2 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/PayloadHelper.h"
+   1:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ﻿/**
+   2:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \file PayloadHelper.h
+   3:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+   4:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief This file defines an internal protocol API to be used by endpoint
+   5:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        implementations.
+   6:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+   7:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * This file defines some light weight function that help to access data in
+   8:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * protocol payload. Different implementation allow to adapt to the
+   9:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * capabilities of the target machine. Special implementations can be chosen
+  10:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * by defining the according compile time switch. If none of the available
+  11:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * compile time switches is chosen, the default implementation will be used.
+  12:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  13:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The default implementation is safe on all target machines and can handle
+  14:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * both, big endian CPUs and little endian CPUs. It may be slower than other
+  15:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * special implementations.
+  16:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  17:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * If the compile time switch COMLIB_ALLOW_PAYLOAD_CASTS is set, a special
+  18:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * implementation for little endian machines is used, that can access data
+  19:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * faster by casting data to the right data type. This implementation works
+  20:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * only for CPUs that have no alignment requirement for 16 bit and 32 bit
+  21:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * integers.
+  22:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+  23:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  24:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /* ===========================================================================
+  25:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** Copyright (C) 2016-2021 Infineon Technologies AG
+  26:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** All rights reserved.
+  27:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** ===========================================================================
+  28:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** **
+  29:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** ===========================================================================
+  30:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** This document contains proprietary information of Infineon Technologies AG.
+  31:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** Passing on and copying of this document, and communication of its contents
+  32:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** is not permitted without Infineon's prior written authorisation.
+  33:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ** ===========================================================================
+  34:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** */
+  35:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  36:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #ifndef HOSTCOMMUNICATION_PAYLOAD_HELPER_H_
+  37:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #define HOSTCOMMUNICATION_PAYLOAD_HELPER_H_
+  38:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  39:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+  40:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+  41:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****    1. INCLUDE FILES
+  42:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+  43:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+  44:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #include <stdint.h>
+  45:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #include <stdlib.h>
+  46:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  47:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  48:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #if !defined(STATIC_ASSERT)
+  49:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #define STATIC_ASSERT(test_for_true) _Static_assert((test_for_true), "(" #test_for_true ") failed")
+  50:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #endif
+  51:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  52:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+  53:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+  54:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****    2. FUNCTION PROTOTYPES AND INLINE FUNCTIONS
+  55:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+  56:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+  57:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  58:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+  59:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+  60:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts a signed 8 bit integer from a payload buffer.
+  61:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  62:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads one byte from the given payload buffer at the requested
+  63:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * position and interprets it as a signed 8 bit integer value, which will be
+  64:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * returned.
+  65:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  66:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+  67:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+  68:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+  69:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  70:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+  71:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+  72:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int8_t rd_payload_i8(const uint8_t* payload, size_t offset)
+  73:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+  74:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (int8_t)payload[offset];
+  75:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+  76:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  77:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+  78:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+  79:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts an unsigned 8 bit integer from a payload
+  80:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+  81:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  82:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads one byte from the given payload buffer at the requested
+  83:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * position and interprets it as an unsigned 8 bit integer value, which will
+  84:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * be returned.
+  85:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  86:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+  87:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+  88:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+  89:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+  90:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+  91:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+  92:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint8_t rd_payload_u8(const uint8_t* payload, size_t offset)
+  93:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+  94:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return payload[offset];
+  95:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+  96:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+  97:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+  98:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+  99:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts a signed 16 bit integer from a payload buffer.
+ 100:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 101:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads two bytes from the given payload buffer starting at the
+ 102:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as a signed 16 bit integer value,
+ 103:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 104:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 105:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 106:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 107:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 108:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 109:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 110:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 111:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 112:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int16_t rd_payload_i16(const uint8_t* payload, size_t offset);
+ 113:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 114:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 115:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 116:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts an unsigned 16 bit integer from a payload
+ 117:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 118:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 119:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads two bytes from the given payload buffer starting at the
+ 120:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as an unsigned 16 bit integer value,
+ 121:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 122:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 123:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 124:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 125:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 126:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 127:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 128:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 129:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 130:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint16_t rd_payload_u16(const uint8_t* payload,
+ 131:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 		size_t offset);
+ 132:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 133:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 134:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 135:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts a signed 32 bit integer from a payload buffer.
+ 136:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 137:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads four bytes from the given payload buffer starting at the
+ 138:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as a signed 32 bit integer value,
+ 139:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 140:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 141:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 142:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 143:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 144:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 145:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 146:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 147:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 148:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int32_t rd_payload_i32(const uint8_t* payload, size_t offset);
+ 149:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 150:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 151:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 152:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts an unsigned 32 bit integer from a payload
+ 153:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 154:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 155:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads four bytes from the given payload buffer starting at the
+ 156:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as an unsigned 32 bit integer value,
+ 157:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 158:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 159:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 160:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 161:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 162:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 163:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 164:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 165:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 166:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint32_t rd_payload_u32(const uint8_t* payload,
+ 167:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 		size_t offset);
+ 168:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 169:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 170:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 171:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts a signed 64 bit integer from a payload buffer.
+ 172:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 173:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads four bytes from the given payload buffer starting at the
+ 174:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as a signed 64 bit integer value,
+ 175:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 176:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 177:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 178:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 179:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 180:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 181:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 182:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 183:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 184:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int64_t rd_payload_i64(const uint8_t* payload, size_t offset);
+ 185:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 186:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 187:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 188:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function extracts an unsigned 64 bit integer from a payload
+ 189:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 190:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 191:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function reads four bytes from the given payload buffer starting at the
+ 192:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position and interprets them as an unsigned 64 bit integer value,
+ 193:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * which will be returned. If needed the byte order is swapped to convert from
+ 194:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * the payload's little endian format to the CPU's endian format.
+ 195:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 196:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 197:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the requested data value
+ 198:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     starts.
+ 199:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 200:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \return The function returns the value read from the payload.
+ 201:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 202:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint64_t rd_payload_u64(const uint8_t* payload,
+ 203:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 		size_t offset);
+ 204:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 205:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 206:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 207:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes a signed 8 bit integer value to a payload
+ 208:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 209:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 210:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 211:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position.
+ 212:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 213:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 214:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 215:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 216:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 217:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 218:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_i8(uint8_t* payload, size_t offset,
+ 219:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                  int8_t value)
+ 220:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 221:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset] = (uint8_t)value;
+ 222:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(int8_t);
+ 223:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 224:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 225:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 226:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 227:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes an unsigned 8 bit integer value to a payload
+ 228:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 229:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 230:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 231:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position.
+ 232:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 233:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 234:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 235:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 236:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 237:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 238:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_u8(uint8_t* payload, size_t offset,
+ 239:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                  uint8_t value)
+ 240:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset] = value;
+ 242:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 243:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 244:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 245:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 246:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 247:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes a signed 16 bit integer value to a payload
+ 248:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 249:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 250:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 251:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 252:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 253:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 254:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 255:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 256:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 257:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 258:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 259:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_i16(uint8_t* payload, size_t offset,
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int16_t value);
+ 261:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 262:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 263:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 264:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes an unsigned 16 bit integer value to a payload
+ 265:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 266:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 267:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 268:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 269:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 270:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 271:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 272:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 273:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 274:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 275:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 276:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_u16(uint8_t* payload, size_t offset,
+ 277:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint16_t value);
+ 278:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 279:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 280:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 281:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes a signed 32 bit integer value to a payload
+ 282:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 283:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 284:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 285:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 286:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 287:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 288:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 289:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 290:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 291:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 292:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 293:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_i32(uint8_t* payload, size_t offset,
+ 294:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int32_t value);
+ 295:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 296:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 297:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 298:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes an unsigned 32 bit integer value to a payload
+ 299:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 300:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 301:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 302:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 303:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 304:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 305:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 306:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 307:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 308:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 309:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 310:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_u32(uint8_t* payload, size_t offset,
+ 311:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint32_t value);
+ 312:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 313:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 314:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 315:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes a signed 64 bit integer value to a payload
+ 316:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 317:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 318:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 319:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 320:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 321:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 322:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 323:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 324:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 325:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 326:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 327:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_i64(uint8_t* payload, size_t offset,
+ 328:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int64_t value);
+ 329:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 330:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /**
+ 331:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \internal
+ 332:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \brief The function writes an unsigned 64 bit integer value to a payload
+ 333:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *        buffer.
+ 334:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 335:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The function writes the given value into the given payload buffer at the
+ 336:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * requested position. If needed the byte order is swapped to convert from the
+ 337:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * payload's little endian format to the CPU's endian format.
+ 338:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *
+ 339:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] payload  A pointer to a block of payload data.
+ 340:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] offset   The byte position at which the value will be written
+ 341:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  *                     to.
+ 342:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * \param[in] value    The value to be written into the payload buffer.
+ 343:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 344:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_u64(uint8_t* payload, size_t offset,
+ 345:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint64_t value);
+ 346:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+ 347:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+ 348:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****    3. INLINE FUNCTIONS
+ 349:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+ 350:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 351:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #ifdef COMLIB_ALLOW_PAYLOAD_CASTS
+ 352:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+ 353:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The following function implementations wan only be used on machines with
+ 354:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * little endian CPUs, but are faster than the generic implementations.
+ 355:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 356:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 357:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int16_t rd_payload_i16(const uint8_t* payload, uint16_t offset)
+ 358:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 359:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return *(int16_t*)(payload + offset);
+ 360:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 361:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 362:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint16_t rd_payload_u16(const uint8_t* payload, uint16_t offset)
+ 363:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 364:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return *(uint16_t*)(payload + offset);
+ 365:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 366:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 367:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int32_t rd_payload_i32(const uint8_t* payload, uint16_t offset)
+ 368:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 369:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return *(int32_t*)(payload + offset);
+ 370:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 371:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 372:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint32_t rd_payload_u32(const uint8_t* payload, uint16_t offset)
+ 373:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 374:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return *(uint32_t*)(payload + offset);
+ 375:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 376:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 377:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int64_t rd_payload_i64(const uint8_t* payload, uint16_t offset)
+ 378:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 379:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     union
+ 380:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     {
+ 381:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint32_t u32[2];
+ 382:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         int64_t i64;
+ 383:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     } value;
+ 384:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value.u32[0] = *(uint32_t*)(payload + offset);
+ 385:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value.u32[1] = *(uint32_t*)(payload + offset + 4);
+ 386:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 387:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return value.i64;
+ 388:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 389:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 390:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint64_t rd_payload_u64(const uint8_t* payload, uint16_t offset)
+ 391:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 392:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     union
+ 393:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     {
+ 394:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint32_t u32[2];
+ 395:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint64_t u64;
+ 396:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     } value;
+ 397:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value.u32[0] = *(uint32_t*)(payload + offset);
+ 398:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value.u32[1] = *(uint32_t*)(payload + offset + 4);
+ 399:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 400:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return value.u64;
+ 401:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 402:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 403:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_i16(uint8_t* payload, uint16_t offset,
+ 404:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int16_t iValue)
+ 405:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 406:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(int16_t*)(payload + offset) = iValue;
+ 407:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 408:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 409:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_u16(uint8_t* payload, uint16_t offset,
+ 410:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint16_t value)
+ 411:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 412:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint16_t*)(payload + offset) = value;
+ 413:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 414:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 415:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_i32(uint8_t* payload, uint16_t offset,
+ 416:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int32_t value)
+ 417:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 418:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(int32_t*)(payload + offset) = value;
+ 419:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 420:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 421:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_u32(uint8_t* payload, uint16_t offset,
+ 422:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint32_t value)
+ 423:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 424:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint32_t*)(payload + offset) = value;
+ 425:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 426:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 427:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_i64(uint8_t* payload, uint16_t offset,
+ 428:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int64_t value)
+ 429:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 430:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     union
+ 431:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     {
+ 432:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint32_t u32[2];
+ 433:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         int64_t i64;
+ 434:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     } value_;
+ 435:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value_.i64 = value;
+ 436:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint32_t*)(payload + offset)     = value_.u32[0];
+ 437:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint32_t*)(payload + offset + 4) = value_.u32[1];
+ 438:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 439:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 440:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline void wr_payload_u64(uint8_t* payload, uint16_t offset,
+ 441:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint64_t value)
+ 442:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 443:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     union
+ 444:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     {
+ 445:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint32_t u32[2];
+ 446:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****         uint64_t u64;
+ 447:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     } value_;
+ 448:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     value_.u64 = value;
+ 449:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint32_t*)(payload + offset)     = value_.u32[0];
+ 450:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     *(uint32_t*)(payload + offset + 4) = value_.u32[1];
+ 451:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 452:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 453:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+ 454:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+ 455:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****    4. INLINE FUNCTIONS
+ 456:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** ==============================================================================
+ 457:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 458:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** #else
+ 459:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** /*
+ 460:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * The following function implementations are safe on any platform, but slower
+ 461:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  * than the native little endian implementations.
+ 462:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****  */
+ 463:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 464:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int16_t rd_payload_i16(const uint8_t* payload, size_t offset)
+ 465:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 466:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (int16_t)((((uint16_t)payload[offset + 1]) <<  8) |
+ 467:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                       ((uint16_t)payload[offset    ]));
+ 468:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 469:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 470:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint16_t rd_payload_u16(const uint8_t* payload, size_t offset)
+ 471:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 472:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (((uint16_t)payload[offset + 1]) <<  8) |
+ 473:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****             ((uint16_t)payload[offset    ]);
+ 474:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 475:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 476:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int32_t rd_payload_i32(const uint8_t* payload, size_t offset)
+ 477:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 478:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (int32_t)((((uint32_t)payload[offset + 3]) << 24) |
+ 479:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint32_t)payload[offset + 2]) << 16) |
+ 480:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint32_t)payload[offset + 1]) <<  8) |
+ 481:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                       ((uint32_t)payload[offset    ]));
+ 482:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 483:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 484:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint32_t rd_payload_u32(const uint8_t* payload, size_t offset)
+ 485:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 486:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (((uint32_t)payload[offset + 3]) << 24) |
+ 487:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint32_t)payload[offset + 2]) << 16) |
+ 488:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint32_t)payload[offset + 1]) <<  8) |
+ 489:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****             ((uint32_t)payload[offset    ]);
+ 490:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 491:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 492:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline int64_t rd_payload_i64(const uint8_t* payload, size_t offset)
+ 493:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 494:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (int64_t)((((uint64_t)payload[offset + 7]) << 56) |
+ 495:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 6]) << 48) |
+ 496:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 5]) << 40) |
+ 497:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 4]) << 32) |
+ 498:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 3]) << 24) |
+ 499:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 2]) << 16) |
+ 500:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                      (((uint64_t)payload[offset + 1]) <<  8) |
+ 501:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                       ((uint64_t)payload[offset    ]));
+ 502:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 503:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 504:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline uint64_t rd_payload_u64(const uint8_t* payload, size_t offset)
+ 505:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 506:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return (((uint64_t)payload[offset + 7]) << 56) |
+ 507:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 6]) << 48) |
+ 508:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 5]) << 40) |
+ 509:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 4]) << 32) |
+ 510:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 3]) << 24) |
+ 511:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 2]) << 16) |
+ 512:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint64_t)payload[offset + 1]) <<  8) |
+ 513:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****             ((uint64_t)payload[offset    ]);
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 515:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 516:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 517:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline float rd_payload_float(const uint8_t* payload, size_t offset)
+ 518:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 519:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 	STATIC_ASSERT(sizeof(float) == sizeof(uint32_t));
+ 520:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 		typedef union {
+ 521:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 			uint32_t u32_value;
+ 522:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 			float float_value;
+ 523:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 		} temp_union;
+ 524:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 525:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 	temp_union data;
+ 526:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 527:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 	data.u32_value =
+ 528:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     		(((uint32_t)payload[offset + 3]) << 24) |
+ 529:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint32_t)payload[offset + 2]) << 16) |
+ 530:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****            (((uint32_t)payload[offset + 1]) <<  8) |
+ 531:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****             ((uint32_t)payload[offset    ]);
+ 532:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 533:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return data.float_value;
+ 534:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 535:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 536:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 537:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_i16(uint8_t* payload, size_t offset,
+ 538:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   int16_t value)
+ 539:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 540:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset + 1] = (((uint16_t)value) >>  8) & 0xFF;
+ 541:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset    ] =  ((uint16_t)value)        & 0xFF;
+ 542:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(int16_t);
+ 543:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** }
+ 544:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** 
+ 545:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** static inline size_t wr_payload_u16(uint8_t* payload, size_t offset,
+ 546:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****                                   uint16_t value)
+ 547:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h **** {
+ 548:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset + 1] = (value >>  8) & 0xFF;
+  81              	 .loc 2 548 0
+  82 002a 4FEA1828 	 lsr r8,r8,#8
+  83              	.LVL6:
+  84              	.LBE57:
+  85              	.LBE56:
+  86              	.LBB62:
+  87              	.LBB63:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+  88              	 .loc 2 241 0
+  89 002e 4A23     	 movs r3,#74
+  90              	.LBE63:
+  91              	.LBE62:
+  92              	.LBB67:
+  93              	.LBB68:
+ 549:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset    ] =  value        & 0xFF;
+  94              	 .loc 2 549 0
+  95 0030 0924     	 movs r4,#9
+  96              	.LBE68:
+  97              	.LBE67:
+  98              	.LBB71:
+  99              	.LBB72:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 100              	 .loc 2 241 0
+ 101 0032 6E70     	 strb r6,[r5,#1]
+ 102              	.LBE72:
+ 103              	.LBE71:
+ 104              	.LBB74:
+ 105              	.LBB58:
+ 106              	 .loc 2 549 0
+ 107 0034 85F80290 	 strb r9,[r5,#2]
+ 108              	.LBE58:
+ 109              	.LBE74:
+ 110              	.LBB75:
+ 111              	.LBB69:
+ 548:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset    ] =  value        & 0xFF;
+ 112              	 .loc 2 548 0
+ 113 0038 6E72     	 strb r6,[r5,#9]
+ 114              	.LBE69:
+ 115              	.LBE75:
+ 116              	.LBB76:
+ 117              	.LBB59:
+ 118 003a 85F80380 	 strb r8,[r5,#3]
+ 119              	.LBE59:
+ 120              	.LBE76:
+ 121              	.LBB77:
+ 122              	.LBB64:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 123              	 .loc 2 241 0
+ 124 003e 2B70     	 strb r3,[r5]
+ 125              	.LVL7:
+ 126              	.LBE64:
+ 127              	.LBE77:
+ 128              	.LBB78:
+ 129              	.LBB70:
+ 130              	 .loc 2 549 0
+ 131 0040 2C72     	 strb r4,[r5,#8]
+ 132              	.LVL8:
+ 133              	.L12:
+ 134 0042 564A     	 ldr r2,.L44+8
+ 135 0044 07F10803 	 add r3,r7,#8
+ 136 0048 02F10801 	 add r1,r2,#8
+ 137 004c B942     	 cmp r1,r7
+ 138 004e 88BF     	 it hi
+ 139 0050 9342     	 cmphi r3,r2
+ 140 0052 94BF     	 ite ls
+ 141 0054 0123     	 movls r3,#1
+ 142 0056 0023     	 movhi r3,#0
+ 143 0058 0A2C     	 cmp r4,#10
+ 144 005a 94BF     	 ite ls
+ 145 005c 0023     	 movls r3,#0
+ 146 005e 03F00103 	 andhi r3,r3,#1
+ 147 0062 002B     	 cmp r3,#0
+ 148 0064 00F08A80 	 beq .L4
+ 149 0068 47EA0203 	 orr r3,r7,r2
+ 150 006c 5B07     	 lsls r3,r3,#29
+ 151 006e 40F08580 	 bne .L4
+ 152 0072 A4F1080E 	 sub lr,r4,#8
+ 153 0076 CEF3CC0E 	 ubfx lr,lr,#3,#13
+ 154 007a 0EF1010E 	 add lr,lr,#1
+ 155 007e 4FEACE03 	 lsl r3,lr,#3
+ 156 0082 9BB2     	 uxth r3,r3
+ 157 0084 A7F10808 	 sub r8,r7,#8
+ 158              	.LBE70:
+ 159              	.LBE78:
+ 160              	.LBB79:
+ 161              	.LBB52:
+  65:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg_size = strlen(p_status_response->error_msg) + 1; // include the lead
+ 162              	 .loc 1 65 0
+ 163 0088 4FF0000C 	 mov ip,#0
+ 164              	.LVL9:
+ 165              	.L5:
+ 166              	.LBE52:
+ 167              	.LBE79:
+ 168              	.LBB80:
+  87:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		size_t offset = 0;
+  88:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  89:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		offset += wr_payload_u8(message, offset, MSG_STATUS_REQ_RES);
+  90:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		offset += wr_payload_u8(message, offset, status_response.error_type);		/*error type*/
+  91:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		offset += wr_payload_u16(message, offset, status_response.error_code);		/*error code*/
+  92:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		offset += wr_payload_u32(message, offset, status_response.frame_count);		/*frame count*/
+  93:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		offset += wr_payload_u16(message, offset, status_response.error_msg_size);		/*frame count*/
+  94:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		for(uint16_t i=0; i<status_response.error_msg_size; i++ )
+  96:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+  97:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 			offset += wr_payload_u8(message, offset, status_response.error_msg[i]);
+ 169              	 .loc 1 97 0
+ 170 008c F8E90201 	 ldrd r0,[r8,#8]!
+ 171              	.LVL10:
+ 172 0090 0CF1010C 	 add ip,ip,#1
+ 173 0094 1FFA8CF9 	 uxth r9,ip
+ 174 0098 CE45     	 cmp lr,r9
+ 175              	.LBB81:
+ 176              	.LBB82:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 177              	 .loc 2 241 0
+ 178 009a E2E80201 	 strd r0,[r2],#8
+ 179 009e F5D8     	 bhi .L5
+ 180 00a0 9C42     	 cmp r4,r3
+ 181 00a2 03F10A00 	 add r0,r3,#10
+ 182 00a6 47D0     	 beq .L40
+ 183              	.LVL11:
+ 184              	.LBE82:
+ 185              	.LBE81:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 186              	 .loc 1 95 0
+ 187 00a8 591C     	 adds r1,r3,#1
+ 188 00aa 89B2     	 uxth r1,r1
+ 189              	 .loc 1 97 0
+ 190 00ac FA5C     	 ldrb r2,[r7,r3]
+ 191              	.LVL12:
+ 192              	.LBB92:
+ 193              	.LBB83:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 194              	 .loc 2 241 0
+ 195 00ae 2A54     	 strb r2,[r5,r0]
+ 196              	.LBE83:
+ 197              	.LBE92:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 198              	 .loc 1 95 0
+ 199 00b0 A142     	 cmp r1,r4
+ 200              	.LBB93:
+ 201              	.LBB84:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 202              	 .loc 2 241 0
+ 203 00b2 384A     	 ldr r2,.L44
+ 204              	.LVL13:
+ 205              	.LBE84:
+ 206              	.LBE93:
+ 207              	 .loc 1 97 0
+ 208 00b4 03F10B05 	 add r5,r3,#11
+ 209              	.LVL14:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 210              	 .loc 1 95 0
+ 211 00b8 3ED2     	 bcs .L40
+ 212 00ba 981C     	 adds r0,r3,#2
+ 213              	.LVL15:
+ 214 00bc 80B2     	 uxth r0,r0
+ 215              	 .loc 1 97 0
+ 216 00be 795C     	 ldrb r1,[r7,r1]
+ 217              	.LVL16:
+ 218              	.LBB94:
+ 219              	.LBB85:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 220              	 .loc 2 241 0
+ 221 00c0 5155     	 strb r1,[r2,r5]
+ 222              	.LBE85:
+ 223              	.LBE94:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 224              	 .loc 1 95 0
+ 225 00c2 8442     	 cmp r4,r0
+ 226              	 .loc 1 97 0
+ 227 00c4 03F10C05 	 add r5,r3,#12
+ 228              	.LVL17:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 229              	 .loc 1 95 0
+ 230 00c8 36D9     	 bls .L40
+ 231 00ca D91C     	 adds r1,r3,#3
+ 232              	.LVL18:
+ 233 00cc 89B2     	 uxth r1,r1
+ 234              	 .loc 1 97 0
+ 235 00ce 385C     	 ldrb r0,[r7,r0]
+ 236              	.LVL19:
+ 237              	.LBB95:
+ 238              	.LBB86:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 239              	 .loc 2 241 0
+ 240 00d0 5055     	 strb r0,[r2,r5]
+ 241              	.LBE86:
+ 242              	.LBE95:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 243              	 .loc 1 95 0
+ 244 00d2 8C42     	 cmp r4,r1
+ 245              	 .loc 1 97 0
+ 246 00d4 03F10D05 	 add r5,r3,#13
+ 247              	.LVL20:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 248              	 .loc 1 95 0
+ 249 00d8 2ED9     	 bls .L40
+ 250 00da 181D     	 adds r0,r3,#4
+ 251              	.LVL21:
+ 252 00dc 80B2     	 uxth r0,r0
+ 253              	 .loc 1 97 0
+ 254 00de 795C     	 ldrb r1,[r7,r1]
+ 255              	.LVL22:
+ 256              	.LBB96:
+ 257              	.LBB87:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 258              	 .loc 2 241 0
+ 259 00e0 5155     	 strb r1,[r2,r5]
+ 260              	.LBE87:
+ 261              	.LBE96:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 262              	 .loc 1 95 0
+ 263 00e2 8442     	 cmp r4,r0
+ 264              	 .loc 1 97 0
+ 265 00e4 03F10E05 	 add r5,r3,#14
+ 266              	.LVL23:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 267              	 .loc 1 95 0
+ 268 00e8 26D9     	 bls .L40
+ 269 00ea 591D     	 adds r1,r3,#5
+ 270              	.LVL24:
+ 271 00ec 89B2     	 uxth r1,r1
+ 272              	 .loc 1 97 0
+ 273 00ee 385C     	 ldrb r0,[r7,r0]
+ 274              	.LVL25:
+ 275              	.LBB97:
+ 276              	.LBB88:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 277              	 .loc 2 241 0
+ 278 00f0 5055     	 strb r0,[r2,r5]
+ 279              	.LBE88:
+ 280              	.LBE97:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 281              	 .loc 1 95 0
+ 282 00f2 8C42     	 cmp r4,r1
+ 283              	 .loc 1 97 0
+ 284 00f4 03F10F05 	 add r5,r3,#15
+ 285              	.LVL26:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 286              	 .loc 1 95 0
+ 287 00f8 1ED9     	 bls .L40
+ 288 00fa 981D     	 adds r0,r3,#6
+ 289              	.LVL27:
+ 290              	 .loc 1 97 0
+ 291 00fc 795C     	 ldrb r1,[r7,r1]
+ 292              	.LVL28:
+ 293              	.LBB98:
+ 294              	.LBB89:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 295              	 .loc 2 241 0
+ 296 00fe 5155     	 strb r1,[r2,r5]
+ 297              	.LBE89:
+ 298              	.LBE98:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 299              	 .loc 1 95 0
+ 300 0100 81B2     	 uxth r1,r0
+ 301              	.LVL29:
+ 302 0102 8C42     	 cmp r4,r1
+ 303              	 .loc 1 97 0
+ 304 0104 03F11003 	 add r3,r3,#16
+ 305              	.LVL30:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 306              	 .loc 1 95 0
+ 307 0108 16D9     	 bls .L40
+ 308              	 .loc 1 97 0
+ 309 010a 795C     	 ldrb r1,[r7,r1]
+ 310              	.LVL31:
+ 311              	.LBB99:
+ 312              	.LBB90:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 313              	 .loc 2 241 0
+ 314 010c D154     	 strb r1,[r2,r3]
+ 315              	.LVL32:
+ 316 010e 013C     	 subs r4,r4,#1
+ 317              	.LVL33:
+ 318              	.L10:
+ 319 0110 0B34     	 adds r4,r4,#11
+ 320 0112 A4B2     	 uxth r4,r4
+ 321              	.LVL34:
+ 322              	.L3:
+ 323              	.LBE90:
+ 324              	.LBE99:
+ 325              	.LBE80:
+  98:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		}
+  99:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 100:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		/* send message */
+ 101:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		protocol_send_header(device_status_endpoint, offset);
+ 326              	 .loc 1 101 0
+ 327 0114 224B     	 ldr r3,.L44+12
+ 328 0116 2146     	 mov r1,r4
+ 329 0118 1878     	 ldrb r0,[r3]
+ 330 011a FFF7FEFF 	 bl protocol_send_header
+ 331              	.LVL35:
+ 102:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		protocol_send_payload(message, offset);
+ 332              	 .loc 1 102 0
+ 333 011e 2146     	 mov r1,r4
+ 334 0120 1C48     	 ldr r0,.L44
+ 335 0122 FFF7FEFF 	 bl protocol_send_payload
+ 336              	.LVL36:
+ 103:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		protocol_send_tail();
+ 337              	 .loc 1 103 0
+ 338 0126 FFF7FEFF 	 bl protocol_send_tail
+ 339              	.LVL37:
+ 104:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 105:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		/* clean error, if not fatal */
+ 106:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		if (status_response.error_type != 4)
+ 340              	 .loc 1 106 0
+ 341 012a 042E     	 cmp r6,#4
+ 342 012c 01D0     	 beq .L11
+ 107:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 			device_status_clean();
+ 343              	 .loc 1 107 0
+ 344 012e FFF7FEFF 	 bl device_status_clean
+ 345              	.LVL38:
+ 346              	.L11:
+ 347              	.LBE48:
+ 108:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	}
+ 109:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	return RADAR_ERR_OK;
+ 110:../HostCommunication/src/EndpointRadarDeviceStatus.c **** }
+ 348              	 .loc 1 110 0
+ 349 0132 0020     	 movs r0,#0
+ 350 0134 BDE8F883 	 pop {r3,r4,r5,r6,r7,r8,r9,pc}
+ 351              	.LVL39:
+ 352              	.L40:
+ 353 0138 013C     	 subs r4,r4,#1
+ 354              	.LVL40:
+ 355 013a E9E7     	 b .L10
+ 356              	.LVL41:
+ 357              	.L43:
+ 358              	.LBB109:
+ 359              	.LBB101:
+ 360              	.LBB53:
+  60:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		p_status_response->error_msg_size = strlen(p_status_response->error_msg) + 1;  // include the lea
+ 361              	 .loc 1 60 0
+ 362 013c 4846     	 mov r0,r9
+ 363              	.LVL42:
+ 364 013e FFF7FEFF 	 bl device_status_get_error_description
+ 365              	.LVL43:
+ 366 0142 0746     	 mov r7,r0
+ 367              	.LVL44:
+  61:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	}
+ 368              	 .loc 1 61 0
+ 369 0144 FFF7FEFF 	 bl strlen
+ 370              	.LVL45:
+ 371              	.LBE53:
+ 372              	.LBE101:
+  86:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		size_t offset = 0;
+ 373              	 .loc 1 86 0
+ 374 0148 124D     	 ldr r5,.L44
+ 375              	.LBB102:
+ 376              	.LBB54:
+  61:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	}
+ 377              	 .loc 1 61 0
+ 378 014a 0130     	 adds r0,r0,#1
+ 379 014c 84B2     	 uxth r4,r0
+ 380              	.LVL46:
+ 381              	.LBE54:
+ 382              	.LBE102:
+  86:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		size_t offset = 0;
+ 383              	 .loc 1 86 0
+ 384 014e 4FF40072 	 mov r2,#512
+ 385 0152 2846     	 mov r0,r5
+ 386 0154 0021     	 movs r1,#0
+ 387 0156 FFF7FEFF 	 bl memset
+ 388              	.LVL47:
+ 389              	.LBB103:
+ 390              	.LBB60:
+ 548:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset    ] =  value        & 0xFF;
+ 391              	 .loc 2 548 0
+ 392 015a 4FEA1828 	 lsr r8,r8,#8
+ 393              	.LVL48:
+ 394 015e 220A     	 lsrs r2,r4,#8
+ 395              	.LBE60:
+ 396              	.LBE103:
+ 397              	.LBB104:
+ 398              	.LBB65:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 399              	 .loc 2 241 0
+ 400 0160 4A23     	 movs r3,#74
+ 401 0162 2C72     	 strb r4,[r5,#8]
+ 402              	.LBE65:
+ 403              	.LBE104:
+ 404              	.LBB105:
+ 405              	.LBB73:
+ 406 0164 6E70     	 strb r6,[r5,#1]
+ 407              	.LBE73:
+ 408              	.LBE105:
+ 409              	.LBB106:
+ 410              	.LBB61:
+ 411              	 .loc 2 549 0
+ 412 0166 85F80290 	 strb r9,[r5,#2]
+ 548:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     payload[offset    ] =  value        & 0xFF;
+ 413              	 .loc 2 548 0
+ 414 016a 85F80380 	 strb r8,[r5,#3]
+ 415 016e 6A72     	 strb r2,[r5,#9]
+ 416              	.LBE61:
+ 417              	.LBE106:
+ 418              	.LBB107:
+ 419              	.LBB66:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 420              	 .loc 2 241 0
+ 421 0170 2B70     	 strb r3,[r5]
+ 422              	.LVL49:
+ 423              	.LBE66:
+ 424              	.LBE107:
+ 425              	.LBB108:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 426              	 .loc 1 95 0
+ 427 0172 002C     	 cmp r4,#0
+ 428 0174 7FF465AF 	 bne .L12
+ 429              	.LVL50:
+ 430 0178 0A24     	 movs r4,#10
+ 431              	.LVL51:
+ 432 017a CBE7     	 b .L3
+ 433              	.LVL52:
+ 434              	.L4:
+ 435 017c 013C     	 subs r4,r4,#1
+ 436              	.LVL53:
+ 437 017e 094B     	 ldr r3,.L44+16
+ 438 0180 17FA84F1 	 uxtah r1,r7,r4
+ 439 0184 013F     	 subs r7,r7,#1
+ 440              	.LVL54:
+ 441              	.L9:
+  97:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		}
+ 442              	 .loc 1 97 0
+ 443 0186 17F8012F 	 ldrb r2,[r7,#1]!
+ 444              	.LVL55:
+ 445              	.LBB100:
+ 446              	.LBB91:
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc\PayloadHelper.h ****     return sizeof(uint8_t);
+ 447              	 .loc 2 241 0
+ 448 018a 03F8012F 	 strb r2,[r3,#1]!
+ 449              	.LBE91:
+ 450              	.LBE100:
+  95:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		{
+ 451              	 .loc 1 95 0
+ 452 018e 8F42     	 cmp r7,r1
+ 453 0190 F9D1     	 bne .L9
+ 454 0192 BDE7     	 b .L10
+ 455              	.L45:
+ 456              	 .align 2
+ 457              	.L44:
+ 458 0194 00000000 	 .word .LANCHOR0
+ 459 0198 00000000 	 .word .LC0
+ 460 019c 0A000000 	 .word .LANCHOR0+10
+ 461 01a0 00000000 	 .word .LANCHOR1
+ 462 01a4 09000000 	 .word .LANCHOR0+9
+ 463              	.LBE108:
+ 464              	.LBE109:
+ 465              	 .cfi_endproc
+ 466              	.LFE550:
+ 468              	 .section .text.send_device_status_response,"ax",%progbits
+ 469              	 .align 2
+ 470              	 .global send_device_status_response
+ 471              	 .thumb
+ 472              	 .thumb_func
+ 474              	send_device_status_response:
+ 475              	.LFB547:
+  77:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	if (device_status_endpoint != 0)
+ 476              	 .loc 1 77 0
+ 477              	 .cfi_startproc
+ 478              	 
+ 479              	 
+ 480 0000 08B5     	 push {r3,lr}
+ 481              	.LCFI1:
+ 482              	 .cfi_def_cfa_offset 8
+ 483              	 .cfi_offset 3,-8
+ 484              	 .cfi_offset 14,-4
+  78:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+ 485              	 .loc 1 78 0
+ 486 0002 034B     	 ldr r3,.L52
+ 487 0004 1B78     	 ldrb r3,[r3]
+ 488 0006 0BB1     	 cbz r3,.L47
+ 489 0008 FFF7FEFF 	 bl send_device_status_response.part.0
+ 490              	.LVL56:
+ 491              	.L47:
+ 492              	 .loc 1 110 0
+ 493 000c 0020     	 movs r0,#0
+ 494 000e 08BD     	 pop {r3,pc}
+ 495              	.L53:
+ 496              	 .align 2
+ 497              	.L52:
+ 498 0010 00000000 	 .word .LANCHOR1
+ 499              	 .cfi_endproc
+ 500              	.LFE547:
+ 502              	 .section .text.ep_device_status_handle_message,"ax",%progbits
+ 503              	 .align 2
+ 504              	 .global ep_device_status_handle_message
+ 505              	 .thumb
+ 506              	 .thumb_func
+ 508              	ep_device_status_handle_message:
+ 509              	.LFB548:
+ 111:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 112:../HostCommunication/src/EndpointRadarDeviceStatus.c **** uint16_t ep_device_status_handle_message(uint8_t endpoint, uint8_t *message_data,
+ 113:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 											uint16_t num_bytes,	void* context)
+ 114:../HostCommunication/src/EndpointRadarDeviceStatus.c **** {
+ 510              	 .loc 1 114 0
+ 511              	 .cfi_startproc
+ 512              	 
+ 513              	 
+ 514              	.LVL57:
+ 515 0000 08B5     	 push {r3,lr}
+ 516              	.LCFI2:
+ 517              	 .cfi_def_cfa_offset 8
+ 518              	 .cfi_offset 3,-8
+ 519              	 .cfi_offset 14,-4
+ 115:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	/*store endpoint information*/
+ 116:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 117:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	device_status_endpoint = endpoint;
+ 118:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 119:../HostCommunication/src/EndpointRadarDeviceStatus.c ****     switch (message_data[0])
+ 520              	 .loc 1 119 0
+ 521 0002 0B78     	 ldrb r3,[r1]
+ 522              	.LVL58:
+ 117:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 523              	 .loc 1 117 0
+ 524 0004 064A     	 ldr r2,.L62
+ 525              	.LVL59:
+ 526              	 .loc 1 119 0
+ 527 0006 4B2B     	 cmp r3,#75
+ 117:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 528              	 .loc 1 117 0
+ 529 0008 1070     	 strb r0,[r2]
+ 530              	 .loc 1 119 0
+ 531 000a 02D0     	 beq .L61
+ 120:../HostCommunication/src/EndpointRadarDeviceStatus.c ****     {
+ 121:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	case MSG_STATUS_REQ_IND:
+ 122:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		send_device_status_response();
+ 123:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		return RADAR_ERR_OK;
+ 124:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	default:
+ 125:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 		break;
+ 126:../HostCommunication/src/EndpointRadarDeviceStatus.c ****     }
+ 127:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 128:../HostCommunication/src/EndpointRadarDeviceStatus.c ****     return PROTOCOL_STATUS_INVALID_PAYLOAD;
+ 532              	 .loc 1 128 0
+ 533 000c 4FF6FF70 	 movw r0,#65535
+ 534              	.LVL60:
+ 535              	.L55:
+ 129:../HostCommunication/src/EndpointRadarDeviceStatus.c **** }
+ 536              	 .loc 1 129 0
+ 537 0010 08BD     	 pop {r3,pc}
+ 538              	.LVL61:
+ 539              	.L61:
+ 540              	.LBB110:
+ 541              	.LBB111:
+  78:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	{
+ 542              	 .loc 1 78 0
+ 543 0012 0028     	 cmp r0,#0
+ 544 0014 FCD0     	 beq .L55
+ 545 0016 FFF7FEFF 	 bl send_device_status_response.part.0
+ 546              	.LVL62:
+ 547              	.LBE111:
+ 548              	.LBE110:
+ 123:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 	default:
+ 549              	 .loc 1 123 0
+ 550 001a 0020     	 movs r0,#0
+ 551 001c 08BD     	 pop {r3,pc}
+ 552              	.L63:
+ 553 001e 00BF     	 .align 2
+ 554              	.L62:
+ 555 0020 00000000 	 .word .LANCHOR1
+ 556              	 .cfi_endproc
+ 557              	.LFE548:
+ 559              	 .section .text.ep_device_status_handle_change,"ax",%progbits
+ 560              	 .align 2
+ 561              	 .global ep_device_status_handle_change
+ 562              	 .thumb
+ 563              	 .thumb_func
+ 565              	ep_device_status_handle_change:
+ 566              	.LFB549:
+ 130:../HostCommunication/src/EndpointRadarDeviceStatus.c **** 
+ 131:../HostCommunication/src/EndpointRadarDeviceStatus.c **** void ep_device_status_handle_change(uint8_t endpoint, void* context, uint32_t what)
+ 132:../HostCommunication/src/EndpointRadarDeviceStatus.c **** {
+ 567              	 .loc 1 132 0
+ 568              	 .cfi_startproc
+ 569              	 
+ 570              	 
+ 571              	 
+ 572              	.LVL63:
+ 573 0000 7047     	 bx lr
+ 574              	 .cfi_endproc
+ 575              	.LFE549:
+ 577 0002 00BF     	 .section .rodata.str1.4,"aMS",%progbits,1
+ 578              	 .align 2
+ 579              	.LC0:
+ 580 0000 4E6F2045 	 .ascii "No Error\000"
+ 580      72726F72 
+ 580      00
+ 581 0009 000000   	 .section .bss.device_status_endpoint,"aw",%nobits
+ 582              	 .set .LANCHOR1,.+0
+ 585              	device_status_endpoint:
+ 586 0000 00       	 .space 1
+ 587              	 .section .bss.message.18087,"aw",%nobits
+ 588              	 .align 2
+ 589              	 .set .LANCHOR0,.+0
+ 592              	message.18087:
+ 593 0000 00000000 	 .space 512
+ 593      00000000 
+ 593      00000000 
+ 593      00000000 
+ 593      00000000 
+ 594              	 .text
+ 595              	.Letext0:
+ 596              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 597              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 598              	 .file 5 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 599              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 600              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 601              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 602              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 603              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 604              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 605              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_api.h"
+ 606              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/EndpointRadarDeviceStatus.h"
+ 607              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_device_status.h"
+ 608              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 609              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 610              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 611              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 612              	 .file 19 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\string.h"
+ 613              	 .file 20 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/Protocol.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 EndpointRadarDeviceStatus.c
+    {standard input}:20     .text.send_device_status_response.part.0:00000000 $t
+    {standard input}:24     .text.send_device_status_response.part.0:00000000 send_device_status_response.part.0
+    {standard input}:458    .text.send_device_status_response.part.0:00000194 $d
+    {standard input}:469    .text.send_device_status_response:00000000 $t
+    {standard input}:474    .text.send_device_status_response:00000000 send_device_status_response
+    {standard input}:498    .text.send_device_status_response:00000010 $d
+    {standard input}:503    .text.ep_device_status_handle_message:00000000 $t
+    {standard input}:508    .text.ep_device_status_handle_message:00000000 ep_device_status_handle_message
+    {standard input}:555    .text.ep_device_status_handle_message:00000020 $d
+    {standard input}:560    .text.ep_device_status_handle_change:00000000 $t
+    {standard input}:565    .text.ep_device_status_handle_change:00000000 ep_device_status_handle_change
+    {standard input}:578    .rodata.str1.4:00000000 $d
+    {standard input}:585    .bss.device_status_endpoint:00000000 device_status_endpoint
+    {standard input}:586    .bss.device_status_endpoint:00000000 $d
+    {standard input}:588    .bss.message.18087:00000000 $d
+    {standard input}:592    .bss.message.18087:00000000 message.18087
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+device_status_get_handle
+memset
+protocol_send_header
+protocol_send_payload
+protocol_send_tail
+device_status_clean
+device_status_get_error_description
+strlen
