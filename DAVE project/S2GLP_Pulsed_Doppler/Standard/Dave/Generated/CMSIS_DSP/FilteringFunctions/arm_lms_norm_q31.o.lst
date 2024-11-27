@@ -1,0 +1,1887 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_lms_norm_q31.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_lms_norm_q31,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_lms_norm_q31
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_lms_norm_q31:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c"
+   1:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Title:        arm_lms_norm_q31.c
+   4:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Description:  Processing function for the Q31 NLMS filter
+   5:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  29:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  31:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * @ingroup groupFilters
+  33:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  35:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * @addtogroup LMS_NORM
+  37:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  40:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** /**
+  41:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @brief Processing function for Q31 normalized LMS filter.
+  42:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[in] *S points to an instance of the Q31 normalized LMS filter structure.
+  43:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[in] *pSrc points to the block of input data.
+  44:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[in] *pRef points to the block of reference data.
+  45:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[out] *pOut points to the block of output data.
+  46:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[out] *pErr points to the block of error data.
+  47:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @param[in] blockSize number of samples to process.
+  48:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * @return none.
+  49:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** *
+  50:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * <b>Scaling and Overflow Behavior:</b>
+  51:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * \par
+  52:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * The function is implemented using an internal 64-bit accumulator.
+  53:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * The accumulator has a 2.62 format and maintains full precision of the intermediate
+  54:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * multiplication results but provides only a single guard bit.
+  55:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * Thus, if the accumulator result overflows it wraps around rather than clip.
+  56:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * In order to avoid overflows completely the input signal must be scaled down by
+  57:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * log2(numTaps) bits. The reference signal should not be scaled down.
+  58:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * After all multiply-accumulates are performed, the 2.62 accumulator is shifted
+  59:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * and saturated to 1.31 format to yield the final result.
+  60:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * The output signal and error signal are in 1.31 format.
+  61:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** *
+  62:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * \par
+  63:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * 	In this filter, filter coefficients are updated for each sample and the
+  64:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** * updation of filter cofficients are saturted.
+  65:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** *
+  66:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** */
+  67:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  68:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** void arm_lms_norm_q31(
+  69:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   arm_lms_norm_instance_q31 * S,
+  70:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t * pSrc,
+  71:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t * pRef,
+  72:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t * pOut,
+  73:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t * pErr,
+  74:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t blockSize)
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** {
+  28              	 .loc 1 75 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 36
+  36              	 .cfi_offset 4,-36
+  37              	 .cfi_offset 5,-32
+  38              	 .cfi_offset 6,-28
+  39              	 .cfi_offset 7,-24
+  40              	 .cfi_offset 8,-20
+  41              	 .cfi_offset 9,-16
+  42              	 .cfi_offset 10,-12
+  43              	 .cfi_offset 11,-8
+  44              	 .cfi_offset 14,-4
+  45 0004 0446     	 mov r4,r0
+  46 0006 99B0     	 sub sp,sp,#100
+  47              	.LCFI1:
+  48              	 .cfi_def_cfa_offset 136
+  49              	.LVL1:
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pState = S->pState;                     /* State pointer */
+  77:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pCoeffs = S->pCoeffs;                   /* Coefficient pointer */
+  78:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pStateCurnt;                            /* Points to the current sample of the state */
+  79:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *px, *pb;                                /* Temporary pointers for state and coefficient bu
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t mu = S->mu;                              /* Adaptive factor */
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t numTaps = S->numTaps;                 /* Number of filter coefficients in the filter */
+  82:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t tapCnt, blkCnt;                       /* Loop counters */
+  83:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q63_t energy;                                  /* Energy of the input */
+  84:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q63_t acc;                                     /* Accumulator */
+  85:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t e = 0, d = 0;                            /* error, reference data sample */
+  86:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t w = 0, in;                               /* weight factor and state */
+  87:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t x0;                                      /* temporary variable to hold input sample */
+  88:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** //  uint32_t shift = 32u - ((uint32_t) S->postShift + 1u);        /* Shift to be applied to the out
+  89:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t errorXmu, oneByEnergy;                   /* Temporary variables to store error and mu produ
+  90:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t postShift;                               /* Post shift to be applied to weight after recipr
+  91:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t coef;                                    /* Temporary variable for coef */
+  92:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t acc_l, acc_h;                            /*  temporary input */
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t uShift = ((uint32_t) S->postShift + 1u);
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t lShift = 32u - uShift;                /*  Shift to be applied to the output */
+  95:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   energy = S->energy;
+  50              	 .loc 1 96 0
+  51 0008 2546     	 mov r5,r4
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t lShift = 32u - uShift;                /*  Shift to be applied to the output */
+  52              	 .loc 1 93 0
+  53 000a 267C     	 ldrb r6,[r4,#16]
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t tapCnt, blkCnt;                       /* Loop counters */
+  54              	 .loc 1 81 0
+  55 000c 0088     	 ldrh r0,[r0]
+  56              	.LVL2:
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t numTaps = S->numTaps;                 /* Number of filter coefficients in the filter */
+  57              	 .loc 1 80 0
+  58 000e EF68     	 ldr r7,[r5,#12]
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t tapCnt, blkCnt;                       /* Loop counters */
+  59              	 .loc 1 81 0
+  60 0010 1690     	 str r0,[sp,#88]
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t numTaps = S->numTaps;                 /* Number of filter coefficients in the filter */
+  61              	 .loc 1 80 0
+  62 0012 1497     	 str r7,[sp,#80]
+  63              	.LVL3:
+  64              	 .loc 1 96 0
+  65 0014 A069     	 ldr r0,[r4,#24]
+  66              	.LVL4:
+  97:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   x0 = S->x0;
+  98:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  99:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* S->pState points to buffer which contains previous frame (numTaps - 1) samples */
+ 100:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* pStateCurnt points to the location where the new input data should be written */
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   pStateCurnt = &(S->pState[(numTaps - 1u)]);
+  67              	 .loc 1 101 0
+  68 0016 169F     	 ldr r7,[sp,#88]
+  69              	.LVL5:
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pCoeffs = S->pCoeffs;                   /* Coefficient pointer */
+  70              	 .loc 1 76 0
+  71 0018 6468     	 ldr r4,[r4,#4]
+  72              	.LVL6:
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pState = S->pState;                     /* State pointer */
+  73              	 .loc 1 75 0
+  74 001a 0D93     	 str r3,[sp,#52]
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t lShift = 32u - uShift;                /*  Shift to be applied to the output */
+  75              	 .loc 1 93 0
+  76 001c 731C     	 adds r3,r6,#1
+  77              	.LVL7:
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pCoeffs = S->pCoeffs;                   /* Coefficient pointer */
+  78              	 .loc 1 76 0
+  79 001e 1594     	 str r4,[sp,#84]
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   uint32_t lShift = 32u - uShift;                /*  Shift to be applied to the output */
+  80              	 .loc 1 93 0
+  81 0020 1193     	 str r3,[sp,#68]
+  82              	.LVL8:
+  77:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pStateCurnt;                            /* Points to the current sample of the state */
+  83              	 .loc 1 77 0
+  84 0022 AC68     	 ldr r4,[r5,#8]
+  85 0024 0994     	 str r4,[sp,#36]
+  86              	.LVL9:
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  87              	 .loc 1 94 0
+  88 0026 C6F11F03 	 rsb r3,r6,#31
+  89              	.LVL10:
+  97:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  90              	 .loc 1 97 0
+  91 002a 1795     	 str r5,[sp,#92]
+  92 002c EC69     	 ldr r4,[r5,#28]
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+  93              	 .loc 1 94 0
+  94 002e 1293     	 str r3,[sp,#72]
+  95              	.LVL11:
+  96              	 .loc 1 101 0
+  97 0030 07F18045 	 add r5,r7,#1073741824
+  98              	.LVL12:
+ 102:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 103:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Loop over blockSize number of values */
+ 104:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   blkCnt = blockSize;
+ 105:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 106:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 107:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** #if defined (ARM_MATH_DSP)
+ 108:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 109:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+ 110:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   while (blkCnt > 0u)
+  99              	 .loc 1 111 0
+ 100 0034 239B     	 ldr r3,[sp,#140]
+ 101              	.LVL13:
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pState = S->pState;                     /* State pointer */
+ 102              	 .loc 1 75 0
+ 103 0036 0C92     	 str r2,[sp,#48]
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 104              	 .loc 1 101 0
+ 105 0038 013D     	 subs r5,r5,#1
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   x0 = S->x0;
+ 106              	 .loc 1 96 0
+ 107 003a 8046     	 mov r8,r0
+ 108 003c 4FEAE079 	 asr r9,r0,#31
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 109              	 .loc 1 101 0
+ 110 0040 AA00     	 lsls r2,r5,#2
+ 111              	.LVL14:
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   x0 = S->x0;
+ 112              	 .loc 1 96 0
+ 113 0042 CDE90689 	 strd r8,[sp,#24]
+ 114              	.LVL15:
+ 115              	 .loc 1 111 0
+ 116 0046 002B     	 cmp r3,#0
+ 117 0048 00F0ED81 	 beq .L28
+ 118 004c 3D46     	 mov r5,r7
+ 119 004e 4FEA9708 	 lsr r8,r7,#2
+ 120              	.LVL16:
+ 121 0052 179F     	 ldr r7,[sp,#92]
+ 122 0054 8A46     	 mov r10,r1
+ 123              	.LVL17:
+ 124 0056 1599     	 ldr r1,[sp,#84]
+ 125 0058 7869     	 ldr r0,[r7,#20]
+ 126 005a 1390     	 str r0,[sp,#76]
+ 127 005c 043A     	 subs r2,r2,#4
+ 128              	.LVL18:
+ 129 005e 8818     	 adds r0,r1,r2
+ 130 0060 099A     	 ldr r2,[sp,#36]
+ 131              	.LVL19:
+ 132 0062 0B90     	 str r0,[sp,#44]
+ 133 0064 4FEA0813 	 lsl r3,r8,#4
+ 134              	.LVL20:
+ 135 0068 01EB0309 	 add r9,r1,r3
+ 136 006c D318     	 adds r3,r2,r3
+ 137 006e 1093     	 str r3,[sp,#64]
+ 138 0070 05F00303 	 and r3,r5,#3
+ 139 0074 0893     	 str r3,[sp,#32]
+ 140 0076 239B     	 ldr r3,[sp,#140]
+ 141 0078 0A93     	 str r3,[sp,#40]
+ 142 007a 8C46     	 mov ip,r1
+ 143 007c 2246     	 mov r2,r4
+ 144              	.LVL21:
+ 145              	.L19:
+ 112:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 113:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 114:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Copy the new input sample into the state buffer */
+ 115:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pSrc;
+ 146              	 .loc 1 115 0
+ 147 007e 0B99     	 ldr r1,[sp,#44]
+ 148 0080 DAF80030 	 ldr r3,[r10]
+ 149 0084 41F8043F 	 str r3,[r1,#4]!
+ 116:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 117:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize pState pointer */
+ 118:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     px = pState;
+ 119:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 120:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize coeff pointer */
+ 121:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pb = (pCoeffs);
+ 122:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 123:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Read the sample from input buffer */
+ 124:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     in = *pSrc++;
+ 125:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 126:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Update the energy calculation */
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     energy = (q31_t) ((((q63_t) energy << 32) -
+ 150              	 .loc 1 127 0
+ 151 0088 069B     	 ldr r3,[sp,#24]
+ 152 008a 0393     	 str r3,[sp,#12]
+ 153 008c 0023     	 movs r3,#0
+ 154 008e 0293     	 str r3,[sp,#8]
+ 155 0090 DDE90245 	 ldrd r4,[sp,#8]
+ 115:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 156              	 .loc 1 115 0
+ 157 0094 0B91     	 str r1,[sp,#44]
+ 158              	.LVL22:
+ 128:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****                        (((q63_t) x0 * x0) << 1)) >> 32);
+ 159              	 .loc 1 128 0
+ 160 0096 82FB0201 	 smull r0,r1,r2,r2
+ 161 009a 0218     	 adds r2,r0,r0
+ 162              	.LVL23:
+ 163 009c 41EB0103 	 adc r3,r1,r1
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****                        (((q63_t) x0 * x0) << 1)) >> 32);
+ 164              	 .loc 1 127 0
+ 165 00a0 A01A     	 subs r0,r4,r2
+ 166 00a2 65EB0301 	 sbc r1,r5,r3
+ 124:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 167              	 .loc 1 124 0
+ 168 00a6 5AF8046B 	 ldr r6,[r10],#4
+ 169              	.LVL24:
+ 129:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     energy = (q31_t) (((((q63_t) in * in) << 1) + (energy << 32)) >> 32);
+ 170              	 .loc 1 129 0
+ 171 00aa 0591     	 str r1,[sp,#20]
+ 172 00ac 0494     	 str r4,[sp,#16]
+ 173 00ae DDE90423 	 ldrd r2,[sp,#16]
+ 174 00b2 86FB0601 	 smull r0,r1,r6,r6
+ 175 00b6 0618     	 adds r6,r0,r0
+ 176              	.LVL25:
+ 177 00b8 41EB0107 	 adc r7,r1,r1
+ 178 00bc 9219     	 adds r2,r2,r6
+ 179 00be 7B41     	 adcs r3,r3,r7
+ 180 00c0 1F46     	 mov r7,r3
+ 181 00c2 1646     	 mov r6,r2
+ 182 00c4 FB17     	 asrs r3,r7,#31
+ 183 00c6 3A46     	 mov r2,r7
+ 184 00c8 CDE90623 	 strd r2,[sp,#24]
+ 185              	.LVL26:
+ 130:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 131:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Set the accumulator to zero */
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc = 0;
+ 133:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 134:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Loop unrolling.  Process 4 taps at a time. */
+ 135:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps >> 2;
+ 136:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 186              	 .loc 1 137 0
+ 187 00cc B8F1000F 	 cmp r8,#0
+ 188 00d0 00F0A281 	 beq .L29
+ 189 00d4 099B     	 ldr r3,[sp,#36]
+ 190 00d6 CDE90E67 	 strd r6,[sp,#56]
+ 191 00da 03F11001 	 add r1,r3,#16
+ 192 00de 0CF11000 	 add r0,ip,#16
+ 193 00e2 C646     	 mov lr,r8
+ 194 00e4 0022     	 movs r2,#0
+ 195              	.LVL27:
+ 196 00e6 0023     	 movs r3,#0
+ 197              	.LVL28:
+ 198              	.L4:
+ 138:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 139:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 140:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 199              	 .loc 1 140 0
+ 200 00e8 50F8105C 	 ldr r5,[r0,#-16]
+ 201 00ec 51F8104C 	 ldr r4,[r1,#-16]
+ 141:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 142:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 202              	 .loc 1 142 0
+ 203 00f0 50F8086C 	 ldr r6,[r0,#-8]
+ 204 00f4 51F8087C 	 ldr r7,[r1,#-8]
+ 140:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 205              	 .loc 1 140 0
+ 206 00f8 C4FB0523 	 smlal r2,r3,r4,r5
+ 207              	.LVL29:
+ 141:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 208              	 .loc 1 141 0
+ 209 00fc 50F80C4C 	 ldr r4,[r0,#-12]
+ 210 0100 51F80C5C 	 ldr r5,[r1,#-12]
+ 211 0104 C5FB0423 	 smlal r2,r3,r5,r4
+ 212              	.LVL30:
+ 143:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 213              	 .loc 1 143 0
+ 214 0108 50F8045C 	 ldr r5,[r0,#-4]
+ 215 010c 51F8044C 	 ldr r4,[r1,#-4]
+ 142:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 216              	 .loc 1 142 0
+ 217 0110 C7FB0623 	 smlal r2,r3,r7,r6
+ 218              	.LVL31:
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 219              	 .loc 1 137 0
+ 220 0114 BEF1010E 	 subs lr,lr,#1
+ 221              	.LVL32:
+ 222 0118 00F11000 	 add r0,r0,#16
+ 223              	.LVL33:
+ 224              	 .loc 1 143 0
+ 225 011c C4FB0523 	 smlal r2,r3,r4,r5
+ 226              	.LVL34:
+ 227 0120 01F11001 	 add r1,r1,#16
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 228              	 .loc 1 137 0
+ 229 0124 E0D1     	 bne .L4
+ 230 0126 CDE90023 	 strd r2,[sp]
+ 231 012a DDE90E67 	 ldrd r6,[sp,#56]
+ 232              	 .loc 1 143 0
+ 233 012e 1098     	 ldr r0,[sp,#64]
+ 234              	.LVL35:
+ 235 0130 4C46     	 mov r4,r9
+ 236              	.LVL36:
+ 237              	.L3:
+ 144:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 145:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 146:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 147:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 148:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 149:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* If the filter length is not a multiple of 4, compute the remaining filter taps */
+ 150:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps % 0x4u;
+ 151:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 238              	 .loc 1 152 0
+ 239 0132 089B     	 ldr r3,[sp,#32]
+ 240 0134 83B1     	 cbz r3,.L5
+ 241 0136 1946     	 mov r1,r3
+ 242 0138 CDE90E67 	 strd r6,[sp,#56]
+ 243 013c DDE90023 	 ldrd r2,[sp]
+ 244              	.LVL37:
+ 245              	.L6:
+ 153:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 154:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 155:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 246              	 .loc 1 155 0
+ 247 0140 54F8046B 	 ldr r6,[r4],#4
+ 248              	.LVL38:
+ 249 0144 50F8045B 	 ldr r5,[r0],#4
+ 250              	.LVL39:
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 251              	 .loc 1 152 0
+ 252 0148 0139     	 subs r1,r1,#1
+ 253              	.LVL40:
+ 254              	 .loc 1 155 0
+ 255 014a C5FB0623 	 smlal r2,r3,r5,r6
+ 256              	.LVL41:
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 257              	 .loc 1 152 0
+ 258 014e F7D1     	 bne .L6
+ 259 0150 CDE90023 	 strd r2,[sp]
+ 260 0154 DDE90E67 	 ldrd r6,[sp,#56]
+ 261              	.LVL42:
+ 262              	.L5:
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 157:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 158:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 159:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 160:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 161:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Converting the result to 1.31 format */
+ 162:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calc lower part of acc */
+ 163:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc_l = acc & 0xffffffff;
+ 164:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 165:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calc upper part of acc */
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc_h = (acc >> 32) & 0xffffffff;
+ 167:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 168:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc = (uint32_t) acc_l >> lShift | acc_h << uShift;
+ 263              	 .loc 1 168 0
+ 264 0158 DDE90001 	 ldrd r0,[sp]
+ 265              	.LVL43:
+ 266 015c 119B     	 ldr r3,[sp,#68]
+ 267 015e 129A     	 ldr r2,[sp,#72]
+ 268 0160 01FA03F3 	 lsl r3,r1,r3
+ 269 0164 0146     	 mov r1,r0
+ 270 0166 D140     	 lsrs r1,r1,r2
+ 271 0168 0A46     	 mov r2,r1
+ 272 016a 1A43     	 orrs r2,r2,r3
+ 169:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 170:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Store the result from accumulator into the destination buffer. */
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pOut++ = (q31_t) acc;
+ 273              	 .loc 1 171 0
+ 274 016c 0D9B     	 ldr r3,[sp,#52]
+ 172:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Compute and store error */
+ 174:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     d = *pRef++;
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     e = d - (q31_t) acc;
+ 275              	 .loc 1 175 0
+ 276 016e 0C99     	 ldr r1,[sp,#48]
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 277              	 .loc 1 171 0
+ 278 0170 43F8042B 	 str r2,[r3],#4
+ 279              	.LVL44:
+ 280 0174 0D93     	 str r3,[sp,#52]
+ 281              	.LVL45:
+ 282              	 .loc 1 175 0
+ 283 0176 51F8043B 	 ldr r3,[r1],#4
+ 284              	.LVL46:
+ 285 017a 0C91     	 str r1,[sp,#48]
+ 286              	.LVL47:
+ 287 017c 9A1A     	 subs r2,r3,r2
+ 288              	.LVL48:
+ 176:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pErr++ = e;
+ 289              	 .loc 1 176 0
+ 290 017e 229B     	 ldr r3,[sp,#136]
+ 291              	.LBB20:
+ 292              	.LBB21:
+ 293              	 .file 2 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+   1:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /* ----------------------------------------------------------------------
+   2:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Project:      CMSIS DSP Library
+   3:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Title:        CMSIS_DSP/cmsis_dsp.h
+   4:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Description:  Public header file for CMSIS DSP Library
+   5:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+   6:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * $Date:        27. January 2017
+   7:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * $Revision:    V.1.5.1
+   8:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+   9:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Target Processor: Cortex-M cores
+  10:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * -------------------------------------------------------------------- */
+  11:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /*
+  12:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+  14:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * SPDX-License-Identifier: Apache-2.0
+  15:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+  16:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * not use this file except in compliance with the License.
+  18:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * You may obtain a copy of the License at
+  19:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+  20:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * www.apache.org/licenses/LICENSE-2.0
+  21:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+  22:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Unless required by applicable law or agreed to in writing, software
+  23:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * See the License for the specific language governing permissions and
+  26:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * limitations under the License.
+  27:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+  28:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+  29:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+  30:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    \mainpage CMSIS DSP Software Library
+  31:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  32:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Introduction
+  33:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+  34:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  35:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * This user manual describes the CMSIS DSP software library,
+  36:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * a suite of common signal processing functions for use on Cortex-M processor based devices.
+  37:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  38:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library is divided into a number of functions each covering a specific category:
+  39:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Basic math functions
+  40:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Fast math functions
+  41:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Complex math functions
+  42:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Filters
+  43:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Matrix functions
+  44:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Transforms
+  45:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Motor control functions
+  46:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Statistical functions
+  47:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Support functions
+  48:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - Interpolation functions
+  49:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  50:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library has separate functions for operating on 8-bit integers, 16-bit integers,
+  51:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * 32-bit integer and 32-bit floating-point values.
+  52:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  53:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Using the Library
+  54:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+  55:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  56:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library installer contains prebuilt versions of the libraries in the <code>Lib</code> fold
+  57:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7lfdp_math.lib (Cortex-M7, Little endian, Double Precision Floating Point Unit)
+  58:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7bfdp_math.lib (Cortex-M7, Big endian, Double Precision Floating Point Unit)
+  59:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7lfsp_math.lib (Cortex-M7, Little endian, Single Precision Floating Point Unit)
+  60:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7bfsp_math.lib (Cortex-M7, Big endian and Single Precision Floating Point Unit on
+  61:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7l_math.lib (Cortex-M7, Little endian)
+  62:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM7b_math.lib (Cortex-M7, Big endian)
+  63:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM4lf_math.lib (Cortex-M4, Little endian, Floating Point Unit)
+  64:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM4bf_math.lib (Cortex-M4, Big endian, Floating Point Unit)
+  65:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM4l_math.lib (Cortex-M4, Little endian)
+  66:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM4b_math.lib (Cortex-M4, Big endian)
+  67:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM3l_math.lib (Cortex-M3, Little endian)
+  68:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM3b_math.lib (Cortex-M3, Big endian)
+  69:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM0l_math.lib (Cortex-M0 / Cortex-M0+, Little endian)
+  70:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM0b_math.lib (Cortex-M0 / Cortex-M0+, Big endian)
+  71:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_ARMv8MBLl_math.lib (ARMv8M Baseline, Little endian)
+  72:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_ARMv8MMLl_math.lib (ARMv8M Mainline, Little endian)
+  73:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_ARMv8MMLlfsp_math.lib (ARMv8M Mainline, Little endian, Single Precision Floating Point U
+  74:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_ARMv8MMLld_math.lib (ARMv8M Mainline, Little endian, DSP instructions)
+  75:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_ARMv8MMLldfsp_math.lib (ARMv8M Mainline, Little endian, DSP instructions, Single Precisi
+  76:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  77:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library functions are declared in the public file <code>CMSIS_DSP/cmsis_dsp.h</code> which
+  78:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Simply include this file and link the appropriate library in the application and begin calling
+  79:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * public header file <code> CMSIS_DSP/cmsis_dsp.h</code> for Cortex-M cores with little endian a
+  80:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define the appropriate pre processor MACRO ARM_MATH_CM7 or ARM_MATH_CM4 or  ARM_MATH_CM3 or
+  81:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ARM_MATH_CM0 or ARM_MATH_CM0PLUS depending on the target processor in the application.
+  82:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * For ARMv8M cores define pre processor MACRO ARM_MATH_ARMV8MBL or ARM_MATH_ARMV8MML.
+  83:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Set Pre processor MACRO __DSP_PRESENT if ARMv8M Mainline core supports DSP instructions.
+  84:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * 
+  85:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  86:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Examples
+  87:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * --------
+  88:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  89:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library ships with a number of examples which demonstrate how to use the library functions
+  90:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  91:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Toolchain Support
+  92:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+  93:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  94:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library has been developed and tested with MDK-ARM version 5.14.0.0
+  95:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library is being tested in GCC and IAR toolchains and updates on this activity will be mad
+  96:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+  97:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Building the Library
+  98:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+  99:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 100:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The library installer contains a project file to re build libraries on MDK-ARM Tool chain in t
+ 101:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - arm_cortexM_math.uvprojx
+ 102:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 103:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 104:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The libraries can be built by opening the arm_cortexM_math.uvprojx project in MDK-ARM, selecti
+ 105:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 106:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Pre-processor Macros
+ 107:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+ 108:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 109:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Each library project have differant pre-processor macros.
+ 110:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 111:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - UNALIGNED_SUPPORT_DISABLE:
+ 112:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 113:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro UNALIGNED_SUPPORT_DISABLE, If the silicon does not support unaligned memory acces
+ 114:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 115:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - ARM_MATH_BIG_ENDIAN:
+ 116:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 117:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro ARM_MATH_BIG_ENDIAN to build the library for big endian targets. By default libra
+ 118:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 119:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - ARM_MATH_MATRIX_CHECK:
+ 120:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 121:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro ARM_MATH_MATRIX_CHECK for checking on the input and output sizes of matrices
+ 122:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 123:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - ARM_MATH_ROUNDING:
+ 124:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 125:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro ARM_MATH_ROUNDING for rounding on support functions
+ 126:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 127:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - ARM_MATH_CMx:
+ 128:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 129:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro ARM_MATH_CM4 for building the library on Cortex-M4 target, ARM_MATH_CM3 for build
+ 130:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * and ARM_MATH_CM0 for building library on Cortex-M0 target, ARM_MATH_CM0PLUS for building libra
+ 131:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ARM_MATH_CM7 for building the library on cortex-M7.
+ 132:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 133:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - ARM_MATH_ARMV8MxL:
+ 134:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 135:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Define macro ARM_MATH_ARMV8MBL for building the library on ARMv8M Baseline target, ARM_MATH_AR
+ 136:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * on ARMv8M Mainline target.
+ 137:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 138:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - __FPU_PRESENT:
+ 139:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 140:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Initialize macro __FPU_PRESENT = 1 when building on FPU supported Targets. Enable this macro f
+ 141:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 142:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * - __DSP_PRESENT:
+ 143:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 144:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Initialize macro __DSP_PRESENT = 1 when ARMv8M Mainline core supports DSP instructions.
+ 145:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 146:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * <hr>
+ 147:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * CMSIS-DSP in ARM::CMSIS Pack
+ 148:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * -----------------------------
+ 149:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 150:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * The following files relevant to CMSIS-DSP are present in the <b>ARM::CMSIS</b> Pack directorie
+ 151:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |File/Folder                   |Content                                                       
+ 152:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |------------------------------|--------------------------------------------------------------
+ 153:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |\b CMSIS\\Documentation\\DSP  | This documentation                                           
+ 154:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |\b CMSIS\\DSP_Lib             | Software license agreement (license.txt)                     
+ 155:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |\b CMSIS\\DSP_Lib\\Examples   | Example projects demonstrating the usage of the library funct
+ 156:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * |\b CMSIS\\DSP_Lib\\Source     | Source files for rebuilding the library                      
+ 157:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 158:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * <hr>
+ 159:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Revision History of CMSIS-DSP
+ 160:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+ 161:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Please refer to \ref ChangeLog_pg.
+ 162:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 163:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Copyright Notice
+ 164:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * ------------
+ 165:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    *
+ 166:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * Copyright (C) 2010-2015 ARM Limited. All rights reserved.
+ 167:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 168:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 169:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 170:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 171:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupMath Basic Math Functions
+ 172:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 173:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 174:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 175:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupFastMath Fast Math Functions
+ 176:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * This set of functions provides a fast approximation to sine, cosine, and square root.
+ 177:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * As compared to most of the other functions in the CMSIS math library, the fast math functions
+ 178:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * operate on individual values and not arrays.
+ 179:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * There are separate functions for Q15, Q31, and floating-point data.
+ 180:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 181:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 182:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 183:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 184:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupCmplxMath Complex Math Functions
+ 185:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * This set of functions operates on complex data vectors.
+ 186:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * The data in the complex arrays is stored in an interleaved fashion
+ 187:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * (real, imag, real, imag, ...).
+ 188:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * In the API functions, the number of samples in a complex array refers
+ 189:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * to the number of complex values; the array contains twice this number of
+ 190:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * real values.
+ 191:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 192:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 193:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 194:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupFilters Filtering Functions
+ 195:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 196:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 197:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 198:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupMatrix Matrix Functions
+ 199:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 200:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * This set of functions provides basic matrix math operations.
+ 201:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * The functions operate on matrix data structures.  For example,
+ 202:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * the type
+ 203:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * definition for the floating-point matrix structure is shown
+ 204:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * below:
+ 205:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 206:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     typedef struct
+ 207:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     {
+ 208:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *       uint16_t numRows;     // number of rows of the matrix.
+ 209:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *       uint16_t numCols;     // number of columns of the matrix.
+ 210:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *       float32_t *pData;     // points to the data of the matrix.
+ 211:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     } arm_matrix_instance_f32;
+ 212:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 213:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * There are similar definitions for Q15 and Q31 data types.
+ 214:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 215:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * The structure specifies the size of the matrix and then points to
+ 216:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * an array of data.  The array is of size <code>numRows X numCols</code>
+ 217:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * and the values are arranged in row order.  That is, the
+ 218:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * matrix element (i, j) is stored at:
+ 219:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 220:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     pData[i*numCols + j]
+ 221:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 222:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 223:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * \par Init Functions
+ 224:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * There is an associated initialization function for each type of matrix
+ 225:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * data structure.
+ 226:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * The initialization function sets the values of the internal structure fields.
+ 227:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Refer to the function <code>arm_mat_init_f32()</code>, <code>arm_mat_init_q31()</code>
+ 228:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * and <code>arm_mat_init_q15()</code> for floating-point, Q31 and Q15 types,  respectively.
+ 229:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 230:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * \par
+ 231:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Use of the initialization function is optional. However, if initialization function is used
+ 232:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * then the instance structure cannot be placed into a const data section.
+ 233:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * To place the instance structure in a const data
+ 234:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * section, manually initialize the data structure.  For example:
+ 235:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 236:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <code>arm_matrix_instance_f32 S = {nRows, nColumns, pData};</code>
+ 237:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <code>arm_matrix_instance_q31 S = {nRows, nColumns, pData};</code>
+ 238:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <code>arm_matrix_instance_q15 S = {nRows, nColumns, pData};</code>
+ 239:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 240:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * where <code>nRows</code> specifies the number of rows, <code>nColumns</code>
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * specifies the number of columns, and <code>pData</code> points to the
+ 242:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * data array.
+ 243:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *
+ 244:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * \par Size Checking
+ 245:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * By default all of the matrix functions perform size checking on the input and
+ 246:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * output matrices.  For example, the matrix addition function verifies that the
+ 247:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * two input matrices and the output matrix all have the same number of rows and
+ 248:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * columns.  If the size check fails the functions return:
+ 249:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 250:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     ARM_MATH_SIZE_MISMATCH
+ 251:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 252:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Otherwise the functions return
+ 253:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 254:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     ARM_MATH_SUCCESS
+ 255:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 256:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * There is some overhead associated with this matrix size checking.
+ 257:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * The matrix size checking is enabled via the \#define
+ 258:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * <pre>
+ 259:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  *     ARM_MATH_MATRIX_CHECK
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * </pre>
+ 261:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * within the library project settings.  By default this macro is defined
+ 262:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * and size checking is enabled.  By changing the project settings and
+ 263:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * undefining this macro size checking is eliminated and the functions
+ 264:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * run a bit faster.  With size checking disabled the functions always
+ 265:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * return <code>ARM_MATH_SUCCESS</code>.
+ 266:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 267:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 268:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 269:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupTransforms Transform Functions
+ 270:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 271:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 272:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 273:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupController Controller Functions
+ 274:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 275:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 276:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 277:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupStats Statistics Functions
+ 278:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 279:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 280:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupSupport Support Functions
+ 281:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 282:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 283:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 284:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupInterpolation Interpolation Functions
+ 285:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * These functions perform 1- and 2-dimensional interpolation of data.
+ 286:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * Linear interpolation is used for 1-dimensional data and
+ 287:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * bilinear interpolation is used for 2-dimensional data.
+ 288:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 289:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 290:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /**
+ 291:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  * @defgroup groupExamples Examples
+ 292:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 293:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #ifndef _ARM_MATH_H
+ 294:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define _ARM_MATH_H
+ 295:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 296:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /* ignore some GCC warnings */
+ 297:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #if defined ( __GNUC__ )
+ 298:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #pragma GCC diagnostic push
+ 299:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+ 300:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #pragma GCC diagnostic ignored "-Wconversion"
+ 301:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+ 302:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 303:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 304:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __CMSIS_GENERIC         /* disable NVIC and Systick functions */
+ 305:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 306:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #if defined(ARM_MATH_CM7)
+ 307:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_cm7.h"
+ 308:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define ARM_MATH_DSP
+ 309:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_CM4)
+ 310:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_cm4.h"
+ 311:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define ARM_MATH_DSP
+ 312:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_CM3)
+ 313:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_cm3.h"
+ 314:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_CM0)
+ 315:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_cm0.h"
+ 316:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define ARM_MATH_CM0_FAMILY
+ 317:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_CM0PLUS)
+ 318:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_cm0plus.h"
+ 319:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define ARM_MATH_CM0_FAMILY
+ 320:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_ARMV8MBL)
+ 321:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_armv8mbl.h"
+ 322:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define ARM_MATH_CM0_FAMILY
+ 323:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined (ARM_MATH_ARMV8MML)
+ 324:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #include "core_armv8mml.h"
+ 325:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #if (defined (__DSP_PRESENT) && (__DSP_PRESENT == 1))
+ 326:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     #define ARM_MATH_DSP
+ 327:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #endif
+ 328:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #else
+ 329:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #error "Define according the used Cortex core ARM_MATH_CM7, ARM_MATH_CM4, ARM_MATH_CM3, ARM_MATH_
+ 330:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 331:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 332:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #undef  __CMSIS_GENERIC         /* enable NVIC and Systick functions */
+ 333:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #include "string.h"
+ 334:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #include "math.h"
+ 335:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #ifdef   __cplusplus
+ 336:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** extern "C"
+ 337:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** {
+ 338:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 339:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 340:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 341:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 342:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Macros required for reciprocal calculation in Normalized LMS
+ 343:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 344:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 345:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define DELTA_Q31          (0x100)
+ 346:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define DELTA_Q15          0x5
+ 347:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define INDEX_MASK         0x0000003F
+ 348:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #ifndef PI
+ 349:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define PI               3.14159265358979f
+ 350:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 351:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 352:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 353:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Macros required for SINE and COSINE Fast math approximations
+ 354:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 355:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 356:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define FAST_MATH_TABLE_SIZE  512
+ 357:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define FAST_MATH_Q31_SHIFT   (32 - 10)
+ 358:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define FAST_MATH_Q15_SHIFT   (16 - 10)
+ 359:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define CONTROLLER_Q31_SHIFT  (32 - 9)
+ 360:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define TABLE_SPACING_Q31     0x400000
+ 361:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define TABLE_SPACING_Q15     0x80
+ 362:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 363:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 364:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Macros required for SINE and COSINE Controller functions
+ 365:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 366:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /* 1.31(q31) Fixed value of 2/360 */
+ 367:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /* -1 to +1 is divided into 360 values so total spacing is (2/360) */
+ 368:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define INPUT_SPACING         0xB60B61
+ 369:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 370:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 371:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Macro for Unaligned Support
+ 372:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 373:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #ifndef UNALIGNED_SUPPORT_DISABLE
+ 374:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     #define ALIGN4
+ 375:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #else
+ 376:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #if defined  (__GNUC__)
+ 377:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     #define ALIGN4 __attribute__((aligned(4)))
+ 378:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #else
+ 379:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     #define ALIGN4 __align(4)
+ 380:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #endif
+ 381:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif   /* #ifndef UNALIGNED_SUPPORT_DISABLE */
+ 382:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 383:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 384:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Error status returned by some functions in the library.
+ 385:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 386:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 387:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef enum
+ 388:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 389:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_SUCCESS = 0,                /**< No error */
+ 390:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_ARGUMENT_ERROR = -1,        /**< One or more arguments are incorrect */
+ 391:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_LENGTH_ERROR = -2,          /**< Length of data buffer is incorrect */
+ 392:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_SIZE_MISMATCH = -3,         /**< Size of matrices is not compatible with the operation
+ 393:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_NANINF = -4,                /**< Not-a-number (NaN) or infinity is generated */
+ 394:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_SINGULAR = -5,              /**< Generated by matrix inversion if the input matrix is 
+ 395:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     ARM_MATH_TEST_FAILURE = -6           /**< Test Failed  */
+ 396:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   } arm_status;
+ 397:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 398:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 399:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 8-bit fractional data type in 1.7 format.
+ 400:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 401:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef int8_t q7_t;
+ 402:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 403:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 404:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 16-bit fractional data type in 1.15 format.
+ 405:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 406:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef int16_t q15_t;
+ 407:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 408:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 409:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 32-bit fractional data type in 1.31 format.
+ 410:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 411:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef int32_t q31_t;
+ 412:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 413:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 414:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 64-bit fractional data type in 1.63 format.
+ 415:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 416:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef int64_t q63_t;
+ 417:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 418:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 419:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 32-bit floating-point type definition.
+ 420:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 421:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef float float32_t;
+ 422:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 423:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 424:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief 64-bit floating-point type definition.
+ 425:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 426:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   typedef double float64_t;
+ 427:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 428:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 429:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief definition to read/write two 16 bit values.
+ 430:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 431:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #if   defined ( __CC_ARM )
+ 432:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t __packed
+ 433:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED __attribute__((unused))
+ 434:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE __attribute__((always_inline))
+ 435:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 436:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
+ 437:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t
+ 438:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED __attribute__((unused))
+ 439:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE __attribute__((always_inline))
+ 440:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 441:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __GNUC__ )
+ 442:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t
+ 443:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED __attribute__((unused))
+ 444:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE __attribute__((always_inline))
+ 445:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 446:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __ICCARM__ )
+ 447:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t __packed
+ 448:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED
+ 449:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE
+ 450:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 451:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __TI_ARM__ )
+ 452:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t
+ 453:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED __attribute__((unused))
+ 454:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE
+ 455:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 456:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __CSMC__ )
+ 457:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE int32_t
+ 458:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED
+ 459:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE
+ 460:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 461:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #elif defined ( __TASKING__ )
+ 462:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __SIMD32_TYPE __unaligned int32_t
+ 463:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_UNUSED
+ 464:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define CMSIS_INLINE
+ 465:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 466:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #else
+ 467:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #error Unknown compiler
+ 468:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 469:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 470:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __SIMD32(addr)        (*(__SIMD32_TYPE **) & (addr))
+ 471:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __SIMD32_CONST(addr)  ((__SIMD32_TYPE *)(addr))
+ 472:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define _SIMD32_OFFSET(addr)  (*(__SIMD32_TYPE *)  (addr))
+ 473:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __SIMD64(addr)        (*(int64_t **) & (addr))
+ 474:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 475:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /* #if defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+ 476:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #if !defined (ARM_MATH_DSP)
+ 477:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 478:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief definition to pack two 16 bit values.
+ 479:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 480:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __PKHBT(ARG1, ARG2, ARG3) ( (((int32_t)(ARG1) <<    0) & (int32_t)0x0000FFFF) | \
+ 481:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                     (((int32_t)(ARG2) << ARG3) & (int32_t)0xFFFF0000)  )
+ 482:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __PKHTB(ARG1, ARG2, ARG3) ( (((int32_t)(ARG1) <<    0) & (int32_t)0xFFFF0000) | \
+ 483:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                     (((int32_t)(ARG2) >> ARG3) & (int32_t)0x0000FFFF)  )
+ 484:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 485:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /* #endif // defined (ARM_MATH_CM3) || defined (ARM_MATH_CM0_FAMILY) */
+ 486:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif /* !defined (ARM_MATH_DSP) */
+ 487:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 488:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    /**
+ 489:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief definition to pack four 8 bit values.
+ 490:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 491:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #ifndef ARM_MATH_BIG_ENDIAN
+ 492:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 493:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __PACKq7(v0,v1,v2,v3) ( (((int32_t)(v0) <<  0) & (int32_t)0x000000FF) | \
+ 494:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v1) <<  8) & (int32_t)0x0000FF00) | \
+ 495:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v2) << 16) & (int32_t)0x00FF0000) | \
+ 496:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v3) << 24) & (int32_t)0xFF000000)  )
+ 497:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #else
+ 498:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 499:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #define __PACKq7(v0,v1,v2,v3) ( (((int32_t)(v3) <<  0) & (int32_t)0x000000FF) | \
+ 500:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v2) <<  8) & (int32_t)0x0000FF00) | \
+ 501:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v1) << 16) & (int32_t)0x00FF0000) | \
+ 502:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****                                 (((int32_t)(v0) << 24) & (int32_t)0xFF000000)  )
+ 503:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 504:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 505:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 506:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 507:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 508:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Clips Q63 to Q31 values.
+ 509:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 510:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE q31_t clip_q63_to_q31(
+ 511:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q63_t x)
+ 512:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 513:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return ((q31_t) (x >> 32) != ((q31_t) x >> 31)) ?
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7FFFFFFF ^ ((q31_t) (x >> 63)))) : (q31_t) x;
+ 515:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 516:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 517:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 518:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Clips Q63 to Q15 values.
+ 519:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 520:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE q15_t clip_q63_to_q15(
+ 521:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q63_t x)
+ 522:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 523:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return ((q31_t) (x >> 32) != ((q31_t) x >> 31)) ?
+ 524:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7FFF ^ ((q15_t) (x >> 63)))) : (q15_t) (x >> 15);
+ 525:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 526:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 527:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 528:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Clips Q31 to Q7 values.
+ 529:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 530:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE q7_t clip_q31_to_q7(
+ 531:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t x)
+ 532:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 533:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return ((q31_t) (x >> 24) != ((q31_t) x >> 23)) ?
+ 534:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7F ^ ((q7_t) (x >> 31)))) : (q7_t) x;
+ 535:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 536:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 537:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 538:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Clips Q31 to Q15 values.
+ 539:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 540:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE q15_t clip_q31_to_q15(
+ 541:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t x)
+ 542:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 543:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return ((q31_t) (x >> 16) != ((q31_t) x >> 15)) ?
+ 544:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7FFF ^ ((q15_t) (x >> 31)))) : (q15_t) x;
+ 545:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 546:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 547:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 548:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Multiplies 32 X 64 and returns 32 bit result in 2.30 format.
+ 549:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 550:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 551:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE q63_t mult32x64(
+ 552:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q63_t x,
+ 553:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t y)
+ 554:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 555:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return ((((q63_t) (x & 0x00000000FFFFFFFF) * y) >> 32) +
+ 556:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****             (((q63_t) (x >> 32) * y)));
+ 557:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 558:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 559:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /*
+ 560:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #if defined (ARM_MATH_CM0_FAMILY) && defined ( __CC_ARM   )
+ 561:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #define __CLZ __clz
+ 562:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   #endif
+ 563:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****  */
+ 564:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** /* note: function can be removed when all toolchain support __CLZ for Cortex-M0 */
+ 565:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #if defined (ARM_MATH_CM0_FAMILY) && ((defined (__ICCARM__))  )
+ 566:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE uint32_t __CLZ(
+ 567:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t data);
+ 568:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 569:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE uint32_t __CLZ(
+ 570:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t data)
+ 571:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 572:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     uint32_t count = 0;
+ 573:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     uint32_t mask = 0x80000000;
+ 574:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 575:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     while ((data & mask) == 0)
+ 576:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     {
+ 577:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       count += 1u;
+ 578:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       mask = mask >> 1u;
+ 579:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 580:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 581:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     return (count);
+ 582:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 583:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** #endif
+ 584:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 585:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   /**
+ 586:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    * @brief Function to Calculates 1/in (reciprocal) value of Q31 Data type.
+ 587:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****    */
+ 588:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 589:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   CMSIS_INLINE __STATIC_INLINE uint32_t arm_recip_q31(
+ 590:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t in,
+ 591:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t * dst,
+ 592:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   q31_t * pRecipTable)
+ 593:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   {
+ 594:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     q31_t out;
+ 595:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     uint32_t tempVal;
+ 596:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     uint32_t index, i;
+ 597:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     uint32_t signBits;
+ 598:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 599:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     if (in > 0)
+ 600:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     {
+ 601:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       signBits = ((uint32_t) (__CLZ( in) - 1));
+ 602:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 603:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     else
+ 604:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     {
+ 605:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       signBits = ((uint32_t) (__CLZ(-in) - 1));
+ 606:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 607:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 608:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     /* Convert input sample to 1.31 format */
+ 609:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     in = (in << signBits);
+ 610:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 611:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     /* calculation of index for initial approximated Val */
+ 612:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     index = (uint32_t)(in >> 24);
+ 613:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     index = (index & INDEX_MASK);
+ 614:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 615:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     /* 1.31 with exp 1 */
+ 616:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     out = pRecipTable[index];
+ 294              	 .loc 2 616 0
+ 295 0180 1398     	 ldr r0,[sp,#76]
+ 296              	.LBE21:
+ 297              	.LBE20:
+ 298              	 .loc 1 176 0
+ 299 0182 43F8042B 	 str r2,[r3],#4
+ 300              	.LVL49:
+ 177:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 178:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calculates the reciprocal of energy */
+ 179:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     postShift = arm_recip_q31(energy + DELTA_Q31,
+ 301              	 .loc 1 179 0
+ 302 0186 07F58074 	 add r4,r7,#256
+ 303              	.LVL50:
+ 304              	.LBB31:
+ 305              	.LBB28:
+ 599:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     {
+ 306              	 .loc 2 599 0
+ 307 018a 002C     	 cmp r4,#0
+ 308              	.LBE28:
+ 309              	.LBE31:
+ 176:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 310              	 .loc 1 176 0
+ 311 018c 2293     	 str r3,[sp,#136]
+ 312              	.LVL51:
+ 313              	.LBB32:
+ 314              	.LBB29:
+ 605:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 315              	 .loc 2 605 0
+ 316 018e D6BF     	 itet le
+ 317 0190 6342     	 rsble r3,r4,#0
+ 318              	.LVL52:
+ 601:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 319              	 .loc 2 601 0
+ 320 0192 B4FA84F3 	 clzgt r3,r4
+ 605:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     }
+ 321              	 .loc 2 605 0
+ 322 0196 B3FA83F3 	 clzle r3,r3
+ 323 019a 013B     	 subs r3,r3,#1
+ 324              	.LVL53:
+ 609:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 325              	 .loc 2 609 0
+ 326 019c 04FA03FE 	 lsl lr,r4,r3
+ 327              	.LVL54:
+ 613:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 328              	 .loc 2 613 0
+ 329 01a0 CEF30561 	 ubfx r1,lr,#24,#6
+ 330              	.LVL55:
+ 617:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 618:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     /* calculation of reciprocal value */
+ 619:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     /* running approximation for two iterations */
+ 620:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     for (i = 0u; i < 2u; i++)
+ 621:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****     {
+ 622:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = (uint32_t) (((q63_t) in * out) >> 31);
+ 623:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = 0x7FFFFFFFu - tempVal;
+ 331              	 .loc 2 623 0
+ 332 01a4 6FF0004B 	 mvn fp,#-2147483648
+ 616:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h **** 
+ 333              	 .loc 2 616 0
+ 334 01a8 50F82100 	 ldr r0,[r0,r1,lsl#2]
+ 335              	.LVL56:
+ 622:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = 0x7FFFFFFFu - tempVal;
+ 336              	 .loc 2 622 0
+ 337 01ac 8EFB0067 	 smull r6,r7,lr,r0
+ 338 01b0 F10F     	 lsrs r1,r6,#31
+ 339 01b2 41EA4701 	 orr r1,r1,r7,lsl#1
+ 340              	.LVL57:
+ 341              	 .loc 2 623 0
+ 342 01b6 C1EB0B0B 	 rsb fp,r1,fp
+ 343              	.LVL58:
+ 624:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       /*      1.31 with exp 1 */
+ 625:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       /* out = (q31_t) (((q63_t) out * tempVal) >> 30); */
+ 626:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       out = clip_q63_to_q31(((q63_t) out * tempVal) >> 30);
+ 344              	 .loc 2 626 0
+ 345 01ba A0FB0B45 	 umull r4,r5,r0,fp
+ 622:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = 0x7FFFFFFFu - tempVal;
+ 346              	 .loc 2 622 0
+ 347 01be C117     	 asrs r1,r0,#31
+ 348              	 .loc 2 626 0
+ 349 01c0 0BFB0155 	 mla r5,fp,r1,r5
+ 350 01c4 A00F     	 lsrs r0,r4,#30
+ 351              	.LVL59:
+ 352 01c6 40EA8500 	 orr r0,r0,r5,lsl#2
+ 353              	.LVL60:
+ 354              	.LBB22:
+ 355              	.LBB23:
+ 513:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7FFFFFFF ^ ((q31_t) (x >> 63)))) : (q31_t) x;
+ 356              	 .loc 2 513 0
+ 357 01ca C117     	 asrs r1,r0,#31
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 358              	 .loc 2 514 0
+ 359 01cc B1EBA57F 	 cmp r1,r5,asr#30
+ 360 01d0 03D0     	 beq .L10
+ 361 01d2 E817     	 asrs r0,r5,#31
+ 362              	.LVL61:
+ 363 01d4 80F00040 	 eor r0,r0,#-2147483648
+ 364 01d8 C043     	 mvns r0,r0
+ 365              	.L10:
+ 366              	.LVL62:
+ 367              	.LBE23:
+ 368              	.LBE22:
+ 622:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = 0x7FFFFFFFu - tempVal;
+ 369              	 .loc 2 622 0
+ 370 01da 8EFB0045 	 smull r4,r5,lr,r0
+ 371              	.LVL63:
+ 372 01de E10F     	 lsrs r1,r4,#31
+ 373 01e0 41EA4501 	 orr r1,r1,r5,lsl#1
+ 374              	.LVL64:
+ 623:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       /*      1.31 with exp 1 */
+ 375              	 .loc 2 623 0
+ 376 01e4 6FF00046 	 mvn r6,#-2147483648
+ 377 01e8 761A     	 subs r6,r6,r1
+ 378              	.LVL65:
+ 379              	 .loc 2 626 0
+ 380 01ea A0FB0645 	 umull r4,r5,r0,r6
+ 622:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       tempVal = 0x7FFFFFFFu - tempVal;
+ 381              	 .loc 2 622 0
+ 382 01ee C117     	 asrs r1,r0,#31
+ 383              	 .loc 2 626 0
+ 384 01f0 06FB0155 	 mla r5,r6,r1,r5
+ 385 01f4 A10F     	 lsrs r1,r4,#30
+ 386 01f6 41EA8501 	 orr r1,r1,r5,lsl#2
+ 387              	.LVL66:
+ 388              	.LBB26:
+ 389              	.LBB24:
+ 513:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****       ((0x7FFFFFFF ^ ((q31_t) (x >> 63)))) : (q31_t) x;
+ 390              	 .loc 2 513 0
+ 391 01fa C817     	 asrs r0,r1,#31
+ 392              	.LVL67:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 393              	 .loc 2 514 0
+ 394 01fc B0EBA57F 	 cmp r0,r5,asr#30
+ 395 0200 1ABF     	 itte ne
+ 396 0202 E917     	 asrne r1,r5,#31
+ 397              	.LVL68:
+ 398 0204 81F00044 	 eorne r4,r1,#-2147483648
+ 399              	.LVL69:
+ 400 0208 0C46     	 moveq r4,r1
+ 401              	.LBE24:
+ 402              	.LBE26:
+ 403              	.LBE29:
+ 404              	.LBE32:
+ 180:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****                               &oneByEnergy, &S->recipTable[0]);
+ 181:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 182:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calculation of product of (e * mu) */
+ 183:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     errorXmu = (q31_t) (((q63_t) e * mu) >> 31);
+ 405              	 .loc 1 183 0
+ 406 020a 1499     	 ldr r1,[sp,#80]
+ 407 020c 82FB0101 	 smull r0,r1,r2,r1
+ 408 0210 4FEAD072 	 lsr r2,r0,#31
+ 409              	.LVL70:
+ 184:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Weighting factor for the normalized version */
+ 186:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     w = clip_q63_to_q31(((q63_t) errorXmu * oneByEnergy) >> (31 - postShift));
+ 410              	 .loc 1 186 0
+ 411 0214 C3F11E06 	 rsb r6,r3,#30
+ 412              	.LVL71:
+ 413              	.LBB33:
+ 414              	.LBB30:
+ 415              	.LBB27:
+ 416              	.LBB25:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 417              	 .loc 2 514 0
+ 418 0218 18BF     	 it ne
+ 419 021a E443     	 mvnne r4,r4
+ 420              	.LVL72:
+ 421              	.LBE25:
+ 422              	.LBE27:
+ 423              	.LBE30:
+ 424              	.LBE33:
+ 183:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 425              	 .loc 1 183 0
+ 426 021c 42EA4102 	 orr r2,r2,r1,lsl#1
+ 427              	.LVL73:
+ 428              	 .loc 1 186 0
+ 429 0220 82FB0423 	 smull r2,r3,r2,r4
+ 430              	.LVL74:
+ 431 0224 C6F12001 	 rsb r1,r6,#32
+ 432              	.LVL75:
+ 433 0228 B6F12004 	 subs r4,r6,#32
+ 434              	.LVL76:
+ 435 022c 03FA01F1 	 lsl r1,r3,r1
+ 436 0230 22FA06F5 	 lsr r5,r2,r6
+ 437 0234 58BF     	 it pl
+ 438 0236 43FA04F4 	 asrpl r4,r3,r4
+ 439 023a 45EA0105 	 orr r5,r5,r1
+ 440 023e 58BF     	 it pl
+ 441 0240 2543     	 orrpl r5,r5,r4
+ 442 0242 3341     	 asrs r3,r3,r6
+ 443              	.LVL77:
+ 444              	.LBB34:
+ 445              	.LBB35:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 446              	 .loc 2 514 0
+ 447 0244 B3EBE57F 	 cmp r3,r5,asr#31
+ 448 0248 03D0     	 beq .L15
+ 449 024a DD17     	 asrs r5,r3,#31
+ 450              	.LVL78:
+ 451 024c 85F00045 	 eor r5,r5,#-2147483648
+ 452 0250 ED43     	 mvns r5,r5
+ 453              	.L15:
+ 454              	.LVL79:
+ 455              	.LBE35:
+ 456              	.LBE34:
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 188:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize pState pointer */
+ 189:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     px = pState;
+ 190:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 191:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize coeff pointer */
+ 192:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pb = (pCoeffs);
+ 193:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 194:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Loop unrolling.  Process 4 taps at a time. */
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps >> 2;
+ 196:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 197:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Update filter coefficients */
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 457              	 .loc 1 198 0
+ 458 0252 B8F1000F 	 cmp r8,#0
+ 459 0256 00F0DC80 	 beq .L30
+ 460 025a 099B     	 ldr r3,[sp,#36]
+ 461              	.LVL80:
+ 462 025c 0CF11004 	 add r4,ip,#16
+ 463              	.LVL81:
+ 464 0260 03F11001 	 add r1,r3,#16
+ 465              	.LVL82:
+ 466 0264 4646     	 mov r6,r8
+ 467              	.LVL83:
+ 468 0266 D646     	 mov lr,r10
+ 469              	.LVL84:
+ 470              	.L17:
+ 199:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 200:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 201:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 202:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* coef is in 2.30 format */
+ 203:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 471              	 .loc 1 203 0
+ 472 0268 54F8102C 	 ldr r2,[r4,#-16]
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* get coef in 1.31 format by left shifting */
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 473              	 .loc 1 205 0
+ 474 026c 51F8100C 	 ldr r0,[r1,#-16]
+ 206:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* update coefficient buffer to next coefficient */
+ 207:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 208:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 475              	 .loc 1 210 0
+ 476 0270 51F80C7C 	 ldr r7,[r1,#-12]
+ 203:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* get coef in 1.31 format by left shifting */
+ 477              	 .loc 1 203 0
+ 478 0274 82FB0523 	 smull r2,r3,r2,r5
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* update coefficient buffer to next coefficient */
+ 479              	 .loc 1 205 0
+ 480 0278 5A00     	 lsls r2,r3,#1
+ 481 027a 12EB000A 	 adds r10,r2,r0
+ 482 027e 4FEAE273 	 asr r3,r2,#31
+ 483 0282 43EBE07B 	 adc fp,r3,r0,asr#31
+ 484              	.LBB36:
+ 485              	.LBB37:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 486              	 .loc 2 514 0
+ 487 0286 5B46     	 mov r3,fp
+ 488 0288 D817     	 asrs r0,r3,#31
+ 489 028a 80F00040 	 eor r0,r0,#-2147483648
+ 490 028e BBEBEA7F 	 cmp fp,r10,asr#31
+ 491 0292 6FEA0000 	 mvn r0,r0
+ 492 0296 5246     	 mov r2,r10
+ 493 0298 18BF     	 it ne
+ 494 029a 0246     	 movne r2,r0
+ 495              	.LBE37:
+ 496              	.LBE36:
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* update coefficient buffer to next coefficient */
+ 497              	 .loc 1 205 0
+ 498 029c 41F8102C 	 str r2,[r1,#-16]
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 499              	 .loc 1 209 0
+ 500 02a0 54F80C2C 	 ldr r2,[r4,#-12]
+ 211:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 212:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 501              	 .loc 1 214 0
+ 502 02a4 51F8080C 	 ldr r0,[r1,#-8]
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 503              	 .loc 1 209 0
+ 504 02a8 82FB0523 	 smull r2,r3,r2,r5
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 505              	 .loc 1 210 0
+ 506 02ac 5A00     	 lsls r2,r3,#1
+ 507 02ae 12EB070A 	 adds r10,r2,r7
+ 508 02b2 4FEAE273 	 asr r3,r2,#31
+ 509 02b6 43EBE77B 	 adc fp,r3,r7,asr#31
+ 510              	.LBB38:
+ 511              	.LBB39:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 512              	 .loc 2 514 0
+ 513 02ba 5B46     	 mov r3,fp
+ 514 02bc DF17     	 asrs r7,r3,#31
+ 515 02be 87F00047 	 eor r7,r7,#-2147483648
+ 516 02c2 BBEBEA7F 	 cmp fp,r10,asr#31
+ 517 02c6 6FEA0707 	 mvn r7,r7
+ 518 02ca 5246     	 mov r2,r10
+ 519 02cc 18BF     	 it ne
+ 520 02ce 3A46     	 movne r2,r7
+ 521              	.LBE39:
+ 522              	.LBE38:
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 523              	 .loc 1 210 0
+ 524 02d0 41F80C2C 	 str r2,[r1,#-12]
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 525              	 .loc 1 213 0
+ 526 02d4 54F8082C 	 ldr r2,[r4,#-8]
+ 215:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 216:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 217:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 218:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 527              	 .loc 1 218 0
+ 528 02d8 51F8047C 	 ldr r7,[r1,#-4]
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 529              	 .loc 1 213 0
+ 530 02dc 82FB0523 	 smull r2,r3,r2,r5
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 531              	 .loc 1 214 0
+ 532 02e0 5A00     	 lsls r2,r3,#1
+ 533 02e2 12EB000A 	 adds r10,r2,r0
+ 534 02e6 4FEAE273 	 asr r3,r2,#31
+ 535 02ea 43EBE07B 	 adc fp,r3,r0,asr#31
+ 536              	.LBB40:
+ 537              	.LBB41:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 538              	 .loc 2 514 0
+ 539 02ee 5B46     	 mov r3,fp
+ 540 02f0 D817     	 asrs r0,r3,#31
+ 541 02f2 80F00040 	 eor r0,r0,#-2147483648
+ 542 02f6 BBEBEA7F 	 cmp fp,r10,asr#31
+ 543 02fa 6FEA0000 	 mvn r0,r0
+ 544 02fe 5246     	 mov r2,r10
+ 545 0300 18BF     	 it ne
+ 546 0302 0246     	 movne r2,r0
+ 547              	.LBE41:
+ 548              	.LBE40:
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 549              	 .loc 1 214 0
+ 550 0304 41F8082C 	 str r2,[r1,#-8]
+ 217:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 551              	 .loc 1 217 0
+ 552 0308 54F8042C 	 ldr r2,[r4,#-4]
+ 553 030c 82FB0523 	 smull r2,r3,r2,r5
+ 554              	 .loc 1 218 0
+ 555 0310 5A00     	 lsls r2,r3,#1
+ 556 0312 D317     	 asrs r3,r2,#31
+ 557 0314 12EB070A 	 adds r10,r2,r7
+ 558 0318 43EBE77B 	 adc fp,r3,r7,asr#31
+ 559              	.LBB42:
+ 560              	.LBB43:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 561              	 .loc 2 514 0
+ 562 031c 5B46     	 mov r3,fp
+ 563 031e D817     	 asrs r0,r3,#31
+ 564 0320 80F00040 	 eor r0,r0,#-2147483648
+ 565 0324 BBEBEA7F 	 cmp fp,r10,asr#31
+ 566 0328 6FEA0000 	 mvn r0,r0
+ 567 032c 5246     	 mov r2,r10
+ 568 032e 18BF     	 it ne
+ 569 0330 0246     	 movne r2,r0
+ 570              	.LBE43:
+ 571              	.LBE42:
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 572              	 .loc 1 198 0
+ 573 0332 013E     	 subs r6,r6,#1
+ 574              	 .loc 1 218 0
+ 575 0334 41F8042C 	 str r2,[r1,#-4]
+ 576 0338 04F11004 	 add r4,r4,#16
+ 577 033c 01F11001 	 add r1,r1,#16
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 578              	 .loc 1 198 0
+ 579 0340 92D1     	 bne .L17
+ 219:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 580              	 .loc 1 219 0
+ 581 0342 1098     	 ldr r0,[sp,#64]
+ 582 0344 F246     	 mov r10,lr
+ 583 0346 4E46     	 mov r6,r9
+ 584              	.LVL85:
+ 585              	.L16:
+ 220:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 221:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 222:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 223:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 224:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 225:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* If the filter length is not a multiple of 4, compute the remaining filter taps */
+ 226:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps % 0x4u;
+ 227:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 586              	 .loc 1 228 0
+ 587 0348 089B     	 ldr r3,[sp,#32]
+ 588 034a EBB1     	 cbz r3,.L22
+ 589 034c 1C46     	 mov r4,r3
+ 590 034e 5746     	 mov r7,r10
+ 591              	.LVL86:
+ 592              	.L21:
+ 229:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 230:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 231:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 593              	 .loc 1 231 0
+ 594 0350 56F8042B 	 ldr r2,[r6],#4
+ 232:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 595              	 .loc 1 232 0
+ 596 0354 0168     	 ldr r1,[r0]
+ 231:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 597              	 .loc 1 231 0
+ 598 0356 82FB0523 	 smull r2,r3,r2,r5
+ 599              	 .loc 1 232 0
+ 600 035a 5A00     	 lsls r2,r3,#1
+ 601 035c 12EB010A 	 adds r10,r2,r1
+ 602 0360 4FEAE273 	 asr r3,r2,#31
+ 603 0364 43EBE17B 	 adc fp,r3,r1,asr#31
+ 604              	.LBB44:
+ 605              	.LBB45:
+ 514:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP\arm_math.h ****   }
+ 606              	 .loc 2 514 0
+ 607 0368 5B46     	 mov r3,fp
+ 608 036a D917     	 asrs r1,r3,#31
+ 609 036c 81F00041 	 eor r1,r1,#-2147483648
+ 610 0370 BBEBEA7F 	 cmp fp,r10,asr#31
+ 611 0374 6FEA0101 	 mvn r1,r1
+ 612 0378 5246     	 mov r2,r10
+ 613 037a 18BF     	 it ne
+ 614 037c 0A46     	 movne r2,r1
+ 615              	.LBE45:
+ 616              	.LBE44:
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 617              	 .loc 1 228 0
+ 618 037e 013C     	 subs r4,r4,#1
+ 619              	 .loc 1 232 0
+ 620 0380 40F8042B 	 str r2,[r0],#4
+ 621              	.LVL87:
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 622              	 .loc 1 228 0
+ 623 0384 E4D1     	 bne .L21
+ 624 0386 BA46     	 mov r10,r7
+ 625              	.LVL88:
+ 626              	.L22:
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 627              	 .loc 1 111 0
+ 628 0388 0A9B     	 ldr r3,[sp,#40]
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 234:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 235:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 236:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 237:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 238:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 239:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Read the sample from state buffer */
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     x0 = *pState;
+ 629              	 .loc 1 240 0
+ 630 038a 5CF8042B 	 ldr r2,[ip],#4
+ 631              	.LVL89:
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 632              	 .loc 1 111 0
+ 633 038e 013B     	 subs r3,r3,#1
+ 634              	.LVL90:
+ 635 0390 09F10409 	 add r9,r9,#4
+ 636 0394 0A93     	 str r3,[sp,#40]
+ 637 0396 7FF472AE 	 bne .L19
+ 638 039a 1446     	 mov r4,r2
+ 639 039c 159B     	 ldr r3,[sp,#84]
+ 640              	.LVL91:
+ 641 039e 239A     	 ldr r2,[sp,#140]
+ 642              	.LVL92:
+ 643 03a0 03EB8205 	 add r5,r3,r2,lsl#2
+ 644              	.LVL93:
+ 645              	.L2:
+ 241:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 242:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Advance state pointer by 1 for the next sample */
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pState = pState + 1;
+ 244:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 245:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Decrement the loop counter */
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     blkCnt--;
+ 247:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   }
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 249:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Save energy and x0 values for the next frame */
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   S->energy = (q31_t) energy;
+ 251:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   S->x0 = x0;
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 253:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Processing is complete. Now copy the last numTaps - 1 samples to the
+ 254:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****      satrt of the state buffer. This prepares the state buffer for the
+ 255:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****      next function call. */
+ 256:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 257:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Points to the start of the pState buffer */
+ 258:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   pStateCurnt = S->pState;
+ 259:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 260:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Loop unrolling for (numTaps - 1u) samples copy */
+ 261:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   tapCnt = (numTaps - 1u) >> 2u;
+ 646              	 .loc 1 261 0
+ 647 03a4 169B     	 ldr r3,[sp,#88]
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   S->x0 = x0;
+ 648              	 .loc 1 250 0
+ 649 03a6 179A     	 ldr r2,[sp,#92]
+ 650 03a8 0698     	 ldr r0,[sp,#24]
+ 651 03aa 9061     	 str r0,[r2,#24]
+ 652              	 .loc 1 261 0
+ 653 03ac 591E     	 subs r1,r3,#1
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 263:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* copy data */
+ 264:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   while (tapCnt > 0u)
+ 654              	 .loc 1 264 0
+ 655 03ae 8E08     	 lsrs r6,r1,#2
+ 251:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 656              	 .loc 1 251 0
+ 657 03b0 D461     	 str r4,[r2,#28]
+ 658              	.LVL94:
+ 659              	 .loc 1 264 0
+ 660 03b2 20D0     	 beq .L23
+ 661 03b4 159B     	 ldr r3,[sp,#84]
+ 662 03b6 3046     	 mov r0,r6
+ 663 03b8 03F11002 	 add r2,r3,#16
+ 664 03bc 05F11003 	 add r3,r5,#16
+ 665              	.LVL95:
+ 666              	.L24:
+ 265:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 266:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 667              	 .loc 1 266 0
+ 668 03c0 53F8104C 	 ldr r4,[r3,#-16]
+ 669 03c4 42F8104C 	 str r4,[r2,#-16]
+ 670              	.LVL96:
+ 267:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 671              	 .loc 1 267 0
+ 672 03c8 53F80C4C 	 ldr r4,[r3,#-12]
+ 673 03cc 42F80C4C 	 str r4,[r2,#-12]
+ 674              	.LVL97:
+ 268:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 675              	 .loc 1 268 0
+ 676 03d0 53F8084C 	 ldr r4,[r3,#-8]
+ 677 03d4 42F8084C 	 str r4,[r2,#-8]
+ 678              	.LVL98:
+ 269:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 679              	 .loc 1 269 0
+ 680 03d8 53F8044C 	 ldr r4,[r3,#-4]
+ 681 03dc 42F8044C 	 str r4,[r2,#-4]
+ 264:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 682              	 .loc 1 264 0
+ 683 03e0 0138     	 subs r0,r0,#1
+ 684              	.LVL99:
+ 685 03e2 03F11003 	 add r3,r3,#16
+ 686              	.LVL100:
+ 687 03e6 02F11002 	 add r2,r2,#16
+ 688 03ea E9D1     	 bne .L24
+ 689 03ec 159A     	 ldr r2,[sp,#84]
+ 690 03ee 3301     	 lsls r3,r6,#4
+ 691              	.LVL101:
+ 692 03f0 1A44     	 add r2,r2,r3
+ 693 03f2 1592     	 str r2,[sp,#84]
+ 694 03f4 1D44     	 add r5,r5,r3
+ 695              	.LVL102:
+ 696              	.L23:
+ 270:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 271:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Decrement the loop counter */
+ 272:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt--;
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   }
+ 274:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 275:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Calculate remaining number of copies */
+ 276:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   tapCnt = (numTaps - 1u) % 0x4u;
+ 277:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 278:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Copy the remaining q31_t data */
+ 279:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   while (tapCnt > 0u)
+ 697              	 .loc 1 279 0
+ 698 03f6 11F00303 	 ands r3,r1,#3
+ 699              	.LVL103:
+ 700 03fa 07D0     	 beq .L1
+ 701 03fc 159A     	 ldr r2,[sp,#84]
+ 702 03fe 043A     	 subs r2,r2,#4
+ 703              	.L26:
+ 704              	.LVL104:
+ 280:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 281:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 705              	 .loc 1 281 0
+ 706 0400 55F8041B 	 ldr r1,[r5],#4
+ 707              	.LVL105:
+ 708 0404 42F8041F 	 str r1,[r2,#4]!
+ 279:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 709              	 .loc 1 279 0
+ 710 0408 013B     	 subs r3,r3,#1
+ 711              	.LVL106:
+ 712 040a F9D1     	 bne .L26
+ 713              	.L1:
+ 282:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 283:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Decrement the loop counter */
+ 284:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt--;
+ 285:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   }
+ 286:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 287:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** #else
+ 288:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 289:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Run the below code for Cortex-M0 */
+ 290:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 291:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   while (blkCnt > 0u)
+ 292:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 293:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 294:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Copy the new input sample into the state buffer */
+ 295:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pSrc;
+ 296:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 297:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize pState pointer */
+ 298:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     px = pState;
+ 299:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 300:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize pCoeffs pointer */
+ 301:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pb = pCoeffs;
+ 302:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 303:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Read the sample from input buffer */
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     in = *pSrc++;
+ 305:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 306:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Update the energy calculation */
+ 307:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     energy =
+ 308:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       (q31_t) ((((q63_t) energy << 32) - (((q63_t) x0 * x0) << 1)) >> 32);
+ 309:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     energy = (q31_t) (((((q63_t) in * in) << 1) + (energy << 32)) >> 32);
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 311:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Set the accumulator to zero */
+ 312:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc = 0;
+ 313:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 314:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Loop over numTaps number of values */
+ 315:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps;
+ 316:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 317:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 318:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 320:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       acc += ((q63_t) (*px++)) * (*pb++);
+ 321:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 323:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 325:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 326:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Converting the result to 1.31 format */
+ 327:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Converting the result to 1.31 format */
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calc lower part of acc */
+ 329:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc_l = acc & 0xffffffff;
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 331:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calc upper part of acc */
+ 332:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc_h = (acc >> 32) & 0xffffffff;
+ 333:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 334:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     acc = (uint32_t) acc_l >> lShift | acc_h << uShift;
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     //acc = (q31_t) (acc >> shift);
+ 338:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 339:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Store the result from accumulator into the destination buffer. */
+ 340:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pOut++ = (q31_t) acc;
+ 341:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 342:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Compute and store error */
+ 343:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     d = *pRef++;
+ 344:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     e = d - (q31_t) acc;
+ 345:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pErr++ = e;
+ 346:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 347:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calculates the reciprocal of energy */
+ 348:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     postShift =
+ 349:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       arm_recip_q31(energy + DELTA_Q31, &oneByEnergy, &S->recipTable[0]);
+ 350:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 351:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Calculation of product of (e * mu) */
+ 352:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     errorXmu = (q31_t) (((q63_t) e * mu) >> 31);
+ 353:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Weighting factor for the normalized version */
+ 355:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     w = clip_q63_to_q31(((q63_t) errorXmu * oneByEnergy) >> (31 - postShift));
+ 356:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 357:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize pState pointer */
+ 358:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     px = pState;
+ 359:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 360:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Initialize coeff pointer */
+ 361:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pb = (pCoeffs);
+ 362:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 363:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Loop over numTaps number of values */
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt = numTaps;
+ 365:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 366:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     while (tapCnt > 0u)
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 368:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Perform the multiply-accumulate */
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* coef is in 2.30 format */
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       coef = (q31_t) (((q63_t) w * (*px++)) >> (32));
+ 371:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* get coef in 1.31 format by left shifting */
+ 372:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       *pb = clip_q63_to_q31((q63_t) * pb + (coef << 1u));
+ 373:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* update coefficient buffer to next coefficient */
+ 374:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       pb++;
+ 375:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 376:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       /* Decrement the loop counter */
+ 377:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****       tapCnt--;
+ 378:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     }
+ 379:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Read the sample from state buffer */
+ 381:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     x0 = *pState;
+ 382:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Advance state pointer by 1 for the next sample */
+ 384:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     pState = pState + 1;
+ 385:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 386:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Decrement the loop counter */
+ 387:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     blkCnt--;
+ 388:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   }
+ 389:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 390:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Save energy and x0 values for the next frame */
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   S->energy = (q31_t) energy;
+ 392:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   S->x0 = x0;
+ 393:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 394:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Processing is complete. Now copy the last numTaps - 1 samples to the
+ 395:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****      start of the state buffer. This prepares the state buffer for the
+ 396:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****      next function call. */
+ 397:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 398:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Points to the start of the pState buffer */
+ 399:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   pStateCurnt = S->pState;
+ 400:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 401:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Loop for (numTaps - 1u) samples copy */
+ 402:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   tapCnt = (numTaps - 1u);
+ 403:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   /* Copy the remaining q31_t data */
+ 405:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   while (tapCnt > 0u)
+ 406:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   {
+ 407:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     *pStateCurnt++ = *pState++;
+ 408:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     /* Decrement the loop counter */
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     tapCnt--;
+ 411:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   }
+ 412:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 413:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** #endif /*   #if defined (ARM_MATH_DSP) */
+ 414:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 415:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** }
+ 714              	 .loc 1 415 0
+ 715 040c 19B0     	 add sp,sp,#100
+ 716              	.LCFI2:
+ 717              	 .cfi_remember_state
+ 718              	 .cfi_def_cfa_offset 36
+ 719              	 
+ 720 040e BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 721              	.LVL107:
+ 722              	.L30:
+ 723              	.LCFI3:
+ 724              	 .cfi_restore_state
+ 192:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 725              	 .loc 1 192 0
+ 726 0412 0998     	 ldr r0,[sp,#36]
+ 727              	.LVL108:
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 728              	 .loc 1 198 0
+ 729 0414 6646     	 mov r6,ip
+ 730              	.LVL109:
+ 731 0416 97E7     	 b .L16
+ 732              	.LVL110:
+ 733              	.L29:
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 734              	 .loc 1 132 0
+ 735 0418 0022     	 movs r2,#0
+ 736              	.LVL111:
+ 737 041a 0023     	 movs r3,#0
+ 121:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 738              	 .loc 1 121 0
+ 739 041c 0998     	 ldr r0,[sp,#36]
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****     {
+ 740              	 .loc 1 137 0
+ 741 041e 6446     	 mov r4,ip
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c **** 
+ 742              	 .loc 1 132 0
+ 743 0420 CDE90023 	 strd r2,[sp]
+ 744 0424 85E6     	 b .L3
+ 745              	.LVL112:
+ 746              	.L28:
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_lms_norm_q31.c ****   q31_t *pCoeffs = S->pCoeffs;                   /* Coefficient pointer */
+ 747              	 .loc 1 76 0
+ 748 0426 159D     	 ldr r5,[sp,#84]
+ 749 0428 BCE7     	 b .L2
+ 750              	 .cfi_endproc
+ 751              	.LFE135:
+ 753 042a 00BF     	 .text
+ 754              	.Letext0:
+ 755              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 756              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_lms_norm_q31.c
+    {standard input}:20     .text.arm_lms_norm_q31:00000000 $t
+    {standard input}:25     .text.arm_lms_norm_q31:00000000 arm_lms_norm_q31
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

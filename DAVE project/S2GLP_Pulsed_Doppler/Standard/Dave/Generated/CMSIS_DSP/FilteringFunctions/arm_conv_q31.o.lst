@@ -1,0 +1,1603 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_conv_q31.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_conv_q31,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_conv_q31
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_conv_q31:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c"
+   1:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Title:        arm_conv_q31.c
+   4:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Description:  Convolution of Q31 sequences
+   5:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  29:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  31:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @ingroup groupFilters
+  33:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  35:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @addtogroup Conv
+  37:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @{
+  38:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  */
+  39:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  40:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** /**
+  41:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @brief Convolution of Q31 sequences.
+  42:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @param[in] *pSrcA points to the first input sequence.
+  43:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @param[in] srcALen length of the first input sequence.
+  44:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @param[in] *pSrcB points to the second input sequence.
+  45:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @param[in] srcBLen length of the second input sequence.
+  46:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @param[out] *pDst points to the location where the output result is written.  Length srcALen+src
+  47:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @return none.
+  48:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  49:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * @details
+  50:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * <b>Scaling and Overflow Behavior:</b>
+  51:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  52:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * \par
+  53:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * The function is implemented using an internal 64-bit accumulator.
+  54:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * The accumulator has a 2.62 format and maintains full precision of the intermediate multiplicatio
+  55:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * There is no saturation on intermediate additions.
+  56:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Thus, if the accumulator overflows it wraps around and distorts the result.
+  57:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * The input signals should be scaled down to avoid intermediate overflows.
+  58:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * Scale down the inputs by log2(min(srcALen, srcBLen)) (log2 is read as log to the base 2) times t
+  59:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * as maximum of min(srcALen, srcBLen) number of additions are carried internally.
+  60:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * The 2.62 accumulator is right shifted by 31 bits and saturated to 1.31 format to yield the final
+  61:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  *
+  62:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * \par
+  63:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  * See <code>arm_conv_fast_q31()</code> for a faster but less precise implementation of this functi
+  64:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****  */
+  65:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  66:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** void arm_conv_q31(
+  67:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t * pSrcA,
+  68:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   uint32_t srcALen,
+  69:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t * pSrcB,
+  70:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   uint32_t srcBLen,
+  71:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t * pDst)
+  72:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** {
+  28              	 .loc 1 72 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	.LVL0:
+  33 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  34              	.LCFI0:
+  35              	 .cfi_def_cfa_offset 36
+  36              	 .cfi_offset 4,-36
+  37              	 .cfi_offset 5,-32
+  38              	 .cfi_offset 6,-28
+  39              	 .cfi_offset 7,-24
+  40              	 .cfi_offset 8,-20
+  41              	 .cfi_offset 9,-16
+  42              	 .cfi_offset 10,-12
+  43              	 .cfi_offset 11,-8
+  44              	 .cfi_offset 14,-4
+  45 0004 91B0     	 sub sp,sp,#68
+  46              	.LCFI1:
+  47              	 .cfi_def_cfa_offset 104
+  73:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  74:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** #if defined (ARM_MATH_DSP)
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  77:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Run the below code for Cortex-M4 and Cortex-M3 */
+  78:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  79:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pIn1;                                   /* inputA pointer */
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pIn2;                                   /* inputB pointer */
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pOut = pDst;                            /* output pointer */
+  82:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *px;                                     /* Intermediate inputA pointer  */
+  83:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *py;                                     /* Intermediate inputB pointer  */
+  84:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pSrc1, *pSrc2;                          /* Intermediate pointers */
+  85:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q63_t sum;                                     /* Accumulator */
+  86:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q63_t acc0, acc1, acc2;                        /* Accumulator */
+  87:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t x0, x1, x2, c0;                          /* Temporary variables to hold state and coefficie
+  88:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   uint32_t j, k, count, blkCnt, blockSize1, blockSize2, blockSize3;     /* loop counter */
+  89:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  90:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* The algorithm implementation is based on the lengths of the inputs. */
+  91:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* srcB is always made to slide across srcA. */
+  92:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* So srcBLen is always considered as shorter or equal to srcALen */
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   if (srcALen >= srcBLen)
+  48              	 .loc 1 93 0
+  49 0006 9942     	 cmp r1,r3
+  72:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  50              	 .loc 1 72 0
+  51 0008 0393     	 str r3,[sp,#12]
+  52 000a 0490     	 str r0,[sp,#16]
+  53 000c 9146     	 mov r9,r2
+  54              	.LVL1:
+  55              	 .loc 1 93 0
+  56 000e 05D2     	 bcs .L2
+  57 0010 0B46     	 mov r3,r1
+  58              	.LVL2:
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+  95:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Initialization of inputA pointer */
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     pIn1 = pSrcA;
+  97:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+  98:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Initialization of inputB pointer */
+  99:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     pIn2 = pSrcB;
+ 100:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   else
+ 102:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 103:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Initialization of inputA pointer */
+ 104:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     pIn1 = (q31_t *) pSrcB;
+  59              	 .loc 1 104 0
+  60 0012 CDF81090 	 str r9,[sp,#16]
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+  61              	 .loc 1 93 0
+  62 0016 0399     	 ldr r1,[sp,#12]
+  63              	.LVL3:
+  64 0018 0393     	 str r3,[sp,#12]
+  65              	.LVL4:
+ 105:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 106:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Initialization of inputB pointer */
+ 107:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     pIn2 = (q31_t *) pSrcA;
+  66              	 .loc 1 107 0
+  67 001a 8146     	 mov r9,r0
+  68              	.LVL5:
+  69              	.L2:
+  70 001c 4C1C     	 adds r4,r1,#1
+ 108:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 109:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* srcBLen is always considered as shorter or equal to srcALen */
+ 110:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     j = srcBLen;
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     srcBLen = srcALen;
+ 112:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     srcALen = j;
+ 113:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 114:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 115:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* conv(x,y) at n = x[n] * y[0] + x[n-1] * y[1] + x[n-2] * y[2] + ...+ x[n-N+1] * y[N -1] */
+ 116:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* The function is internally
+ 117:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * divided into three stages according to the number of multiplications that has to be
+ 118:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * taken place between inputA samples and inputB samples. In the first stage of the
+ 119:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * algorithm, the multiplications increase by one for every iteration.
+ 120:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * In the second stage of the algorithm, srcBLen number of multiplications are done.
+ 121:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * In the third stage of the algorithm, the multiplications decrease by one
+ 122:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * for every iteration. */
+ 123:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 124:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* The algorithm is implemented in three stages.
+ 125:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      The loop counters of each stage is initiated here. */
+ 126:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   blockSize1 = srcBLen - 1u;
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   blockSize2 = srcALen - (srcBLen - 1u);
+  71              	 .loc 1 127 0
+  72 001e E21A     	 subs r2,r4,r3
+  73              	.LVL6:
+ 128:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   blockSize3 = blockSize1;
+ 129:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 130:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* --------------------------
+ 131:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Initializations of stage1
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * -------------------------*/
+ 133:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 134:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* sum = x[0] * y[0]
+ 135:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum = x[0] * y[1] + x[1] * y[0]
+ 136:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ....
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum = x[0] * y[srcBlen - 1] + x[1] * y[srcBlen - 2] +...+ x[srcBLen - 1] * y[0]
+ 138:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    */
+ 139:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 140:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* In this stage the MAC operations are increased by 1 for every iteration.
+ 141:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      The count variable holds the number of MAC operations performed */
+ 142:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   count = 1u;
+ 143:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 144:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputA */
+ 145:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   px = pIn1;
+ 146:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 147:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputB */
+ 148:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   py = pIn2;
+ 149:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 150:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 151:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* ------------------------
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Stage1 process
+ 153:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ----------------------*/
+ 154:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 155:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* The first stage starts here */
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   while (blockSize1 > 0u)
+  74              	 .loc 1 156 0
+  75 0020 013B     	 subs r3,r3,#1
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   blockSize3 = blockSize1;
+  76              	 .loc 1 127 0
+  77 0022 0B92     	 str r2,[sp,#44]
+  78              	.LVL7:
+  79              	 .loc 1 156 0
+  80 0024 0D93     	 str r3,[sp,#52]
+  81 0026 00F02482 	 beq .L75
+  82 002a 0499     	 ldr r1,[sp,#16]
+  83              	.LVL8:
+  84 002c DDF86880 	 ldr r8,[sp,#104]
+  85 0030 DDF80CA0 	 ldr r10,[sp,#12]
+  86 0034 09F1040C 	 add ip,r9,#4
+  87 0038 4846     	 mov r0,r9
+  88              	.LVL9:
+  89 003a CB46     	 mov fp,r9
+  90 003c 0C46     	 mov r4,r1
+  91              	.LVL10:
+  92 003e 0127     	 movs r7,#1
+ 157:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 158:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Accumulator is made zero for every iteration */
+ 159:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     sum = 0;
+  93              	 .loc 1 159 0
+  94 0040 0022     	 movs r2,#0
+  95              	.LVL11:
+  96 0042 0023     	 movs r3,#0
+  97 0044 8946     	 mov r9,r1
+  98              	.LVL12:
+  99              	.L4:
+ 160:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 161:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 162:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     k = count >> 2u;
+ 163:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 164:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 165:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (k > 0u)
+ 167:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 168:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[0] * y[srcBLen - 1] */
+ 169:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 170:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[1] * y[srcBLen - 2] */
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 172:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[2] * y[srcBLen - 3] */
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 174:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[3] * y[srcBLen - 4] */
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 176:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 177:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 178:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k--;
+ 179:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 180:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 181:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* If the count is not a multiple of 4, compute any remaining MACs here.
+ 182:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      ** No loop unrolling is used. */
+ 183:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     k = count % 0x4u;
+ 184:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (k > 0u)
+ 100              	 .loc 1 185 0
+ 101 0046 17F00301 	 ands r1,r7,#3
+ 102              	.LVL13:
+ 103 004a 07D0     	 beq .L7
+ 104              	.LVL14:
+ 105              	.L8:
+ 186:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Perform the multiply-accumulate */
+ 188:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 106              	 .loc 1 188 0
+ 107 004c 54F8046B 	 ldr r6,[r4],#4
+ 108              	.LVL15:
+ 109 0050 50F80459 	 ldr r5,[r0],#-4
+ 110              	.LVL16:
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 111              	 .loc 1 185 0
+ 112 0054 0139     	 subs r1,r1,#1
+ 113              	.LVL17:
+ 114              	 .loc 1 188 0
+ 115 0056 C5FB0623 	 smlal r2,r3,r5,r6
+ 116              	.LVL18:
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 117              	 .loc 1 185 0
+ 118 005a F7D1     	 bne .L8
+ 119              	.L7:
+ 120              	.LVL19:
+ 189:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 190:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 191:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k--;
+ 192:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 193:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 194:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Store the result in the accumulator in the destination buffer. */
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     *pOut++ = (q31_t) (sum >> 31);
+ 121              	 .loc 1 195 0
+ 122 005c 1946     	 mov r1,r3
+ 123 005e D20F     	 lsrs r2,r2,#31
+ 124              	.LVL20:
+ 196:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 197:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Update the inputA and inputB pointers for next MAC calculation */
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     py = pIn2 + count;
+ 199:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     px = pIn1;
+ 200:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 201:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Increment the MAC count */
+ 202:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     count++;
+ 125              	 .loc 1 202 0
+ 126 0060 0137     	 adds r7,r7,#1
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 127              	 .loc 1 195 0
+ 128 0062 42EA4102 	 orr r2,r2,r1,lsl#1
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 129              	 .loc 1 156 0
+ 130 0066 5745     	 cmp r7,r10
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 131              	 .loc 1 195 0
+ 132 0068 48F8042B 	 str r2,[r8],#4
+ 133              	.LVL21:
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     px = pIn1;
+ 134              	 .loc 1 198 0
+ 135 006c 6046     	 mov r0,ip
+ 136              	.LVL22:
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 137              	 .loc 1 156 0
+ 138 006e 37D0     	 beq .L76
+ 139              	.LVL23:
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 140              	 .loc 1 166 0
+ 141 0070 5FEA970E 	 lsrs lr,r7,#2
+ 142              	.LVL24:
+ 143 0074 00F04682 	 beq .L37
+ 144 0078 09F11000 	 add r0,r9,#16
+ 145              	.LVL25:
+ 146 007c ACF11001 	 sub r1,ip,#16
+ 147 0080 7446     	 mov r4,lr
+ 148 0082 0022     	 movs r2,#0
+ 149 0084 0023     	 movs r3,#0
+ 150 0086 CDF80480 	 str r8,[sp,#4]
+ 151 008a CDF80890 	 str r9,[sp,#8]
+ 152              	.LVL26:
+ 153              	.L6:
+ 169:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[1] * y[srcBLen - 2] */
+ 154              	 .loc 1 169 0
+ 155 008e 50F8106C 	 ldr r6,[r0,#-16]
+ 156              	.LVL27:
+ 157 0092 0D69     	 ldr r5,[r1,#16]
+ 158 0094 C5FB0623 	 smlal r2,r3,r5,r6
+ 159              	.LVL28:
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[2] * y[srcBLen - 3] */
+ 160              	 .loc 1 171 0
+ 161 0098 50F80C5C 	 ldr r5,[r0,#-12]
+ 162 009c CE68     	 ldr r6,[r1,#12]
+ 163 009e C6FB0523 	 smlal r2,r3,r6,r5
+ 164              	.LVL29:
+ 165 00a2 9046     	 mov r8,r2
+ 166 00a4 9946     	 mov r9,r3
+ 167              	.LVL30:
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[3] * y[srcBLen - 4] */
+ 168              	 .loc 1 173 0
+ 169 00a6 8A68     	 ldr r2,[r1,#8]
+ 170 00a8 50F8083C 	 ldr r3,[r0,#-8]
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 171              	 .loc 1 175 0
+ 172 00ac 50F8046C 	 ldr r6,[r0,#-4]
+ 173 00b0 4D68     	 ldr r5,[r1,#4]
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* x[3] * y[srcBLen - 4] */
+ 174              	 .loc 1 173 0
+ 175 00b2 C2FB0389 	 smlal r8,r9,r2,r3
+ 176              	.LVL31:
+ 177 00b6 4246     	 mov r2,r8
+ 178 00b8 4B46     	 mov r3,r9
+ 179              	.LVL32:
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 180              	 .loc 1 166 0
+ 181 00ba 013C     	 subs r4,r4,#1
+ 182              	.LVL33:
+ 183 00bc 00F11000 	 add r0,r0,#16
+ 184              	.LVL34:
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 185              	 .loc 1 175 0
+ 186 00c0 C5FB0623 	 smlal r2,r3,r5,r6
+ 187              	.LVL35:
+ 188 00c4 A1F11001 	 sub r1,r1,#16
+ 189              	.LVL36:
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 190              	 .loc 1 166 0
+ 191 00c8 E1D1     	 bne .L6
+ 192 00ca DDF80890 	 ldr r9,[sp,#8]
+ 193 00ce DDF80480 	 ldr r8,[sp,#4]
+ 194 00d2 09EB0E14 	 add r4,r9,lr,lsl#4
+ 195 00d6 ACEB0E10 	 sub r0,ip,lr,lsl#4
+ 196              	.LVL37:
+ 197              	.L5:
+ 198 00da 0CF1040C 	 add ip,ip,#4
+ 199 00de B2E7     	 b .L4
+ 200              	.LVL38:
+ 201              	.L76:
+ 202 00e0 039B     	 ldr r3,[sp,#12]
+ 203 00e2 1A9A     	 ldr r2,[sp,#104]
+ 204 00e4 03F18043 	 add r3,r3,#1073741824
+ 205 00e8 013B     	 subs r3,r3,#1
+ 206 00ea 02EB8302 	 add r2,r2,r3,lsl#2
+ 207 00ee D946     	 mov r9,fp
+ 208 00f0 1A92     	 str r2,[sp,#104]
+ 209              	.LVL39:
+ 210              	.L3:
+ 203:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Decrement the loop counter */
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     blockSize1--;
+ 206:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 207:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 208:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* --------------------------
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Initializations of stage2
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ------------------------*/
+ 211:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 212:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* sum = x[0] * y[srcBLen-1] + x[1] * y[srcBLen-2] +...+ x[srcBLen-1] * y[0]
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum = x[1] * y[srcBLen-1] + x[2] * y[srcBLen-2] +...+ x[srcBLen] * y[0]
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ....
+ 215:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum = x[srcALen-srcBLen-2] * y[srcBLen-1] + x[srcALen] * y[srcBLen-2] +...+ x[srcALen-1] * y[0
+ 216:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    */
+ 217:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 218:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputA */
+ 219:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   px = pIn1;
+ 220:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 221:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputB */
+ 222:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   pSrc2 = pIn2 + (srcBLen - 1u);
+ 211              	 .loc 1 222 0
+ 212 00f2 09EB8303 	 add r3,r9,r3,lsl#2
+ 213 00f6 0C93     	 str r3,[sp,#48]
+ 214              	.LVL40:
+ 223:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   py = pSrc2;
+ 224:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 225:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* count is index by which the pointer pIn1 to be incremented */
+ 226:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   count = 0u;
+ 227:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* -------------------
+ 229:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Stage2 process
+ 230:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ------------------*/
+ 231:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 232:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Stage2 depends on srcBLen as in this stage srcBLen number of MACS are performed.
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * So, to loop unroll over blockSize2,
+ 234:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * srcBLen should be greater than or equal to 4 */
+ 235:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   if (srcBLen >= 4u)
+ 215              	 .loc 1 235 0
+ 216 00f8 039B     	 ldr r3,[sp,#12]
+ 217              	.LVL41:
+ 218 00fa 032B     	 cmp r3,#3
+ 219 00fc 3BD8     	 bhi .L10
+ 220              	.LVL42:
+ 236:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 237:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Loop unroll by 3 */
+ 238:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     blkCnt = blockSize2 / 3;
+ 239:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (blkCnt > 0u)
+ 241:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 242:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Set all accumulators to zero */
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       acc0 = 0;
+ 244:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       acc1 = 0;
+ 245:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       acc2 = 0;
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 247:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* read x[0], x[1], x[2] samples */
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       x0 = *(px++);
+ 249:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       x1 = *(px++);
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 251:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Apply loop unrolling and compute 3 MACs simultaneously. */
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k = srcBLen / 3;
+ 253:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 254:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* First part of the processing with loop unrolling.  Compute 3 MACs at a time.
+ 255:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****        ** a second loop below computes MACs for the remaining 1 to 2 samples. */
+ 256:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       do
+ 257:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 258:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read y[srcBLen - 1] sample */
+ 259:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         c0 = *(py);
+ 260:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 261:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read x[3] sample */
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x2 = *(px);
+ 263:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 264:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulates */
+ 265:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc0 +=  x[0] * y[srcBLen - 1] */
+ 266:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc0 += ((q63_t) x0 * c0);
+ 267:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[1] * y[srcBLen - 1] */
+ 268:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc1 += ((q63_t) x1 * c0);
+ 269:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[2] * y[srcBLen - 1] */
+ 270:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc2 += ((q63_t) x2 * c0);
+ 271:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 272:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read y[srcBLen - 2] sample */
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         c0 = *(py - 1u);
+ 274:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 275:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read x[4] sample */
+ 276:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x0 = *(px + 1u);
+ 277:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 278:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulate */
+ 279:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc0 +=  x[1] * y[srcBLen - 2] */
+ 280:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc0 += ((q63_t) x1 * c0);
+ 281:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[2] * y[srcBLen - 2] */
+ 282:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc1 += ((q63_t) x2 * c0);
+ 283:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[3] * y[srcBLen - 2] */
+ 284:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc2 += ((q63_t) x0 * c0);
+ 285:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 286:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read y[srcBLen - 3] sample */
+ 287:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         c0 = *(py - 2u);
+ 288:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 289:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read x[5] sample */
+ 290:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x1 = *(px + 2u);
+ 291:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 292:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulates */
+ 293:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc0 +=  x[2] * y[srcBLen - 3] */
+ 294:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc0 += ((q63_t) x2 * c0);
+ 295:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[3] * y[srcBLen - 2] */
+ 296:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc1 += ((q63_t) x0 * c0);
+ 297:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[4] * y[srcBLen - 2] */
+ 298:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc2 += ((q63_t) x1 * c0);
+ 299:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 300:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* update scratch pointers */
+ 301:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         px += 3u;
+ 302:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         py -= 3u;
+ 303:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       } while (--k);
+ 305:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 306:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* If the srcBLen is not a multiple of 3, compute any remaining MACs here.
+ 307:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****        ** No loop unrolling is used. */
+ 308:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k = srcBLen - (3 * (srcBLen / 3));
+ 309:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       while (k > 0u)
+ 311:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 312:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read y[srcBLen - 5] sample */
+ 313:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         c0 = *(py--);
+ 314:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 315:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Read x[7] sample */
+ 316:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x2 = *(px++);
+ 317:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 318:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulates */
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc0 +=  x[4] * y[srcBLen - 5] */
+ 320:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc0 += ((q63_t) x0 * c0);
+ 321:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[5] * y[srcBLen - 5] */
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc1 += ((q63_t) x1 * c0);
+ 323:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[6] * y[srcBLen - 5] */
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         acc2 += ((q63_t) x2 * c0);
+ 325:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 326:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Reuse the present samples for the next MAC */
+ 327:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x0 = x1;
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         x1 = x2;
+ 329:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Decrement the loop counter */
+ 331:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         k--;
+ 332:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       }
+ 333:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 334:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Store the results in the accumulators in the destination buffer. */
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc0 >> 31);
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc1 >> 31);
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc2 >> 31);
+ 338:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 339:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Increment the pointer pIn1 index, count by 3 */
+ 340:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       count += 3u;
+ 341:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 342:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 343:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       px = pIn1 + count;
+ 344:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       py = pSrc2;
+ 345:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 346:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 347:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       blkCnt--;
+ 348:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 349:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 350:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* If the blockSize2 is not a multiple of 3, compute any remaining output samples here.
+ 351:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      ** No loop unrolling is used. */
+ 352:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     blkCnt = blockSize2 - 3 * (blockSize2 / 3);
+ 353:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (blkCnt > 0u)
+ 355:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 356:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Accumulator is made zero for every iteration */
+ 357:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum = 0;
+ 358:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 359:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 360:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k = srcBLen >> 2u;
+ 361:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 362:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 363:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****        ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       while (k > 0u)
+ 365:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 366:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulates */
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 368:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 371:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 372:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Decrement the loop counter */
+ 373:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         k--;
+ 374:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       }
+ 375:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 376:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* If the srcBLen is not a multiple of 4, compute any remaining MACs here.
+ 377:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****        ** No loop unrolling is used. */
+ 378:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k = srcBLen % 0x4u;
+ 379:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       while (k > 0u)
+ 381:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 382:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulate */
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 384:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 385:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Decrement the loop counter */
+ 386:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         k--;
+ 387:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       }
+ 388:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 389:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Store the result in the accumulator in the destination buffer. */
+ 390:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (sum >> 31);
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 392:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Increment the MAC count */
+ 393:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       count++;
+ 394:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 395:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 396:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       px = pIn1 + count;
+ 397:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       py = pSrc2;
+ 398:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 399:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 400:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       blkCnt--;
+ 401:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 402:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 403:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   else
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 405:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* If the srcBLen is not a multiple of 4,
+ 406:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      * the blockSize2 loop cannot be unrolled by 4 */
+ 407:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     blkCnt = blockSize2;
+ 408:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (blkCnt > 0u)
+ 221              	 .loc 1 409 0
+ 222 00fe 0B9B     	 ldr r3,[sp,#44]
+ 223 0100 002B     	 cmp r3,#0
+ 224 0102 00F0B081 	 beq .L38
+ 225 0106 039A     	 ldr r2,[sp,#12]
+ 226 0108 002A     	 cmp r2,#0
+ 227 010a 00F0B781 	 beq .L12
+ 228 010e 022A     	 cmp r2,#2
+ 229 0110 00F0DC81 	 beq .L13
+ 230 0114 0D9A     	 ldr r2,[sp,#52]
+ 231 0116 002A     	 cmp r2,#0
+ 232 0118 00F0C281 	 beq .L14
+ 233 011c 9C00     	 lsls r4,r3,#2
+ 234 011e 1A9B     	 ldr r3,[sp,#104]
+ 235 0120 0C99     	 ldr r1,[sp,#48]
+ 236 0122 1A98     	 ldr r0,[sp,#104]
+ 237 0124 03EB040C 	 add ip,r3,r4
+ 238 0128 049B     	 ldr r3,[sp,#16]
+ 239 012a A646     	 mov lr,r4
+ 240 012c 1E1D     	 adds r6,r3,#4
+ 241 012e 1D46     	 mov r5,r3
+ 242              	.LVL43:
+ 243              	.L15:
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 411:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Accumulator is made zero for every iteration */
+ 412:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum = 0;
+ 413:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 414:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* srcBLen number of MACS should be performed */
+ 415:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k = srcBLen;
+ 416:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 417:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       while (k > 0u)
+ 418:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 419:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Perform the multiply-accumulate */
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 244              	 .loc 1 420 0
+ 245 0130 D5F80080 	 ldr r8,[r5]
+ 246              	.LVL44:
+ 247 0134 51F8043C 	 ldr r3,[r1,#-4]
+ 248 0138 55F8042F 	 ldr r2,[r5,#4]!
+ 249              	.LVL45:
+ 250 013c 0C68     	 ldr r4,[r1]
+ 251 013e 56F8047F 	 ldr r7,[r6,#4]!
+ 252 0142 82FB0323 	 smull r2,r3,r2,r3
+ 253 0146 C4FB0823 	 smlal r2,r3,r4,r8
+ 254              	.LVL46:
+ 255 014a 51F8084C 	 ldr r4,[r1,#-8]
+ 256 014e C4FB0723 	 smlal r2,r3,r4,r7
+ 257              	.LVL47:
+ 258 0152 D20F     	 lsrs r2,r2,#31
+ 259              	.LVL48:
+ 260 0154 42EA4302 	 orr r2,r2,r3,lsl#1
+ 261 0158 40F8042B 	 str r2,[r0],#4
+ 262              	.LVL49:
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 263              	 .loc 1 409 0
+ 264 015c 6045     	 cmp r0,ip
+ 265 015e E7D1     	 bne .L15
+ 421:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 422:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* Decrement the loop counter */
+ 423:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         k--;
+ 424:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       }
+ 425:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 426:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Store the result in the accumulator in the destination buffer. */
+ 427:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (sum >> 31);
+ 428:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 429:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Increment the MAC count */
+ 430:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       count++;
+ 431:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 432:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Update the inputA and inputB pointers for next MAC calculation */
+ 433:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       px = pIn1 + count;
+ 434:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       py = pSrc2;
+ 435:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 436:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 437:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       blkCnt--;
+ 438:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 439:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 440:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 441:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 442:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* --------------------------
+ 443:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Initializations of stage3
+ 444:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * -------------------------*/
+ 445:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 446:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* sum += x[srcALen-srcBLen+1] * y[srcBLen-1] + x[srcALen-srcBLen+2] * y[srcBLen-2] +...+ x[srcAL
+ 447:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum += x[srcALen-srcBLen+2] * y[srcBLen-1] + x[srcALen-srcBLen+3] * y[srcBLen-2] +...+ x[srcAL
+ 448:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ....
+ 449:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum +=  x[srcALen-2] * y[srcBLen-1] + x[srcALen-1] * y[srcBLen-2]
+ 450:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * sum +=  x[srcALen-1] * y[srcBLen-1]
+ 451:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    */
+ 452:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 453:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* In this stage the MAC operations are decreased by 1 for every iteration.
+ 454:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      The blockSize3 variable holds the number of MAC operations performed */
+ 455:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 456:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputA */
+ 457:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   pSrc1 = (pIn1 + srcALen) - (srcBLen - 1u);
+ 266              	 .loc 1 457 0
+ 267 0160 049B     	 ldr r3,[sp,#16]
+ 268 0162 7446     	 mov r4,lr
+ 269              	.LVL50:
+ 270 0164 2344     	 add r3,r3,r4
+ 271 0166 9E46     	 mov lr,r3
+ 272              	.LVL51:
+ 458:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   px = pSrc1;
+ 459:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 460:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Working pointer of inputB */
+ 461:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   pSrc2 = pIn2 + (srcBLen - 1u);
+ 462:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   py = pSrc2;
+ 463:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 464:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* -------------------
+ 465:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * Stage3 process
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****    * ------------------*/
+ 467:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   while (blockSize3 > 0u)
+ 273              	 .loc 1 468 0
+ 274 0168 0D9B     	 ldr r3,[sp,#52]
+ 275              	.LVL52:
+ 276 016a 002B     	 cmp r3,#0
+ 277 016c 40F02581 	 bne .L77
+ 278              	.LVL53:
+ 279              	.L1:
+ 469:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 470:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Accumulator is made zero for every iteration */
+ 471:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     sum = 0;
+ 472:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 473:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Apply loop unrolling and compute 4 MACs simultaneously. */
+ 474:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     k = blockSize3 >> 2u;
+ 475:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 476:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* First part of the processing with loop unrolling.  Compute 4 MACs at a time.
+ 477:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      ** a second loop below computes MACs for the remaining 1 to 3 samples. */
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (k > 0u)
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 1] * y[srcBLen - 1] */
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 482:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 2] * y[srcBLen - 2] */
+ 483:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 484:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 3] * y[srcBLen - 3] */
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 486:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 4] * y[srcBLen - 4] */
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 488:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 489:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 490:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k--;
+ 491:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 493:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* If the blockSize3 is not a multiple of 4, compute any remaining MACs here.
+ 494:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****      ** No loop unrolling is used. */
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     k = blockSize3 % 0x4u;
+ 496:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     while (k > 0u)
+ 498:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 499:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Perform the multiply-accumulate */
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       sum += (q63_t) * px++ * (*py--);
+ 501:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 502:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Decrement the loop counter */
+ 503:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       k--;
+ 504:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 505:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 506:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Store the result in the accumulator in the destination buffer. */
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     *pOut++ = (q31_t) (sum >> 31);
+ 508:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 509:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Update the inputA and inputB pointers for next MAC calculation */
+ 510:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     px = ++pSrc1;
+ 511:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     py = pSrc2;
+ 512:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 513:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Decrement the loop counter */
+ 514:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     blockSize3--;
+ 515:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 516:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 517:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** #else
+ 518:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 519:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Run the below code for Cortex-M0 */
+ 520:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 521:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pIn1 = pSrcA;                           /* input pointer */
+ 522:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q31_t *pIn2 = pSrcB;                           /* coefficient pointer */
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   q63_t sum;                                     /* Accumulator */
+ 524:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   uint32_t i, j;                                 /* loop counter */
+ 525:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 526:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   /* Loop to calculate output of convolution for output length number of times */
+ 527:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   for (i = 0; i < (srcALen + srcBLen - 1); i++)
+ 528:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 529:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Initialize sum with zero to carry on MAC operations */
+ 530:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     sum = 0;
+ 531:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 532:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Loop to perform MAC operations according to convolution equation */
+ 533:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     for (j = 0; j <= i; j++)
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 535:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* Check the array limitations */
+ 536:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       if (((i - j) < srcBLen) && (j < srcALen))
+ 537:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 538:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* z[i] += x[i-j] * y[j] */
+ 539:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += ((q63_t) pIn1[j] * (pIn2[i - j]));
+ 540:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       }
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     }
+ 542:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     /* Store the output in the destination buffer */
+ 544:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     pDst[i] = (q31_t) (sum >> 31u);
+ 545:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   }
+ 546:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 547:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** #endif /*     #if defined (ARM_MATH_DSP) */
+ 548:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 549:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** }
+ 280              	 .loc 1 549 0
+ 281 0170 11B0     	 add sp,sp,#68
+ 282              	.LCFI2:
+ 283              	 .cfi_remember_state
+ 284              	 .cfi_def_cfa_offset 36
+ 285              	 
+ 286 0172 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 287              	.LVL54:
+ 288              	.L10:
+ 289              	.LCFI3:
+ 290              	 .cfi_restore_state
+ 238:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 291              	 .loc 1 238 0
+ 292 0176 C94B     	 ldr r3,.L80
+ 293 0178 0B9A     	 ldr r2,[sp,#44]
+ 294 017a A3FB0212 	 umull r1,r2,r3,r2
+ 295              	.LVL55:
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 296              	 .loc 1 240 0
+ 297 017e 5208     	 lsrs r2,r2,#1
+ 298              	.LVL56:
+ 299 0180 0E92     	 str r2,[sp,#56]
+ 300 0182 00F07481 	 beq .L39
+ 301 0186 039C     	 ldr r4,[sp,#12]
+ 302 0188 2146     	 mov r1,r4
+ 303 018a A3FB0113 	 umull r1,r3,r3,r1
+ 304 018e 5B08     	 lsrs r3,r3,#1
+ 305 0190 1946     	 mov r1,r3
+ 306 0192 0693     	 str r3,[sp,#24]
+ 307 0194 531C     	 adds r3,r2,#1
+ 308 0196 03EB4303 	 add r3,r3,r3,lsl#1
+ 309 019a 01EB4102 	 add r2,r1,r1,lsl#1
+ 310              	.LVL57:
+ 311 019e 9B00     	 lsls r3,r3,#2
+ 312 01a0 9000     	 lsls r0,r2,#2
+ 313 01a2 1D46     	 mov r5,r3
+ 314 01a4 0F93     	 str r3,[sp,#60]
+ 315 01a6 A0F10C03 	 sub r3,r0,#12
+ 316 01aa 0893     	 str r3,[sp,#32]
+ 317 01ac A31A     	 subs r3,r4,r2
+ 318 01ae 0C9A     	 ldr r2,[sp,#48]
+ 319 01b0 0793     	 str r3,[sp,#28]
+ 320 01b2 A1EB8101 	 sub r1,r1,r1,lsl#2
+ 321 01b6 02EB8103 	 add r3,r2,r1,lsl#2
+ 322 01ba 1A99     	 ldr r1,[sp,#104]
+ 323 01bc 0A93     	 str r3,[sp,#40]
+ 324 01be 4B19     	 adds r3,r1,r5
+ 325 01c0 0593     	 str r3,[sp,#20]
+ 326 01c2 0B46     	 mov r3,r1
+ 327 01c4 0C33     	 adds r3,r3,#12
+ 328 01c6 0293     	 str r3,[sp,#8]
+ 329 01c8 049B     	 ldr r3,[sp,#16]
+ 330 01ca 1433     	 adds r3,r3,#20
+ 331 01cc 0193     	 str r3,[sp,#4]
+ 332 01ce A2F10C03 	 sub r3,r2,#12
+ 333 01d2 0993     	 str r3,[sp,#36]
+ 334              	.LVL58:
+ 335              	.L25:
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       x1 = *(px++);
+ 336              	 .loc 1 248 0
+ 337 01d4 019A     	 ldr r2,[sp,#4]
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 338              	 .loc 1 252 0
+ 339 01d6 DDF818B0 	 ldr fp,[sp,#24]
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       x1 = *(px++);
+ 340              	 .loc 1 248 0
+ 341 01da 52F814AC 	 ldr r10,[r2,#-20]
+ 342              	.LVL59:
+ 249:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 343              	 .loc 1 249 0
+ 344 01de 52F810CC 	 ldr ip,[r2,#-16]
+ 345              	.LVL60:
+ 245:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 346              	 .loc 1 245 0
+ 347 01e2 0024     	 movs r4,#0
+ 348 01e4 0025     	 movs r5,#0
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       x1 = *(px++);
+ 349              	 .loc 1 248 0
+ 350 01e6 1346     	 mov r3,r2
+ 351 01e8 099A     	 ldr r2,[sp,#36]
+ 244:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       acc2 = 0;
+ 352              	 .loc 1 244 0
+ 353 01ea 2646     	 mov r6,r4
+ 354 01ec 2F46     	 mov r7,r5
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       acc1 = 0;
+ 355              	 .loc 1 243 0
+ 356 01ee A046     	 mov r8,r4
+ 357 01f0 A946     	 mov r9,r5
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 358              	 .loc 1 252 0
+ 359 01f2 5146     	 mov r1,r10
+ 360 01f4 6046     	 mov r0,ip
+ 361              	.LVL61:
+ 362              	.L22:
+ 259:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 363              	 .loc 1 259 0 discriminator 1
+ 364 01f6 D2F80CE0 	 ldr lr,[r2,#12]
+ 365              	.LVL62:
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 366              	 .loc 1 273 0 discriminator 1
+ 367 01fa D2F808A0 	 ldr r10,[r2,#8]
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 368              	 .loc 1 262 0 discriminator 1
+ 369 01fe 53F80CCC 	 ldr ip,[r3,#-12]
+ 370              	.LVL63:
+ 266:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[1] * y[srcBLen - 1] */
+ 371              	 .loc 1 266 0 discriminator 1
+ 372 0202 CEFB0189 	 smlal r8,r9,lr,r1
+ 373              	.LVL64:
+ 276:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 374              	 .loc 1 276 0 discriminator 1
+ 375 0206 53F8081C 	 ldr r1,[r3,#-8]
+ 376              	.LVL65:
+ 268:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[2] * y[srcBLen - 1] */
+ 377              	 .loc 1 268 0 discriminator 1
+ 378 020a C0FB0E67 	 smlal r6,r7,r0,lr
+ 379              	.LVL66:
+ 280:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[2] * y[srcBLen - 2] */
+ 380              	 .loc 1 280 0 discriminator 1
+ 381 020e CAFB0089 	 smlal r8,r9,r10,r0
+ 382              	.LVL67:
+ 270:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 383              	 .loc 1 270 0 discriminator 1
+ 384 0212 CCFB0E45 	 smlal r4,r5,ip,lr
+ 385              	.LVL68:
+ 290:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 386              	 .loc 1 290 0 discriminator 1
+ 387 0216 53F8040C 	 ldr r0,[r3,#-4]
+ 388              	.LVL69:
+ 287:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 389              	 .loc 1 287 0 discriminator 1
+ 390 021a D2F804E0 	 ldr lr,[r2,#4]
+ 282:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[3] * y[srcBLen - 2] */
+ 391              	 .loc 1 282 0 discriminator 1
+ 392 021e CAFB0C67 	 smlal r6,r7,r10,ip
+ 393              	.LVL70:
+ 284:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 394              	 .loc 1 284 0 discriminator 1
+ 395 0222 C1FB0A45 	 smlal r4,r5,r1,r10
+ 396              	.LVL71:
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 397              	 .loc 1 304 0 discriminator 1
+ 398 0226 BBF1010B 	 subs fp,fp,#1
+ 399              	.LVL72:
+ 294:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[3] * y[srcBLen - 2] */
+ 400              	 .loc 1 294 0 discriminator 1
+ 401 022a CEFB0C89 	 smlal r8,r9,lr,ip
+ 402              	.LVL73:
+ 403 022e A2F10C02 	 sub r2,r2,#12
+ 404              	.LVL74:
+ 296:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[4] * y[srcBLen - 2] */
+ 405              	 .loc 1 296 0 discriminator 1
+ 406 0232 CEFB0167 	 smlal r6,r7,lr,r1
+ 407              	.LVL75:
+ 298:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 408              	 .loc 1 298 0 discriminator 1
+ 409 0236 C0FB0E45 	 smlal r4,r5,r0,lr
+ 410              	.LVL76:
+ 411 023a 03F10C03 	 add r3,r3,#12
+ 412              	.LVL77:
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 413              	 .loc 1 304 0 discriminator 1
+ 414 023e DAD1     	 bne .L22
+ 415 0240 089B     	 ldr r3,[sp,#32]
+ 416              	.LVL78:
+ 417 0242 019A     	 ldr r2,[sp,#4]
+ 418 0244 8A46     	 mov r10,r1
+ 419 0246 9918     	 adds r1,r3,r2
+ 420              	.LVL79:
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 421              	 .loc 1 310 0
+ 422 0248 079B     	 ldr r3,[sp,#28]
+ 423 024a 8446     	 mov ip,r0
+ 424              	.LVL80:
+ 425 024c 9BB1     	 cbz r3,.L23
+ 426 024e 9E46     	 mov lr,r3
+ 427              	.LVL81:
+ 428 0250 0A98     	 ldr r0,[sp,#40]
+ 429              	.LVL82:
+ 430 0252 01E0     	 b .L24
+ 431              	.LVL83:
+ 432              	.L40:
+ 433 0254 4FF0010E 	 mov lr,#1
+ 434              	.LVL84:
+ 435              	.L24:
+ 313:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 436              	 .loc 1 313 0
+ 437 0258 50F80439 	 ldr r3,[r0],#-4
+ 438              	.LVL85:
+ 316:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 439              	 .loc 1 316 0
+ 440 025c 51F8042B 	 ldr r2,[r1],#4
+ 441              	.LVL86:
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 442              	 .loc 1 310 0
+ 443 0260 BEF1010F 	 cmp lr,#1
+ 320:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc1 +=  x[5] * y[srcBLen - 5] */
+ 444              	 .loc 1 320 0
+ 445 0264 C3FB0A89 	 smlal r8,r9,r3,r10
+ 446              	.LVL87:
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         /* acc2 +=  x[6] * y[srcBLen - 5] */
+ 447              	 .loc 1 322 0
+ 448 0268 CCFB0367 	 smlal r6,r7,ip,r3
+ 449              	.LVL88:
+ 450 026c E246     	 mov r10,ip
+ 451              	.LVL89:
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 452              	 .loc 1 324 0
+ 453 026e C2FB0345 	 smlal r4,r5,r2,r3
+ 454              	.LVL90:
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 455              	 .loc 1 328 0
+ 456 0272 9446     	 mov ip,r2
+ 457              	.LVL91:
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 458              	 .loc 1 310 0
+ 459 0274 EED1     	 bne .L40
+ 460              	.LVL92:
+ 461              	.L23:
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 462              	 .loc 1 337 0
+ 463 0276 E10F     	 lsrs r1,r4,#31
+ 464              	.LVL93:
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc2 >> 31);
+ 465              	 .loc 1 336 0
+ 466 0278 F20F     	 lsrs r2,r6,#31
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc1 >> 31);
+ 467              	 .loc 1 335 0
+ 468 027a 029C     	 ldr r4,[sp,#8]
+ 469              	.LVL94:
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc2 >> 31);
+ 470              	 .loc 1 336 0
+ 471 027c 42EA4702 	 orr r2,r2,r7,lsl#1
+ 472 0280 44F8082C 	 str r2,[r4,#-8]
+ 473 0284 019A     	 ldr r2,[sp,#4]
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc1 >> 31);
+ 474              	 .loc 1 335 0
+ 475 0286 4FEAD873 	 lsr r3,r8,#31
+ 476 028a 0C32     	 adds r2,r2,#12
+ 477 028c 43EA4903 	 orr r3,r3,r9,lsl#1
+ 478 0290 0192     	 str r2,[sp,#4]
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 479              	 .loc 1 240 0
+ 480 0292 059A     	 ldr r2,[sp,#20]
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       *pOut++ = (q31_t) (acc1 >> 31);
+ 481              	 .loc 1 335 0
+ 482 0294 44F80C3C 	 str r3,[r4,#-12]
+ 483 0298 04F10C03 	 add r3,r4,#12
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 484              	 .loc 1 337 0
+ 485 029c 41EA4501 	 orr r1,r1,r5,lsl#1
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 486              	 .loc 1 240 0
+ 487 02a0 9342     	 cmp r3,r2
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 488              	 .loc 1 337 0
+ 489 02a2 44F8041C 	 str r1,[r4,#-4]
+ 490 02a6 0293     	 str r3,[sp,#8]
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 491              	 .loc 1 240 0
+ 492 02a8 94D1     	 bne .L25
+ 493 02aa 0F9B     	 ldr r3,[sp,#60]
+ 494 02ac A3F10C07 	 sub r7,r3,#12
+ 495 02b0 1A9B     	 ldr r3,[sp,#104]
+ 496 02b2 3B44     	 add r3,r3,r7
+ 497 02b4 1A93     	 str r3,[sp,#104]
+ 498 02b6 049B     	 ldr r3,[sp,#16]
+ 499 02b8 1F44     	 add r7,r7,r3
+ 500 02ba 0E9B     	 ldr r3,[sp,#56]
+ 501 02bc 03EB4302 	 add r2,r3,r3,lsl#1
+ 502              	.LVL95:
+ 503              	.L21:
+ 352:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 504              	 .loc 1 352 0
+ 505 02c0 0B98     	 ldr r0,[sp,#44]
+ 506 02c2 764B     	 ldr r3,.L80
+ 507 02c4 A3FB003C 	 umull r3,ip,r3,r0
+ 508 02c8 4FEA5C0C 	 lsr ip,ip,#1
+ 509 02cc 0CEB4C0C 	 add ip,ip,ip,lsl#1
+ 510              	.LVL96:
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 511              	 .loc 1 354 0
+ 512 02d0 B0EB0C0C 	 subs ip,r0,ip
+ 513              	.LVL97:
+ 514 02d4 00F0DD80 	 beq .L41
+ 515 02d8 049B     	 ldr r3,[sp,#16]
+ 516 02da 0399     	 ldr r1,[sp,#12]
+ 517 02dc 0132     	 adds r2,r2,#1
+ 518              	.LVL98:
+ 519 02de 03EB820E 	 add lr,r3,r2,lsl#2
+ 520 02e2 1A9B     	 ldr r3,[sp,#104]
+ 521 02e4 0C9A     	 ldr r2,[sp,#48]
+ 522              	.LVL99:
+ 523 02e6 4FEA9109 	 lsr r9,r1,#2
+ 524 02ea 03EB8C0C 	 add ip,r3,ip,lsl#2
+ 525              	.LVL100:
+ 526 02ee 4FEA091A 	 lsl r10,r9,#4
+ 527 02f2 A2EB0913 	 sub r3,r2,r9,lsl#4
+ 528 02f6 CDF80CA0 	 str r10,[sp,#12]
+ 529 02fa CA46     	 mov r10,r9
+ 530 02fc E146     	 mov r9,ip
+ 531 02fe DDF868C0 	 ldr ip,[sp,#104]
+ 532 0302 0593     	 str r3,[sp,#20]
+ 533 0304 01F00308 	 and r8,r1,#3
+ 534 0308 A2F1100B 	 sub fp,r2,#16
+ 535              	.LVL101:
+ 536              	.L29:
+ 537 030c 07F11000 	 add r0,r7,#16
+ 538 0310 5946     	 mov r1,fp
+ 360:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 539              	 .loc 1 360 0
+ 540 0312 5446     	 mov r4,r10
+ 357:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 541              	 .loc 1 357 0
+ 542 0314 0022     	 movs r2,#0
+ 543 0316 0023     	 movs r3,#0
+ 544 0318 CDF80490 	 str r9,[sp,#4]
+ 545 031c CDF80880 	 str r8,[sp,#8]
+ 546              	.LVL102:
+ 547              	.L26:
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 548              	 .loc 1 367 0
+ 549 0320 50F8106C 	 ldr r6,[r0,#-16]
+ 550              	.LVL103:
+ 551 0324 0D69     	 ldr r5,[r1,#16]
+ 552 0326 C5FB0623 	 smlal r2,r3,r5,r6
+ 553              	.LVL104:
+ 368:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 554              	 .loc 1 368 0
+ 555 032a 50F80C5C 	 ldr r5,[r0,#-12]
+ 556 032e CE68     	 ldr r6,[r1,#12]
+ 557 0330 C6FB0523 	 smlal r2,r3,r6,r5
+ 558              	.LVL105:
+ 559 0334 9046     	 mov r8,r2
+ 560 0336 9946     	 mov r9,r3
+ 561              	.LVL106:
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 562              	 .loc 1 369 0
+ 563 0338 8A68     	 ldr r2,[r1,#8]
+ 564 033a 50F8083C 	 ldr r3,[r0,#-8]
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 565              	 .loc 1 370 0
+ 566 033e 50F8046C 	 ldr r6,[r0,#-4]
+ 567 0342 4D68     	 ldr r5,[r1,#4]
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****         sum += (q63_t) * px++ * (*py--);
+ 568              	 .loc 1 369 0
+ 569 0344 C2FB0389 	 smlal r8,r9,r2,r3
+ 570              	.LVL107:
+ 571 0348 4246     	 mov r2,r8
+ 572 034a 4B46     	 mov r3,r9
+ 573              	.LVL108:
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 574              	 .loc 1 364 0
+ 575 034c 013C     	 subs r4,r4,#1
+ 576              	.LVL109:
+ 577 034e 00F11000 	 add r0,r0,#16
+ 578              	.LVL110:
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 579              	 .loc 1 370 0
+ 580 0352 C5FB0623 	 smlal r2,r3,r5,r6
+ 581              	.LVL111:
+ 582 0356 A1F11001 	 sub r1,r1,#16
+ 583              	.LVL112:
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 584              	 .loc 1 364 0
+ 585 035a E1D1     	 bne .L26
+ 586 035c 1D46     	 mov r5,r3
+ 587 035e 1946     	 mov r1,r3
+ 588              	.LVL113:
+ 589 0360 DDF80880 	 ldr r8,[sp,#8]
+ 590 0364 039B     	 ldr r3,[sp,#12]
+ 591 0366 DDF80490 	 ldr r9,[sp,#4]
+ 592 036a 1446     	 mov r4,r2
+ 593 036c 1046     	 mov r0,r2
+ 594              	.LVL114:
+ 595 036e 1F44     	 add r7,r7,r3
+ 596              	.LVL115:
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 597              	 .loc 1 380 0
+ 598 0370 B8F1000F 	 cmp r8,#0
+ 599 0374 0DD0     	 beq .L27
+ 600 0376 0598     	 ldr r0,[sp,#20]
+ 601 0378 4146     	 mov r1,r8
+ 602 037a 2246     	 mov r2,r4
+ 603 037c 2B46     	 mov r3,r5
+ 604              	.LVL116:
+ 605              	.L28:
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 606              	 .loc 1 383 0
+ 607 037e 57F8045B 	 ldr r5,[r7],#4
+ 608              	.LVL117:
+ 609 0382 50F80449 	 ldr r4,[r0],#-4
+ 610              	.LVL118:
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 611              	 .loc 1 380 0
+ 612 0386 0139     	 subs r1,r1,#1
+ 613              	.LVL119:
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 614              	 .loc 1 383 0
+ 615 0388 C4FB0523 	 smlal r2,r3,r4,r5
+ 616              	.LVL120:
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       {
+ 617              	 .loc 1 380 0
+ 618 038c F7D1     	 bne .L28
+ 619 038e 1046     	 mov r0,r2
+ 620              	.LVL121:
+ 621 0390 1946     	 mov r1,r3
+ 622              	.LVL122:
+ 623              	.L27:
+ 390:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 624              	 .loc 1 390 0
+ 625 0392 C20F     	 lsrs r2,r0,#31
+ 626 0394 42EA4102 	 orr r2,r2,r1,lsl#1
+ 627 0398 4CF8042B 	 str r2,[ip],#4
+ 628              	.LVL123:
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 629              	 .loc 1 354 0
+ 630 039c CC45     	 cmp ip,r9
+ 396:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       py = pSrc2;
+ 631              	 .loc 1 396 0
+ 632 039e 7746     	 mov r7,lr
+ 633              	.LVL124:
+ 634 03a0 0EF1040E 	 add lr,lr,#4
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 635              	 .loc 1 354 0
+ 636 03a4 B2D1     	 bne .L29
+ 637 03a6 0B9B     	 ldr r3,[sp,#44]
+ 638 03a8 CC46     	 mov ip,r9
+ 639              	.LVL125:
+ 640 03aa 9C00     	 lsls r4,r3,#2
+ 641              	.LVL126:
+ 642              	.L11:
+ 457:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   px = pSrc1;
+ 643              	 .loc 1 457 0
+ 644 03ac 049B     	 ldr r3,[sp,#16]
+ 645 03ae 2344     	 add r3,r3,r4
+ 646 03b0 9E46     	 mov lr,r3
+ 647              	.LVL127:
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 648              	 .loc 1 468 0
+ 649 03b2 0D9B     	 ldr r3,[sp,#52]
+ 650              	.LVL128:
+ 651 03b4 002B     	 cmp r3,#0
+ 652 03b6 3FF4DBAE 	 beq .L1
+ 653              	.LVL129:
+ 654              	.L77:
+ 655 03ba E046     	 mov r8,ip
+ 656              	.LVL130:
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 657              	 .loc 1 478 0
+ 658 03bc 5FEA930C 	 lsrs ip,r3,#2
+ 659 03c0 DDF83090 	 ldr r9,[sp,#48]
+ 660 03c4 0193     	 str r3,[sp,#4]
+ 661              	.LVL131:
+ 662 03c6 47D0     	 beq .L42
+ 663              	.L78:
+ 664 03c8 0EF11000 	 add r0,lr,#16
+ 665 03cc A9F11001 	 sub r1,r9,#16
+ 666 03d0 6446     	 mov r4,ip
+ 667 03d2 4FF0000A 	 mov r10,#0
+ 668 03d6 4FF0000B 	 mov fp,#0
+ 669              	.LVL132:
+ 670              	.L32:
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 2] * y[srcBLen - 2] */
+ 671              	 .loc 1 481 0
+ 672 03da 50F8106C 	 ldr r6,[r0,#-16]
+ 673              	.LVL133:
+ 674 03de 0D69     	 ldr r5,[r1,#16]
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 4] * y[srcBLen - 4] */
+ 675              	 .loc 1 485 0
+ 676 03e0 50F8087C 	 ldr r7,[r0,#-8]
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 2] * y[srcBLen - 2] */
+ 677              	 .loc 1 481 0
+ 678 03e4 5246     	 mov r2,r10
+ 679 03e6 5B46     	 mov r3,fp
+ 680 03e8 C5FB0623 	 smlal r2,r3,r5,r6
+ 681              	.LVL134:
+ 483:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 3] * y[srcBLen - 3] */
+ 682              	 .loc 1 483 0
+ 683 03ec 50F80C5C 	 ldr r5,[r0,#-12]
+ 684 03f0 CE68     	 ldr r6,[r1,#12]
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 4] * y[srcBLen - 4] */
+ 685              	 .loc 1 485 0
+ 686 03f2 BA46     	 mov r10,r7
+ 687 03f4 8F68     	 ldr r7,[r1,#8]
+ 483:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 3] * y[srcBLen - 3] */
+ 688              	 .loc 1 483 0
+ 689 03f6 C6FB0523 	 smlal r2,r3,r6,r5
+ 690              	.LVL135:
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 691              	 .loc 1 487 0
+ 692 03fa 50F8046C 	 ldr r6,[r0,#-4]
+ 693 03fe 4D68     	 ldr r5,[r1,#4]
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****       /* sum += x[srcALen - srcBLen + 4] * y[srcBLen - 4] */
+ 694              	 .loc 1 485 0
+ 695 0400 C7FB0A23 	 smlal r2,r3,r7,r10
+ 696              	.LVL136:
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 697              	 .loc 1 487 0
+ 698 0404 C5FB0623 	 smlal r2,r3,r5,r6
+ 699              	.LVL137:
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 700              	 .loc 1 478 0
+ 701 0408 013C     	 subs r4,r4,#1
+ 702              	.LVL138:
+ 703 040a 00F11000 	 add r0,r0,#16
+ 704              	.LVL139:
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 705              	 .loc 1 487 0
+ 706 040e 9246     	 mov r10,r2
+ 707 0410 9B46     	 mov fp,r3
+ 708              	.LVL140:
+ 709 0412 A1F11001 	 sub r1,r1,#16
+ 710              	.LVL141:
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 711              	 .loc 1 478 0
+ 712 0416 E0D1     	 bne .L32
+ 713 0418 0EEB0C10 	 add r0,lr,ip,lsl#4
+ 714              	.LVL142:
+ 715 041c A9EB0C1C 	 sub ip,r9,ip,lsl#4
+ 716              	.LVL143:
+ 717              	.L31:
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 718              	 .loc 1 497 0
+ 719 0420 019B     	 ldr r3,[sp,#4]
+ 720 0422 13F00301 	 ands r1,r3,#3
+ 721              	.LVL144:
+ 722 0426 07D0     	 beq .L33
+ 723              	.LVL145:
+ 724              	.L34:
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 725              	 .loc 1 500 0
+ 726 0428 50F8045B 	 ldr r5,[r0],#4
+ 727              	.LVL146:
+ 728 042c 5CF80449 	 ldr r4,[ip],#-4
+ 729              	.LVL147:
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 730              	 .loc 1 497 0
+ 731 0430 0139     	 subs r1,r1,#1
+ 732              	.LVL148:
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 733              	 .loc 1 500 0
+ 734 0432 C4FB05AB 	 smlal r10,fp,r4,r5
+ 735              	.LVL149:
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 736              	 .loc 1 497 0
+ 737 0436 F7D1     	 bne .L34
+ 738              	.L33:
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 739              	 .loc 1 468 0
+ 740 0438 019B     	 ldr r3,[sp,#4]
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 741              	 .loc 1 507 0
+ 742 043a 4FEADA72 	 lsr r2,r10,#31
+ 743 043e 42EA4B02 	 orr r2,r2,fp,lsl#1
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 744              	 .loc 1 468 0
+ 745 0442 013B     	 subs r3,r3,#1
+ 510:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     py = pSrc2;
+ 746              	 .loc 1 510 0
+ 747 0444 0EF1040E 	 add lr,lr,#4
+ 748              	.LVL150:
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 749              	 .loc 1 507 0
+ 750 0448 48F8042B 	 str r2,[r8],#4
+ 751              	.LVL151:
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   {
+ 752              	 .loc 1 468 0
+ 753 044c 0193     	 str r3,[sp,#4]
+ 754 044e 3FF48FAE 	 beq .L1
+ 755              	.LVL152:
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 756              	 .loc 1 478 0
+ 757 0452 5FEA930C 	 lsrs ip,r3,#2
+ 758              	.LVL153:
+ 759 0456 B7D1     	 bne .L78
+ 760              	.LVL154:
+ 761              	.L42:
+ 222:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****   py = pSrc2;
+ 762              	 .loc 1 222 0
+ 763 0458 CC46     	 mov ip,r9
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 764              	 .loc 1 478 0
+ 765 045a 7046     	 mov r0,lr
+ 471:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 766              	 .loc 1 471 0
+ 767 045c 4FF0000A 	 mov r10,#0
+ 768 0460 4FF0000B 	 mov fp,#0
+ 769 0464 DCE7     	 b .L31
+ 770              	.LVL155:
+ 771              	.L38:
+ 772 0466 1C46     	 mov r4,r3
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 773              	 .loc 1 409 0
+ 774 0468 DDF868C0 	 ldr ip,[sp,#104]
+ 775 046c 9EE7     	 b .L11
+ 776              	.LVL156:
+ 777              	.L39:
+ 219:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 778              	 .loc 1 219 0
+ 779 046e 049F     	 ldr r7,[sp,#16]
+ 780 0470 26E7     	 b .L21
+ 781              	.LVL157:
+ 782              	.L75:
+ 783 0472 039B     	 ldr r3,[sp,#12]
+ 784 0474 03F18043 	 add r3,r3,#1073741824
+ 785 0478 013B     	 subs r3,r3,#1
+ 786 047a 3AE6     	 b .L3
+ 787              	.LVL158:
+ 788              	.L12:
+ 427:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 789              	 .loc 1 427 0
+ 790 047c 0B9B     	 ldr r3,[sp,#44]
+ 791              	.LVL159:
+ 792 047e 1A98     	 ldr r0,[sp,#104]
+ 793 0480 9C00     	 lsls r4,r3,#2
+ 794 0482 1146     	 mov r1,r2
+ 795 0484 2246     	 mov r2,r4
+ 796 0486 FFF7FEFF 	 bl memset
+ 797              	.LVL160:
+ 798 048a 1A9B     	 ldr r3,[sp,#104]
+ 799 048c 03EB040C 	 add ip,r3,r4
+ 800 0490 8CE7     	 b .L11
+ 801              	.LVL161:
+ 802              	.L41:
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 803              	 .loc 1 354 0
+ 804 0492 DDF868C0 	 ldr ip,[sp,#104]
+ 805              	.LVL162:
+ 806 0496 8400     	 lsls r4,r0,#2
+ 807 0498 88E7     	 b .L11
+ 808              	.L81:
+ 809 049a 00BF     	 .align 2
+ 810              	.L80:
+ 811 049c ABAAAAAA 	 .word -1431655765
+ 812              	.LVL163:
+ 813              	.L14:
+ 814 04a0 0B9B     	 ldr r3,[sp,#44]
+ 815              	.LVL164:
+ 816 04a2 0C9D     	 ldr r5,[sp,#48]
+ 817 04a4 1A98     	 ldr r0,[sp,#104]
+ 818 04a6 9C00     	 lsls r4,r3,#2
+ 819 04a8 1A9B     	 ldr r3,[sp,#104]
+ 820 04aa 03EB040C 	 add ip,r3,r4
+ 821 04ae 049B     	 ldr r3,[sp,#16]
+ 822 04b0 191F     	 subs r1,r3,#4
+ 823              	.LVL165:
+ 824              	.L16:
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 825              	 .loc 1 420 0
+ 826 04b2 2A68     	 ldr r2,[r5]
+ 827 04b4 51F8043F 	 ldr r3,[r1,#4]!
+ 828              	.LVL166:
+ 829 04b8 83FB0267 	 smull r6,r7,r3,r2
+ 830              	.LVL167:
+ 831 04bc F20F     	 lsrs r2,r6,#31
+ 832 04be 42EA4702 	 orr r2,r2,r7,lsl#1
+ 833 04c2 40F8042B 	 str r2,[r0],#4
+ 834              	.LVL168:
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 835              	 .loc 1 409 0
+ 836 04c6 6045     	 cmp r0,ip
+ 837 04c8 F3D1     	 bne .L16
+ 838 04ca 6FE7     	 b .L11
+ 839              	.LVL169:
+ 840              	.L13:
+ 841 04cc 0D9B     	 ldr r3,[sp,#52]
+ 842              	.LVL170:
+ 843 04ce EBB1     	 cbz r3,.L79
+ 844 04d0 0B9B     	 ldr r3,[sp,#44]
+ 845 04d2 0498     	 ldr r0,[sp,#16]
+ 846 04d4 0C9D     	 ldr r5,[sp,#48]
+ 847 04d6 9C00     	 lsls r4,r3,#2
+ 848 04d8 1A9B     	 ldr r3,[sp,#104]
+ 849 04da 03EB040C 	 add ip,r3,r4
+ 850 04de 1946     	 mov r1,r3
+ 851              	.LVL171:
+ 852              	.L20:
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 853              	 .loc 1 420 0
+ 854 04e0 0668     	 ldr r6,[r0]
+ 855              	.LVL172:
+ 856 04e2 55F8042C 	 ldr r2,[r5,#-4]
+ 857 04e6 50F8043F 	 ldr r3,[r0,#4]!
+ 858              	.LVL173:
+ 859 04ea 2F68     	 ldr r7,[r5]
+ 860              	.LVL174:
+ 861 04ec 83FB0223 	 smull r2,r3,r3,r2
+ 862              	.LVL175:
+ 863 04f0 C7FB0623 	 smlal r2,r3,r7,r6
+ 864              	.LVL176:
+ 865 04f4 D20F     	 lsrs r2,r2,#31
+ 866              	.LVL177:
+ 867 04f6 42EA4302 	 orr r2,r2,r3,lsl#1
+ 868 04fa 41F8042B 	 str r2,[r1],#4
+ 869              	.LVL178:
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 870              	 .loc 1 409 0
+ 871 04fe 6145     	 cmp r1,ip
+ 872 0500 EED1     	 bne .L20
+ 873 0502 53E7     	 b .L11
+ 874              	.LVL179:
+ 875              	.L37:
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 876              	 .loc 1 166 0
+ 877 0504 4C46     	 mov r4,r9
+ 159:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 878              	 .loc 1 159 0
+ 879 0506 0022     	 movs r2,#0
+ 880 0508 0023     	 movs r3,#0
+ 881 050a E6E5     	 b .L5
+ 882              	.LVL180:
+ 883              	.L79:
+ 884 050c 0B9B     	 ldr r3,[sp,#44]
+ 885 050e 0C9D     	 ldr r5,[sp,#48]
+ 886 0510 1A98     	 ldr r0,[sp,#104]
+ 887 0512 9C00     	 lsls r4,r3,#2
+ 888 0514 1A9B     	 ldr r3,[sp,#104]
+ 889 0516 03EB040C 	 add ip,r3,r4
+ 890 051a 049B     	 ldr r3,[sp,#16]
+ 891 051c 191F     	 subs r1,r3,#4
+ 892              	.LVL181:
+ 893              	.L19:
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c **** 
+ 894              	 .loc 1 420 0
+ 895 051e 2A68     	 ldr r2,[r5]
+ 896 0520 51F8043F 	 ldr r3,[r1,#4]!
+ 897              	.LVL182:
+ 898 0524 83FB0267 	 smull r6,r7,r3,r2
+ 899              	.LVL183:
+ 900 0528 F20F     	 lsrs r2,r6,#31
+ 901 052a 42EA4702 	 orr r2,r2,r7,lsl#1
+ 902 052e 40F8042B 	 str r2,[r0],#4
+ 903              	.LVL184:
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_conv_q31.c ****     {
+ 904              	 .loc 1 409 0
+ 905 0532 6045     	 cmp r0,ip
+ 906 0534 F3D1     	 bne .L19
+ 907 0536 39E7     	 b .L11
+ 908              	 .cfi_endproc
+ 909              	.LFE135:
+ 911              	 .text
+ 912              	.Letext0:
+ 913              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 914              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 915              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_conv_q31.c
+    {standard input}:20     .text.arm_conv_q31:00000000 $t
+    {standard input}:25     .text.arm_conv_q31:00000000 arm_conv_q31
+    {standard input}:811    .text.arm_conv_q31:0000049c $d
+    {standard input}:814    .text.arm_conv_q31:000004a0 $t
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+memset

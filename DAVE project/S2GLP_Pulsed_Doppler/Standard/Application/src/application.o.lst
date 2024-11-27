@@ -1,0 +1,2888 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "application.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.app_data_acq_started_cb,"ax",%progbits
+  20              	 .align 2
+  21              	 .global app_data_acq_started_cb
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	app_data_acq_started_cb:
+  26              	.LFB538:
+  27              	 .file 1 "../Application/src/application.c"
+   1:../Application/src/application.c **** /**
+   2:../Application/src/application.c ****     @file: application.c
+   3:../Application/src/application.c **** 
+   4:../Application/src/application.c ****     @brief: This file includes the functions for the Sense2GoL Pulse
+   5:../Application/src/application.c ****             RangeDoppler Application Layer.
+   6:../Application/src/application.c **** */
+   7:../Application/src/application.c **** 
+   8:../Application/src/application.c **** /* ===========================================================================
+   9:../Application/src/application.c **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+  10:../Application/src/application.c **** ** All rights reserved.
+  11:../Application/src/application.c **** ** ===========================================================================
+  12:../Application/src/application.c **** **
+  13:../Application/src/application.c **** ** ===========================================================================
+  14:../Application/src/application.c **** ** This document contains proprietary information of Infineon Technologies AG.
+  15:../Application/src/application.c **** ** Passing on and copying of this document, and communication of its contents
+  16:../Application/src/application.c **** ** is not permitted without Infineon's prior written authorization.
+  17:../Application/src/application.c **** ** ===========================================================================
+  18:../Application/src/application.c **** */
+  19:../Application/src/application.c **** 
+  20:../Application/src/application.c **** /*
+  21:../Application/src/application.c **** ==============================================================================
+  22:../Application/src/application.c ****    1. INCLUDE FILES
+  23:../Application/src/application.c **** ==============================================================================
+  24:../Application/src/application.c ****  */
+  25:../Application/src/application.c **** 
+  26:../Application/src/application.c **** #include "sense2gol_usb.h"
+  27:../Application/src/application.c **** #include "EndpointRadarDeviceStatus.h"
+  28:../Application/src/application.c **** #include "radar_device_status.h"
+  29:../Application/src/application.c **** #include "application.h"
+  30:../Application/src/application.c **** #include "datastore.h"
+  31:../Application/src/application.c **** #include "acq_buffer.h"
+  32:../Application/src/application.c **** #include "radar_pulse.h"
+  33:../Application/src/application.c **** #include "radar_mcubase.h"
+  34:../Application/src/application.c **** 
+  35:../Application/src/application.c **** /*
+  36:../Application/src/application.c **** ==============================================================================
+  37:../Application/src/application.c ****    2. LOCAL DEFINITIONS
+  38:../Application/src/application.c **** ==============================================================================
+  39:../Application/src/application.c ****  */
+  40:../Application/src/application.c **** 
+  41:../Application/src/application.c **** /* Define the number of supported endpoints */
+  42:../Application/src/application.c **** #define NUMBER_SUPPORTED_ENDPOINTS         (3U)
+  43:../Application/src/application.c **** 
+  44:../Application/src/application.c **** /*
+  45:../Application/src/application.c **** ==============================================================================
+  46:../Application/src/application.c ****    3. LOCAL TYPES
+  47:../Application/src/application.c **** ==============================================================================
+  48:../Application/src/application.c ****  */
+  49:../Application/src/application.c **** 
+  50:../Application/src/application.c **** /*
+  51:../Application/src/application.c **** ==============================================================================
+  52:../Application/src/application.c ****    4. DATA
+  53:../Application/src/application.c **** ==============================================================================
+  54:../Application/src/application.c ****  */
+  55:../Application/src/application.c **** 
+  56:../Application/src/application.c **** /* Firmware version declaration */
+  57:../Application/src/application.c **** Firmware_Information_t firmware_information =
+  58:../Application/src/application.c **** {
+  59:../Application/src/application.c **** 	"Sense2GoL Pulse BGT24LTR11 Demo Radar Board",
+  60:../Application/src/application.c **** 	FW_VERSION_MAJOR,
+  61:../Application/src/application.c **** 	FW_VERSION_MINOR,
+  62:../Application/src/application.c **** 	FW_VERSION_REVISION
+  63:../Application/src/application.c **** };
+  64:../Application/src/application.c **** 
+  65:../Application/src/application.c **** /* Radar handler declaration */
+  66:../Application/src/application.c **** Radar_Handle_t h_radar_device = NULL;
+  67:../Application/src/application.c **** 
+  68:../Application/src/application.c **** /* A global buffer to hold all endpoints used by Host Communication library */
+  69:../Application/src/application.c **** Endpoint_t endpoint_list[NUMBER_SUPPORTED_ENDPOINTS];
+  70:../Application/src/application.c **** 
+  71:../Application/src/application.c **** /* Global variable to store the state if USB initialization, used with radar GUI */
+  72:../Application/src/application.c **** volatile uint8_t g_usb_init = false;
+  73:../Application/src/application.c **** 
+  74:../Application/src/application.c **** /* Radar application demo global state */
+  75:../Application/src/application.c **** static Radar_App_State_t radar_app_state = APP_IDLE;
+  76:../Application/src/application.c **** 
+  77:../Application/src/application.c **** static uint32_t acq_completed = 0;
+  78:../Application/src/application.c **** static uint32_t algo_completed = 0;
+  79:../Application/src/application.c **** static uint32_t acq_started = 0;
+  80:../Application/src/application.c **** static uint32_t app_initalized = 0;
+  81:../Application/src/application.c **** 
+  82:../Application/src/application.c **** /*
+  83:../Application/src/application.c **** ==============================================================================
+  84:../Application/src/application.c ****    5. LOCAL FUNCTION PROTOTYPES
+  85:../Application/src/application.c **** ==============================================================================
+  86:../Application/src/application.c ****  */
+  87:../Application/src/application.c **** 
+  88:../Application/src/application.c **** void acq_completed_cb(void);
+  89:../Application/src/application.c **** 
+  90:../Application/src/application.c **** void algo_completed_cb(void);
+  91:../Application/src/application.c **** 
+  92:../Application/src/application.c **** /* This callback function will be executed by radar control when starting data acquisition process
+  93:../Application/src/application.c ****  *   it can be used to get information about the beginning of data acquisition
+  94:../Application/src/application.c ****  */
+  95:../Application/src/application.c **** void app_data_acq_started_cb(void *parameter);
+  96:../Application/src/application.c **** 
+  97:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
+  98:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
+  99:../Application/src/application.c ****  */
+ 100:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter);
+ 101:../Application/src/application.c **** 
+ 102:../Application/src/application.c **** /* This function will be executed at the end of data acquisition,
+ 103:../Application/src/application.c ****  * This function pointer should be set to the assigned algorithm before starting data processing
+ 104:../Application/src/application.c ****  */
+ 105:../Application/src/application.c **** static  algorithm  algo_processing_function = NULL;
+ 106:../Application/src/application.c **** 
+ 107:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 108:../Application/src/application.c ****   static void do_algo_helper(void);
+ 109:../Application/src/application.c **** #endif
+ 110:../Application/src/application.c **** 
+ 111:../Application/src/application.c **** /*
+ 112:../Application/src/application.c **** ==============================================================================
+ 113:../Application/src/application.c ****    6. EXPORTED FUNCTIONS
+ 114:../Application/src/application.c **** ==============================================================================
+ 115:../Application/src/application.c ****  */
+ 116:../Application/src/application.c **** 
+ 117:../Application/src/application.c **** /* Initialize all firmware and algorithm parameters and start communication protocol */
+ 118:../Application/src/application.c **** void app_init(void)
+ 119:../Application/src/application.c **** {
+ 120:../Application/src/application.c ****   /* Initialize USB */
+ 121:../Application/src/application.c ****   if (bsp_usb_init(BSP_USB_TIMEOUT) == 0)
+ 122:../Application/src/application.c ****   {
+ 123:../Application/src/application.c ****     g_usb_init = true;
+ 124:../Application/src/application.c ****   }
+ 125:../Application/src/application.c **** 
+ 126:../Application/src/application.c ****   /* Register all endpoints to the communication protocol */
+ 127:../Application/src/application.c ****   Endpoint_t ep_list[NUMBER_SUPPORTED_ENDPOINTS] =
+ 128:../Application/src/application.c ****   {
+ 129:../Application/src/application.c ****     EP_RADAR_MCUBASE_LIST_ENTRY(h_radar_device),
+ 130:../Application/src/application.c **** 	EP_RADAR_S2GLPULSE_LIST_ENTRY(h_radar_device),
+ 131:../Application/src/application.c ****   	EP_RADAR_DEVICE_STATUS_LIST_ENTRY(h_radar_device)
+ 132:../Application/src/application.c ****   };
+ 133:../Application/src/application.c **** 
+ 134:../Application/src/application.c ****   /* Register all endpoints in case of init error to the communication protocol */
+ 135:../Application/src/application.c ****   Endpoint_t ep_err_list[2] =
+ 136:../Application/src/application.c ****   {
+ 137:../Application/src/application.c ****     EP_RADAR_MCUBASE_LIST_ENTRY(h_radar_device),
+ 138:../Application/src/application.c ****   	EP_RADAR_DEVICE_STATUS_LIST_ENTRY(h_radar_device)
+ 139:../Application/src/application.c ****   };
+ 140:../Application/src/application.c **** 
+ 141:../Application/src/application.c ****   app_initalized = 0;
+ 142:../Application/src/application.c ****   uint8_t num_of_ep = sizeof(ep_err_list)/sizeof(ep_err_list[0]);
+ 143:../Application/src/application.c ****   Endpoint_t *pEndPoints = &ep_err_list[0];
+ 144:../Application/src/application.c **** 
+ 145:../Application/src/application.c ****   /* Open the available radar device */
+ 146:../Application/src/application.c ****   if (radar_open_device(0, &h_radar_device) == RADAR_ERR_OK)
+ 147:../Application/src/application.c ****   {
+ 148:../Application/src/application.c **** 	  app_initalized = 1;
+ 149:../Application/src/application.c **** 	  /* Register user callback functions */
+ 150:../Application/src/application.c **** 	  radar_register_callback(RADAR_ACQUISITION_STARTED_CB_ID, app_data_acq_started_cb);
+ 151:../Application/src/application.c **** 	  radar_register_callback(RADAR_ACQUISITION_DONE_CB_ID, app_data_acq_done_cb);
+ 152:../Application/src/application.c **** 
+ 153:../Application/src/application.c **** 	  num_of_ep = sizeof(ep_list)/sizeof(ep_list[0]);
+ 154:../Application/src/application.c **** 	  pEndPoints = &ep_list[0];
+ 155:../Application/src/application.c ****   }
+ 156:../Application/src/application.c ****   memcpy(endpoint_list, pEndPoints, num_of_ep * sizeof(Endpoint_t));
+ 157:../Application/src/application.c **** 
+ 158:../Application/src/application.c ****   /* Initialize the internal protocol state and the communication interface */
+ 159:../Application/src/application.c ****   protocol_init(endpoint_list, num_of_ep, NULL, BSP_HOST_TIMEOUT_USEC, system_reset);
+ 160:../Application/src/application.c **** 
+ 161:../Application/src/application.c ****   /* Initialize the internal protocol state and the communication interface */
+ 162:../Application/src/application.c ****   if (app_initalized)
+ 163:../Application/src/application.c ****   {
+ 164:../Application/src/application.c **** 	  /* Start data acquisition at the defined frame interval */
+ 165:../Application/src/application.c **** 	  if (radar_start_acquisition(h_radar_device) != RADAR_ERR_OK)
+ 166:../Application/src/application.c **** 	  {
+ 167:../Application/src/application.c **** 		XMC_DEBUG("Starting Radar data acquisition failed\n");
+ 168:../Application/src/application.c **** 		while (1U);
+ 169:../Application/src/application.c **** 	  }
+ 170:../Application/src/application.c ****   }
+ 171:../Application/src/application.c **** }
+ 172:../Application/src/application.c **** 
+ 173:../Application/src/application.c **** //============================================================================
+ 174:../Application/src/application.c **** 
+ 175:../Application/src/application.c **** /* Register algorithm processing function */
+ 176:../Application/src/application.c **** void app_register_algo_process(algorithm algo_processor)
+ 177:../Application/src/application.c **** {
+ 178:../Application/src/application.c ****   /* Register algo processing function */
+ 179:../Application/src/application.c ****   algo_processing_function = algo_processor;
+ 180:../Application/src/application.c **** }
+ 181:../Application/src/application.c **** 
+ 182:../Application/src/application.c **** //============================================================================
+ 183:../Application/src/application.c **** 
+ 184:../Application/src/application.c **** float calcCurrentConsumption_mA(device_settings_t *pDev)
+ 185:../Application/src/application.c **** {
+ 186:../Application/src/application.c **** 	float retval = 0.0F;
+ 187:../Application/src/application.c **** 	extern bool pwm_bgt_enabled;
+ 188:../Application/src/application.c **** 
+ 189:../Application/src/application.c **** 	if (!pwm_bgt_enabled)
+ 190:../Application/src/application.c **** 		return 0.0F; /* invalid! */
+ 191:../Application/src/application.c **** 
+ 192:../Application/src/application.c **** 	if (ds_get_board_variant() == 1)
+ 193:../Application/src/application.c **** 	{
+ 194:../Application/src/application.c **** 		float bgt_on_current_mA   = BSP_BGT_ON_CURRENT_mA;
+ 195:../Application/src/application.c **** 		float ptat_on_current_mA  = BSP_PTAT_ON_CURRENT_mA;
+ 196:../Application/src/application.c **** 		float bbf_on_current_mA   = BSP_BBF_ON_CURRENT_mA;
+ 197:../Application/src/application.c **** 
+ 198:../Application/src/application.c **** 		float f_sample            = (float)pDev->adc_sampling_freq_Hz;
+ 199:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 200:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 201:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 202:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 203:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 204:../Application/src/application.c **** 
+ 205:../Application/src/application.c **** 		float total_samples       = (skipped_samples + samples);
+ 206:../Application/src/application.c **** 
+ 207:../Application/src/application.c **** 		float frame_on_time_sec   = (total_samples - 1) / f_sample + pulse_width_sec;
+ 208:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 209:../Application/src/application.c **** 		float ptat_on_time_sec    = frame_on_time_sec + ptat_delay_sec;
+ 210:../Application/src/application.c **** 		float bbf_on_time_sec     = frame_period_sec; // baseband filter is not switched, but always on!
+ 211:../Application/src/application.c **** 
+ 212:../Application/src/application.c **** 		float bgt_duty_cycle      = bgt_on_time_sec / frame_period_sec;
+ 213:../Application/src/application.c **** 		float ptat_duty_cycle     = ptat_on_time_sec / frame_period_sec;
+ 214:../Application/src/application.c **** 		float bbf_duty_cycle      = bbf_on_time_sec / frame_period_sec;
+ 215:../Application/src/application.c **** 
+ 216:../Application/src/application.c **** 		retval = (bgt_duty_cycle * bgt_on_current_mA) + (ptat_duty_cycle * ptat_on_current_mA) + (bbf_dut
+ 217:../Application/src/application.c **** 	}
+ 218:../Application/src/application.c **** 	else
+ 219:../Application/src/application.c **** 	{
+ 220:../Application/src/application.c **** 		float bgt_on_current_mA   = BSP_BGT_ON_CURRENT_mA;
+ 221:../Application/src/application.c **** 		float ptat_on_current_mA  = BSP_PTAT_ON_CURRENT_mA;
+ 222:../Application/src/application.c **** 		float bbf_on_current_mA   = BSP_BBF_ON_CURRENT_mA;
+ 223:../Application/src/application.c **** 
+ 224:../Application/src/application.c **** 		float f_sample            = (float)pDev->adc_sampling_freq_Hz;
+ 225:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 226:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 227:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 228:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 229:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 230:../Application/src/application.c **** 		float ptat_pulse_time_sec = (float)PTAT_S_H_PULSE_WIDTH_USEC / 1000000.0F;
+ 231:../Application/src/application.c **** 		float bbf_advance_sec     = (float)BB_PRE_TRIGGER_ADVANCE_USEC / 1000000.0F;
+ 232:../Application/src/application.c **** 
+ 233:../Application/src/application.c **** 		float total_samples       = (skipped_samples + samples);
+ 234:../Application/src/application.c **** 
+ 235:../Application/src/application.c **** 		if (fabs(samples / f_sample - frame_period_sec) < 0.001F) // equidistant mode
+ 236:../Application/src/application.c **** 			ptat_delay_sec = 0.0F;
+ 237:../Application/src/application.c **** 
+ 238:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 239:../Application/src/application.c **** 		float ptat_on_time_sec    = total_samples * ptat_pulse_time_sec + ptat_delay_sec;
+ 240:../Application/src/application.c **** 
+ 241:../Application/src/application.c **** 		float DMA_TRANSFER_SEC    = 2.0F / 1000.0F;
+ 242:../Application/src/application.c **** 		float bbf_on_time_sec     = bbf_advance_sec + (samples - 1) / f_sample + DMA_TRANSFER_SEC; // bas
+ 243:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 244:../Application/src/application.c **** 			bbf_on_time_sec = frame_period_sec;
+ 245:../Application/src/application.c **** 
+ 246:../Application/src/application.c **** 		float bgt_duty_cycle  = bgt_on_time_sec / frame_period_sec;
+ 247:../Application/src/application.c **** 		float ptat_duty_cycle = ptat_on_time_sec / frame_period_sec;
+ 248:../Application/src/application.c **** 		float bbf_duty_cycle  = bbf_on_time_sec / frame_period_sec;
+ 249:../Application/src/application.c **** 
+ 250:../Application/src/application.c **** 		retval = (bgt_duty_cycle * bgt_on_current_mA) + (ptat_duty_cycle * ptat_on_current_mA) + (bbf_dut
+ 251:../Application/src/application.c **** 	}
+ 252:../Application/src/application.c **** 
+ 253:../Application/src/application.c **** 	return retval;
+ 254:../Application/src/application.c **** }
+ 255:../Application/src/application.c **** 
+ 256:../Application/src/application.c **** //============================================================================
+ 257:../Application/src/application.c **** 
+ 258:../Application/src/application.c **** /* Main application process */
+ 259:../Application/src/application.c **** void app_process(void)
+ 260:../Application/src/application.c **** {
+ 261:../Application/src/application.c ****   if (g_usb_init == true)
+ 262:../Application/src/application.c ****   {
+ 263:../Application/src/application.c ****     /* Run communication protocol */
+ 264:../Application/src/application.c ****     protocol_run();
+ 265:../Application/src/application.c ****   }
+ 266:../Application/src/application.c ****   else
+ 267:../Application/src/application.c ****   {
+ 268:../Application/src/application.c ****     /* Initialize the USB low layer driver and start USB data communication */
+ 269:../Application/src/application.c ****     if (bsp_usb_init(BSP_USB_TIMEOUT) == 0)
+ 270:../Application/src/application.c ****     {
+ 271:../Application/src/application.c ****       g_usb_init = true;
+ 272:../Application/src/application.c ****     }
+ 273:../Application/src/application.c ****   }
+ 274:../Application/src/application.c ****   /* Main radar application process */
+ 275:../Application/src/application.c ****   radar_app_process();
+ 276:../Application/src/application.c **** }
+ 277:../Application/src/application.c **** 
+ 278:../Application/src/application.c **** //============================================================================
+ 279:../Application/src/application.c **** 
+ 280:../Application/src/application.c **** static uint32_t helper_do_hw_settings(void)
+ 281:../Application/src/application.c **** {
+ 282:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_settings();
+ 283:../Application/src/application.c **** 
+ 284:../Application/src/application.c **** 	uint32_t error = radar_apply_hw_settings(h_radar_device, p_dev_settings);
+ 285:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 286:../Application/src/application.c **** 	{
+ 287:../Application/src/application.c **** 		ds_device_settings_copy_to_shadow();
+ 288:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
+ 289:../Application/src/application.c **** 	}
+ 290:../Application/src/application.c **** 	else
+ 291:../Application/src/application.c **** 	{
+ 292:../Application/src/application.c **** 		ds_device_settings_revert_from_shadow();
+ 293:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
+ 294:../Application/src/application.c **** 	}
+ 295:../Application/src/application.c **** 	radar_app_state = APP_IDLE;
+ 296:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
+ 297:../Application/src/application.c **** 
+ 298:../Application/src/application.c **** 	error = radar_set_automatic_frame_trigger(h_radar_device, p_dev_settings->frame_period_usec);
+ 299:../Application/src/application.c **** 	return error;
+ 300:../Application/src/application.c **** }
+ 301:../Application/src/application.c **** 
+ 302:../Application/src/application.c **** //============================================================================
+ 303:../Application/src/application.c **** 
+ 304:../Application/src/application.c **** void IRQ_ERROR_TOGGLE_Handler(void)
+ 305:../Application/src/application.c **** {
+ 306:../Application/src/application.c **** 	bsp_led_red_toggle();
+ 307:../Application/src/application.c **** 	bsp_timer_start(&TIMER_ERROR_TOGGLE);
+ 308:../Application/src/application.c **** }
+ 309:../Application/src/application.c **** 
+ 310:../Application/src/application.c **** //============================================================================
+ 311:../Application/src/application.c **** 
+ 312:../Application/src/application.c **** static uint32_t app_connected = 0;
+ 313:../Application/src/application.c **** static uint32_t delayCount = 0;
+ 314:../Application/src/application.c **** 
+ 315:../Application/src/application.c **** void app_reset_protocol(void)
+ 316:../Application/src/application.c **** {
+ 317:../Application/src/application.c **** 	delayCount = 0;
+ 318:../Application/src/application.c **** 	app_connected = 0;
+ 319:../Application/src/application.c **** }
+ 320:../Application/src/application.c **** 
+ 321:../Application/src/application.c **** //============================================================================
+ 322:../Application/src/application.c **** 
+ 323:../Application/src/application.c **** /* Main radar application process */
+ 324:../Application/src/application.c **** void radar_app_process(void)
+ 325:../Application/src/application.c **** {
+ 326:../Application/src/application.c **** 	if (acq_started)
+ 327:../Application/src/application.c **** 	{
+ 328:../Application/src/application.c **** 		/* ... */
+ 329:../Application/src/application.c **** 		acq_started = 0;
+ 330:../Application/src/application.c **** 	}
+ 331:../Application/src/application.c **** 
+ 332:../Application/src/application.c **** 	if (acq_completed)
+ 333:../Application/src/application.c **** 	{
+ 334:../Application/src/application.c **** 
+ 335:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 336:../Application/src/application.c **** 		/* Start the processing of the algorithm assigned in the function pointer 'algo_processor' */
+ 337:../Application/src/application.c **** 		if (algo_processing_function != NULL)
+ 338:../Application/src/application.c **** 		{
+ 339:../Application/src/application.c **** 			do_algo_helper();
+ 340:../Application/src/application.c **** 			algo_completed += 1;
+ 341:../Application/src/application.c **** 		}
+ 342:../Application/src/application.c **** #endif
+ 343:../Application/src/application.c **** 		acq_completed = 0;
+ 344:../Application/src/application.c **** 	}
+ 345:../Application/src/application.c **** 
+ 346:../Application/src/application.c **** 	if (algo_completed)
+ 347:../Application/src/application.c **** 	{
+ 348:../Application/src/application.c **** 		algo_completed_cb();
+ 349:../Application/src/application.c **** 		algo_completed = 0;
+ 350:../Application/src/application.c **** 	}
+ 351:../Application/src/application.c **** 
+ 352:../Application/src/application.c **** 	if (app_initalized)
+ 353:../Application/src/application.c **** 	{
+ 354:../Application/src/application.c **** 		switch (radar_app_state)
+ 355:../Application/src/application.c **** 		{
+ 356:../Application/src/application.c **** 		case APP_IDLE:
+ 357:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_SETTINGS_UPDATE;
+ 358:../Application/src/application.c **** 			break;
+ 359:../Application/src/application.c **** 
+ 360:../Application/src/application.c **** 		case APP_CHECK_FOR_SETTINGS_UPDATE:
+ 361:../Application/src/application.c **** 			/* Check if a new hardware settings are required */
+ 362:../Application/src/application.c **** 			if (ds_is_device_parameter_changed() || ds_is_device_settings_updated())
+ 363:../Application/src/application.c **** 			{
+ 364:../Application/src/application.c **** 				radar_app_state = APP_APPLY_DEVICE_SETTINGS;
+ 365:../Application/src/application.c **** 			}
+ 366:../Application/src/application.c **** 			else
+ 367:../Application/src/application.c **** 			{
+ 368:../Application/src/application.c **** 				radar_app_state = APP_CHECK_FOR_ERROR;
+ 369:../Application/src/application.c **** 			}
+ 370:../Application/src/application.c **** 			break;
+ 371:../Application/src/application.c **** 
+ 372:../Application/src/application.c **** 		case APP_APPLY_DEVICE_SETTINGS:
+ 373:../Application/src/application.c **** 			helper_do_hw_settings();
+ 374:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
+ 375:../Application/src/application.c **** 			break;
+ 376:../Application/src/application.c **** 
+ 377:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
+ 378:../Application/src/application.c **** 		{
+ 379:../Application/src/application.c **** 			int status = device_status_check();
+ 380:../Application/src/application.c **** 			if (status < 0)
+ 381:../Application/src/application.c **** 			{
+ 382:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
+ 383:../Application/src/application.c **** 			}
+ 384:../Application/src/application.c **** 			else
+ 385:../Application/src/application.c **** 			{
+ 386:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
+ 387:../Application/src/application.c **** 			}
+ 388:../Application/src/application.c **** 		}
+ 389:../Application/src/application.c **** 		break;
+ 390:../Application/src/application.c **** 
+ 391:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
+ 392:../Application/src/application.c **** 			send_device_status_response();
+ 393:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 394:../Application/src/application.c **** 			break;
+ 395:../Application/src/application.c **** 
+ 396:../Application/src/application.c **** 		default:
+ 397:../Application/src/application.c **** 			break;
+ 398:../Application/src/application.c **** 		}
+ 399:../Application/src/application.c **** 	}
+ 400:../Application/src/application.c **** 	else
+ 401:../Application/src/application.c **** 	{
+ 402:../Application/src/application.c **** 		switch (radar_app_state)
+ 403:../Application/src/application.c **** 		{
+ 404:../Application/src/application.c **** 		case APP_IDLE:
+ 405:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
+ 406:../Application/src/application.c **** 		{
+ 407:../Application/src/application.c **** 			int status = device_status_check();
+ 408:../Application/src/application.c **** 			if (status < 0)
+ 409:../Application/src/application.c **** 			{
+ 410:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
+ 411:../Application/src/application.c **** 			}
+ 412:../Application/src/application.c **** 			else
+ 413:../Application/src/application.c **** 			{
+ 414:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
+ 415:../Application/src/application.c **** 			}
+ 416:../Application/src/application.c **** 		}
+ 417:../Application/src/application.c **** 		break;
+ 418:../Application/src/application.c **** 
+ 419:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
+ 420:../Application/src/application.c **** 		{
+ 421:../Application/src/application.c **** 			/* Send out error only once, if PC app is not requesting it! */
+ 422:../Application/src/application.c **** 			if (!app_connected)
+ 423:../Application/src/application.c **** 			{
+ 424:../Application/src/application.c **** 
+ 425:../Application/src/application.c **** 				delayCount += 1;
+ 426:../Application/src/application.c **** 				if (delayCount == 100)
+ 427:../Application/src/application.c **** 				{
+ 428:../Application/src/application.c **** 					send_device_status_response();
+ 429:../Application/src/application.c **** 					app_connected = 1;
+ 430:../Application/src/application.c **** 					delayCount = 0;
+ 431:../Application/src/application.c **** 				}
+ 432:../Application/src/application.c **** 				bsp_time_delay(20, BSP_TIMER_DELAY_MILLISECOND);
+ 433:../Application/src/application.c **** 			}
+ 434:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
+ 435:../Application/src/application.c **** 		}
+ 436:../Application/src/application.c **** 		break;
+ 437:../Application/src/application.c **** 
+ 438:../Application/src/application.c **** 		default:
+ 439:../Application/src/application.c **** 			break;
+ 440:../Application/src/application.c **** 		}
+ 441:../Application/src/application.c **** 	}
+ 442:../Application/src/application.c **** }
+ 443:../Application/src/application.c **** 
+ 444:../Application/src/application.c **** //============================================================================
+ 445:../Application/src/application.c **** 
+ 446:../Application/src/application.c **** /* De-initialize and free all resources used by the application */
+ 447:../Application/src/application.c **** void app_destructor(void)
+ 448:../Application/src/application.c **** {
+ 449:../Application/src/application.c **** 	/* Unregister user callback functions */
+ 450:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_STARTED_CB_ID);
+ 451:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
+ 452:../Application/src/application.c **** }
+ 453:../Application/src/application.c **** 
+ 454:../Application/src/application.c **** /*
+ 455:../Application/src/application.c **** ==============================================================================
+ 456:../Application/src/application.c ****    6. USER CALLBACK FUNCTIONS
+ 457:../Application/src/application.c **** ==============================================================================
+ 458:../Application/src/application.c ****  */
+ 459:../Application/src/application.c **** 
+ 460:../Application/src/application.c **** /* Here an example of user callback implementation */
+ 461:../Application/src/application.c **** 
+ 462:../Application/src/application.c **** /* This callback function will be executed by radar control when starting data acquisition process
+ 463:../Application/src/application.c ****  *   it can be used to get information about the beginning of data acquisition
+ 464:../Application/src/application.c ****  */
+ 465:../Application/src/application.c **** void app_data_acq_started_cb(void *parameter)
+ 466:../Application/src/application.c **** {
+  28              	 .loc 1 466 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+ 467:../Application/src/application.c **** 	acq_started += 1;
+  34              	 .loc 1 467 0
+  35 0000 024A     	 ldr r2,.L2
+  36 0002 1368     	 ldr r3,[r2]
+  37 0004 0133     	 adds r3,r3,#1
+  38 0006 1360     	 str r3,[r2]
+  39 0008 7047     	 bx lr
+  40              	.L3:
+  41 000a 00BF     	 .align 2
+  42              	.L2:
+  43 000c 00000000 	 .word .LANCHOR0
+  44              	 .cfi_endproc
+  45              	.LFE538:
+  47              	 .section .text.system_reset,"ax",%progbits
+  48              	 .align 2
+  49              	 .global system_reset
+  50              	 .thumb
+  51              	 .thumb_func
+  53              	system_reset:
+  54              	.LFB541:
+ 468:../Application/src/application.c **** }
+ 469:../Application/src/application.c **** 
+ 470:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
+ 471:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
+ 472:../Application/src/application.c ****  */
+ 473:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter)
+ 474:../Application/src/application.c **** {
+ 475:../Application/src/application.c **** 	acq_completed += 1;
+ 476:../Application/src/application.c **** 	acq_completed_cb();
+ 477:../Application/src/application.c **** }
+ 478:../Application/src/application.c **** 
+ 479:../Application/src/application.c **** //============================================================================
+ 480:../Application/src/application.c **** 
+ 481:../Application/src/application.c **** void update_leds(algo_result_t *pResult)
+ 482:../Application/src/application.c **** {
+ 483:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 484:../Application/src/application.c **** 	{
+ 485:../Application/src/application.c **** 		bsp_led_red_off();
+ 486:../Application/src/application.c **** 		bsp_led_blue_off();
+ 487:../Application/src/application.c **** 		bsp_led_green_on();
+ 488:../Application/src/application.c **** 
+ 489:../Application/src/application.c **** 		/* Arduino status IO */
+ 490:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
+ 491:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 492:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 493:../Application/src/application.c **** 	}
+ 494:../Application/src/application.c **** 	else if (pResult->target_departing)
+ 495:../Application/src/application.c **** 	{
+ 496:../Application/src/application.c **** 		bsp_led_red_on();
+ 497:../Application/src/application.c **** 		bsp_led_blue_off();
+ 498:../Application/src/application.c **** 		bsp_led_green_off();
+ 499:../Application/src/application.c **** 
+ 500:../Application/src/application.c **** 		/* Arduino IO */
+ 501:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);
+ 502:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 503:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 504:../Application/src/application.c **** 	}
+ 505:../Application/src/application.c **** 	else if (pResult->motion_detected)
+ 506:../Application/src/application.c **** 	{
+ 507:../Application/src/application.c **** 		bsp_led_red_off();
+ 508:../Application/src/application.c **** 		bsp_led_blue_on();
+ 509:../Application/src/application.c **** 		bsp_led_green_off();
+ 510:../Application/src/application.c **** 
+ 511:../Application/src/application.c **** 		/* Arduino IO */
+ 512:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D4);
+ 513:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 514:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 515:../Application/src/application.c **** 	}
+ 516:../Application/src/application.c **** 	else
+ 517:../Application/src/application.c **** 	{
+ 518:../Application/src/application.c **** 		bsp_led_red_off();
+ 519:../Application/src/application.c **** 		bsp_led_blue_off();
+ 520:../Application/src/application.c **** 		bsp_led_green_off();
+ 521:../Application/src/application.c **** 
+ 522:../Application/src/application.c **** 		/* Arduino IO */
+ 523:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 524:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 525:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 526:../Application/src/application.c **** 	}
+ 527:../Application/src/application.c **** }
+ 528:../Application/src/application.c **** 
+ 529:../Application/src/application.c **** //============================================================================
+ 530:../Application/src/application.c **** 
+ 531:../Application/src/application.c **** /* This function yet to be filled in case of software reset */
+ 532:../Application/src/application.c **** void system_reset(void)
+ 533:../Application/src/application.c **** {
+  55              	 .loc 1 533 0
+  56              	 .cfi_startproc
+  57              	 
+  58              	 
+  59              	 
+  60 0000 7047     	 bx lr
+  61              	 .cfi_endproc
+  62              	.LFE541:
+  64 0002 00BF     	 .section .text.app_data_acq_done_cb,"ax",%progbits
+  65              	 .align 2
+  66              	 .global app_data_acq_done_cb
+  67              	 .thumb
+  68              	 .thumb_func
+  70              	app_data_acq_done_cb:
+  71              	.LFB539:
+ 474:../Application/src/application.c **** 	acq_completed += 1;
+  72              	 .loc 1 474 0
+  73              	 .cfi_startproc
+  74              	 
+  75              	 
+  76              	 
+  77              	.LVL1:
+ 475:../Application/src/application.c **** 	acq_completed_cb();
+  78              	 .loc 1 475 0
+  79 0000 024A     	 ldr r2,.L6
+  80 0002 1368     	 ldr r3,[r2]
+  81 0004 0133     	 adds r3,r3,#1
+  82 0006 1360     	 str r3,[r2]
+ 476:../Application/src/application.c **** }
+  83              	 .loc 1 476 0
+  84 0008 FFF7FEBF 	 b acq_completed_cb
+  85              	.LVL2:
+  86              	.L7:
+  87              	 .align 2
+  88              	.L6:
+  89 000c 00000000 	 .word .LANCHOR1
+  90              	 .cfi_endproc
+  91              	.LFE539:
+  93              	 .section .text.app_init,"ax",%progbits
+  94              	 .align 2
+  95              	 .global app_init
+  96              	 .thumb
+  97              	 .thumb_func
+  99              	app_init:
+ 100              	.LFB529:
+ 119:../Application/src/application.c ****   /* Initialize USB */
+ 101              	 .loc 1 119 0
+ 102              	 .cfi_startproc
+ 103              	 
+ 104              	 
+ 105 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+ 106              	.LCFI0:
+ 107              	 .cfi_def_cfa_offset 36
+ 108              	 .cfi_offset 4,-36
+ 109              	 .cfi_offset 5,-32
+ 110              	 .cfi_offset 6,-28
+ 111              	 .cfi_offset 7,-24
+ 112              	 .cfi_offset 8,-20
+ 113              	 .cfi_offset 9,-16
+ 114              	 .cfi_offset 10,-12
+ 115              	 .cfi_offset 11,-8
+ 116              	 .cfi_offset 14,-4
+ 121:../Application/src/application.c ****   {
+ 117              	 .loc 1 121 0
+ 118 0004 40F6FF70 	 movw r0,#4095
+ 119:../Application/src/application.c ****   /* Initialize USB */
+ 119              	 .loc 1 119 0
+ 120 0008 9DB0     	 sub sp,sp,#116
+ 121              	.LCFI1:
+ 122              	 .cfi_def_cfa_offset 152
+ 121:../Application/src/application.c ****   {
+ 123              	 .loc 1 121 0
+ 124 000a FFF7FEFF 	 bl bsp_usb_init
+ 125              	.LVL3:
+ 126 000e 10B9     	 cbnz r0,.L9
+ 123:../Application/src/application.c ****   }
+ 127              	 .loc 1 123 0
+ 128 0010 344B     	 ldr r3,.L25
+ 129 0012 0122     	 movs r2,#1
+ 130 0014 1A70     	 strb r2,[r3]
+ 131              	.L9:
+ 127:../Application/src/application.c ****   {
+ 132              	 .loc 1 127 0
+ 133 0016 344D     	 ldr r5,.L25+4
+ 141:../Application/src/application.c ****   uint8_t num_of_ep = sizeof(ep_err_list)/sizeof(ep_err_list[0]);
+ 134              	 .loc 1 141 0
+ 135 0018 344E     	 ldr r6,.L25+8
+ 127:../Application/src/application.c ****   {
+ 136              	 .loc 1 127 0
+ 137 001a 2868     	 ldr r0,[r5]
+ 138 001c DFF8F080 	 ldr r8,.L25+44
+ 139 0020 DFF8F0C0 	 ldr ip,.L25+48
+ 140 0024 DFF8F0E0 	 ldr lr,.L25+52
+ 141 0028 314F     	 ldr r7,.L25+12
+ 142 002a 324A     	 ldr r2,.L25+16
+ 143 002c 324B     	 ldr r3,.L25+20
+ 144 002e DFF8ECB0 	 ldr fp,.L25+56
+ 145 0032 DFF8ECA0 	 ldr r10,.L25+60
+ 146 0036 DFF8EC90 	 ldr r9,.L25+64
+ 147 003a 1090     	 str r0,[sp,#64]
+ 141:../Application/src/application.c ****   uint8_t num_of_ep = sizeof(ep_err_list)/sizeof(ep_err_list[0]);
+ 148              	 .loc 1 141 0
+ 149 003c 0024     	 movs r4,#0
+ 127:../Application/src/application.c ****   {
+ 150              	 .loc 1 127 0
+ 151 003e 1590     	 str r0,[sp,#84]
+ 152 0040 1A90     	 str r0,[sp,#104]
+ 135:../Application/src/application.c ****   {
+ 153              	 .loc 1 135 0
+ 154 0042 0690     	 str r0,[sp,#24]
+ 155 0044 0B90     	 str r0,[sp,#44]
+ 141:../Application/src/application.c ****   uint8_t num_of_ep = sizeof(ep_err_list)/sizeof(ep_err_list[0]);
+ 156              	 .loc 1 141 0
+ 157 0046 3460     	 str r4,[r6]
+ 158              	.LVL4:
+ 146:../Application/src/application.c ****   {
+ 159              	 .loc 1 146 0
+ 160 0048 2046     	 mov r0,r4
+ 161 004a 2946     	 mov r1,r5
+ 127:../Application/src/application.c ****   {
+ 162              	 .loc 1 127 0
+ 163 004c 0124     	 movs r4,#1
+ 164 004e CDF83480 	 str r8,[sp,#52]
+ 135:../Application/src/application.c ****   {
+ 165              	 .loc 1 135 0
+ 166 0052 CDF80C80 	 str r8,[sp,#12]
+ 127:../Application/src/application.c ****   {
+ 167              	 .loc 1 127 0
+ 168 0056 ADF83840 	 strh r4,[sp,#56]
+ 169 005a ADF84C40 	 strh r4,[sp,#76]
+ 170 005e ADF86040 	 strh r4,[sp,#96]
+ 135:../Application/src/application.c ****   {
+ 171              	 .loc 1 135 0
+ 172 0062 ADF81040 	 strh r4,[sp,#16]
+ 173 0066 ADF82440 	 strh r4,[sp,#36]
+ 127:../Application/src/application.c ****   {
+ 174              	 .loc 1 127 0
+ 175 006a CDF83CC0 	 str ip,[sp,#60]
+ 135:../Application/src/application.c ****   {
+ 176              	 .loc 1 135 0
+ 177 006e CDF814C0 	 str ip,[sp,#20]
+ 127:../Application/src/application.c ****   {
+ 178              	 .loc 1 127 0
+ 179 0072 CDF844E0 	 str lr,[sp,#68]
+ 135:../Application/src/application.c ****   {
+ 180              	 .loc 1 135 0
+ 181 0076 CDF81CE0 	 str lr,[sp,#28]
+ 127:../Application/src/application.c ****   {
+ 182              	 .loc 1 127 0
+ 183 007a CDF848B0 	 str fp,[sp,#72]
+ 184 007e CDF850A0 	 str r10,[sp,#80]
+ 185 0082 CDF85890 	 str r9,[sp,#88]
+ 186 0086 1797     	 str r7,[sp,#92]
+ 135:../Application/src/application.c ****   {
+ 187              	 .loc 1 135 0
+ 188 0088 0897     	 str r7,[sp,#32]
+ 127:../Application/src/application.c ****   {
+ 189              	 .loc 1 127 0
+ 190 008a 1992     	 str r2,[sp,#100]
+ 135:../Application/src/application.c ****   {
+ 191              	 .loc 1 135 0
+ 192 008c 0A92     	 str r2,[sp,#40]
+ 127:../Application/src/application.c ****   {
+ 193              	 .loc 1 127 0
+ 194 008e 1B93     	 str r3,[sp,#108]
+ 135:../Application/src/application.c ****   {
+ 195              	 .loc 1 135 0
+ 196 0090 0C93     	 str r3,[sp,#48]
+ 146:../Application/src/application.c ****   {
+ 197              	 .loc 1 146 0
+ 198 0092 FFF7FEFF 	 bl radar_open_device
+ 199              	.LVL5:
+ 200 0096 C0B1     	 cbz r0,.L23
+ 201 0098 2822     	 movs r2,#40
+ 143:../Application/src/application.c **** 
+ 202              	 .loc 1 143 0
+ 203 009a 03A9     	 add r1,sp,#12
+ 204              	.LVL6:
+ 142:../Application/src/application.c ****   Endpoint_t *pEndPoints = &ep_err_list[0];
+ 205              	 .loc 1 142 0
+ 206 009c 0224     	 movs r4,#2
+ 207              	.LVL7:
+ 208              	.L10:
+ 156:../Application/src/application.c **** 
+ 209              	 .loc 1 156 0
+ 210 009e 1748     	 ldr r0,.L25+24
+ 211 00a0 FFF7FEFF 	 bl memcpy
+ 212              	.LVL8:
+ 159:../Application/src/application.c **** 
+ 213              	 .loc 1 159 0
+ 214 00a4 164B     	 ldr r3,.L25+28
+ 215 00a6 0093     	 str r3,[sp]
+ 216 00a8 2146     	 mov r1,r4
+ 217 00aa 164B     	 ldr r3,.L25+32
+ 218 00ac 1348     	 ldr r0,.L25+24
+ 219 00ae 0022     	 movs r2,#0
+ 220 00b0 FFF7FEFF 	 bl protocol_init
+ 221              	.LVL9:
+ 162:../Application/src/application.c ****   {
+ 222              	 .loc 1 162 0
+ 223 00b4 3368     	 ldr r3,[r6]
+ 224 00b6 13B9     	 cbnz r3,.L24
+ 225              	.L8:
+ 171:../Application/src/application.c **** 
+ 226              	 .loc 1 171 0
+ 227 00b8 1DB0     	 add sp,sp,#116
+ 228              	.LCFI2:
+ 229              	 .cfi_remember_state
+ 230              	 .cfi_def_cfa_offset 36
+ 231              	 
+ 232 00ba BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 233              	.LVL10:
+ 234              	.L24:
+ 235              	.LCFI3:
+ 236              	 .cfi_restore_state
+ 165:../Application/src/application.c **** 	  {
+ 237              	 .loc 1 165 0
+ 238 00be 2868     	 ldr r0,[r5]
+ 239 00c0 FFF7FEFF 	 bl radar_start_acquisition
+ 240              	.LVL11:
+ 241 00c4 0028     	 cmp r0,#0
+ 242 00c6 F7D0     	 beq .L8
+ 243              	.L20:
+ 168:../Application/src/application.c **** 	  }
+ 244              	 .loc 1 168 0 discriminator 1
+ 245 00c8 FEE7     	 b .L20
+ 246              	.LVL12:
+ 247              	.L23:
+ 150:../Application/src/application.c **** 	  radar_register_callback(RADAR_ACQUISITION_DONE_CB_ID, app_data_acq_done_cb);
+ 248              	 .loc 1 150 0
+ 249 00ca 2046     	 mov r0,r4
+ 250 00cc 0E49     	 ldr r1,.L25+36
+ 148:../Application/src/application.c **** 	  /* Register user callback functions */
+ 251              	 .loc 1 148 0
+ 252 00ce 3460     	 str r4,[r6]
+ 150:../Application/src/application.c **** 	  radar_register_callback(RADAR_ACQUISITION_DONE_CB_ID, app_data_acq_done_cb);
+ 253              	 .loc 1 150 0
+ 254 00d0 FFF7FEFF 	 bl radar_register_callback
+ 255              	.LVL13:
+ 151:../Application/src/application.c **** 
+ 256              	 .loc 1 151 0
+ 257 00d4 0D49     	 ldr r1,.L25+40
+ 258 00d6 0220     	 movs r0,#2
+ 259 00d8 FFF7FEFF 	 bl radar_register_callback
+ 260              	.LVL14:
+ 153:../Application/src/application.c **** 	  pEndPoints = &ep_list[0];
+ 261              	 .loc 1 153 0
+ 262 00dc 0324     	 movs r4,#3
+ 151:../Application/src/application.c **** 
+ 263              	 .loc 1 151 0
+ 264 00de 3C22     	 movs r2,#60
+ 154:../Application/src/application.c ****   }
+ 265              	 .loc 1 154 0
+ 266 00e0 0DA9     	 add r1,sp,#52
+ 267              	.LVL15:
+ 268 00e2 DCE7     	 b .L10
+ 269              	.L26:
+ 270              	 .align 2
+ 271              	.L25:
+ 272 00e4 00000000 	 .word .LANCHOR2
+ 273 00e8 00000000 	 .word .LANCHOR3
+ 274 00ec 00000000 	 .word .LANCHOR4
+ 275 00f0 53564544 	 .word 1145394771
+ 276 00f4 00000000 	 .word ep_device_status_handle_message
+ 277 00f8 00000000 	 .word ep_device_status_handle_change
+ 278 00fc 00000000 	 .word endpoint_list
+ 279 0100 00000000 	 .word system_reset
+ 280 0104 80969800 	 .word 10000000
+ 281 0108 00000000 	 .word app_data_acq_started_cb
+ 282 010c 00000000 	 .word app_data_acq_done_cb
+ 283 0110 41424A54 	 .word 1414152769
+ 284 0114 00000000 	 .word ep_radar_mcu_base_handle_message
+ 285 0118 00000000 	 .word ep_radar_mcu_base_handle_change
+ 286 011c 55504A54 	 .word 1414156373
+ 287 0120 00000000 	 .word ep_radar_s2glpulse_handle_message
+ 288 0124 00000000 	 .word ep_radar_s2glpulse_handle_change
+ 289              	 .cfi_endproc
+ 290              	.LFE529:
+ 292              	 .section .text.app_register_algo_process,"ax",%progbits
+ 293              	 .align 2
+ 294              	 .global app_register_algo_process
+ 295              	 .thumb
+ 296              	 .thumb_func
+ 298              	app_register_algo_process:
+ 299              	.LFB530:
+ 177:../Application/src/application.c ****   /* Register algo processing function */
+ 300              	 .loc 1 177 0
+ 301              	 .cfi_startproc
+ 302              	 
+ 303              	 
+ 304              	 
+ 305              	.LVL16:
+ 179:../Application/src/application.c **** }
+ 306              	 .loc 1 179 0
+ 307 0000 014B     	 ldr r3,.L28
+ 308 0002 1860     	 str r0,[r3]
+ 309 0004 7047     	 bx lr
+ 310              	.L29:
+ 311 0006 00BF     	 .align 2
+ 312              	.L28:
+ 313 0008 00000000 	 .word .LANCHOR5
+ 314              	 .cfi_endproc
+ 315              	.LFE530:
+ 317              	 .section .text.calcCurrentConsumption_mA,"ax",%progbits
+ 318              	 .align 2
+ 319              	 .global calcCurrentConsumption_mA
+ 320              	 .thumb
+ 321              	 .thumb_func
+ 323              	calcCurrentConsumption_mA:
+ 324              	.LFB531:
+ 185:../Application/src/application.c **** 	float retval = 0.0F;
+ 325              	 .loc 1 185 0
+ 326              	 .cfi_startproc
+ 327              	 
+ 328              	 
+ 329              	.LVL17:
+ 189:../Application/src/application.c **** 		return 0.0F; /* invalid! */
+ 330              	 .loc 1 189 0
+ 331 0000 5B4B     	 ldr r3,.L43
+ 332 0002 1B78     	 ldrb r3,[r3]
+ 333 0004 23B9     	 cbnz r3,.L41
+ 190:../Application/src/application.c **** 
+ 334              	 .loc 1 190 0
+ 335 0006 DFED5B7A 	 flds s15,.L43+4
+ 254:../Application/src/application.c **** 
+ 336              	 .loc 1 254 0
+ 337 000a 17EE900A 	 fmrs r0,s15
+ 338              	.LVL18:
+ 339 000e 7047     	 bx lr
+ 340              	.LVL19:
+ 341              	.L41:
+ 185:../Application/src/application.c **** 	float retval = 0.0F;
+ 342              	 .loc 1 185 0
+ 343 0010 10B5     	 push {r4,lr}
+ 344              	.LCFI4:
+ 345              	 .cfi_def_cfa_offset 8
+ 346              	 .cfi_offset 4,-8
+ 347              	 .cfi_offset 14,-4
+ 348 0012 0446     	 mov r4,r0
+ 192:../Application/src/application.c **** 	{
+ 349              	 .loc 1 192 0
+ 350 0014 FFF7FEFF 	 bl ds_get_board_variant
+ 351              	.LVL20:
+ 352 0018 0128     	 cmp r0,#1
+ 353 001a 63D0     	 beq .L42
+ 354              	.LVL21:
+ 355              	.LBB58:
+ 224:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 356              	 .loc 1 224 0
+ 357 001c D4ED053A 	 flds s7,[r4,#20]
+ 228:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 358              	 .loc 1 228 0
+ 359 0020 D4ED096A 	 flds s13,[r4,#36]
+ 225:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 360              	 .loc 1 225 0
+ 361 0024 94ED087A 	 flds s14,[r4,#32]
+ 362 0028 9FED533A 	 flds s6,.L43+8
+ 235:../Application/src/application.c **** 			ptat_delay_sec = 0.0F;
+ 363              	 .loc 1 235 0
+ 364 002c DFED537A 	 flds s15,.L43+12
+ 229:../Application/src/application.c **** 		float ptat_pulse_time_sec = (float)PTAT_S_H_PULSE_WIDTH_USEC / 1000000.0F;
+ 365              	 .loc 1 229 0
+ 366 0030 E36B     	 ldr r3,[r4,#60]
+ 227:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 367              	 .loc 1 227 0
+ 368 0032 D4ED0B5A 	 flds s11,[r4,#44]
+ 226:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 369              	 .loc 1 226 0
+ 370 0036 D4ED0C4A 	 flds s9,[r4,#48]
+ 239:../Application/src/application.c **** 
+ 371              	 .loc 1 239 0
+ 372 003a 9FED512A 	 flds s4,.L43+16
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 373              	 .loc 1 242 0
+ 374 003e DFED512A 	 flds s5,.L43+20
+ 228:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 375              	 .loc 1 228 0
+ 376 0042 F8EE666A 	 fuitos s13,s13
+ 224:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 377              	 .loc 1 224 0
+ 378 0046 F8EE633A 	 fuitos s7,s7
+ 379              	.LVL22:
+ 225:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 380              	 .loc 1 225 0
+ 381 004a B8EE477A 	 fuitos s14,s14
+ 235:../Application/src/application.c **** 			ptat_delay_sec = 0.0F;
+ 382              	 .loc 1 235 0
+ 383 004e 86EEA34A 	 fdivs s8,s13,s7
+ 225:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 384              	 .loc 1 225 0
+ 385 0052 87EE035A 	 fdivs s10,s14,s6
+ 386              	.LVL23:
+ 227:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 387              	 .loc 1 227 0
+ 388 0056 B8EE656A 	 fuitos s12,s11
+ 235:../Application/src/application.c **** 			ptat_delay_sec = 0.0F;
+ 389              	 .loc 1 235 0
+ 390 005a 34EE454A 	 fsubs s8,s8,s10
+ 233:../Application/src/application.c **** 
+ 391              	 .loc 1 233 0
+ 392 005e 76EE265A 	 fadds s11,s12,s13
+ 235:../Application/src/application.c **** 			ptat_delay_sec = 0.0F;
+ 393              	 .loc 1 235 0
+ 394 0062 B0EEC44A 	 fabss s8,s8
+ 395 0066 B4EEE74A 	 fcmpes s8,s15
+ 396 006a F1EE10FA 	 fmstat
+ 229:../Application/src/application.c **** 		float ptat_pulse_time_sec = (float)PTAT_S_H_PULSE_WIDTH_USEC / 1000000.0F;
+ 397              	 .loc 1 229 0
+ 398 006e 5CBF     	 itt pl
+ 399 0070 07EE903A 	 fmsrpl s15,r3
+ 400 0074 F8EE677A 	 fuitospl s15,s15
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 401              	 .loc 1 242 0
+ 402 0078 B7EE006A 	 fconsts s12,#112
+ 229:../Application/src/application.c **** 		float ptat_pulse_time_sec = (float)PTAT_S_H_PULSE_WIDTH_USEC / 1000000.0F;
+ 403              	 .loc 1 229 0
+ 404 007c 58BF     	 it pl
+ 405 007e C7EE837A 	 fdivspl s15,s15,s6
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 406              	 .loc 1 242 0
+ 407 0082 36EEC66A 	 fsubs s12,s13,s12
+ 226:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 408              	 .loc 1 226 0
+ 409 0086 F8EE644A 	 fuitos s9,s9
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 410              	 .loc 1 242 0
+ 411 008a C6EE236A 	 fdivs s13,s12,s7
+ 226:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 412              	 .loc 1 226 0
+ 413 008e C4EE834A 	 fdivs s9,s9,s6
+ 414              	.LVL24:
+ 236:../Application/src/application.c **** 
+ 415              	 .loc 1 236 0
+ 416 0092 48BF     	 it mi
+ 417 0094 DFED377A 	 fldsmi s15,.L43+4
+ 418              	.LVL25:
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 419              	 .loc 1 242 0
+ 420 0098 9FED3B7A 	 flds s14,.L43+24
+ 250:../Application/src/application.c **** 	}
+ 421              	 .loc 1 250 0
+ 422 009c 9FED3B3A 	 flds s6,.L43+28
+ 423 00a0 9FED3B4A 	 flds s8,.L43+32
+ 239:../Application/src/application.c **** 
+ 424              	 .loc 1 239 0
+ 425 00a4 E5EE827A 	 vfma.f32 s15,s11,s4
+ 426              	.LVL26:
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 427              	 .loc 1 242 0
+ 428 00a8 76EE876A 	 fadds s13,s13,s14
+ 238:../Application/src/application.c **** 		float ptat_on_time_sec    = total_samples * ptat_pulse_time_sec + ptat_delay_sec;
+ 429              	 .loc 1 238 0
+ 430 00ac 65EEA45A 	 fmuls s11,s11,s9
+ 431              	.LVL27:
+ 247:../Application/src/application.c **** 		float bbf_duty_cycle  = bbf_on_time_sec / frame_period_sec;
+ 432              	 .loc 1 247 0
+ 433 00b0 C7EE857A 	 fdivs s15,s15,s10
+ 434              	.LVL28:
+ 242:../Application/src/application.c **** 		if (bbf_on_time_sec > frame_period_sec)
+ 435              	 .loc 1 242 0
+ 436 00b4 36EEA27A 	 fadds s14,s13,s5
+ 437              	.LVL29:
+ 246:../Application/src/application.c **** 		float ptat_duty_cycle = ptat_on_time_sec / frame_period_sec;
+ 438              	 .loc 1 246 0
+ 439 00b8 C5EE855A 	 fdivs s11,s11,s10
+ 440              	.LVL30:
+ 244:../Application/src/application.c **** 
+ 441              	 .loc 1 244 0
+ 442 00bc B4EE475A 	 fcmps s10,s14
+ 443 00c0 F1EE10FA 	 fmstat
+ 444 00c4 48BF     	 it mi
+ 445 00c6 B0EE457A 	 fcpysmi s14,s10
+ 446              	.LVL31:
+ 248:../Application/src/application.c **** 
+ 447              	 .loc 1 248 0
+ 448 00ca 87EE057A 	 fdivs s14,s14,s10
+ 449              	.LVL32:
+ 250:../Application/src/application.c **** 	}
+ 450              	 .loc 1 250 0
+ 451 00ce F7EE086A 	 fconsts s13,#120
+ 452              	.LVL33:
+ 453 00d2 67EEA67A 	 fmuls s15,s15,s13
+ 454 00d6 E5EE837A 	 vfma.f32 s15,s11,s6
+ 455 00da E7EE047A 	 vfma.f32 s15,s14,s8
+ 456              	.LVL34:
+ 457              	.LBE58:
+ 254:../Application/src/application.c **** 
+ 458              	 .loc 1 254 0
+ 459 00de 17EE900A 	 fmrs r0,s15
+ 460 00e2 10BD     	 pop {r4,pc}
+ 461              	.LVL35:
+ 462              	.L42:
+ 463              	.LBB59:
+ 201:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 464              	 .loc 1 201 0
+ 465 00e4 D4ED0B5A 	 flds s11,[r4,#44]
+ 202:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 466              	 .loc 1 202 0
+ 467 00e8 94ED096A 	 flds s12,[r4,#36]
+ 200:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 468              	 .loc 1 200 0
+ 469 00ec 226B     	 ldr r2,[r4,#48]
+ 198:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 470              	 .loc 1 198 0
+ 471 00ee D4ED057A 	 flds s15,[r4,#20]
+ 199:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 472              	 .loc 1 199 0
+ 473 00f2 DFED214A 	 flds s9,.L43+8
+ 203:../Application/src/application.c **** 
+ 474              	 .loc 1 203 0
+ 475 00f6 94ED0F5A 	 flds s10,[r4,#60]
+ 199:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 476              	 .loc 1 199 0
+ 477 00fa 236A     	 ldr r3,[r4,#32]
+ 216:../Application/src/application.c **** 	}
+ 478              	 .loc 1 216 0
+ 479 00fc DFED233A 	 flds s7,.L43+28
+ 480 0100 9FED234A 	 flds s8,.L43+32
+ 201:../Application/src/application.c **** 		float samples             = (float)pDev->num_samples_per_chirp;
+ 481              	 .loc 1 201 0
+ 482 0104 F8EE655A 	 fuitos s11,s11
+ 202:../Application/src/application.c **** 		float ptat_delay_sec      = (float)pDev->ptat_delay_usec / 1000000.0F;
+ 483              	 .loc 1 202 0
+ 484 0108 B8EE466A 	 fuitos s12,s12
+ 207:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 485              	 .loc 1 207 0
+ 486 010c F7EE006A 	 fconsts s13,#112
+ 205:../Application/src/application.c **** 
+ 487              	 .loc 1 205 0
+ 488 0110 35EE866A 	 fadds s12,s11,s12
+ 198:../Application/src/application.c **** 		float frame_period_sec    = (float)pDev->frame_period_usec / 1000000.0F;
+ 489              	 .loc 1 198 0
+ 490 0114 F8EE677A 	 fuitos s15,s15
+ 491              	.LVL36:
+ 207:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 492              	 .loc 1 207 0
+ 493 0118 36EE667A 	 fsubs s14,s12,s13
+ 200:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 494              	 .loc 1 200 0
+ 495 011c 06EE902A 	 fmsr s13,r2
+ 496 0120 F8EE665A 	 fuitos s11,s13
+ 207:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 497              	 .loc 1 207 0
+ 498 0124 87EE277A 	 fdivs s14,s14,s15
+ 200:../Application/src/application.c **** 		float skipped_samples     = (float)pDev->num_sample_skip_count;
+ 499              	 .loc 1 200 0
+ 500 0128 C5EEA45A 	 fdivs s11,s11,s9
+ 203:../Application/src/application.c **** 
+ 501              	 .loc 1 203 0
+ 502 012c F8EE457A 	 fuitos s15,s10
+ 503              	.LVL37:
+ 199:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 504              	 .loc 1 199 0
+ 505 0130 06EE903A 	 fmsr s13,r3
+ 203:../Application/src/application.c **** 
+ 506              	 .loc 1 203 0
+ 507 0134 87EEA45A 	 fdivs s10,s15,s9
+ 199:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 508              	 .loc 1 199 0
+ 509 0138 F8EE666A 	 fuitos s13,s13
+ 207:../Application/src/application.c **** 		float bgt_on_time_sec     = total_samples * pulse_width_sec;
+ 510              	 .loc 1 207 0
+ 511 013c 77EE257A 	 fadds s15,s14,s11
+ 199:../Application/src/application.c **** 		float pulse_width_sec     = (float)pDev->pulse_width_usec / 1000000.0F;
+ 512              	 .loc 1 199 0
+ 513 0140 C6EEA46A 	 fdivs s13,s13,s9
+ 514              	.LVL38:
+ 209:../Application/src/application.c **** 		float bbf_on_time_sec     = frame_period_sec; // baseband filter is not switched, but always on!
+ 515              	 .loc 1 209 0
+ 516 0144 77EE857A 	 fadds s15,s15,s10
+ 208:../Application/src/application.c **** 		float ptat_on_time_sec    = frame_on_time_sec + ptat_delay_sec;
+ 517              	 .loc 1 208 0
+ 518 0148 26EE256A 	 fmuls s12,s12,s11
+ 519              	.LVL39:
+ 213:../Application/src/application.c **** 		float bbf_duty_cycle      = bbf_on_time_sec / frame_period_sec;
+ 520              	 .loc 1 213 0
+ 521 014c C7EEA67A 	 fdivs s15,s15,s13
+ 212:../Application/src/application.c **** 		float ptat_duty_cycle     = ptat_on_time_sec / frame_period_sec;
+ 522              	 .loc 1 212 0
+ 523 0150 86EE266A 	 fdivs s12,s12,s13
+ 524              	.LVL40:
+ 214:../Application/src/application.c **** 
+ 525              	 .loc 1 214 0
+ 526 0154 C6EEA66A 	 fdivs s13,s13,s13
+ 527              	.LVL41:
+ 216:../Application/src/application.c **** 	}
+ 528              	 .loc 1 216 0
+ 529 0158 B7EE087A 	 fconsts s14,#120
+ 530 015c 67EE877A 	 fmuls s15,s15,s14
+ 531 0160 E6EE237A 	 vfma.f32 s15,s12,s7
+ 532 0164 E6EE847A 	 vfma.f32 s15,s13,s8
+ 533              	.LVL42:
+ 534              	.LBE59:
+ 254:../Application/src/application.c **** 
+ 535              	 .loc 1 254 0
+ 536 0168 17EE900A 	 fmrs r0,s15
+ 537 016c 10BD     	 pop {r4,pc}
+ 538              	.LVL43:
+ 539              	.L44:
+ 540 016e 00BF     	 .align 2
+ 541              	.L43:
+ 542 0170 00000000 	 .word pwm_bgt_enabled
+ 543 0174 00000000 	 .word 0
+ 544 0178 00247449 	 .word 1232348160
+ 545 017c 6F12833A 	 .word 981668463
+ 546 0180 ACC5A737 	 .word 933741996
+ 547 0184 6F12033B 	 .word 990057071
+ 548 0188 0AD7A33C 	 .word 1017370378
+ 549 018c 00003442 	 .word 1110704128
+ 550 0190 1F85AB3E 	 .word 1051428127
+ 551              	 .cfi_endproc
+ 552              	.LFE531:
+ 554              	 .section .text.CCU43_3_IRQHandler,"ax",%progbits
+ 555              	 .align 2
+ 556              	 .global CCU43_3_IRQHandler
+ 557              	 .thumb
+ 558              	 .thumb_func
+ 560              	CCU43_3_IRQHandler:
+ 561              	.LFB534:
+ 305:../Application/src/application.c **** 	bsp_led_red_toggle();
+ 562              	 .loc 1 305 0
+ 563              	 .cfi_startproc
+ 564              	 
+ 565              	 
+ 566 0000 08B5     	 push {r3,lr}
+ 567              	.LCFI5:
+ 568              	 .cfi_def_cfa_offset 8
+ 569              	 .cfi_offset 3,-8
+ 570              	 .cfi_offset 14,-4
+ 306:../Application/src/application.c **** 	bsp_timer_start(&TIMER_ERROR_TOGGLE);
+ 571              	 .loc 1 306 0
+ 572 0002 FFF7FEFF 	 bl bsp_led_red_toggle
+ 573              	.LVL44:
+ 307:../Application/src/application.c **** }
+ 574              	 .loc 1 307 0
+ 575 0006 0248     	 ldr r0,.L47
+ 308:../Application/src/application.c **** 
+ 576              	 .loc 1 308 0
+ 577 0008 BDE80840 	 pop {r3,lr}
+ 578              	.LCFI6:
+ 579              	 .cfi_restore 14
+ 580              	 .cfi_restore 3
+ 581              	 .cfi_def_cfa_offset 0
+ 307:../Application/src/application.c **** }
+ 582              	 .loc 1 307 0
+ 583 000c FFF7FEBF 	 b bsp_timer_start
+ 584              	.LVL45:
+ 585              	.L48:
+ 586              	 .align 2
+ 587              	.L47:
+ 588 0010 00000000 	 .word TIMER_ERROR_TOGGLE
+ 589              	 .cfi_endproc
+ 590              	.LFE534:
+ 592              	 .section .text.app_reset_protocol,"ax",%progbits
+ 593              	 .align 2
+ 594              	 .global app_reset_protocol
+ 595              	 .thumb
+ 596              	 .thumb_func
+ 598              	app_reset_protocol:
+ 599              	.LFB535:
+ 316:../Application/src/application.c **** 	delayCount = 0;
+ 600              	 .loc 1 316 0
+ 601              	 .cfi_startproc
+ 602              	 
+ 603              	 
+ 604              	 
+ 317:../Application/src/application.c **** 	app_connected = 0;
+ 605              	 .loc 1 317 0
+ 606 0000 0249     	 ldr r1,.L50
+ 318:../Application/src/application.c **** }
+ 607              	 .loc 1 318 0
+ 608 0002 034A     	 ldr r2,.L50+4
+ 317:../Application/src/application.c **** 	app_connected = 0;
+ 609              	 .loc 1 317 0
+ 610 0004 0023     	 movs r3,#0
+ 611 0006 0B60     	 str r3,[r1]
+ 318:../Application/src/application.c **** }
+ 612              	 .loc 1 318 0
+ 613 0008 1360     	 str r3,[r2]
+ 614 000a 7047     	 bx lr
+ 615              	.L51:
+ 616              	 .align 2
+ 617              	.L50:
+ 618 000c 00000000 	 .word .LANCHOR6
+ 619 0010 00000000 	 .word .LANCHOR7
+ 620              	 .cfi_endproc
+ 621              	.LFE535:
+ 623              	 .section .text.app_destructor,"ax",%progbits
+ 624              	 .align 2
+ 625              	 .global app_destructor
+ 626              	 .thumb
+ 627              	 .thumb_func
+ 629              	app_destructor:
+ 630              	.LFB537:
+ 448:../Application/src/application.c **** 	/* Unregister user callback functions */
+ 631              	 .loc 1 448 0
+ 632              	 .cfi_startproc
+ 633              	 
+ 634              	 
+ 635 0000 08B5     	 push {r3,lr}
+ 636              	.LCFI7:
+ 637              	 .cfi_def_cfa_offset 8
+ 638              	 .cfi_offset 3,-8
+ 639              	 .cfi_offset 14,-4
+ 450:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
+ 640              	 .loc 1 450 0
+ 641 0002 0120     	 movs r0,#1
+ 642 0004 FFF7FEFF 	 bl radar_unregister_callback
+ 643              	.LVL46:
+ 451:../Application/src/application.c **** }
+ 644              	 .loc 1 451 0
+ 645 0008 0220     	 movs r0,#2
+ 452:../Application/src/application.c **** 
+ 646              	 .loc 1 452 0
+ 647 000a BDE80840 	 pop {r3,lr}
+ 648              	.LCFI8:
+ 649              	 .cfi_restore 14
+ 650              	 .cfi_restore 3
+ 651              	 .cfi_def_cfa_offset 0
+ 451:../Application/src/application.c **** }
+ 652              	 .loc 1 451 0
+ 653 000e FFF7FEBF 	 b radar_unregister_callback
+ 654              	.LVL47:
+ 655              	 .cfi_endproc
+ 656              	.LFE537:
+ 658 0012 00BF     	 .section .text.update_leds,"ax",%progbits
+ 659              	 .align 2
+ 660              	 .global update_leds
+ 661              	 .thumb
+ 662              	 .thumb_func
+ 664              	update_leds:
+ 665              	.LFB540:
+ 482:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 666              	 .loc 1 482 0
+ 667              	 .cfi_startproc
+ 668              	 
+ 669              	 
+ 670              	.LVL48:
+ 671 0000 F8B5     	 push {r3,r4,r5,r6,r7,lr}
+ 672              	.LCFI9:
+ 673              	 .cfi_def_cfa_offset 24
+ 674              	 .cfi_offset 3,-24
+ 675              	 .cfi_offset 4,-20
+ 676              	 .cfi_offset 5,-16
+ 677              	 .cfi_offset 6,-12
+ 678              	 .cfi_offset 7,-8
+ 679              	 .cfi_offset 14,-4
+ 483:../Application/src/application.c **** 	{
+ 680              	 .loc 1 483 0
+ 681 0002 437A     	 ldrb r3,[r0,#9]
+ 682 0004 002B     	 cmp r3,#0
+ 683 0006 38D1     	 bne .L62
+ 494:../Application/src/application.c **** 	{
+ 684              	 .loc 1 494 0
+ 685 0008 037A     	 ldrb r3,[r0,#8]
+ 686 000a 002B     	 cmp r3,#0
+ 687 000c 3ED1     	 bne .L63
+ 505:../Application/src/application.c **** 	{
+ 688              	 .loc 1 505 0
+ 689 000e 837A     	 ldrb r3,[r0,#10]
+ 690 0010 CBB9     	 cbnz r3,.L64
+ 518:../Application/src/application.c **** 		bsp_led_blue_off();
+ 691              	 .loc 1 518 0
+ 692 0012 FFF7FEFF 	 bl bsp_led_red_off
+ 693              	.LVL49:
+ 519:../Application/src/application.c **** 		bsp_led_green_off();
+ 694              	 .loc 1 519 0
+ 695 0016 FFF7FEFF 	 bl bsp_led_blue_off
+ 696              	.LVL50:
+ 520:../Application/src/application.c **** 
+ 697              	 .loc 1 520 0
+ 698 001a FFF7FEFF 	 bl bsp_led_green_off
+ 699              	.LVL51:
+ 700 001e 2049     	 ldr r1,.L65
+ 701 0020 204A     	 ldr r2,.L65+4
+ 702 0022 214B     	 ldr r3,.L65+8
+ 703              	.LBB60:
+ 704              	.LBB61:
+ 705              	.LBB62:
+ 706              	 .file 2 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_gpio.h"
+   1:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+   2:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @file xmc_gpio.h
+   3:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @date 2015-06-20
+   4:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+   5:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @cond
+   6:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+   7:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * XMClib v2.1.16 - XMC Peripheral Driver Library 
+   8:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+   9:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Copyright (c) 2015-2017, Infineon Technologies AG
+  10:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * All rights reserved.                        
+  11:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *                                             
+  12:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Redistribution and use in source and binary forms, with or without modification,are permitted pr
+  13:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * following conditions are met:   
+  14:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *                                                                              
+  15:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Redistributions of source code must retain the above copyright notice, this list of conditions a
+  16:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * disclaimer.                        
+  17:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * 
+  18:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Redistributions in binary form must reproduce the above copyright notice, this list of condition
+  19:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * disclaimer in the documentation and/or other materials provided with the distribution.          
+  20:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * 
+  21:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Neither the name of the copyright holders nor the names of its contributors may be used to endor
+  22:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * products derived from this software without specific prior written permission.                  
+  23:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *                                                                              
+  24:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR I
+  25:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTI
+  26:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, IN
+  27:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBS
+  28:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THE
+  29:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+  30:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                            
+  31:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *                                                                              
+  32:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * To improve the quality of the software, users are encouraged to share modifications, enhancement
+  33:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Infineon Technologies AG dave@infineon.com).                                                    
+  34:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+  35:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  36:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Change History
+  37:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * --------------
+  38:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  39:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * 2015-02-20:
+  40:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *     - Initial draft<br>
+  41:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *     - Documentation improved <br>
+  42:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *      
+  43:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * 2015-06-20:
+  44:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *     - Removed version macros and declaration of GetDriverVersion API
+  45:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  46:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @endcond
+  47:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  48:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+  49:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  50:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #ifndef XMC_GPIO_H
+  51:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define XMC_GPIO_H
+  52:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  53:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**************************************************************************************************
+  54:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * HEADER FILES
+  55:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+  56:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  57:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #include "xmc_common.h"
+  58:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  59:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+  60:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @addtogroup XMClib XMC Peripheral Library
+  61:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @{
+  62:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+  63:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  64:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+  65:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @addtogroup GPIO
+  66:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @brief General Purpose Input Output (GPIO) driver for the XMC microcontroller family.
+  67:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  68:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * GPIO driver provide a generic and very flexible software interface for all standard digital I/O 
+  69:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Each port slice has individual interfaces for the operation as General Purpose I/O and it furthe
+  70:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * connectivity to the on-chip periphery and the control for the pad characteristics. 
+  71:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  72:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * The driver is divided into Input and Output mode.
+  73:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  74:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Input mode features:
+  75:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Configuration structure XMC_GPIO_CONFIG_t and initialization function XMC_GPIO_Init()
+  76:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Allows the selection of weak pull-up or pull-down device. Configuration structure XMC_GPIO_MO
+  77:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \if XMC1
+  78:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Allows the selection of input hysteresis. XMC_GPIO_SetInputHysteresis()
+  79:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \endif
+  80:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  81:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * 
+  82:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Output mode features:
+  83:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Allows the selection of push pull/open drain and Alternate output. Configuration structure XM
+  84:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \if XMC4
+  85:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Allows the selection of pad driver strength. Configuration structure XMC_GPIO_OUTPUT_STRENGTH
+  86:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \endif
+  87:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  88:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * -# Allows the selection of initial output level. Configuration structure XMC_GPIO_OUTPUT_LEVEL_t
+  89:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+  90:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *@{
+  91:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+  92:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  
+  93:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**************************************************************************************************
+  94:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * MACROS
+  95:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+  96:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+  97:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define PORT_IOCR_PC_Pos PORT0_IOCR0_PC0_Pos
+  98:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define PORT_IOCR_PC_Msk PORT0_IOCR0_PC0_Msk
+  99:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 100:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define PORT_IOCR_PC_Size 				(8U)
+ 101:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 											
+ 102:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 103:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define XMC_GPIO_CHECK_OUTPUT_LEVEL(level) ((level == XMC_GPIO_OUTPUT_LEVEL_LOW) || \
+ 104:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****                                             (level == XMC_GPIO_OUTPUT_LEVEL_HIGH))
+ 105:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****                                             
+ 106:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #define XMC_GPIO_CHECK_HWCTRL(hwctrl) ((hwctrl == XMC_GPIO_HWCTRL_DISABLED) || \
+ 107:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****                                        (hwctrl == XMC_GPIO_HWCTRL_PERIPHERAL1) || \
+ 108:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****                                        (hwctrl == XMC_GPIO_HWCTRL_PERIPHERAL2))                    
+ 109:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****                                             
+ 110:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**************************************************************************************************
+ 111:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * ENUMS
+ 112:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+ 113:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 114:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 115:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 116:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Defines output level of a pin. Use type \a XMC_GPIO_OUTPUT_LEVEL_t for this enum.
+ 117:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 118:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** typedef enum XMC_GPIO_OUTPUT_LEVEL
+ 119:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** {
+ 120:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_GPIO_OUTPUT_LEVEL_LOW  = 0x10000U, /**<  Reset bit */
+ 121:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_GPIO_OUTPUT_LEVEL_HIGH = 0x1U, 	/**< Set bit  */
+ 122:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** } XMC_GPIO_OUTPUT_LEVEL_t;
+ 123:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 124:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 125:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Defines direct hardware control characteristics of the pin . Use type \a XMC_GPIO_HWCTRL_t for t
+ 126:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 127:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** typedef enum XMC_GPIO_HWCTRL
+ 128:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** {
+ 129:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_GPIO_HWCTRL_DISABLED     = 0x0U, /**<  Software control only */
+ 130:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_GPIO_HWCTRL_PERIPHERAL1  = 0x1U, /**<  HWI0/HWO0 control path can override the software confi
+ 131:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_GPIO_HWCTRL_PERIPHERAL2  = 0x2U  /**<  HWI1/HWO1 control path can override the software confi
+ 132:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** } XMC_GPIO_HWCTRL_t;
+ 133:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 134:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**************************************************************************************************
+ 135:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * DEVICE FAMILY EXTENSIONS
+ 136:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+ 137:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 138:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  #if UC_FAMILY == XMC1
+ 139:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #include "xmc1_gpio.h"
+ 140:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #elif UC_FAMILY == XMC4
+ 141:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #include "xmc4_gpio.h"
+ 142:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #else
+ 143:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #error "xmc_gpio.h: family device not supported"
+ 144:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #endif
+ 145:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 146:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**************************************************************************************************
+ 147:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * API PROTOTYPES
+ 148:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  **************************************************************************************************
+ 149:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 150:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #ifdef __cplusplus
+ 151:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** extern "C" {
+ 152:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** #endif
+ 153:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 154:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 155:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 156:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  port	  Constant pointer pointing to GPIO port, to access port registers like Pn_OUT,Pn_O
+ 157:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  pin	  Port pin number.
+ 158:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  config GPIO configuration data structure. Refer data structure @ref XMC_GPIO_CONFIG_t fo
+ 159:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 160:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @return None
+ 161:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 162:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Description:</b><br>
+ 163:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \if XMC1
+ 164:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Initializes input / output mode settings like, pull up / pull down devices,hysteresis, push pull
+ 165:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Also configures alternate function outputs and clears hardware port control for a selected \a po
+ 166:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \a config provides selected I/O settings. It configures hardware registers Pn_IOCR,Pn_OUT, Pn_OM
+ 167:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \endif
+ 168:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \if XMC4
+ 169:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Initializes input / output mode settings like, pull up / pull down devices,push pull /open drain
+ 170:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Also configures alternate function outputs and clears hardware port control for selected \a port
+ 171:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * It configures hardware registers Pn_IOCR,Pn_OUT,Pn_OMR,Pn_PDISC and Pn_PDR.\n
+ 172:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \endif
+ 173:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 174:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Related APIs:</b><BR>
+ 175:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  None
+ 176:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 177:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Note:</b><br>
+ 178:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * This API is called in definition of DAVE_init by code generation and therefore should not be exp
+ 179:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * for the normal operation. Use other APIs only after DAVE_init is called successfully (returns DA
+ 180:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 181:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 182:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 183:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 184:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  
+ 185:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** void XMC_GPIO_Init(XMC_GPIO_PORT_t *const port, const uint8_t pin, const XMC_GPIO_CONFIG_t *const c
+ 186:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  
+ 187:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 188:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 189:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  port	Constant pointer pointing to GPIO port, to access hardware register Pn_IOCR.
+ 190:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  pin	Port pin number.
+ 191:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  mode input / output functionality selection. Refer @ref XMC_GPIO_MODE_t for valid values
+ 192:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 193:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @return None
+ 194:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 195:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Description:</b><br>
+ 196:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Sets digital input and output driver functionality and characteristics of a GPIO port pin. It co
+ 197:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * registers Pn_IOCR. \a mode is initially configured during initialization in XMC_GPIO_Init(). Cal
+ 198:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * the port direction functionality as needed later in the program.
+ 199:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 200:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Related APIs:</b><BR>
+ 201:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  None
+ 202:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 203:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 204:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 205:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** void XMC_GPIO_SetMode(XMC_GPIO_PORT_t *const port, const uint8_t pin, const XMC_GPIO_MODE_t mode);
+ 206:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 207:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 208:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 209:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 210:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  port	 Constant pointer pointing to GPIO port, to access hardware register Pn_OMR.
+ 211:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  pin	 Port pin number.
+ 212:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  level output level selection. Refer @ref XMC_GPIO_OUTPUT_LEVEL_t for valid values.
+ 213:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 214:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @return None
+ 215:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 216:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Description:</b><br>
+ 217:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Set port pin output level to high or low.It configures hardware registers Pn_OMR.\a level is ini
+ 218:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * configured during initialization in XMC_GPIO_Init(). Call this API to alter output level as need
+ 219:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 220:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Related APIs:</b><BR>
+ 221:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  XMC_GPIO_SetOutputHigh(), XMC_GPIO_SetOutputLow().
+ 222:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 223:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Note:</b><br>
+ 224:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Prior to this api, user has to configure port pin to output mode using XMC_GPIO_SetMode().
+ 225:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 226:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 227:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 228:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 229:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** __STATIC_INLINE void XMC_GPIO_SetOutputLevel(XMC_GPIO_PORT_t *const port, const uint8_t pin, const 
+ 230:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** {
+ 231:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_ASSERT("XMC_GPIO_SetOutputLevel: Invalid port", XMC_GPIO_CHECK_OUTPUT_PORT(port));
+ 232:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_ASSERT("XMC_GPIO_SetOutputLevel: Invalid output level", XMC_GPIO_CHECK_OUTPUT_LEVEL(level));
+ 233:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   
+ 234:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   port->OMR = (uint32_t)level << pin;
+ 235:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 236:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 237:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 238:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 239:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  port constant pointer pointing to GPIO port, to access hardware register Pn_OMR.
+ 240:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  pin	Port pin number.
+ 241:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 242:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @return None
+ 243:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 244:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Description:</b><br>
+ 245:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  Sets port pin output to high. It configures hardware registers Pn_OMR.
+ 246:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 247:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  \par<b>Related APIs:</b><BR>
+ 248:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *  XMC_GPIO_SetOutputLow()
+ 249:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 250:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Note:</b><br>
+ 251:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Prior to this api, user has to configure port pin to output mode using XMC_GPIO_SetMode().\n
+ 252:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Register Pn_OMR is virtual and does not contain any flip-flop. A read action delivers the value 
+ 253:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 254:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 255:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 256:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** __STATIC_INLINE void XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT_t *const port, const uint8_t pin)
+ 257:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** {
+ 258:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_ASSERT("XMC_GPIO_SetOutputHigh: Invalid port", XMC_GPIO_CHECK_OUTPUT_PORT(port));
+ 259:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   port->OMR = (uint32_t)0x1U << pin;
+ 261:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 262:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 263:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** /**
+ 264:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 265:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  port	constant pointer pointing to GPIO port, to access hardware register Pn_OMR.
+ 266:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @param  pin	port pin number.
+ 267:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 268:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * @return  None
+ 269:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 270:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *\par<b>Description:</b><br>
+ 271:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Sets port pin output to low. It configures hardware registers Pn_OMR.\n
+ 272:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 273:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * \par<b>Related APIs:</b><BR>>
+ 274:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * XMC_GPIO_SetOutputHigh()
+ 275:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 276:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *\par<b>Note:</b><br>
+ 277:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Prior to this api, user has to configure port pin to output mode using XMC_GPIO_SetMode().
+ 278:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  * Register Pn_OMR is virtual and does not contain any flip-flop. A read action delivers the value 
+ 279:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  *
+ 280:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****  */
+ 281:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 282:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** __STATIC_INLINE void XMC_GPIO_SetOutputLow(XMC_GPIO_PORT_t *const port, const uint8_t pin)
+ 283:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** {
+ 284:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   XMC_ASSERT("XMC_GPIO_SetOutputLow: Invalid port", XMC_GPIO_CHECK_OUTPUT_PORT(port));
+ 285:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** 
+ 286:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h ****   port->OMR = 0x10000U << pin;
+ 707              	 .loc 2 286 0
+ 708 0024 0D7C     	 ldrb r5,[r1,#16]
+ 709              	.LBE62:
+ 710              	.LBE61:
+ 711              	.LBE60:
+ 712              	.LBB67:
+ 713              	.LBB68:
+ 714              	.LBB69:
+ 715 0026 107C     	 ldrb r0,[r2,#16]
+ 716              	.LBE69:
+ 717              	.LBE68:
+ 718              	.LBE67:
+ 719              	.LBB74:
+ 720              	.LBB75:
+ 721              	.LBB76:
+ 722 0028 1E7C     	 ldrb r6,[r3,#16]
+ 723 002a 0C68     	 ldr r4,[r1]
+ 724              	.LVL52:
+ 725 002c 1168     	 ldr r1,[r2]
+ 726              	.LVL53:
+ 727 002e 1A68     	 ldr r2,[r3]
+ 728              	.LVL54:
+ 729              	.LBE76:
+ 730              	.LBE75:
+ 731              	.LBE74:
+ 732              	.LBB81:
+ 733              	.LBB65:
+ 734              	.LBB63:
+ 735 0030 4FF48033 	 mov r3,#65536
+ 736 0034 03FA05F5 	 lsl r5,r3,r5
+ 737              	.LBE63:
+ 738              	.LBE65:
+ 739              	.LBE81:
+ 740              	.LBB82:
+ 741              	.LBB72:
+ 742              	.LBB70:
+ 743 0038 03FA00F0 	 lsl r0,r3,r0
+ 744              	.LBE70:
+ 745              	.LBE72:
+ 746              	.LBE82:
+ 747              	.LBB83:
+ 748              	.LBB79:
+ 749              	.LBB77:
+ 750 003c B340     	 lsls r3,r3,r6
+ 751              	.LBE77:
+ 752              	.LBE79:
+ 753              	.LBE83:
+ 754              	.LBB84:
+ 755              	.LBB66:
+ 756              	.LBB64:
+ 757 003e 6560     	 str r5,[r4,#4]
+ 758              	.LBE64:
+ 759              	.LBE66:
+ 760              	.LBE84:
+ 761              	.LBB85:
+ 762              	.LBB73:
+ 763              	.LBB71:
+ 764 0040 4860     	 str r0,[r1,#4]
+ 765              	.LBE71:
+ 766              	.LBE73:
+ 767              	.LBE85:
+ 768              	.LBB86:
+ 769              	.LBB80:
+ 770              	.LBB78:
+ 771 0042 5360     	 str r3,[r2,#4]
+ 772 0044 F8BD     	 pop {r3,r4,r5,r6,r7,pc}
+ 773              	.LVL55:
+ 774              	.L64:
+ 775              	.LBE78:
+ 776              	.LBE80:
+ 777              	.LBE86:
+ 507:../Application/src/application.c **** 		bsp_led_blue_on();
+ 778              	 .loc 1 507 0
+ 779 0046 FFF7FEFF 	 bl bsp_led_red_off
+ 780              	.LVL56:
+ 508:../Application/src/application.c **** 		bsp_led_green_off();
+ 781              	 .loc 1 508 0
+ 782 004a FFF7FEFF 	 bl bsp_led_blue_on
+ 783              	.LVL57:
+ 509:../Application/src/application.c **** 
+ 784              	 .loc 1 509 0
+ 785 004e FFF7FEFF 	 bl bsp_led_green_off
+ 786              	.LVL58:
+ 787 0052 1349     	 ldr r1,.L65
+ 788 0054 134A     	 ldr r2,.L65+4
+ 789              	.L61:
+ 790 0056 144B     	 ldr r3,.L65+8
+ 791              	.L60:
+ 792              	.LBB87:
+ 793              	.LBB88:
+ 794              	.LBB89:
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 795              	 .loc 2 260 0
+ 796 0058 0F7C     	 ldrb r7,[r1,#16]
+ 797              	.LBE89:
+ 798              	.LBE88:
+ 799              	.LBE87:
+ 800              	.LBB96:
+ 801              	.LBB97:
+ 802              	.LBB98:
+ 803              	 .loc 2 286 0
+ 804 005a 157C     	 ldrb r5,[r2,#16]
+ 805              	.LBE98:
+ 806              	.LBE97:
+ 807              	.LBE96:
+ 808              	.LBB103:
+ 809              	.LBB104:
+ 810              	.LBB105:
+ 811 005c 1E7C     	 ldrb r6,[r3,#16]
+ 812 005e 0868     	 ldr r0,[r1]
+ 813              	.LVL59:
+ 814 0060 1468     	 ldr r4,[r2]
+ 815              	.LVL60:
+ 816 0062 1968     	 ldr r1,[r3]
+ 817              	.LVL61:
+ 818              	.LBE105:
+ 819              	.LBE104:
+ 820              	.LBE103:
+ 821              	.LBB110:
+ 822              	.LBB93:
+ 823              	.LBB90:
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 824              	 .loc 2 260 0
+ 825 0064 0122     	 movs r2,#1
+ 826              	.LBE90:
+ 827              	.LBE93:
+ 828              	.LBE110:
+ 829              	.LBB111:
+ 830              	.LBB101:
+ 831              	.LBB99:
+ 832              	 .loc 2 286 0
+ 833 0066 4FF48033 	 mov r3,#65536
+ 834 006a 03FA05F5 	 lsl r5,r3,r5
+ 835              	.LBE99:
+ 836              	.LBE101:
+ 837              	.LBE111:
+ 838              	.LBB112:
+ 839              	.LBB94:
+ 840              	.LBB91:
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 841              	 .loc 2 260 0
+ 842 006e BA40     	 lsls r2,r2,r7
+ 843              	.LBE91:
+ 844              	.LBE94:
+ 845              	.LBE112:
+ 846              	.LBB113:
+ 847              	.LBB108:
+ 848              	.LBB106:
+ 849              	 .loc 2 286 0
+ 850 0070 B340     	 lsls r3,r3,r6
+ 851              	.LBE106:
+ 852              	.LBE108:
+ 853              	.LBE113:
+ 854              	.LBB114:
+ 855              	.LBB95:
+ 856              	.LBB92:
+ 260:C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc\xmc_gpio.h **** }
+ 857              	 .loc 2 260 0
+ 858 0072 4260     	 str r2,[r0,#4]
+ 859              	.LBE92:
+ 860              	.LBE95:
+ 861              	.LBE114:
+ 862              	.LBB115:
+ 863              	.LBB102:
+ 864              	.LBB100:
+ 865              	 .loc 2 286 0
+ 866 0074 6560     	 str r5,[r4,#4]
+ 867              	.LBE100:
+ 868              	.LBE102:
+ 869              	.LBE115:
+ 870              	.LBB116:
+ 871              	.LBB109:
+ 872              	.LBB107:
+ 873 0076 4B60     	 str r3,[r1,#4]
+ 874 0078 F8BD     	 pop {r3,r4,r5,r6,r7,pc}
+ 875              	.LVL62:
+ 876              	.L62:
+ 877              	.LBE107:
+ 878              	.LBE109:
+ 879              	.LBE116:
+ 485:../Application/src/application.c **** 		bsp_led_blue_off();
+ 880              	 .loc 1 485 0
+ 881 007a FFF7FEFF 	 bl bsp_led_red_off
+ 882              	.LVL63:
+ 486:../Application/src/application.c **** 		bsp_led_green_on();
+ 883              	 .loc 1 486 0
+ 884 007e FFF7FEFF 	 bl bsp_led_blue_off
+ 885              	.LVL64:
+ 487:../Application/src/application.c **** 
+ 886              	 .loc 1 487 0
+ 887 0082 FFF7FEFF 	 bl bsp_led_green_on
+ 888              	.LVL65:
+ 889 0086 0749     	 ldr r1,.L65+4
+ 890 0088 054A     	 ldr r2,.L65
+ 891 008a E4E7     	 b .L61
+ 892              	.LVL66:
+ 893              	.L63:
+ 496:../Application/src/application.c **** 		bsp_led_blue_off();
+ 894              	 .loc 1 496 0
+ 895 008c FFF7FEFF 	 bl bsp_led_red_on
+ 896              	.LVL67:
+ 497:../Application/src/application.c **** 		bsp_led_green_off();
+ 897              	 .loc 1 497 0
+ 898 0090 FFF7FEFF 	 bl bsp_led_blue_off
+ 899              	.LVL68:
+ 498:../Application/src/application.c **** 
+ 900              	 .loc 1 498 0
+ 901 0094 FFF7FEFF 	 bl bsp_led_green_off
+ 902              	.LVL69:
+ 903 0098 0349     	 ldr r1,.L65+8
+ 904 009a 014A     	 ldr r2,.L65
+ 905 009c 014B     	 ldr r3,.L65+4
+ 906 009e DBE7     	 b .L60
+ 907              	.L66:
+ 908              	 .align 2
+ 909              	.L65:
+ 910 00a0 00000000 	 .word DIGITAL_IO_ARD_D4
+ 911 00a4 00000000 	 .word DIGITAL_IO_ARD_D6
+ 912 00a8 00000000 	 .word DIGITAL_IO_ARD_D7
+ 913              	 .cfi_endproc
+ 914              	.LFE540:
+ 916              	 .section .text.radar_app_process,"ax",%progbits
+ 917              	 .align 2
+ 918              	 .global radar_app_process
+ 919              	 .thumb
+ 920              	 .thumb_func
+ 922              	radar_app_process:
+ 923              	.LFB536:
+ 325:../Application/src/application.c **** 	if (acq_started)
+ 924              	 .loc 1 325 0
+ 925              	 .cfi_startproc
+ 926              	 
+ 927              	 
+ 326:../Application/src/application.c **** 	{
+ 928              	 .loc 1 326 0
+ 929 0000 514B     	 ldr r3,.L113
+ 930 0002 1A68     	 ldr r2,[r3]
+ 325:../Application/src/application.c **** 	if (acq_started)
+ 931              	 .loc 1 325 0
+ 932 0004 2DE9F041 	 push {r4,r5,r6,r7,r8,lr}
+ 933              	.LCFI10:
+ 934              	 .cfi_def_cfa_offset 24
+ 935              	 .cfi_offset 4,-24
+ 936              	 .cfi_offset 5,-20
+ 937              	 .cfi_offset 6,-16
+ 938              	 .cfi_offset 7,-12
+ 939              	 .cfi_offset 8,-8
+ 940              	 .cfi_offset 14,-4
+ 326:../Application/src/application.c **** 	{
+ 941              	 .loc 1 326 0
+ 942 0008 0AB1     	 cbz r2,.L68
+ 329:../Application/src/application.c **** 	}
+ 943              	 .loc 1 329 0
+ 944 000a 0022     	 movs r2,#0
+ 945 000c 1A60     	 str r2,[r3]
+ 946              	.L68:
+ 332:../Application/src/application.c **** 	{
+ 947              	 .loc 1 332 0
+ 948 000e 4F4D     	 ldr r5,.L113+4
+ 949 0010 2B68     	 ldr r3,[r5]
+ 950 0012 CBB9     	 cbnz r3,.L69
+ 951 0014 4E4C     	 ldr r4,.L113+8
+ 952 0016 2368     	 ldr r3,[r4]
+ 346:../Application/src/application.c **** 	{
+ 953              	 .loc 1 346 0
+ 954 0018 002B     	 cmp r3,#0
+ 955 001a 3ED1     	 bne .L108
+ 956              	.L73:
+ 352:../Application/src/application.c **** 	{
+ 957              	 .loc 1 352 0
+ 958 001c 4D4B     	 ldr r3,.L113+12
+ 354:../Application/src/application.c **** 		{
+ 959              	 .loc 1 354 0
+ 960 001e 4E4C     	 ldr r4,.L113+16
+ 352:../Application/src/application.c **** 	{
+ 961              	 .loc 1 352 0
+ 962 0020 1B68     	 ldr r3,[r3]
+ 963 0022 43B1     	 cbz r3,.L74
+ 354:../Application/src/application.c **** 		{
+ 964              	 .loc 1 354 0
+ 965 0024 2378     	 ldrb r3,[r4]
+ 966 0026 013B     	 subs r3,r3,#1
+ 967 0028 042B     	 cmp r3,#4
+ 968 002a 0BD8     	 bhi .L67
+ 969 002c DFE803F0 	 tbb [pc,r3]
+ 970              	.L77:
+ 971 0030 63       	 .byte (.L76-.L77)/2
+ 972 0031 45       	 .byte (.L78-.L77)/2
+ 973 0032 5C       	 .byte (.L79-.L77)/2
+ 974 0033 3A       	 .byte (.L80-.L77)/2
+ 975 0034 67       	 .byte (.L81-.L77)/2
+ 976 0035 00       	 .p2align 1
+ 977              	.L74:
+ 402:../Application/src/application.c **** 		{
+ 978              	 .loc 1 402 0
+ 979 0036 2378     	 ldrb r3,[r4]
+ 980 0038 042B     	 cmp r3,#4
+ 981 003a 33D0     	 beq .L80
+ 982 003c 052B     	 cmp r3,#5
+ 983 003e 65D0     	 beq .L88
+ 984 0040 012B     	 cmp r3,#1
+ 985 0042 2FD0     	 beq .L80
+ 986              	.L67:
+ 987 0044 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 988              	.L69:
+ 337:../Application/src/application.c **** 		{
+ 989              	 .loc 1 337 0
+ 990 0048 444C     	 ldr r4,.L113+20
+ 991 004a 2368     	 ldr r3,[r4]
+ 992 004c 93B3     	 cbz r3,.L109
+ 993              	.LBB125:
+ 994              	.LBB126:
+ 534:../Application/src/application.c **** 
+ 535:../Application/src/application.c **** }
+ 536:../Application/src/application.c **** 
+ 537:../Application/src/application.c **** //============================================================================
+ 538:../Application/src/application.c **** 
+ 539:../Application/src/application.c **** /* Run the selected algorithm */
+ 540:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 541:../Application/src/application.c **** 
+ 542:../Application/src/application.c **** static algo_result_t algo_result;
+ 543:../Application/src/application.c **** 
+ 544:../Application/src/application.c **** void do_algo_helper(void)
+ 545:../Application/src/application.c **** {
+ 546:../Application/src/application.c **** 	acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
+ 995              	 .loc 1 546 0
+ 996 004e FFF7FEFF 	 bl ds_get_active_acq_buf
+ 997              	.LVL70:
+ 998 0052 0746     	 mov r7,r0
+ 999              	.LVL71:
+ 547:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 1000              	 .loc 1 547 0
+ 1001 0054 FFF7FEFF 	 bl ds_algo_get_settings
+ 1002              	.LVL72:
+ 1003 0058 8046     	 mov r8,r0
+ 1004              	.LVL73:
+ 548:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1005              	 .loc 1 548 0
+ 1006 005a FFF7FEFF 	 bl ds_device_get_shadow_settings
+ 1007              	.LVL74:
+ 1008 005e 0646     	 mov r6,r0
+ 1009              	.LVL75:
+ 549:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
+ 550:../Application/src/application.c **** 
+ 551:../Application/src/application.c **** 	/* this is the async raw data streaming to host device */
+ 552:../Application/src/application.c **** 	radar_pulse_raw_data(p_acq_buf, p_dev_settings);
+ 1010              	 .loc 1 552 0
+ 1011 0060 3146     	 mov r1,r6
+ 1012 0062 3846     	 mov r0,r7
+ 1013              	.LVL76:
+ 1014 0064 FFF7FEFF 	 bl radar_pulse_raw_data
+ 1015              	.LVL77:
+ 553:../Application/src/application.c **** 
+ 554:../Application/src/application.c **** 	algo_processing_function(p_acq_buf, p_algo_settings, p_dev_settings, p_algo_result);
+ 1016              	 .loc 1 554 0
+ 1017 0068 3246     	 mov r2,r6
+ 1018 006a 3D4B     	 ldr r3,.L113+24
+ 1019 006c 2668     	 ldr r6,[r4]
+ 1020              	.LVL78:
+ 1021              	.LBE126:
+ 1022              	.LBE125:
+ 340:../Application/src/application.c **** 		}
+ 1023              	 .loc 1 340 0
+ 1024 006e 384C     	 ldr r4,.L113+8
+ 1025              	.LBB128:
+ 1026              	.LBB127:
+ 1027              	 .loc 1 554 0
+ 1028 0070 4146     	 mov r1,r8
+ 1029 0072 3846     	 mov r0,r7
+ 1030 0074 B047     	 blx r6
+ 1031              	.LVL79:
+ 555:../Application/src/application.c **** 
+ 556:../Application/src/application.c **** 	ds_store_algo_result_ptr(p_algo_result);
+ 1032              	 .loc 1 556 0
+ 1033 0076 3A48     	 ldr r0,.L113+24
+ 1034 0078 FFF7FEFF 	 bl ds_store_algo_result_ptr
+ 1035              	.LVL80:
+ 557:../Application/src/application.c **** 
+ 558:../Application/src/application.c **** 	radar_pulse_results_updates(p_algo_result);
+ 1036              	 .loc 1 558 0
+ 1037 007c 3848     	 ldr r0,.L113+24
+ 1038 007e FFF7FEFF 	 bl radar_pulse_results_updates
+ 1039              	.LVL81:
+ 559:../Application/src/application.c **** 
+ 560:../Application/src/application.c **** 	mcu_base_updates();
+ 1040              	 .loc 1 560 0
+ 1041 0082 FFF7FEFF 	 bl mcu_base_updates
+ 1042              	.LVL82:
+ 561:../Application/src/application.c **** 
+ 562:../Application/src/application.c **** 	update_leds(p_algo_result);
+ 1043              	 .loc 1 562 0
+ 1044 0086 3648     	 ldr r0,.L113+24
+ 1045 0088 FFF7FEFF 	 bl update_leds
+ 1046              	.LVL83:
+ 1047              	.LBE127:
+ 1048              	.LBE128:
+ 340:../Application/src/application.c **** 		}
+ 1049              	 .loc 1 340 0
+ 1050 008c 2368     	 ldr r3,[r4]
+ 1051 008e 0133     	 adds r3,r3,#1
+ 1052 0090 2360     	 str r3,[r4]
+ 1053              	.LVL84:
+ 1054              	.L72:
+ 343:../Application/src/application.c **** 	}
+ 1055              	 .loc 1 343 0
+ 1056 0092 0022     	 movs r2,#0
+ 1057 0094 2A60     	 str r2,[r5]
+ 346:../Application/src/application.c **** 	{
+ 1058              	 .loc 1 346 0
+ 1059 0096 002B     	 cmp r3,#0
+ 1060 0098 C0D0     	 beq .L73
+ 1061              	.L108:
+ 348:../Application/src/application.c **** 		algo_completed = 0;
+ 1062              	 .loc 1 348 0
+ 1063 009a FFF7FEFF 	 bl algo_completed_cb
+ 1064              	.LVL85:
+ 349:../Application/src/application.c **** 	}
+ 1065              	 .loc 1 349 0
+ 1066 009e 0023     	 movs r3,#0
+ 1067 00a0 2360     	 str r3,[r4]
+ 1068 00a2 BBE7     	 b .L73
+ 1069              	.L80:
+ 1070              	.LBB129:
+ 379:../Application/src/application.c **** 			if (status < 0)
+ 1071              	 .loc 1 379 0
+ 1072 00a4 FFF7FEFF 	 bl device_status_check
+ 1073              	.LVL86:
+ 380:../Application/src/application.c **** 			{
+ 1074              	 .loc 1 380 0
+ 1075 00a8 0028     	 cmp r0,#0
+ 1076 00aa 2BDB     	 blt .L110
+ 1077              	.LVL87:
+ 1078              	.L106:
+ 1079              	.LBE129:
+ 393:../Application/src/application.c **** 			break;
+ 1080              	 .loc 1 393 0
+ 1081 00ac 0123     	 movs r3,#1
+ 1082 00ae 2370     	 strb r3,[r4]
+ 394:../Application/src/application.c **** 
+ 1083              	 .loc 1 394 0
+ 1084 00b0 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1085              	.L109:
+ 1086 00b4 264C     	 ldr r4,.L113+8
+ 1087 00b6 2368     	 ldr r3,[r4]
+ 1088 00b8 EBE7     	 b .L72
+ 1089              	.L78:
+ 1090              	.LBB130:
+ 1091              	.LBB131:
+ 282:../Application/src/application.c **** 
+ 1092              	 .loc 1 282 0
+ 1093 00ba FFF7FEFF 	 bl ds_device_get_settings
+ 1094              	.LVL88:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1095              	 .loc 1 284 0
+ 1096 00be 294E     	 ldr r6,.L113+28
+ 282:../Application/src/application.c **** 
+ 1097              	 .loc 1 282 0
+ 1098 00c0 0546     	 mov r5,r0
+ 1099              	.LVL89:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1100              	 .loc 1 284 0
+ 1101 00c2 0146     	 mov r1,r0
+ 1102 00c4 3068     	 ldr r0,[r6]
+ 1103              	.LVL90:
+ 1104 00c6 FFF7FEFF 	 bl radar_apply_hw_settings
+ 1105              	.LVL91:
+ 285:../Application/src/application.c **** 	{
+ 1106              	 .loc 1 285 0
+ 1107 00ca 70B3     	 cbz r0,.L111
+ 292:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
+ 1108              	 .loc 1 292 0
+ 1109 00cc FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
+ 1110              	.LVL92:
+ 1111              	.L85:
+ 295:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
+ 1112              	 .loc 1 295 0
+ 1113 00d0 0123     	 movs r3,#1
+ 1114 00d2 2370     	 strb r3,[r4]
+ 296:../Application/src/application.c **** 
+ 1115              	 .loc 1 296 0
+ 1116 00d4 FFF7FEFF 	 bl ds_clear_device_parameter_changed
+ 1117              	.LVL93:
+ 298:../Application/src/application.c **** 	return error;
+ 1118              	 .loc 1 298 0
+ 1119 00d8 3068     	 ldr r0,[r6]
+ 1120 00da 296A     	 ldr r1,[r5,#32]
+ 1121 00dc FFF7FEFF 	 bl radar_set_automatic_frame_trigger
+ 1122              	.LVL94:
+ 1123              	.L107:
+ 1124              	.LBE131:
+ 1125              	.LBE130:
+ 374:../Application/src/application.c **** 			break;
+ 1126              	 .loc 1 374 0
+ 1127 00e0 0423     	 movs r3,#4
+ 1128 00e2 2370     	 strb r3,[r4]
+ 375:../Application/src/application.c **** 
+ 1129              	 .loc 1 375 0
+ 1130 00e4 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1131              	.L79:
+ 362:../Application/src/application.c **** 			{
+ 1132              	 .loc 1 362 0
+ 1133 00e8 FFF7FEFF 	 bl ds_is_device_parameter_changed
+ 1134              	.LVL95:
+ 1135 00ec 00B3     	 cbz r0,.L82
+ 1136              	.L83:
+ 364:../Application/src/application.c **** 			}
+ 1137              	 .loc 1 364 0
+ 1138 00ee 0223     	 movs r3,#2
+ 1139 00f0 2370     	 strb r3,[r4]
+ 1140 00f2 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1141              	.L76:
+ 357:../Application/src/application.c **** 			break;
+ 1142              	 .loc 1 357 0
+ 1143 00f6 0323     	 movs r3,#3
+ 1144 00f8 2370     	 strb r3,[r4]
+ 358:../Application/src/application.c **** 
+ 1145              	 .loc 1 358 0
+ 1146 00fa BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1147              	.L81:
+ 392:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 1148              	 .loc 1 392 0
+ 1149 00fe FFF7FEFF 	 bl send_device_status_response
+ 1150              	.LVL96:
+ 1151 0102 D3E7     	 b .L106
+ 1152              	.LVL97:
+ 1153              	.L110:
+ 1154              	.LBB133:
+ 382:../Application/src/application.c **** 			}
+ 1155              	 .loc 1 382 0
+ 1156 0104 0523     	 movs r3,#5
+ 1157 0106 2370     	 strb r3,[r4]
+ 1158 0108 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1159              	.LVL98:
+ 1160              	.L88:
+ 1161              	.LBE133:
+ 422:../Application/src/application.c **** 			{
+ 1162              	 .loc 1 422 0
+ 1163 010c 164D     	 ldr r5,.L113+32
+ 1164 010e 2E68     	 ldr r6,[r5]
+ 1165 0110 002E     	 cmp r6,#0
+ 1166 0112 E5D1     	 bne .L107
+ 425:../Application/src/application.c **** 				if (delayCount == 100)
+ 1167              	 .loc 1 425 0
+ 1168 0114 154F     	 ldr r7,.L113+36
+ 1169 0116 3B68     	 ldr r3,[r7]
+ 1170 0118 0133     	 adds r3,r3,#1
+ 426:../Application/src/application.c **** 				{
+ 1171              	 .loc 1 426 0
+ 1172 011a 642B     	 cmp r3,#100
+ 425:../Application/src/application.c **** 				if (delayCount == 100)
+ 1173              	 .loc 1 425 0
+ 1174 011c 3B60     	 str r3,[r7]
+ 426:../Application/src/application.c **** 				{
+ 1175              	 .loc 1 426 0
+ 1176 011e 0CD0     	 beq .L112
+ 1177              	.L91:
+ 432:../Application/src/application.c **** 			}
+ 1178              	 .loc 1 432 0
+ 1179 0120 1420     	 movs r0,#20
+ 1180 0122 0121     	 movs r1,#1
+ 1181 0124 FFF7FEFF 	 bl bsp_time_delay
+ 1182              	.LVL99:
+ 1183 0128 DAE7     	 b .L107
+ 1184              	.LVL100:
+ 1185              	.L111:
+ 1186              	.LBB134:
+ 1187              	.LBB132:
+ 287:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
+ 1188              	 .loc 1 287 0
+ 1189 012a FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
+ 1190              	.LVL101:
+ 1191 012e CFE7     	 b .L85
+ 1192              	.LVL102:
+ 1193              	.L82:
+ 1194              	.LBE132:
+ 1195              	.LBE134:
+ 362:../Application/src/application.c **** 			{
+ 1196              	 .loc 1 362 0 discriminator 1
+ 1197 0130 FFF7FEFF 	 bl ds_is_device_settings_updated
+ 1198              	.LVL103:
+ 1199 0134 0028     	 cmp r0,#0
+ 1200 0136 DAD1     	 bne .L83
+ 1201 0138 D2E7     	 b .L107
+ 1202              	.L112:
+ 428:../Application/src/application.c **** 					app_connected = 1;
+ 1203              	 .loc 1 428 0
+ 1204 013a FFF7FEFF 	 bl send_device_status_response
+ 1205              	.LVL104:
+ 429:../Application/src/application.c **** 					delayCount = 0;
+ 1206              	 .loc 1 429 0
+ 1207 013e 0123     	 movs r3,#1
+ 430:../Application/src/application.c **** 				}
+ 1208              	 .loc 1 430 0
+ 1209 0140 3E60     	 str r6,[r7]
+ 429:../Application/src/application.c **** 					delayCount = 0;
+ 1210              	 .loc 1 429 0
+ 1211 0142 2B60     	 str r3,[r5]
+ 1212 0144 ECE7     	 b .L91
+ 1213              	.L114:
+ 1214 0146 00BF     	 .align 2
+ 1215              	.L113:
+ 1216 0148 00000000 	 .word .LANCHOR0
+ 1217 014c 00000000 	 .word .LANCHOR1
+ 1218 0150 00000000 	 .word .LANCHOR8
+ 1219 0154 00000000 	 .word .LANCHOR4
+ 1220 0158 00000000 	 .word .LANCHOR10
+ 1221 015c 00000000 	 .word .LANCHOR5
+ 1222 0160 00000000 	 .word .LANCHOR9
+ 1223 0164 00000000 	 .word .LANCHOR3
+ 1224 0168 00000000 	 .word .LANCHOR7
+ 1225 016c 00000000 	 .word .LANCHOR6
+ 1226              	 .cfi_endproc
+ 1227              	.LFE536:
+ 1229              	 .section .text.app_process,"ax",%progbits
+ 1230              	 .align 2
+ 1231              	 .global app_process
+ 1232              	 .thumb
+ 1233              	 .thumb_func
+ 1235              	app_process:
+ 1236              	.LFB532:
+ 260:../Application/src/application.c ****   if (g_usb_init == true)
+ 1237              	 .loc 1 260 0
+ 1238              	 .cfi_startproc
+ 1239              	 
+ 1240              	 
+ 1241 0000 2DE9F041 	 push {r4,r5,r6,r7,r8,lr}
+ 1242              	.LCFI11:
+ 1243              	 .cfi_def_cfa_offset 24
+ 1244              	 .cfi_offset 4,-24
+ 1245              	 .cfi_offset 5,-20
+ 1246              	 .cfi_offset 6,-16
+ 1247              	 .cfi_offset 7,-12
+ 1248              	 .cfi_offset 8,-8
+ 1249              	 .cfi_offset 14,-4
+ 261:../Application/src/application.c ****   {
+ 1250              	 .loc 1 261 0
+ 1251 0004 574C     	 ldr r4,.L164
+ 1252 0006 2378     	 ldrb r3,[r4]
+ 1253 0008 012B     	 cmp r3,#1
+ 1254 000a 00F08B80 	 beq .L158
+ 269:../Application/src/application.c ****     {
+ 1255              	 .loc 1 269 0
+ 1256 000e 40F6FF70 	 movw r0,#4095
+ 1257 0012 FFF7FEFF 	 bl bsp_usb_init
+ 1258              	.LVL105:
+ 1259 0016 08B9     	 cbnz r0,.L117
+ 271:../Application/src/application.c ****     }
+ 1260              	 .loc 1 271 0
+ 1261 0018 0123     	 movs r3,#1
+ 1262 001a 2370     	 strb r3,[r4]
+ 1263              	.L117:
+ 1264              	.LBB143:
+ 1265              	.LBB144:
+ 326:../Application/src/application.c **** 	{
+ 1266              	 .loc 1 326 0
+ 1267 001c 524B     	 ldr r3,.L164+4
+ 1268 001e 1A68     	 ldr r2,[r3]
+ 1269 0020 0AB1     	 cbz r2,.L118
+ 329:../Application/src/application.c **** 	}
+ 1270              	 .loc 1 329 0
+ 1271 0022 0022     	 movs r2,#0
+ 1272 0024 1A60     	 str r2,[r3]
+ 1273              	.L118:
+ 332:../Application/src/application.c **** 	{
+ 1274              	 .loc 1 332 0
+ 1275 0026 514D     	 ldr r5,.L164+8
+ 1276 0028 2B68     	 ldr r3,[r5]
+ 1277 002a CBB9     	 cbnz r3,.L119
+ 1278 002c 504C     	 ldr r4,.L164+12
+ 1279 002e 2368     	 ldr r3,[r4]
+ 346:../Application/src/application.c **** 	{
+ 1280              	 .loc 1 346 0
+ 1281 0030 002B     	 cmp r3,#0
+ 1282 0032 3ED1     	 bne .L159
+ 1283              	.L123:
+ 352:../Application/src/application.c **** 	{
+ 1284              	 .loc 1 352 0
+ 1285 0034 4F4B     	 ldr r3,.L164+16
+ 354:../Application/src/application.c **** 		{
+ 1286              	 .loc 1 354 0
+ 1287 0036 504C     	 ldr r4,.L164+20
+ 352:../Application/src/application.c **** 	{
+ 1288              	 .loc 1 352 0
+ 1289 0038 1B68     	 ldr r3,[r3]
+ 1290 003a 43B1     	 cbz r3,.L124
+ 354:../Application/src/application.c **** 		{
+ 1291              	 .loc 1 354 0
+ 1292 003c 2378     	 ldrb r3,[r4]
+ 1293 003e 013B     	 subs r3,r3,#1
+ 1294 0040 042B     	 cmp r3,#4
+ 1295 0042 0BD8     	 bhi .L115
+ 1296 0044 DFE803F0 	 tbb [pc,r3]
+ 1297              	.L127:
+ 1298 0048 45       	 .byte (.L126-.L127)/2
+ 1299 0049 49       	 .byte (.L128-.L127)/2
+ 1300 004a 60       	 .byte (.L129-.L127)/2
+ 1301 004b 3A       	 .byte (.L130-.L127)/2
+ 1302 004c 67       	 .byte (.L131-.L127)/2
+ 1303 004d 00       	 .p2align 1
+ 1304              	.L124:
+ 402:../Application/src/application.c **** 		{
+ 1305              	 .loc 1 402 0
+ 1306 004e 2378     	 ldrb r3,[r4]
+ 1307 0050 042B     	 cmp r3,#4
+ 1308 0052 33D0     	 beq .L130
+ 1309 0054 052B     	 cmp r3,#5
+ 1310 0056 68D0     	 beq .L138
+ 1311 0058 012B     	 cmp r3,#1
+ 1312 005a 2FD0     	 beq .L130
+ 1313              	.L115:
+ 1314 005c BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1315              	.L119:
+ 337:../Application/src/application.c **** 		{
+ 1316              	 .loc 1 337 0
+ 1317 0060 464C     	 ldr r4,.L164+24
+ 1318 0062 2368     	 ldr r3,[r4]
+ 1319 0064 93B3     	 cbz r3,.L160
+ 1320              	.LBB145:
+ 1321              	.LBB146:
+ 546:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 1322              	 .loc 1 546 0
+ 1323 0066 FFF7FEFF 	 bl ds_get_active_acq_buf
+ 1324              	.LVL106:
+ 1325 006a 0746     	 mov r7,r0
+ 1326              	.LVL107:
+ 547:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1327              	 .loc 1 547 0
+ 1328 006c FFF7FEFF 	 bl ds_algo_get_settings
+ 1329              	.LVL108:
+ 1330 0070 8046     	 mov r8,r0
+ 1331              	.LVL109:
+ 548:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
+ 1332              	 .loc 1 548 0
+ 1333 0072 FFF7FEFF 	 bl ds_device_get_shadow_settings
+ 1334              	.LVL110:
+ 1335 0076 0646     	 mov r6,r0
+ 1336              	.LVL111:
+ 552:../Application/src/application.c **** 
+ 1337              	 .loc 1 552 0
+ 1338 0078 3146     	 mov r1,r6
+ 1339 007a 3846     	 mov r0,r7
+ 1340              	.LVL112:
+ 1341 007c FFF7FEFF 	 bl radar_pulse_raw_data
+ 1342              	.LVL113:
+ 554:../Application/src/application.c **** 
+ 1343              	 .loc 1 554 0
+ 1344 0080 3246     	 mov r2,r6
+ 1345 0082 3F4B     	 ldr r3,.L164+28
+ 1346 0084 2668     	 ldr r6,[r4]
+ 1347              	.LVL114:
+ 1348              	.LBE146:
+ 1349              	.LBE145:
+ 340:../Application/src/application.c **** 		}
+ 1350              	 .loc 1 340 0
+ 1351 0086 3A4C     	 ldr r4,.L164+12
+ 1352              	.LBB148:
+ 1353              	.LBB147:
+ 554:../Application/src/application.c **** 
+ 1354              	 .loc 1 554 0
+ 1355 0088 4146     	 mov r1,r8
+ 1356 008a 3846     	 mov r0,r7
+ 1357 008c B047     	 blx r6
+ 1358              	.LVL115:
+ 556:../Application/src/application.c **** 
+ 1359              	 .loc 1 556 0
+ 1360 008e 3C48     	 ldr r0,.L164+28
+ 1361 0090 FFF7FEFF 	 bl ds_store_algo_result_ptr
+ 1362              	.LVL116:
+ 558:../Application/src/application.c **** 
+ 1363              	 .loc 1 558 0
+ 1364 0094 3A48     	 ldr r0,.L164+28
+ 1365 0096 FFF7FEFF 	 bl radar_pulse_results_updates
+ 1366              	.LVL117:
+ 560:../Application/src/application.c **** 
+ 1367              	 .loc 1 560 0
+ 1368 009a FFF7FEFF 	 bl mcu_base_updates
+ 1369              	.LVL118:
+ 1370              	 .loc 1 562 0
+ 1371 009e 3848     	 ldr r0,.L164+28
+ 1372 00a0 FFF7FEFF 	 bl update_leds
+ 1373              	.LVL119:
+ 1374              	.LBE147:
+ 1375              	.LBE148:
+ 340:../Application/src/application.c **** 		}
+ 1376              	 .loc 1 340 0
+ 1377 00a4 2368     	 ldr r3,[r4]
+ 1378 00a6 0133     	 adds r3,r3,#1
+ 1379 00a8 2360     	 str r3,[r4]
+ 1380              	.LVL120:
+ 1381              	.L122:
+ 343:../Application/src/application.c **** 	}
+ 1382              	 .loc 1 343 0
+ 1383 00aa 0022     	 movs r2,#0
+ 1384 00ac 2A60     	 str r2,[r5]
+ 346:../Application/src/application.c **** 	{
+ 1385              	 .loc 1 346 0
+ 1386 00ae 002B     	 cmp r3,#0
+ 1387 00b0 C0D0     	 beq .L123
+ 1388              	.L159:
+ 348:../Application/src/application.c **** 		algo_completed = 0;
+ 1389              	 .loc 1 348 0
+ 1390 00b2 FFF7FEFF 	 bl algo_completed_cb
+ 1391              	.LVL121:
+ 349:../Application/src/application.c **** 	}
+ 1392              	 .loc 1 349 0
+ 1393 00b6 0023     	 movs r3,#0
+ 1394 00b8 2360     	 str r3,[r4]
+ 1395 00ba BBE7     	 b .L123
+ 1396              	.L130:
+ 1397              	.LBB149:
+ 379:../Application/src/application.c **** 			if (status < 0)
+ 1398              	 .loc 1 379 0
+ 1399 00bc FFF7FEFF 	 bl device_status_check
+ 1400              	.LVL122:
+ 380:../Application/src/application.c **** 			{
+ 1401              	 .loc 1 380 0
+ 1402 00c0 0028     	 cmp r0,#0
+ 1403 00c2 2BDB     	 blt .L161
+ 1404              	.LVL123:
+ 1405              	.L156:
+ 1406              	.LBE149:
+ 393:../Application/src/application.c **** 			break;
+ 1407              	 .loc 1 393 0
+ 1408 00c4 0123     	 movs r3,#1
+ 1409 00c6 2370     	 strb r3,[r4]
+ 1410 00c8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1411              	.L160:
+ 1412 00cc 284C     	 ldr r4,.L164+12
+ 1413 00ce 2368     	 ldr r3,[r4]
+ 1414 00d0 EBE7     	 b .L122
+ 1415              	.L126:
+ 357:../Application/src/application.c **** 			break;
+ 1416              	 .loc 1 357 0
+ 1417 00d2 0323     	 movs r3,#3
+ 1418 00d4 2370     	 strb r3,[r4]
+ 1419 00d6 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1420              	.L128:
+ 1421              	.LBB150:
+ 1422              	.LBB151:
+ 282:../Application/src/application.c **** 
+ 1423              	 .loc 1 282 0
+ 1424 00da FFF7FEFF 	 bl ds_device_get_settings
+ 1425              	.LVL124:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1426              	 .loc 1 284 0
+ 1427 00de 294E     	 ldr r6,.L164+32
+ 282:../Application/src/application.c **** 
+ 1428              	 .loc 1 282 0
+ 1429 00e0 0546     	 mov r5,r0
+ 1430              	.LVL125:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1431              	 .loc 1 284 0
+ 1432 00e2 0146     	 mov r1,r0
+ 1433 00e4 3068     	 ldr r0,[r6]
+ 1434              	.LVL126:
+ 1435 00e6 FFF7FEFF 	 bl radar_apply_hw_settings
+ 1436              	.LVL127:
+ 285:../Application/src/application.c **** 	{
+ 1437              	 .loc 1 285 0
+ 1438 00ea 68B3     	 cbz r0,.L162
+ 292:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
+ 1439              	 .loc 1 292 0
+ 1440 00ec FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
+ 1441              	.LVL128:
+ 1442              	.L135:
+ 295:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
+ 1443              	 .loc 1 295 0
+ 1444 00f0 0123     	 movs r3,#1
+ 1445 00f2 2370     	 strb r3,[r4]
+ 296:../Application/src/application.c **** 
+ 1446              	 .loc 1 296 0
+ 1447 00f4 FFF7FEFF 	 bl ds_clear_device_parameter_changed
+ 1448              	.LVL129:
+ 298:../Application/src/application.c **** 	return error;
+ 1449              	 .loc 1 298 0
+ 1450 00f8 3068     	 ldr r0,[r6]
+ 1451 00fa 296A     	 ldr r1,[r5,#32]
+ 1452 00fc FFF7FEFF 	 bl radar_set_automatic_frame_trigger
+ 1453              	.LVL130:
+ 1454              	.L157:
+ 1455              	.LBE151:
+ 1456              	.LBE150:
+ 374:../Application/src/application.c **** 			break;
+ 1457              	 .loc 1 374 0
+ 1458 0100 0423     	 movs r3,#4
+ 1459 0102 2370     	 strb r3,[r4]
+ 1460 0104 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1461              	.L129:
+ 362:../Application/src/application.c **** 			{
+ 1462              	 .loc 1 362 0
+ 1463 0108 FFF7FEFF 	 bl ds_is_device_parameter_changed
+ 1464              	.LVL131:
+ 1465 010c F8B1     	 cbz r0,.L132
+ 1466              	.L133:
+ 364:../Application/src/application.c **** 			}
+ 1467              	 .loc 1 364 0
+ 1468 010e 0223     	 movs r3,#2
+ 1469 0110 2370     	 strb r3,[r4]
+ 1470 0112 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1471              	.L131:
+ 392:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 1472              	 .loc 1 392 0
+ 1473 0116 FFF7FEFF 	 bl send_device_status_response
+ 1474              	.LVL132:
+ 1475 011a D3E7     	 b .L156
+ 1476              	.LVL133:
+ 1477              	.L161:
+ 1478              	.LBB153:
+ 382:../Application/src/application.c **** 			}
+ 1479              	 .loc 1 382 0
+ 1480 011c 0523     	 movs r3,#5
+ 1481 011e 2370     	 strb r3,[r4]
+ 1482 0120 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1483              	.LVL134:
+ 1484              	.L158:
+ 1485              	.LBE153:
+ 1486              	.LBE144:
+ 1487              	.LBE143:
+ 264:../Application/src/application.c ****   }
+ 1488              	 .loc 1 264 0
+ 1489 0124 FFF7FEFF 	 bl protocol_run
+ 1490              	.LVL135:
+ 1491 0128 78E7     	 b .L117
+ 1492              	.L138:
+ 1493              	.LBB156:
+ 1494              	.LBB155:
+ 422:../Application/src/application.c **** 			{
+ 1495              	 .loc 1 422 0
+ 1496 012a 174D     	 ldr r5,.L164+36
+ 1497 012c 2E68     	 ldr r6,[r5]
+ 1498 012e 002E     	 cmp r6,#0
+ 1499 0130 E6D1     	 bne .L157
+ 425:../Application/src/application.c **** 				if (delayCount == 100)
+ 1500              	 .loc 1 425 0
+ 1501 0132 164F     	 ldr r7,.L164+40
+ 1502 0134 3B68     	 ldr r3,[r7]
+ 1503 0136 0133     	 adds r3,r3,#1
+ 426:../Application/src/application.c **** 				{
+ 1504              	 .loc 1 426 0
+ 1505 0138 642B     	 cmp r3,#100
+ 425:../Application/src/application.c **** 				if (delayCount == 100)
+ 1506              	 .loc 1 425 0
+ 1507 013a 3B60     	 str r3,[r7]
+ 426:../Application/src/application.c **** 				{
+ 1508              	 .loc 1 426 0
+ 1509 013c 0CD0     	 beq .L163
+ 1510              	.L141:
+ 432:../Application/src/application.c **** 			}
+ 1511              	 .loc 1 432 0
+ 1512 013e 1420     	 movs r0,#20
+ 1513 0140 0121     	 movs r1,#1
+ 1514 0142 FFF7FEFF 	 bl bsp_time_delay
+ 1515              	.LVL136:
+ 1516 0146 DBE7     	 b .L157
+ 1517              	.LVL137:
+ 1518              	.L162:
+ 1519              	.LBB154:
+ 1520              	.LBB152:
+ 287:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
+ 1521              	 .loc 1 287 0
+ 1522 0148 FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
+ 1523              	.LVL138:
+ 1524 014c D0E7     	 b .L135
+ 1525              	.LVL139:
+ 1526              	.L132:
+ 1527              	.LBE152:
+ 1528              	.LBE154:
+ 362:../Application/src/application.c **** 			{
+ 1529              	 .loc 1 362 0
+ 1530 014e FFF7FEFF 	 bl ds_is_device_settings_updated
+ 1531              	.LVL140:
+ 1532 0152 0028     	 cmp r0,#0
+ 1533 0154 DBD1     	 bne .L133
+ 1534 0156 D3E7     	 b .L157
+ 1535              	.L163:
+ 428:../Application/src/application.c **** 					app_connected = 1;
+ 1536              	 .loc 1 428 0
+ 1537 0158 FFF7FEFF 	 bl send_device_status_response
+ 1538              	.LVL141:
+ 429:../Application/src/application.c **** 					delayCount = 0;
+ 1539              	 .loc 1 429 0
+ 1540 015c 0123     	 movs r3,#1
+ 430:../Application/src/application.c **** 				}
+ 1541              	 .loc 1 430 0
+ 1542 015e 3E60     	 str r6,[r7]
+ 429:../Application/src/application.c **** 					delayCount = 0;
+ 1543              	 .loc 1 429 0
+ 1544 0160 2B60     	 str r3,[r5]
+ 1545 0162 ECE7     	 b .L141
+ 1546              	.L165:
+ 1547              	 .align 2
+ 1548              	.L164:
+ 1549 0164 00000000 	 .word .LANCHOR2
+ 1550 0168 00000000 	 .word .LANCHOR0
+ 1551 016c 00000000 	 .word .LANCHOR1
+ 1552 0170 00000000 	 .word .LANCHOR8
+ 1553 0174 00000000 	 .word .LANCHOR4
+ 1554 0178 00000000 	 .word .LANCHOR10
+ 1555 017c 00000000 	 .word .LANCHOR5
+ 1556 0180 00000000 	 .word .LANCHOR9
+ 1557 0184 00000000 	 .word .LANCHOR3
+ 1558 0188 00000000 	 .word .LANCHOR7
+ 1559 018c 00000000 	 .word .LANCHOR6
+ 1560              	.LBE155:
+ 1561              	.LBE156:
+ 1562              	 .cfi_endproc
+ 1563              	.LFE532:
+ 1565              	 .global g_usb_init
+ 1566              	 .comm endpoint_list,60,4
+ 1567              	 .global h_radar_device
+ 1568              	 .global firmware_information
+ 1569              	 .section .bss.g_usb_init,"aw",%nobits
+ 1570              	 .set .LANCHOR2,.+0
+ 1573              	g_usb_init:
+ 1574 0000 00       	 .space 1
+ 1575              	 .section .bss.algo_result,"aw",%nobits
+ 1576              	 .align 2
+ 1577              	 .set .LANCHOR9,.+0
+ 1580              	algo_result:
+ 1581 0000 00000000 	 .space 28
+ 1581      00000000 
+ 1581      00000000 
+ 1581      00000000 
+ 1581      00000000 
+ 1582              	 .section .bss.app_connected,"aw",%nobits
+ 1583              	 .align 2
+ 1584              	 .set .LANCHOR7,.+0
+ 1587              	app_connected:
+ 1588 0000 00000000 	 .space 4
+ 1589              	 .section .bss.algo_completed,"aw",%nobits
+ 1590              	 .align 2
+ 1591              	 .set .LANCHOR8,.+0
+ 1594              	algo_completed:
+ 1595 0000 00000000 	 .space 4
+ 1596              	 .section .bss.delayCount,"aw",%nobits
+ 1597              	 .align 2
+ 1598              	 .set .LANCHOR6,.+0
+ 1601              	delayCount:
+ 1602 0000 00000000 	 .space 4
+ 1603              	 .section .bss.acq_completed,"aw",%nobits
+ 1604              	 .align 2
+ 1605              	 .set .LANCHOR1,.+0
+ 1608              	acq_completed:
+ 1609 0000 00000000 	 .space 4
+ 1610              	 .section .bss.algo_processing_function,"aw",%nobits
+ 1611              	 .align 2
+ 1612              	 .set .LANCHOR5,.+0
+ 1615              	algo_processing_function:
+ 1616 0000 00000000 	 .space 4
+ 1617              	 .section .bss.h_radar_device,"aw",%nobits
+ 1618              	 .align 2
+ 1619              	 .set .LANCHOR3,.+0
+ 1622              	h_radar_device:
+ 1623 0000 00000000 	 .space 4
+ 1624              	 .section .bss.acq_started,"aw",%nobits
+ 1625              	 .align 2
+ 1626              	 .set .LANCHOR0,.+0
+ 1629              	acq_started:
+ 1630 0000 00000000 	 .space 4
+ 1631              	 .section .data.firmware_information,"aw",%progbits
+ 1632              	 .align 2
+ 1635              	firmware_information:
+ 1636 0000 00000000 	 .word .LC0
+ 1637 0004 0300     	 .short 3
+ 1638 0006 0000     	 .short 0
+ 1639 0008 0000     	 .short 0
+ 1640 000a 0000     	 .space 2
+ 1641              	 .section .bss.app_initalized,"aw",%nobits
+ 1642              	 .align 2
+ 1643              	 .set .LANCHOR4,.+0
+ 1646              	app_initalized:
+ 1647 0000 00000000 	 .space 4
+ 1648              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 1649              	 .align 2
+ 1650              	.LC0:
+ 1651 0000 53656E73 	 .ascii "Sense2GoL Pulse BGT24LTR11 Demo Radar Board\000"
+ 1651      6532476F 
+ 1651      4C205075 
+ 1651      6C736520 
+ 1651      42475432 
+ 1652              	 .section .data.radar_app_state,"aw",%progbits
+ 1653              	 .set .LANCHOR10,.+0
+ 1656              	radar_app_state:
+ 1657 0000 01       	 .byte 1
+ 1658              	 .text
+ 1659              	.Letext0:
+ 1660              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 1661              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 1662              	 .file 5 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 1663              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 1664              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
+ 1665              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_gpio.h"
+ 1666              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 1667              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu4.h"
+ 1668              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/GLOBAL_CCU4/global_ccu4.h"
+ 1669              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h"
+ 1670              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 1671              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 1672              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 1673              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io.h"
+ 1674              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 1675              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/Protocol.h"
+ 1676              	 .file 19 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 1677              	 .file 20 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 1678              	 .file 21 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/radar_mcu4/inc/radar_mcu4_bsp.h"
+ 1679              	 .file 22 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_api.h"
+ 1680              	 .file 23 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
+ 1681              	 .file 24 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
+ 1682              	 .file 25 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 1683              	 .file 26 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 1684              	 .file 27 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 1685              	 .file 28 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer_extern.h"
+ 1686              	 .file 29 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 1687              	 .file 30 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io_extern.h"
+ 1688              	 .file 31 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_usb.h"
+ 1689              	 .file 32 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_bsp.h"
+ 1690              	 .file 33 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_pulse.h"
+ 1691              	 .file 34 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_mcubase.h"
+ 1692              	 .file 35 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_device_status.h"
+ 1693              	 .file 36 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/EndpointRadarDeviceStatus.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 application.c
+    {standard input}:20     .text.app_data_acq_started_cb:00000000 $t
+    {standard input}:25     .text.app_data_acq_started_cb:00000000 app_data_acq_started_cb
+    {standard input}:43     .text.app_data_acq_started_cb:0000000c $d
+    {standard input}:48     .text.system_reset:00000000 $t
+    {standard input}:53     .text.system_reset:00000000 system_reset
+    {standard input}:65     .text.app_data_acq_done_cb:00000000 $t
+    {standard input}:70     .text.app_data_acq_done_cb:00000000 app_data_acq_done_cb
+    {standard input}:89     .text.app_data_acq_done_cb:0000000c $d
+    {standard input}:94     .text.app_init:00000000 $t
+    {standard input}:99     .text.app_init:00000000 app_init
+    {standard input}:272    .text.app_init:000000e4 $d
+                            *COM*:0000003c endpoint_list
+    {standard input}:293    .text.app_register_algo_process:00000000 $t
+    {standard input}:298    .text.app_register_algo_process:00000000 app_register_algo_process
+    {standard input}:313    .text.app_register_algo_process:00000008 $d
+    {standard input}:318    .text.calcCurrentConsumption_mA:00000000 $t
+    {standard input}:323    .text.calcCurrentConsumption_mA:00000000 calcCurrentConsumption_mA
+    {standard input}:542    .text.calcCurrentConsumption_mA:00000170 $d
+    {standard input}:555    .text.CCU43_3_IRQHandler:00000000 $t
+    {standard input}:560    .text.CCU43_3_IRQHandler:00000000 CCU43_3_IRQHandler
+    {standard input}:588    .text.CCU43_3_IRQHandler:00000010 $d
+    {standard input}:593    .text.app_reset_protocol:00000000 $t
+    {standard input}:598    .text.app_reset_protocol:00000000 app_reset_protocol
+    {standard input}:618    .text.app_reset_protocol:0000000c $d
+    {standard input}:624    .text.app_destructor:00000000 $t
+    {standard input}:629    .text.app_destructor:00000000 app_destructor
+    {standard input}:659    .text.update_leds:00000000 $t
+    {standard input}:664    .text.update_leds:00000000 update_leds
+    {standard input}:910    .text.update_leds:000000a0 $d
+    {standard input}:917    .text.radar_app_process:00000000 $t
+    {standard input}:922    .text.radar_app_process:00000000 radar_app_process
+    {standard input}:971    .text.radar_app_process:00000030 $d
+    {standard input}:1216   .text.radar_app_process:00000148 $d
+    {standard input}:1230   .text.app_process:00000000 $t
+    {standard input}:1235   .text.app_process:00000000 app_process
+    {standard input}:1298   .text.app_process:00000048 $d
+    {standard input}:1549   .text.app_process:00000164 $d
+    {standard input}:1573   .bss.g_usb_init:00000000 g_usb_init
+    {standard input}:1622   .bss.h_radar_device:00000000 h_radar_device
+    {standard input}:1635   .data.firmware_information:00000000 firmware_information
+    {standard input}:1574   .bss.g_usb_init:00000000 $d
+    {standard input}:1576   .bss.algo_result:00000000 $d
+    {standard input}:1580   .bss.algo_result:00000000 algo_result
+    {standard input}:1583   .bss.app_connected:00000000 $d
+    {standard input}:1587   .bss.app_connected:00000000 app_connected
+    {standard input}:1590   .bss.algo_completed:00000000 $d
+    {standard input}:1594   .bss.algo_completed:00000000 algo_completed
+    {standard input}:1597   .bss.delayCount:00000000 $d
+    {standard input}:1601   .bss.delayCount:00000000 delayCount
+    {standard input}:1604   .bss.acq_completed:00000000 $d
+    {standard input}:1608   .bss.acq_completed:00000000 acq_completed
+    {standard input}:1611   .bss.algo_processing_function:00000000 $d
+    {standard input}:1615   .bss.algo_processing_function:00000000 algo_processing_function
+    {standard input}:1618   .bss.h_radar_device:00000000 $d
+    {standard input}:1625   .bss.acq_started:00000000 $d
+    {standard input}:1629   .bss.acq_started:00000000 acq_started
+    {standard input}:1632   .data.firmware_information:00000000 $d
+    {standard input}:1642   .bss.app_initalized:00000000 $d
+    {standard input}:1646   .bss.app_initalized:00000000 app_initalized
+    {standard input}:1649   .rodata.str1.4:00000000 $d
+    {standard input}:1656   .data.radar_app_state:00000000 radar_app_state
+                     .debug_frame:00000010 $d
+    {standard input}:976    .text.radar_app_process:00000035 $d
+    {standard input}:976    .text.radar_app_process:00000036 $t
+    {standard input}:1303   .text.app_process:0000004d $d
+    {standard input}:1303   .text.app_process:0000004e $t
+
+UNDEFINED SYMBOLS
+acq_completed_cb
+bsp_usb_init
+radar_open_device
+memcpy
+protocol_init
+radar_start_acquisition
+radar_register_callback
+ep_device_status_handle_message
+ep_device_status_handle_change
+ep_radar_mcu_base_handle_message
+ep_radar_mcu_base_handle_change
+ep_radar_s2glpulse_handle_message
+ep_radar_s2glpulse_handle_change
+ds_get_board_variant
+pwm_bgt_enabled
+bsp_led_red_toggle
+bsp_timer_start
+TIMER_ERROR_TOGGLE
+radar_unregister_callback
+bsp_led_red_off
+bsp_led_blue_off
+bsp_led_green_off
+bsp_led_blue_on
+bsp_led_green_on
+bsp_led_red_on
+DIGITAL_IO_ARD_D4
+DIGITAL_IO_ARD_D6
+DIGITAL_IO_ARD_D7
+ds_get_active_acq_buf
+ds_algo_get_settings
+ds_device_get_shadow_settings
+radar_pulse_raw_data
+ds_store_algo_result_ptr
+radar_pulse_results_updates
+mcu_base_updates
+algo_completed_cb
+device_status_check
+ds_device_get_settings
+radar_apply_hw_settings
+ds_device_settings_revert_from_shadow
+ds_clear_device_parameter_changed
+radar_set_automatic_frame_trigger
+ds_is_device_parameter_changed
+send_device_status_response
+bsp_time_delay
+ds_device_settings_copy_to_shadow
+ds_is_device_settings_updated
+protocol_run

@@ -1,0 +1,711 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "pwm_ccu8_conf.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .global PWM_CCU8_ADC_SAMPLE
+  20              	 .global PWM_CCU8_ADC_SAMPLE_config_handle
+  21              	 .global PWM_CCU8_ADC_SAMPLE_dt_config
+  22              	 .global PWM_CCU8_ADC_SAMPLE_event2_config
+  23              	 .global PWM_CCU8_ADC_SAMPLE_event1_config
+  24              	 .global PWM_CCU8_ADC_SAMPLE_event0_config
+  25              	 .global PWM_CCU8_ADC_SAMPLE_timer_handle
+  26              	 .global PWM_CCU8_SAMPLE_HOLD
+  27              	 .global PWM_CCU8_SAMPLE_HOLD_config_handle
+  28              	 .global PWM_CCU8_SAMPLE_HOLD_ch1_out0_config
+  29              	 .global PWM_CCU8_SAMPLE_HOLD_dt_config
+  30              	 .global PWM_CCU8_SAMPLE_HOLD_event2_config
+  31              	 .global PWM_CCU8_SAMPLE_HOLD_event1_config
+  32              	 .global PWM_CCU8_SAMPLE_HOLD_event0_config
+  33              	 .global PWM_CCU8_SAMPLE_HOLD_timer_handle
+  34              	 .global PWM_CCU8_BGT_TX_ON
+  35              	 .global PWM_CCU8_BGT_TX_ON_config_handle
+  36              	 .global PWM_CCU8_BGT_TX_ON_ch1_out0_config
+  37              	 .global PWM_CCU8_BGT_TX_ON_dt_config
+  38              	 .global PWM_CCU8_BGT_TX_ON_event2_config
+  39              	 .global PWM_CCU8_BGT_TX_ON_event1_config
+  40              	 .global PWM_CCU8_BGT_TX_ON_event0_config
+  41              	 .global PWM_CCU8_BGT_TX_ON_timer_handle
+  42              	 .global PWM_CCU8_BGT_VCC
+  43              	 .global PWM_CCU8_BGT_VCC_config_handle
+  44              	 .global PWM_CCU8_BGT_VCC_ch1_out0_config
+  45              	 .global PWM_CCU8_BGT_VCC_dt_config
+  46              	 .global PWM_CCU8_BGT_VCC_event2_config
+  47              	 .global PWM_CCU8_BGT_VCC_event1_config
+  48              	 .global PWM_CCU8_BGT_VCC_event0_config
+  49              	 .global PWM_CCU8_BGT_VCC_timer_handle
+  50              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_ch1_out0_config,"a",%progbits
+  51              	 .align 2
+  54              	PWM_CCU8_SAMPLE_HOLD_ch1_out0_config:
+  55 0000 98       	 .byte -104
+  56 0001 000000   	 .space 3
+  57 0004 00000100 	 .word 65536
+  58 0008 04       	 .byte 4
+  59 0009 000000   	 .space 3
+  60              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_config_handle,"a",%progbits
+  61              	 .align 2
+  64              	PWM_CCU8_ADC_SAMPLE_config_handle:
+  65 0000 00       	 .byte 0
+  66 0001 00       	 .space 1
+  67 0002 0F0E     	 .short 3599
+  68 0004 A80C     	 .short 3240
+  69 0006 0807     	 .short 1800
+  70 0008 00       	 .byte 0
+  71 0009 01       	 .byte 1
+  72 000a 00       	 .byte 0
+  73 000b 00       	 .byte 0
+  74 000c 00       	 .byte 0
+  75 000d 00       	 .byte 0
+  76 000e 00       	 .byte 0
+  77 000f 00       	 .byte 0
+  78 0010 00       	 .byte 0
+  79 0011 00       	 .byte 0
+  80 0012 02       	 .byte 2
+  81 0013 02       	 .byte 2
+  82 0014 00       	 .byte 0
+  83 0015 00       	 .byte 0
+  84 0016 00       	 .byte 0
+  85 0017 00       	 .byte 0
+  86 0018 00       	 .byte 0
+  87 0019 00       	 .byte 0
+  88 001a 0000     	 .space 2
+  89 001c 00000000 	 .word PWM_CCU8_ADC_SAMPLE_event0_config
+  90 0020 00000000 	 .word PWM_CCU8_ADC_SAMPLE_event1_config
+  91 0024 00000000 	 .word PWM_CCU8_ADC_SAMPLE_event2_config
+  92 0028 01       	 .byte 1
+  93 0029 00       	 .byte 0
+  94 002a 00       	 .byte 0
+  95 002b 00       	 .byte 0
+  96 002c 00       	 .byte 0
+  97 002d 00       	 .byte 0
+  98 002e 00       	 .byte 0
+  99 002f 00       	 .byte 0
+ 100 0030 00       	 .byte 0
+ 101 0031 00       	 .byte 0
+ 102 0032 00       	 .byte 0
+ 103 0033 00       	 .byte 0
+ 104 0034 00       	 .byte 0
+ 105 0035 00       	 .byte 0
+ 106 0036 00       	 .byte 0
+ 107 0037 00       	 .byte 0
+ 108 0038 01       	 .byte 1
+ 109 0039 00       	 .byte 0
+ 110 003a 0000     	 .space 2
+ 111 003c 00000020 	 .word 536870912
+ 112 0040 00000000 	 .word PWM_CCU8_ADC_SAMPLE_dt_config
+ 113 0044 01       	 .byte 1
+ 114 0045 000000   	 .space 3
+ 115 0048 00000000 	 .word PWM_CCU8_ADC_SAMPLE_timer_handle
+ 116 004c 00       	 .byte 0
+ 117 004d 000000   	 .space 3
+ 118 0050 00000000 	 .word 0
+ 119 0054 00       	 .byte 0
+ 120 0055 000000   	 .space 3
+ 121 0058 00000000 	 .word 0
+ 122 005c 00       	 .byte 0
+ 123 005d 000000   	 .space 3
+ 124 0060 00000000 	 .word 0
+ 125 0064 00       	 .byte 0
+ 126 0065 000000   	 .space 3
+ 127 0068 00000000 	 .word 0
+ 128 006c 00       	 .byte 0
+ 129 006d 000000   	 .space 3
+ 130 0070 00000000 	 .word 0
+ 131 0074 00       	 .byte 0
+ 132 0075 000000   	 .space 3
+ 133 0078 00000000 	 .word 0
+ 134 007c 00       	 .byte 0
+ 135 007d 000000   	 .space 3
+ 136 0080 00000000 	 .word 0
+ 137 0084 00       	 .byte 0
+ 138 0085 000000   	 .space 3
+ 139 0088 00000000 	 .word 0
+ 140 008c 00000000 	 .word GLOBAL_CCU8_1
+ 141              	 .section .data.PWM_CCU8_BGT_VCC,"aw",%progbits
+ 142              	 .align 2
+ 145              	PWM_CCU8_BGT_VCC:
+ 146 0000 00000000 	 .word PWM_CCU8_BGT_VCC_config_handle
+ 147 0004 00000240 	 .word 1073872896
+ 148 0008 00010240 	 .word 1073873152
+ 149 000c 00       	 .byte 0
+ 150 000d 00       	 .byte 0
+ 151 000e 0000     	 .space 2
+ 152 0010 01000000 	 .word 1
+ 153 0014 02000000 	 .word 2
+ 154 0018 04000000 	 .word 4
+ 155 001c 00       	 .byte 0
+ 156 001d 00000000 	 .space 7
+ 156      000000
+ 157 0024 1A070000 	 .word 1818
+ 158 0028 A70A0000 	 .word 2727
+ 159 002c 00000000 	 .word 0
+ 160 0030 00000000 	 .word 0
+ 161              	 .section .rodata.PWM_CCU8_BGT_TX_ON_event2_config,"a",%progbits
+ 162              	 .align 2
+ 165              	PWM_CCU8_BGT_TX_ON_event2_config:
+ 166 0000 00       	 .byte 0
+ 167 0001 00       	 .byte 0
+ 168 0002 01       	 .byte 1
+ 169 0003 00       	 .byte 0
+ 170              	 .section .rodata.PWM_CCU8_BGT_TX_ON_dt_config,"a",%progbits
+ 171              	 .align 2
+ 174              	PWM_CCU8_BGT_TX_ON_dt_config:
+ 175 0000 00000000 	 .space 12
+ 175      00000000 
+ 175      00000000 
+ 176              	 .section .rodata.PWM_CCU8_BGT_TX_ON_config_handle,"a",%progbits
+ 177              	 .align 2
+ 180              	PWM_CCU8_BGT_TX_ON_config_handle:
+ 181 0000 00       	 .byte 0
+ 182 0001 00       	 .space 1
+ 183 0002 0F0E     	 .short 3599
+ 184 0004 5104     	 .short 1105
+ 185 0006 0007     	 .short 1792
+ 186 0008 00       	 .byte 0
+ 187 0009 00       	 .byte 0
+ 188 000a 00       	 .byte 0
+ 189 000b 00       	 .byte 0
+ 190 000c 00       	 .byte 0
+ 191 000d 00       	 .byte 0
+ 192 000e 00       	 .byte 0
+ 193 000f 00       	 .byte 0
+ 194 0010 00       	 .byte 0
+ 195 0011 00       	 .byte 0
+ 196 0012 00       	 .byte 0
+ 197 0013 00       	 .byte 0
+ 198 0014 00       	 .byte 0
+ 199 0015 00       	 .byte 0
+ 200 0016 00       	 .byte 0
+ 201 0017 00       	 .byte 0
+ 202 0018 00       	 .byte 0
+ 203 0019 00       	 .byte 0
+ 204 001a 0000     	 .space 2
+ 205 001c 00000000 	 .word PWM_CCU8_BGT_TX_ON_event0_config
+ 206 0020 00000000 	 .word PWM_CCU8_BGT_TX_ON_event1_config
+ 207 0024 00000000 	 .word PWM_CCU8_BGT_TX_ON_event2_config
+ 208 0028 01       	 .byte 1
+ 209 0029 00       	 .byte 0
+ 210 002a 02       	 .byte 2
+ 211 002b 00       	 .byte 0
+ 212 002c 00       	 .byte 0
+ 213 002d 00       	 .byte 0
+ 214 002e 00       	 .byte 0
+ 215 002f 00       	 .byte 0
+ 216 0030 00       	 .byte 0
+ 217 0031 00       	 .byte 0
+ 218 0032 00       	 .byte 0
+ 219 0033 00       	 .byte 0
+ 220 0034 00       	 .byte 0
+ 221 0035 00       	 .byte 0
+ 222 0036 00       	 .byte 0
+ 223 0037 00       	 .byte 0
+ 224 0038 01       	 .byte 1
+ 225 0039 00       	 .byte 0
+ 226 003a 0000     	 .space 2
+ 227 003c 00000008 	 .word 134217728
+ 228 0040 00000000 	 .word PWM_CCU8_BGT_TX_ON_dt_config
+ 229 0044 01       	 .byte 1
+ 230 0045 000000   	 .space 3
+ 231 0048 00000000 	 .word PWM_CCU8_BGT_TX_ON_timer_handle
+ 232 004c 01       	 .byte 1
+ 233 004d 000000   	 .space 3
+ 234 0050 00850248 	 .word 1208124672
+ 235 0054 0A       	 .byte 10
+ 236 0055 000000   	 .space 3
+ 237 0058 00000000 	 .word PWM_CCU8_BGT_TX_ON_ch1_out0_config
+ 238 005c 00       	 .byte 0
+ 239 005d 000000   	 .space 3
+ 240 0060 00000000 	 .word 0
+ 241 0064 00       	 .byte 0
+ 242 0065 000000   	 .space 3
+ 243 0068 00000000 	 .word 0
+ 244 006c 00       	 .byte 0
+ 245 006d 000000   	 .space 3
+ 246 0070 00000000 	 .word 0
+ 247 0074 00       	 .byte 0
+ 248 0075 000000   	 .space 3
+ 249 0078 00000000 	 .word 0
+ 250 007c 00       	 .byte 0
+ 251 007d 000000   	 .space 3
+ 252 0080 00000000 	 .word 0
+ 253 0084 00       	 .byte 0
+ 254 0085 000000   	 .space 3
+ 255 0088 00000000 	 .word 0
+ 256 008c 00000000 	 .word GLOBAL_CCU8_1
+ 257              	 .section .rodata.PWM_CCU8_BGT_VCC_event0_config,"a",%progbits
+ 258              	 .align 2
+ 261              	PWM_CCU8_BGT_VCC_event0_config:
+ 262 0000 00       	 .byte 0
+ 263 0001 00       	 .byte 0
+ 264 0002 01       	 .byte 1
+ 265 0003 00       	 .byte 0
+ 266              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_event1_config,"a",%progbits
+ 267              	 .align 2
+ 270              	PWM_CCU8_ADC_SAMPLE_event1_config:
+ 271 0000 00       	 .byte 0
+ 272 0001 00       	 .byte 0
+ 273 0002 01       	 .byte 1
+ 274 0003 00       	 .byte 0
+ 275              	 .section .data.PWM_CCU8_BGT_TX_ON,"aw",%progbits
+ 276              	 .align 2
+ 279              	PWM_CCU8_BGT_TX_ON:
+ 280 0000 00000000 	 .word PWM_CCU8_BGT_TX_ON_config_handle
+ 281 0004 00000240 	 .word 1073872896
+ 282 0008 00020240 	 .word 1073873408
+ 283 000c 00       	 .byte 0
+ 284 000d 01       	 .byte 1
+ 285 000e 0000     	 .space 2
+ 286 0010 10000000 	 .word 16
+ 287 0014 20000000 	 .word 32
+ 288 0018 40000000 	 .word 64
+ 289 001c 00       	 .byte 0
+ 290 001d 00000000 	 .space 7
+ 290      000000
+ 291 0024 1A070000 	 .word 1818
+ 292 0028 A70A0000 	 .word 2727
+ 293 002c 74070000 	 .word 1908
+ 294 0030 FE050000 	 .word 1534
+ 295              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_event0_config,"a",%progbits
+ 296              	 .align 2
+ 299              	PWM_CCU8_SAMPLE_HOLD_event0_config:
+ 300 0000 0C       	 .byte 12
+ 301 0001 01       	 .byte 1
+ 302 0002 01       	 .byte 1
+ 303 0003 00       	 .byte 0
+ 304              	 .section .rodata.PWM_CCU8_BGT_TX_ON_timer_handle,"a",%progbits
+ 305              	 .align 2
+ 308              	PWM_CCU8_BGT_TX_ON_timer_handle:
+ 309 0000 02       	 .byte 2
+ 310 0001 00       	 .byte 0
+ 311 0002 00       	 .byte 0
+ 312 0003 00       	 .byte 0
+ 313 0004 00       	 .byte 0
+ 314 0005 000000   	 .space 3
+ 315 0008 15       	 .byte 21
+ 316 0009 000000   	 .space 3
+ 317 000c 01       	 .byte 1
+ 318 000d 00       	 .byte 0
+ 319 000e 0000     	 .space 2
+ 320              	 .section .rodata.PWM_CCU8_BGT_VCC_ch1_out0_config,"a",%progbits
+ 321              	 .align 2
+ 324              	PWM_CCU8_BGT_VCC_ch1_out0_config:
+ 325 0000 98       	 .byte -104
+ 326 0001 000000   	 .space 3
+ 327 0004 00000100 	 .word 65536
+ 328 0008 04       	 .byte 4
+ 329 0009 000000   	 .space 3
+ 330              	 .section .data.PWM_CCU8_SAMPLE_HOLD,"aw",%progbits
+ 331              	 .align 2
+ 334              	PWM_CCU8_SAMPLE_HOLD:
+ 335 0000 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_config_handle
+ 336 0004 00000240 	 .word 1073872896
+ 337 0008 00030240 	 .word 1073873664
+ 338 000c 00       	 .byte 0
+ 339 000d 02       	 .byte 2
+ 340 000e 0000     	 .space 2
+ 341 0010 00010000 	 .word 256
+ 342 0014 00020000 	 .word 512
+ 343 0018 00040000 	 .word 1024
+ 344 001c 00       	 .byte 0
+ 345 001d 00000000 	 .space 7
+ 345      000000
+ 346 0024 1A070000 	 .word 1818
+ 347 0028 A70A0000 	 .word 2727
+ 348 002c 74070000 	 .word 1908
+ 349 0030 FE050000 	 .word 1534
+ 350              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_timer_handle,"a",%progbits
+ 351              	 .align 2
+ 354              	PWM_CCU8_SAMPLE_HOLD_timer_handle:
+ 355 0000 02       	 .byte 2
+ 356 0001 00       	 .byte 0
+ 357 0002 00       	 .byte 0
+ 358 0003 00       	 .byte 0
+ 359 0004 00       	 .byte 0
+ 360 0005 000000   	 .space 3
+ 361 0008 15       	 .byte 21
+ 362 0009 000000   	 .space 3
+ 363 000c 01       	 .byte 1
+ 364 000d 00       	 .byte 0
+ 365 000e 0000     	 .space 2
+ 366              	 .section .rodata.PWM_CCU8_BGT_TX_ON_event1_config,"a",%progbits
+ 367              	 .align 2
+ 370              	PWM_CCU8_BGT_TX_ON_event1_config:
+ 371 0000 0C       	 .byte 12
+ 372 0001 02       	 .byte 2
+ 373 0002 01       	 .byte 1
+ 374 0003 00       	 .byte 0
+ 375              	 .section .rodata.PWM_CCU8_BGT_VCC_event2_config,"a",%progbits
+ 376              	 .align 2
+ 379              	PWM_CCU8_BGT_VCC_event2_config:
+ 380 0000 00       	 .byte 0
+ 381 0001 00       	 .byte 0
+ 382 0002 01       	 .byte 1
+ 383 0003 00       	 .byte 0
+ 384              	 .section .rodata.PWM_CCU8_BGT_VCC_dt_config,"a",%progbits
+ 385              	 .align 2
+ 388              	PWM_CCU8_BGT_VCC_dt_config:
+ 389 0000 00000000 	 .space 12
+ 389      00000000 
+ 389      00000000 
+ 390              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_event2_config,"a",%progbits
+ 391              	 .align 2
+ 394              	PWM_CCU8_SAMPLE_HOLD_event2_config:
+ 395 0000 00       	 .byte 0
+ 396 0001 00       	 .byte 0
+ 397 0002 01       	 .byte 1
+ 398 0003 00       	 .byte 0
+ 399              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_dt_config,"a",%progbits
+ 400              	 .align 2
+ 403              	PWM_CCU8_ADC_SAMPLE_dt_config:
+ 404 0000 00000000 	 .space 12
+ 404      00000000 
+ 404      00000000 
+ 405              	 .section .rodata.PWM_CCU8_BGT_VCC_config_handle,"a",%progbits
+ 406              	 .align 2
+ 409              	PWM_CCU8_BGT_VCC_config_handle:
+ 410 0000 00       	 .byte 0
+ 411 0001 00       	 .space 1
+ 412 0002 0A00     	 .short 10
+ 413 0004 0900     	 .short 9
+ 414 0006 0800     	 .short 8
+ 415 0008 00       	 .byte 0
+ 416 0009 01       	 .byte 1
+ 417 000a 00       	 .byte 0
+ 418 000b 00       	 .byte 0
+ 419 000c 00       	 .byte 0
+ 420 000d 00       	 .byte 0
+ 421 000e 00       	 .byte 0
+ 422 000f 00       	 .byte 0
+ 423 0010 00       	 .byte 0
+ 424 0011 00       	 .byte 0
+ 425 0012 03       	 .byte 3
+ 426 0013 03       	 .byte 3
+ 427 0014 00       	 .byte 0
+ 428 0015 00       	 .byte 0
+ 429 0016 00       	 .byte 0
+ 430 0017 00       	 .byte 0
+ 431 0018 00       	 .byte 0
+ 432 0019 00       	 .byte 0
+ 433 001a 0000     	 .space 2
+ 434 001c 00000000 	 .word PWM_CCU8_BGT_VCC_event0_config
+ 435 0020 00000000 	 .word PWM_CCU8_BGT_VCC_event1_config
+ 436 0024 00000000 	 .word PWM_CCU8_BGT_VCC_event2_config
+ 437 0028 00       	 .byte 0
+ 438 0029 00       	 .byte 0
+ 439 002a 00       	 .byte 0
+ 440 002b 00       	 .byte 0
+ 441 002c 00       	 .byte 0
+ 442 002d 00       	 .byte 0
+ 443 002e 00       	 .byte 0
+ 444 002f 00       	 .byte 0
+ 445 0030 00       	 .byte 0
+ 446 0031 00       	 .byte 0
+ 447 0032 00       	 .byte 0
+ 448 0033 00       	 .byte 0
+ 449 0034 00       	 .byte 0
+ 450 0035 00       	 .byte 0
+ 451 0036 00       	 .byte 0
+ 452 0037 00       	 .byte 0
+ 453 0038 01       	 .byte 1
+ 454 0039 00       	 .byte 0
+ 455 003a 0000     	 .space 2
+ 456 003c 00000004 	 .word 67108864
+ 457 0040 00000000 	 .word PWM_CCU8_BGT_VCC_dt_config
+ 458 0044 01       	 .byte 1
+ 459 0045 000000   	 .space 3
+ 460 0048 00000000 	 .word PWM_CCU8_BGT_VCC_timer_handle
+ 461 004c 01       	 .byte 1
+ 462 004d 000000   	 .space 3
+ 463 0050 00850248 	 .word 1208124672
+ 464 0054 0B       	 .byte 11
+ 465 0055 000000   	 .space 3
+ 466 0058 00000000 	 .word PWM_CCU8_BGT_VCC_ch1_out0_config
+ 467 005c 00       	 .byte 0
+ 468 005d 000000   	 .space 3
+ 469 0060 00000000 	 .word 0
+ 470 0064 00       	 .byte 0
+ 471 0065 000000   	 .space 3
+ 472 0068 00000000 	 .word 0
+ 473 006c 00       	 .byte 0
+ 474 006d 000000   	 .space 3
+ 475 0070 00000000 	 .word 0
+ 476 0074 00       	 .byte 0
+ 477 0075 000000   	 .space 3
+ 478 0078 00000000 	 .word 0
+ 479 007c 00       	 .byte 0
+ 480 007d 000000   	 .space 3
+ 481 0080 00000000 	 .word 0
+ 482 0084 00       	 .byte 0
+ 483 0085 000000   	 .space 3
+ 484 0088 00000000 	 .word 0
+ 485 008c 00000000 	 .word GLOBAL_CCU8_1
+ 486              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_event0_config,"a",%progbits
+ 487              	 .align 2
+ 490              	PWM_CCU8_ADC_SAMPLE_event0_config:
+ 491 0000 0C       	 .byte 12
+ 492 0001 01       	 .byte 1
+ 493 0002 01       	 .byte 1
+ 494 0003 00       	 .byte 0
+ 495              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_timer_handle,"a",%progbits
+ 496              	 .align 2
+ 499              	PWM_CCU8_ADC_SAMPLE_timer_handle:
+ 500 0000 02       	 .byte 2
+ 501 0001 00       	 .byte 0
+ 502 0002 00       	 .byte 0
+ 503 0003 00       	 .byte 0
+ 504 0004 00       	 .byte 0
+ 505 0005 000000   	 .space 3
+ 506 0008 14       	 .byte 20
+ 507 0009 000000   	 .space 3
+ 508 000c 01       	 .byte 1
+ 509 000d 00       	 .byte 0
+ 510 000e 0000     	 .space 2
+ 511              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_config_handle,"a",%progbits
+ 512              	 .align 2
+ 515              	PWM_CCU8_SAMPLE_HOLD_config_handle:
+ 516 0000 00       	 .byte 0
+ 517 0001 00       	 .space 1
+ 518 0002 0F0E     	 .short 3599
+ 519 0004 5104     	 .short 1105
+ 520 0006 0007     	 .short 1792
+ 521 0008 00       	 .byte 0
+ 522 0009 00       	 .byte 0
+ 523 000a 00       	 .byte 0
+ 524 000b 00       	 .byte 0
+ 525 000c 00       	 .byte 0
+ 526 000d 00       	 .byte 0
+ 527 000e 00       	 .byte 0
+ 528 000f 00       	 .byte 0
+ 529 0010 00       	 .byte 0
+ 530 0011 00       	 .byte 0
+ 531 0012 00       	 .byte 0
+ 532 0013 00       	 .byte 0
+ 533 0014 00       	 .byte 0
+ 534 0015 00       	 .byte 0
+ 535 0016 00       	 .byte 0
+ 536 0017 00       	 .byte 0
+ 537 0018 00       	 .byte 0
+ 538 0019 00       	 .byte 0
+ 539 001a 0000     	 .space 2
+ 540 001c 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_event0_config
+ 541 0020 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_event1_config
+ 542 0024 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_event2_config
+ 543 0028 01       	 .byte 1
+ 544 0029 00       	 .byte 0
+ 545 002a 02       	 .byte 2
+ 546 002b 00       	 .byte 0
+ 547 002c 00       	 .byte 0
+ 548 002d 00       	 .byte 0
+ 549 002e 00       	 .byte 0
+ 550 002f 00       	 .byte 0
+ 551 0030 00       	 .byte 0
+ 552 0031 00       	 .byte 0
+ 553 0032 00       	 .byte 0
+ 554 0033 00       	 .byte 0
+ 555 0034 00       	 .byte 0
+ 556 0035 00       	 .byte 0
+ 557 0036 00       	 .byte 0
+ 558 0037 00       	 .byte 0
+ 559 0038 01       	 .byte 1
+ 560 0039 00       	 .byte 0
+ 561 003a 0000     	 .space 2
+ 562 003c 00000010 	 .word 268435456
+ 563 0040 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_dt_config
+ 564 0044 01       	 .byte 1
+ 565 0045 000000   	 .space 3
+ 566 0048 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_timer_handle
+ 567 004c 01       	 .byte 1
+ 568 004d 000000   	 .space 3
+ 569 0050 00850248 	 .word 1208124672
+ 570 0054 09       	 .byte 9
+ 571 0055 000000   	 .space 3
+ 572 0058 00000000 	 .word PWM_CCU8_SAMPLE_HOLD_ch1_out0_config
+ 573 005c 00       	 .byte 0
+ 574 005d 000000   	 .space 3
+ 575 0060 00000000 	 .word 0
+ 576 0064 00       	 .byte 0
+ 577 0065 000000   	 .space 3
+ 578 0068 00000000 	 .word 0
+ 579 006c 00       	 .byte 0
+ 580 006d 000000   	 .space 3
+ 581 0070 00000000 	 .word 0
+ 582 0074 00       	 .byte 0
+ 583 0075 000000   	 .space 3
+ 584 0078 00000000 	 .word 0
+ 585 007c 00       	 .byte 0
+ 586 007d 000000   	 .space 3
+ 587 0080 00000000 	 .word 0
+ 588 0084 00       	 .byte 0
+ 589 0085 000000   	 .space 3
+ 590 0088 00000000 	 .word 0
+ 591 008c 00000000 	 .word GLOBAL_CCU8_1
+ 592              	 .section .rodata.PWM_CCU8_BGT_VCC_timer_handle,"a",%progbits
+ 593              	 .align 2
+ 596              	PWM_CCU8_BGT_VCC_timer_handle:
+ 597 0000 00       	 .byte 0
+ 598 0001 00       	 .byte 0
+ 599 0002 00       	 .byte 0
+ 600 0003 00       	 .byte 0
+ 601 0004 01       	 .byte 1
+ 602 0005 000000   	 .space 3
+ 603 0008 14       	 .byte 20
+ 604 0009 000000   	 .space 3
+ 605 000c 07       	 .byte 7
+ 606 000d 00       	 .byte 0
+ 607 000e 0000     	 .space 2
+ 608              	 .section .rodata.PWM_CCU8_BGT_TX_ON_ch1_out0_config,"a",%progbits
+ 609              	 .align 2
+ 612              	PWM_CCU8_BGT_TX_ON_ch1_out0_config:
+ 613 0000 98       	 .byte -104
+ 614 0001 000000   	 .space 3
+ 615 0004 00000100 	 .word 65536
+ 616 0008 04       	 .byte 4
+ 617 0009 000000   	 .space 3
+ 618              	 .section .rodata.PWM_CCU8_BGT_TX_ON_event0_config,"a",%progbits
+ 619              	 .align 2
+ 622              	PWM_CCU8_BGT_TX_ON_event0_config:
+ 623 0000 0C       	 .byte 12
+ 624 0001 01       	 .byte 1
+ 625 0002 01       	 .byte 1
+ 626 0003 00       	 .byte 0
+ 627              	 .section .data.PWM_CCU8_ADC_SAMPLE,"aw",%progbits
+ 628              	 .align 2
+ 631              	PWM_CCU8_ADC_SAMPLE:
+ 632 0000 00000000 	 .word PWM_CCU8_ADC_SAMPLE_config_handle
+ 633 0004 00000240 	 .word 1073872896
+ 634 0008 00040240 	 .word 1073873920
+ 635 000c 00       	 .byte 0
+ 636 000d 03       	 .byte 3
+ 637 000e 0000     	 .space 2
+ 638 0010 00100000 	 .word 4096
+ 639 0014 00200000 	 .word 8192
+ 640 0018 00400000 	 .word 16384
+ 641 001c 00       	 .byte 0
+ 642 001d 00000000 	 .space 7
+ 642      000000
+ 643 0024 E8030000 	 .word 1000
+ 644 0028 88130000 	 .word 5000
+ 645 002c 74070000 	 .word 1908
+ 646 0030 FE050000 	 .word 1534
+ 647              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_dt_config,"a",%progbits
+ 648              	 .align 2
+ 651              	PWM_CCU8_SAMPLE_HOLD_dt_config:
+ 652 0000 00000000 	 .space 12
+ 652      00000000 
+ 652      00000000 
+ 653              	 .section .rodata.PWM_CCU8_BGT_VCC_event1_config,"a",%progbits
+ 654              	 .align 2
+ 657              	PWM_CCU8_BGT_VCC_event1_config:
+ 658 0000 00       	 .byte 0
+ 659 0001 00       	 .byte 0
+ 660 0002 01       	 .byte 1
+ 661 0003 00       	 .byte 0
+ 662              	 .section .rodata.PWM_CCU8_ADC_SAMPLE_event2_config,"a",%progbits
+ 663              	 .align 2
+ 666              	PWM_CCU8_ADC_SAMPLE_event2_config:
+ 667 0000 00       	 .byte 0
+ 668 0001 00       	 .byte 0
+ 669 0002 01       	 .byte 1
+ 670 0003 00       	 .byte 0
+ 671              	 .section .rodata.PWM_CCU8_SAMPLE_HOLD_event1_config,"a",%progbits
+ 672              	 .align 2
+ 675              	PWM_CCU8_SAMPLE_HOLD_event1_config:
+ 676 0000 0C       	 .byte 12
+ 677 0001 02       	 .byte 2
+ 678 0002 01       	 .byte 1
+ 679 0003 00       	 .byte 0
+ 680              	 .text
+ 681              	.Letext0:
+ 682              	 .file 1 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 683              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 684              	 .file 3 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 685              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_gpio.h"
+ 686              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_gpio.h"
+ 687              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu8.h"
+ 688              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
+ 689              	 .file 8 "../Dave/Generated/PWM_CCU8/../GLOBAL_CCU8/global_ccu8.h"
+ 690              	 .file 9 "../Dave/Generated/PWM_CCU8/pwm_ccu8.h"
+ 691              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 692              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 693              	 .file 12 "../Dave/Generated/PWM_CCU8/../GLOBAL_CCU8/global_ccu8_extern.h"
+ 694              	 .file 13 "../Dave/Generated/PWM_CCU8/pwm_ccu8_conf.c"
+DEFINED SYMBOLS
+                            *ABS*:00000000 pwm_ccu8_conf.c
+    {standard input}:631    .data.PWM_CCU8_ADC_SAMPLE:00000000 PWM_CCU8_ADC_SAMPLE
+    {standard input}:64     .rodata.PWM_CCU8_ADC_SAMPLE_config_handle:00000000 PWM_CCU8_ADC_SAMPLE_config_handle
+    {standard input}:403    .rodata.PWM_CCU8_ADC_SAMPLE_dt_config:00000000 PWM_CCU8_ADC_SAMPLE_dt_config
+    {standard input}:666    .rodata.PWM_CCU8_ADC_SAMPLE_event2_config:00000000 PWM_CCU8_ADC_SAMPLE_event2_config
+    {standard input}:270    .rodata.PWM_CCU8_ADC_SAMPLE_event1_config:00000000 PWM_CCU8_ADC_SAMPLE_event1_config
+    {standard input}:490    .rodata.PWM_CCU8_ADC_SAMPLE_event0_config:00000000 PWM_CCU8_ADC_SAMPLE_event0_config
+    {standard input}:499    .rodata.PWM_CCU8_ADC_SAMPLE_timer_handle:00000000 PWM_CCU8_ADC_SAMPLE_timer_handle
+    {standard input}:334    .data.PWM_CCU8_SAMPLE_HOLD:00000000 PWM_CCU8_SAMPLE_HOLD
+    {standard input}:515    .rodata.PWM_CCU8_SAMPLE_HOLD_config_handle:00000000 PWM_CCU8_SAMPLE_HOLD_config_handle
+    {standard input}:54     .rodata.PWM_CCU8_SAMPLE_HOLD_ch1_out0_config:00000000 PWM_CCU8_SAMPLE_HOLD_ch1_out0_config
+    {standard input}:651    .rodata.PWM_CCU8_SAMPLE_HOLD_dt_config:00000000 PWM_CCU8_SAMPLE_HOLD_dt_config
+    {standard input}:394    .rodata.PWM_CCU8_SAMPLE_HOLD_event2_config:00000000 PWM_CCU8_SAMPLE_HOLD_event2_config
+    {standard input}:675    .rodata.PWM_CCU8_SAMPLE_HOLD_event1_config:00000000 PWM_CCU8_SAMPLE_HOLD_event1_config
+    {standard input}:299    .rodata.PWM_CCU8_SAMPLE_HOLD_event0_config:00000000 PWM_CCU8_SAMPLE_HOLD_event0_config
+    {standard input}:354    .rodata.PWM_CCU8_SAMPLE_HOLD_timer_handle:00000000 PWM_CCU8_SAMPLE_HOLD_timer_handle
+    {standard input}:279    .data.PWM_CCU8_BGT_TX_ON:00000000 PWM_CCU8_BGT_TX_ON
+    {standard input}:180    .rodata.PWM_CCU8_BGT_TX_ON_config_handle:00000000 PWM_CCU8_BGT_TX_ON_config_handle
+    {standard input}:612    .rodata.PWM_CCU8_BGT_TX_ON_ch1_out0_config:00000000 PWM_CCU8_BGT_TX_ON_ch1_out0_config
+    {standard input}:174    .rodata.PWM_CCU8_BGT_TX_ON_dt_config:00000000 PWM_CCU8_BGT_TX_ON_dt_config
+    {standard input}:165    .rodata.PWM_CCU8_BGT_TX_ON_event2_config:00000000 PWM_CCU8_BGT_TX_ON_event2_config
+    {standard input}:370    .rodata.PWM_CCU8_BGT_TX_ON_event1_config:00000000 PWM_CCU8_BGT_TX_ON_event1_config
+    {standard input}:622    .rodata.PWM_CCU8_BGT_TX_ON_event0_config:00000000 PWM_CCU8_BGT_TX_ON_event0_config
+    {standard input}:308    .rodata.PWM_CCU8_BGT_TX_ON_timer_handle:00000000 PWM_CCU8_BGT_TX_ON_timer_handle
+    {standard input}:145    .data.PWM_CCU8_BGT_VCC:00000000 PWM_CCU8_BGT_VCC
+    {standard input}:409    .rodata.PWM_CCU8_BGT_VCC_config_handle:00000000 PWM_CCU8_BGT_VCC_config_handle
+    {standard input}:324    .rodata.PWM_CCU8_BGT_VCC_ch1_out0_config:00000000 PWM_CCU8_BGT_VCC_ch1_out0_config
+    {standard input}:388    .rodata.PWM_CCU8_BGT_VCC_dt_config:00000000 PWM_CCU8_BGT_VCC_dt_config
+    {standard input}:379    .rodata.PWM_CCU8_BGT_VCC_event2_config:00000000 PWM_CCU8_BGT_VCC_event2_config
+    {standard input}:657    .rodata.PWM_CCU8_BGT_VCC_event1_config:00000000 PWM_CCU8_BGT_VCC_event1_config
+    {standard input}:261    .rodata.PWM_CCU8_BGT_VCC_event0_config:00000000 PWM_CCU8_BGT_VCC_event0_config
+    {standard input}:596    .rodata.PWM_CCU8_BGT_VCC_timer_handle:00000000 PWM_CCU8_BGT_VCC_timer_handle
+    {standard input}:51     .rodata.PWM_CCU8_SAMPLE_HOLD_ch1_out0_config:00000000 $d
+    {standard input}:61     .rodata.PWM_CCU8_ADC_SAMPLE_config_handle:00000000 $d
+    {standard input}:142    .data.PWM_CCU8_BGT_VCC:00000000 $d
+    {standard input}:162    .rodata.PWM_CCU8_BGT_TX_ON_event2_config:00000000 $d
+    {standard input}:171    .rodata.PWM_CCU8_BGT_TX_ON_dt_config:00000000 $d
+    {standard input}:177    .rodata.PWM_CCU8_BGT_TX_ON_config_handle:00000000 $d
+    {standard input}:258    .rodata.PWM_CCU8_BGT_VCC_event0_config:00000000 $d
+    {standard input}:267    .rodata.PWM_CCU8_ADC_SAMPLE_event1_config:00000000 $d
+    {standard input}:276    .data.PWM_CCU8_BGT_TX_ON:00000000 $d
+    {standard input}:296    .rodata.PWM_CCU8_SAMPLE_HOLD_event0_config:00000000 $d
+    {standard input}:305    .rodata.PWM_CCU8_BGT_TX_ON_timer_handle:00000000 $d
+    {standard input}:321    .rodata.PWM_CCU8_BGT_VCC_ch1_out0_config:00000000 $d
+    {standard input}:331    .data.PWM_CCU8_SAMPLE_HOLD:00000000 $d
+    {standard input}:351    .rodata.PWM_CCU8_SAMPLE_HOLD_timer_handle:00000000 $d
+    {standard input}:367    .rodata.PWM_CCU8_BGT_TX_ON_event1_config:00000000 $d
+    {standard input}:376    .rodata.PWM_CCU8_BGT_VCC_event2_config:00000000 $d
+    {standard input}:385    .rodata.PWM_CCU8_BGT_VCC_dt_config:00000000 $d
+    {standard input}:391    .rodata.PWM_CCU8_SAMPLE_HOLD_event2_config:00000000 $d
+    {standard input}:400    .rodata.PWM_CCU8_ADC_SAMPLE_dt_config:00000000 $d
+    {standard input}:406    .rodata.PWM_CCU8_BGT_VCC_config_handle:00000000 $d
+    {standard input}:487    .rodata.PWM_CCU8_ADC_SAMPLE_event0_config:00000000 $d
+    {standard input}:496    .rodata.PWM_CCU8_ADC_SAMPLE_timer_handle:00000000 $d
+    {standard input}:512    .rodata.PWM_CCU8_SAMPLE_HOLD_config_handle:00000000 $d
+    {standard input}:593    .rodata.PWM_CCU8_BGT_VCC_timer_handle:00000000 $d
+    {standard input}:609    .rodata.PWM_CCU8_BGT_TX_ON_ch1_out0_config:00000000 $d
+    {standard input}:619    .rodata.PWM_CCU8_BGT_TX_ON_event0_config:00000000 $d
+    {standard input}:628    .data.PWM_CCU8_ADC_SAMPLE:00000000 $d
+    {standard input}:648    .rodata.PWM_CCU8_SAMPLE_HOLD_dt_config:00000000 $d
+    {standard input}:654    .rodata.PWM_CCU8_BGT_VCC_event1_config:00000000 $d
+    {standard input}:663    .rodata.PWM_CCU8_ADC_SAMPLE_event2_config:00000000 $d
+    {standard input}:672    .rodata.PWM_CCU8_SAMPLE_HOLD_event1_config:00000000 $d
+
+UNDEFINED SYMBOLS
+GLOBAL_CCU8_1

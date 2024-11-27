@@ -1,0 +1,1221 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_biquad_cascade_df2T_f64.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .global __aeabi_dmul
+  20              	 .global __aeabi_dadd
+  21              	 .section .text.arm_biquad_cascade_df2T_f64,"ax",%progbits
+  22              	 .align 2
+  23              	 .global arm_biquad_cascade_df2T_f64
+  24              	 .thumb
+  25              	 .thumb_func
+  27              	arm_biquad_cascade_df2T_f64:
+  28              	.LFB135:
+  29              	 .file 1 "../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c"
+   1:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Title:        arm_biquad_cascade_df2T_f64.c
+   4:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Description:  Processing function for floating-point transposed direct form II Biquad cascade fi
+   5:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+  29:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+  31:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @ingroup groupFilters
+  33:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** */
+  34:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+  35:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @defgroup BiquadCascadeDF2T Biquad Cascade IIR Filters Using a Direct Form II Transposed Structur
+  37:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  38:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * This set of functions implements arbitrary order recursive (IIR) filters using a transposed direc
+  39:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The filters are implemented as a cascade of second order Biquad sections.
+  40:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * These functions provide a slight memory savings as compared to the direct form I Biquad filter fu
+  41:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Only floating-point data is supported.
+  42:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  43:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * This function operate on blocks of input and output data and each call to the function
+  44:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * processes <code>blockSize</code> samples through the filter.
+  45:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>pSrc</code> points to the array of input data and
+  46:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>pDst</code> points to the array of output data.
+  47:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Both arrays contain <code>blockSize</code> values.
+  48:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  49:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par Algorithm
+  50:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Each Biquad stage implements a second order filter using the difference equation:
+  51:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <pre>
+  52:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    y[n] = b0 * x[n] + d1
+  53:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    d1 = b1 * x[n] + a1 * y[n] + d2
+  54:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    d2 = b2 * x[n] + a2 * y[n]
+  55:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * </pre>
+  56:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * where d1 and d2 represent the two state values.
+  57:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  58:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par
+  59:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * A Biquad filter using a transposed Direct Form II structure is shown below.
+  60:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \image html BiquadDF2Transposed.gif "Single transposed Direct Form II Biquad"
+  61:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Coefficients <code>b0, b1, and b2 </code> multiply the input signal <code>x[n]</code> and are ref
+  62:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Coefficients <code>a1</code> and <code>a2</code> multiply the output signal <code>y[n]</code> and
+  63:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Pay careful attention to the sign of the feedback coefficients.
+  64:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Some design tools flip the sign of the feedback coefficients:
+  65:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <pre>
+  66:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    y[n] = b0 * x[n] + d1;
+  67:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    d1 = b1 * x[n] - a1 * y[n] + d2;
+  68:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *    d2 = b2 * x[n] - a2 * y[n];
+  69:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * </pre>
+  70:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * In this case the feedback coefficients <code>a1</code> and <code>a2</code> must be negated when u
+  71:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  72:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par
+  73:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Higher order filters are realized as a cascade of second order sections.
+  74:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>numStages</code> refers to the number of second order stages used.
+  75:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * For example, an 8th order filter would be realized with <code>numStages=4</code> second order sta
+  76:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * A 9th order filter would be realized with <code>numStages=5</code> second order stages with the
+  77:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * coefficients for one of the stages configured as a first order filter (<code>b2=0</code> and <cod
+  78:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  79:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par
+  80:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>pState</code> points to the state variable array.
+  81:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Each Biquad stage has 2 state variables <code>d1</code> and <code>d2</code>.
+  82:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The state variables are arranged in the <code>pState</code> array as:
+  83:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <pre>
+  84:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *     {d11, d12, d21, d22, ...}
+  85:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * </pre>
+  86:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * where <code>d1x</code> refers to the state variables for the first Biquad and
+  87:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>d2x</code> refers to the state variables for the second Biquad.
+  88:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The state array has a total length of <code>2*numStages</code> values.
+  89:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The state variables are updated after each block of data is processed; the coefficients are untou
+  90:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  91:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par
+  92:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The CMSIS library contains Biquad filters in both Direct Form I and transposed Direct Form II.
+  93:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The advantage of the Direct Form I structure is that it is numerically more robust for fixed-poin
+  94:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * That is why the Direct Form I structure supports Q15 and Q31 data types.
+  95:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The transposed Direct Form II structure, on the other hand, requires a wide dynamic range for the
+  96:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Because of this, the CMSIS library only has a floating-point version of the Direct Form II Biquad
+  97:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The advantage of the Direct Form II Biquad is that it requires half the number of state variables
+  98:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+  99:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par Instance Structure
+ 100:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The coefficients and state variables for a filter are stored together in an instance data structu
+ 101:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * A separate instance structure must be defined for each filter.
+ 102:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Coefficient arrays may be shared among several instances while state variable arrays cannot be sh
+ 103:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+ 104:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par Init Functions
+ 105:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * There is also an associated initialization function.
+ 106:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * The initialization function performs following operations:
+ 107:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * - Sets the values of the internal structure fields.
+ 108:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * - Zeros out the values in the state buffer.
+ 109:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * To do this manually without calling the init function, assign the follow subfields of the instanc
+ 110:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * numStages, pCoeffs, pState. Also set all of the values in pState to zero.
+ 111:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+ 112:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * \par
+ 113:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Use of the initialization function is optional.
+ 114:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * However, if the initialization function is used, then the instance structure cannot be placed int
+ 115:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * To place an instance structure into a const data section, the instance structure must be manually
+ 116:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * Set the values in the state buffer to zeros before static initialization.
+ 117:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * For example, to statically initialize the instance structure use
+ 118:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <pre>
+ 119:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *     arm_biquad_cascade_df2T_instance_f64 S1 = {numStages, pState, pCoeffs};
+ 120:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * </pre>
+ 121:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * where <code>numStages</code> is the number of Biquad stages in the filter; <code>pState</code> is
+ 122:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * <code>pCoeffs</code> is the address of the coefficient buffer;
+ 123:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** *
+ 124:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** */
+ 125:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 126:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /**
+ 127:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @addtogroup BiquadCascadeDF2T
+ 128:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @{
+ 129:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** */
+ 130:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 131:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** /**
+ 132:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @brief Processing function for the floating-point transposed direct form II Biquad cascade filter
+ 133:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @param[in]  *S        points to an instance of the filter data structure.
+ 134:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @param[in]  *pSrc     points to the block of input data.
+ 135:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @param[out] *pDst     points to the block of output data
+ 136:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @param[in]  blockSize number of samples to process.
+ 137:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** * @return none.
+ 138:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** */
+ 139:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 140:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 141:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** LOW_OPTIMIZATION_ENTER
+ 142:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** void arm_biquad_cascade_df2T_f64(
+ 143:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** const arm_biquad_cascade_df2T_instance_f64 * S,
+ 144:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** float64_t * pSrc,
+ 145:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** float64_t * pDst,
+ 146:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** uint32_t blockSize)
+ 147:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** {
+  30              	 .loc 1 147 0
+  31              	 .cfi_startproc
+  32              	 
+  33              	 
+  34              	.LVL0:
+  35 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+  36              	.LCFI0:
+  37              	 .cfi_def_cfa_offset 36
+  38              	 .cfi_offset 4,-36
+  39              	 .cfi_offset 5,-32
+  40              	 .cfi_offset 6,-28
+  41              	 .cfi_offset 7,-24
+  42              	 .cfi_offset 8,-20
+  43              	 .cfi_offset 9,-16
+  44              	 .cfi_offset 10,-12
+  45              	 .cfi_offset 11,-8
+  46              	 .cfi_offset 14,-4
+  47 0004 2DED048B 	 fstmfdd sp!,{d8,d9}
+  48              	.LCFI1:
+  49              	 .cfi_def_cfa_offset 52
+  50              	 .cfi_offset 80,-52
+  51              	 .cfi_offset 81,-48
+  52              	 .cfi_offset 82,-44
+  53              	 .cfi_offset 83,-40
+  54 0008 2DED04BB 	 fstmfdd sp!,{d11,d12}
+  55              	.LCFI2:
+  56              	 .cfi_def_cfa_offset 68
+  57              	 .cfi_offset 86,-68
+  58              	 .cfi_offset 87,-64
+  59              	 .cfi_offset 88,-60
+  60              	 .cfi_offset 89,-56
+  61 000c 9DB0     	 sub sp,sp,#116
+  62              	.LCFI3:
+  63              	 .cfi_def_cfa_offset 184
+  64 000e 8B46     	 mov fp,r1
+  65 0010 1546     	 mov r5,r2
+  66 0012 1992     	 str r2,[sp,#100]
+  67              	.LVL1:
+ 148:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 149:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t *pIn = pSrc;                         /*  source pointer            */
+ 150:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t *pOut = pDst;                        /*  destination pointer       */
+ 151:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t *pState = S->pState;                 /*  State pointer             */
+ 152:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t *pCoeffs = S->pCoeffs;               /*  coefficient pointer       */
+ 153:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t acc1;                                /*  accumulator               */
+ 154:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t b0, b1, b2, a1, a2;                  /*  Filter coefficients       */
+ 155:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t Xn1;                                 /*  temporary input           */
+ 156:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t d1, d2;                              /*  state variables           */
+ 157:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    uint32_t sample, stage = S->numStages;         /*  loop counters             */
+  68              	 .loc 1 157 0
+  69 0014 0178     	 ldrb r1,[r0]
+  70              	.LVL2:
+  71 0016 1391     	 str r1,[sp,#76]
+  72              	.LVL3:
+ 158:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 159:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** #if defined(ARM_MATH_CM7)
+ 160:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 161:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t Xn2, Xn3, Xn4, Xn5, Xn6, Xn7, Xn8;   /*  Input State variables     */
+ 162:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t Xn9, Xn10, Xn11, Xn12, Xn13, Xn14, Xn15, Xn16;
+ 163:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t acc2, acc3, acc4, acc5, acc6, acc7;  /*  Simulates the accumulator */
+ 164:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t acc8, acc9, acc10, acc11, acc12, acc13, acc14, acc15, acc16;
+ 165:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 166:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    do
+ 167:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    {
+ 168:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Reading the coefficients */
+ 169:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b0 = pCoeffs[0];
+ 170:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b1 = pCoeffs[1];
+ 171:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b2 = pCoeffs[2];
+ 172:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a1 = pCoeffs[3];
+ 173:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Apply loop unrolling and compute 16 output values simultaneously. */
+ 174:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       sample = blockSize >> 4u;
+ 175:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a2 = pCoeffs[4];
+ 176:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 177:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reading the state values */
+ 178:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d1 = pState[0];
+ 179:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d2 = pState[1];
+ 180:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 181:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pCoeffs += 5u;
+ 182:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 183:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 184:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* First part of the processing with loop unrolling.  Compute 16 outputs at a time.
+ 185:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****        ** a second loop below computes the remaining 1 to 15 samples. */
+ 186:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       while (sample > 0u) {
+ 187:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 188:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* y[n] = b0 * x[n] + d1 */
+ 189:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d1 = b1 * x[n] + a1 * y[n] + d2 */
+ 190:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d2 = b2 * x[n] + a2 * y[n] */
+ 191:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 192:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Read the first 2 inputs. 2 cycles */
+ 193:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1  = pIn[0 ];
+ 194:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn2  = pIn[1 ];
+ 195:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 196:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 1. 5 cycles */
+ 197:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn3  = pIn[2 ];
+ 198:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = b0 * Xn1 + d1;
+ 199:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 200:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn4  = pIn[3 ];
+ 201:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn1 + d2;
+ 202:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 203:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn5  = pIn[4 ];
+ 204:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn1;
+ 205:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 206:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn6  = pIn[5 ];
+ 207:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc1;
+ 208:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 209:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn7  = pIn[6 ];
+ 210:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc1;
+ 211:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 212:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 2. 5 cycles */
+ 213:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn8  = pIn[7 ];
+ 214:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc2 = b0 * Xn2 + d1;
+ 215:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 216:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn9  = pIn[8 ];
+ 217:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn2 + d2;
+ 218:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 219:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn10 = pIn[9 ];
+ 220:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn2;
+ 221:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 222:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn11 = pIn[10];
+ 223:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc2;
+ 224:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 225:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn12 = pIn[11];
+ 226:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc2;
+ 227:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 228:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 3. 5 cycles */
+ 229:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn13 = pIn[12];
+ 230:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc3 = b0 * Xn3 + d1;
+ 231:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 232:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn14 = pIn[13];
+ 233:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn3 + d2;
+ 234:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 235:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn15 = pIn[14];
+ 236:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn3;
+ 237:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 238:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn16 = pIn[15];
+ 239:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc3;
+ 240:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 241:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pIn += 16;
+ 242:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc3;
+ 243:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 244:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 4. 5 cycles */
+ 245:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc4 = b0 * Xn4 + d1;
+ 246:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn4 + d2;
+ 247:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn4;
+ 248:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc4;
+ 249:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc4;
+ 250:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 251:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 5. 5 cycles */
+ 252:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc5 = b0 * Xn5 + d1;
+ 253:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn5 + d2;
+ 254:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn5;
+ 255:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc5;
+ 256:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc5;
+ 257:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 258:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 6. 5 cycles */
+ 259:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc6 = b0 * Xn6 + d1;
+ 260:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn6 + d2;
+ 261:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn6;
+ 262:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc6;
+ 263:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc6;
+ 264:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 265:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 7. 5 cycles */
+ 266:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc7 = b0 * Xn7 + d1;
+ 267:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn7 + d2;
+ 268:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn7;
+ 269:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc7;
+ 270:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc7;
+ 271:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 272:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 8. 5 cycles */
+ 273:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc8 = b0 * Xn8 + d1;
+ 274:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn8 + d2;
+ 275:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn8;
+ 276:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc8;
+ 277:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc8;
+ 278:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 279:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 9. 5 cycles */
+ 280:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc9 = b0 * Xn9 + d1;
+ 281:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn9 + d2;
+ 282:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn9;
+ 283:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc9;
+ 284:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc9;
+ 285:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 286:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 10. 5 cycles */
+ 287:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc10 = b0 * Xn10 + d1;
+ 288:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn10 + d2;
+ 289:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn10;
+ 290:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc10;
+ 291:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc10;
+ 292:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 293:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 11. 5 cycles */
+ 294:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc11 = b0 * Xn11 + d1;
+ 295:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn11 + d2;
+ 296:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn11;
+ 297:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc11;
+ 298:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc11;
+ 299:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 300:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 12. 5 cycles */
+ 301:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc12 = b0 * Xn12 + d1;
+ 302:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn12 + d2;
+ 303:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn12;
+ 304:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc12;
+ 305:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc12;
+ 306:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 307:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 13. 5 cycles */
+ 308:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc13 = b0 * Xn13 + d1;
+ 309:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn13 + d2;
+ 310:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn13;
+ 311:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 312:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[0 ] = acc1 ;
+ 313:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc13;
+ 314:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 315:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[1 ] = acc2 ;
+ 316:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc13;
+ 317:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 318:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 14. 5 cycles */
+ 319:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[2 ] = acc3 ;
+ 320:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc14 = b0 * Xn14 + d1;
+ 321:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 322:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[3 ] = acc4 ;
+ 323:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn14 + d2;
+ 324:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 325:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[4 ] = acc5 ;
+ 326:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn14;
+ 327:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 328:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[5 ] = acc6 ;
+ 329:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc14;
+ 330:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 331:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[6 ] = acc7 ;
+ 332:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc14;
+ 333:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 334:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 15. 5 cycles */
+ 335:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[7 ] = acc8 ;
+ 336:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[8 ] = acc9 ;
+ 337:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc15 = b0 * Xn15 + d1;
+ 338:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 339:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[9 ] = acc10;
+ 340:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn15 + d2;
+ 341:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 342:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[10] = acc11;
+ 343:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn15;
+ 344:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 345:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[11] = acc12;
+ 346:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc15;
+ 347:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 348:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[12] = acc13;
+ 349:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc15;
+ 350:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 351:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Sample 16. 5 cycles */
+ 352:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[13] = acc14;
+ 353:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc16 = b0 * Xn16 + d1;
+ 354:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 355:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[14] = acc15;
+ 356:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn16 + d2;
+ 357:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 358:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[15] = acc16;
+ 359:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn16;
+ 360:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 361:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          sample--;
+ 362:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc16;
+ 363:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 364:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut += 16;
+ 365:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc16;
+ 366:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       }
+ 367:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 368:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       sample = blockSize & 0xFu;
+ 369:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       while (sample > 0u) {
+ 370:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1 = *pIn;
+ 371:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = b0 * Xn1 + d1;
+ 372:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 373:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pIn++;
+ 374:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = b1 * Xn1 + d2;
+ 375:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 376:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          *pOut = acc1;
+ 377:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = b2 * Xn1;
+ 378:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 379:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut++;
+ 380:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 += a1 * acc1;
+ 381:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 382:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          sample--;
+ 383:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 += a2 * acc1;
+ 384:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       }
+ 385:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 386:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Store the updated state variables back into the state array */
+ 387:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pState[0] = d1;
+ 388:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* The current stage input is given as the output to the next stage */
+ 389:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pIn = pDst;
+ 390:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 391:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pState[1] = d2;
+ 392:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* decrement the loop counter */
+ 393:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       stage--;
+ 394:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 395:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pState += 2u;
+ 396:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 397:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reset the output working pointer */
+ 398:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pOut = pDst;
+ 399:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 400:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    } while (stage > 0u);
+ 401:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 402:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** #elif defined(ARM_MATH_CM0_FAMILY)
+ 403:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 404:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    /* Run the below code for Cortex-M0 */
+ 405:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 406:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    do
+ 407:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    {
+ 408:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Reading the coefficients */
+ 409:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b0 = *pCoeffs++;
+ 410:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b1 = *pCoeffs++;
+ 411:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b2 = *pCoeffs++;
+ 412:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a1 = *pCoeffs++;
+ 413:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a2 = *pCoeffs++;
+ 414:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 415:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reading the state values */
+ 416:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d1 = pState[0];
+ 417:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d2 = pState[1];
+ 418:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 419:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 420:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       sample = blockSize;
+ 421:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 422:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       while (sample > 0u)
+ 423:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       {
+ 424:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Read the input */
+ 425:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1 = *pIn++;
+ 426:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 427:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* y[n] = b0 * x[n] + d1 */
+ 428:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = (b0 * Xn1) + d1;
+ 429:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 430:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Store the result in the accumulator in the destination buffer. */
+ 431:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          *pOut++ = acc1;
+ 432:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 433:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Every time after the output is computed state should be updated. */
+ 434:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d1 = b1 * x[n] + a1 * y[n] + d2 */
+ 435:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = ((b1 * Xn1) + (a1 * acc1)) + d2;
+ 436:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 437:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d2 = b2 * x[n] + a2 * y[n] */
+ 438:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = (b2 * Xn1) + (a2 * acc1);
+ 439:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 440:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* decrement the loop counter */
+ 441:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          sample--;
+ 442:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       }
+ 443:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 444:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Store the updated state variables back into the state array */
+ 445:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       *pState++ = d1;
+ 446:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       *pState++ = d2;
+ 447:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 448:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* The current stage input is given as the output to the next stage */
+ 449:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pIn = pDst;
+ 450:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 451:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reset the output working pointer */
+ 452:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pOut = pDst;
+ 453:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 454:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* decrement the loop counter */
+ 455:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       stage--;
+ 456:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 457:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    } while (stage > 0u);
+ 458:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 459:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** #else
+ 460:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 461:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t Xn2, Xn3, Xn4;                  	  /*  Input State variables     */
+ 462:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t acc2, acc3, acc4;              		  /*  accumulator               */
+ 463:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 464:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 465:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    float64_t p0, p1, p2, p3, p4, A1;
+ 466:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 467:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    /* Run the below code for Cortex-M4 and Cortex-M3 */
+ 468:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    do
+ 469:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    {
+ 470:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Reading the coefficients */
+ 471:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b0 = *pCoeffs++;
+ 472:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b1 = *pCoeffs++;
+ 473:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b2 = *pCoeffs++;
+ 474:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a1 = *pCoeffs++;
+ 475:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a2 = *pCoeffs++;
+ 476:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 477:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 478:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reading the state values */
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d1 = pState[0];
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d2 = pState[1];
+ 481:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 482:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Apply loop unrolling and compute 4 output values simultaneously. */
+ 483:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       sample = blockSize >> 2u;
+  73              	 .loc 1 483 0
+  74 0018 9908     	 lsrs r1,r3,#2
+  75              	.LVL4:
+  76 001a 1691     	 str r1,[sp,#88]
+  77 001c 8268     	 ldr r2,[r0,#8]
+  78              	.LVL5:
+  79 001e 02F12804 	 add r4,r2,#40
+  80 0022 1194     	 str r4,[sp,#68]
+  81 0024 4268     	 ldr r2,[r0,#4]
+  82 0026 02F11000 	 add r0,r2,#16
+  83              	.LVL6:
+  84 002a 1290     	 str r0,[sp,#72]
+  85 002c 4801     	 lsls r0,r1,#5
+  86 002e 1890     	 str r0,[sp,#96]
+ 484:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 485:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
+ 486:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    ** a second loop below computes the remaining 1 to 3 samples. */
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       while (sample > 0u) {
+  87              	 .loc 1 487 0
+  88 0030 2A46     	 mov r2,r5
+  89              	.LVL7:
+  90 0032 1595     	 str r5,[sp,#84]
+  91 0034 1A91     	 str r1,[sp,#104]
+ 488:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 489:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* y[n] = b0 * x[n] + d1 */
+ 490:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d1 = b1 * x[n] + a1 * y[n] + d2 */
+ 491:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* d2 = b2 * x[n] + a2 * y[n] */
+ 492:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 493:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          /* Read the four inputs */
+ 494:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1 = pIn[0];
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn2 = pIn[1];
+ 496:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn3 = pIn[2];
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn4 = pIn[3];
+ 498:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pIn += 4;
+ 499:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn1;
+ 501:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn1;
+ 502:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = p0 + d1;
+ 503:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn2;
+ 504:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc1;
+ 505:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn1;
+ 506:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc1;
+ 508:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 509:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 510:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 511:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn2;
+ 512:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc2 = p0 + d1;
+ 513:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn3;
+ 514:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc2;
+ 515:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn2;
+ 516:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 517:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc2;
+ 518:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 519:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 520:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 521:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn3;
+ 522:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc3 = p0 + d1;
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn4;
+ 524:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc3;
+ 525:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn3;
+ 526:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 527:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc3;
+ 528:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 529:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 530:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 531:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc4 = p0 + d1;
+ 532:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn4;
+ 533:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc4;
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn4;
+ 535:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 536:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc4;
+ 537:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 538:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 539:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 540:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[0] = acc1;
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[1] = acc2;
+ 542:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[2] = acc3;
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[3] = acc4;
+ 544:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 				 pOut += 4;
+  92              	 .loc 1 544 0
+  93 0036 0244     	 add r2,r2,r0
+  94 0038 1B92     	 str r2,[sp,#108]
+ 545:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 546:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          sample--;
+ 547:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       }
+ 548:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 549:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       sample = blockSize & 0x3u;
+  95              	 .loc 1 549 0
+  96 003a 03F00303 	 and r3,r3,#3
+  97              	.LVL8:
+  98 003e 1793     	 str r3,[sp,#92]
+  99 0040 5E46     	 mov r6,fp
+ 100              	.LVL9:
+ 101              	.L6:
+ 471:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b1 = *pCoeffs++;
+ 102              	 .loc 1 471 0
+ 103 0042 119A     	 ldr r2,[sp,#68]
+ 104 0044 12ED0A7B 	 fldd d7,[r2,#-40]
+ 105 0048 8DED007B 	 fstd d7,[sp]
+ 106              	.LVL10:
+ 472:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       b2 = *pCoeffs++;
+ 107              	 .loc 1 472 0
+ 108 004c 12ED087B 	 fldd d7,[r2,#-32]
+ 109              	.LVL11:
+ 110 0050 8DED027B 	 fstd d7,[sp,#8]
+ 111              	.LVL12:
+ 473:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a1 = *pCoeffs++;
+ 112              	 .loc 1 473 0
+ 113 0054 12ED067B 	 fldd d7,[r2,#-24]
+ 114              	.LVL13:
+ 115 0058 8DED047B 	 fstd d7,[sp,#16]
+ 116              	.LVL14:
+ 474:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       a2 = *pCoeffs++;
+ 117              	 .loc 1 474 0
+ 118 005c 12ED047B 	 fldd d7,[r2,#-16]
+ 119              	.LVL15:
+ 120 0060 8DED067B 	 fstd d7,[sp,#24]
+ 121              	.LVL16:
+ 475:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 122              	 .loc 1 475 0
+ 123 0064 12ED027B 	 fldd d7,[r2,#-8]
+ 124              	.LVL17:
+ 125 0068 8DED087B 	 fstd d7,[sp,#32]
+ 126              	.LVL18:
+ 127 006c 129B     	 ldr r3,[sp,#72]
+ 128 006e 1493     	 str r3,[sp,#80]
+ 479:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       d2 = pState[1];
+ 129              	 .loc 1 479 0
+ 130 0070 13ED047B 	 fldd d7,[r3,#-16]
+ 131              	.LVL19:
+ 132 0074 8DED0A7B 	 fstd d7,[sp,#40]
+ 133              	.LVL20:
+ 480:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 134              	 .loc 1 480 0
+ 135 0078 13ED027B 	 fldd d7,[r3,#-8]
+ 136              	.LVL21:
+ 137 007c 8DED0C7B 	 fstd d7,[sp,#48]
+ 138              	.LVL22:
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 139              	 .loc 1 487 0
+ 140 0080 169B     	 ldr r3,[sp,#88]
+ 141 0082 002B     	 cmp r3,#0
+ 142 0084 00F02081 	 beq .L7
+ 143 0088 06F12009 	 add r9,r6,#32
+ 144 008c 199B     	 ldr r3,[sp,#100]
+ 145 008e 03F12008 	 add r8,r3,#32
+ 146 0092 1A9F     	 ldr r7,[sp,#104]
+ 147 0094 3C46     	 mov r4,r7
+ 148 0096 3546     	 mov r5,r6
+ 149              	.LVL23:
+ 150              	.L3:
+ 494:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn2 = pIn[1];
+ 151              	 .loc 1 494 0
+ 152 0098 59E90867 	 ldrd r6,[r9,#-32]
+ 153              	.LVL24:
+ 495:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn3 = pIn[2];
+ 154              	 .loc 1 495 0
+ 155 009c 59E906AB 	 ldrd r10,[r9,#-24]
+ 156              	.LVL25:
+ 496:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn4 = pIn[3];
+ 157              	 .loc 1 496 0
+ 158 00a0 19ED048B 	 fldd d8,[r9,#-16]
+ 159              	.LVL26:
+ 497:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pIn += 4;
+ 160              	 .loc 1 497 0
+ 161 00a4 19ED029B 	 fldd d9,[r9,#-8]
+ 162              	.LVL27:
+ 500:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn1;
+ 163              	 .loc 1 500 0
+ 164 00a8 DDE90001 	 ldrd r0,[sp]
+ 165 00ac 3246     	 mov r2,r6
+ 166 00ae 3B46     	 mov r3,r7
+ 167 00b0 FFF7FEFF 	 bl __aeabi_dmul
+ 168              	.LVL28:
+ 502:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn2;
+ 169              	 .loc 1 502 0
+ 170 00b4 DDE90A23 	 ldrd r2,[sp,#40]
+ 171 00b8 FFF7FEFF 	 bl __aeabi_dadd
+ 172              	.LVL29:
+ 173 00bc 41EC1C0B 	 fmdrr d12,r0,r1
+ 174              	.LVL30:
+ 503:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc1;
+ 175              	 .loc 1 503 0
+ 176 00c0 DDE90001 	 ldrd r0,[sp]
+ 177              	.LVL31:
+ 178 00c4 5246     	 mov r2,r10
+ 179 00c6 5B46     	 mov r3,fp
+ 180 00c8 FFF7FEFF 	 bl __aeabi_dmul
+ 181              	.LVL32:
+ 182 00cc CDE90A01 	 strd r0,[sp,#40]
+ 501:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = p0 + d1;
+ 183              	 .loc 1 501 0
+ 184 00d0 DDE90201 	 ldrd r0,[sp,#8]
+ 185 00d4 3246     	 mov r2,r6
+ 186 00d6 3B46     	 mov r3,r7
+ 187 00d8 FFF7FEFF 	 bl __aeabi_dmul
+ 188              	.LVL33:
+ 189 00dc CDE90E01 	 strd r0,[sp,#56]
+ 504:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn1;
+ 190              	 .loc 1 504 0
+ 191 00e0 DDE90601 	 ldrd r0,[sp,#24]
+ 192 00e4 53EC1C2B 	 fmrrd r2,r3,d12
+ 193 00e8 FFF7FEFF 	 bl __aeabi_dmul
+ 194              	.LVL34:
+ 195 00ec 0246     	 mov r2,r0
+ 196 00ee 0B46     	 mov r3,r1
+ 506:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc1;
+ 197              	 .loc 1 506 0
+ 198 00f0 DDE90E01 	 ldrd r0,[sp,#56]
+ 199 00f4 FFF7FEFF 	 bl __aeabi_dadd
+ 200              	.LVL35:
+ 508:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 201              	 .loc 1 508 0
+ 202 00f8 DDE90C23 	 ldrd r2,[sp,#48]
+ 203 00fc FFF7FEFF 	 bl __aeabi_dadd
+ 204              	.LVL36:
+ 205 0100 0246     	 mov r2,r0
+ 206 0102 0B46     	 mov r3,r1
+ 512:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn3;
+ 207              	 .loc 1 512 0
+ 208 0104 DDE90A01 	 ldrd r0,[sp,#40]
+ 209 0108 FFF7FEFF 	 bl __aeabi_dadd
+ 210              	.LVL37:
+ 211 010c 41EC1B0B 	 fmdrr d11,r0,r1
+ 212              	.LVL38:
+ 513:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc2;
+ 213              	 .loc 1 513 0
+ 214 0110 DDE90001 	 ldrd r0,[sp]
+ 215              	.LVL39:
+ 216 0114 53EC182B 	 fmrrd r2,r3,d8
+ 217 0118 FFF7FEFF 	 bl __aeabi_dmul
+ 218              	.LVL40:
+ 219 011c CDE90A01 	 strd r0,[sp,#40]
+ 511:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc2 = p0 + d1;
+ 220              	 .loc 1 511 0
+ 221 0120 DDE90201 	 ldrd r0,[sp,#8]
+ 222 0124 5246     	 mov r2,r10
+ 223 0126 5B46     	 mov r3,fp
+ 224 0128 FFF7FEFF 	 bl __aeabi_dmul
+ 225              	.LVL41:
+ 226 012c CDE90C01 	 strd r0,[sp,#48]
+ 514:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn2;
+ 227              	 .loc 1 514 0
+ 228 0130 DDE90601 	 ldrd r0,[sp,#24]
+ 229 0134 53EC1B2B 	 fmrrd r2,r3,d11
+ 230 0138 FFF7FEFF 	 bl __aeabi_dmul
+ 231              	.LVL42:
+ 232 013c 0246     	 mov r2,r0
+ 233 013e 0B46     	 mov r3,r1
+ 516:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc2;
+ 234              	 .loc 1 516 0
+ 235 0140 DDE90C01 	 ldrd r0,[sp,#48]
+ 236 0144 FFF7FEFF 	 bl __aeabi_dadd
+ 237              	.LVL43:
+ 238 0148 CDE90C01 	 strd r0,[sp,#48]
+ 505:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 239              	 .loc 1 505 0
+ 240 014c DDE90401 	 ldrd r0,[sp,#16]
+ 241 0150 3246     	 mov r2,r6
+ 242 0152 3B46     	 mov r3,r7
+ 243 0154 FFF7FEFF 	 bl __aeabi_dmul
+ 244              	.LVL44:
+ 245 0158 0646     	 mov r6,r0
+ 246              	.LVL45:
+ 247 015a 0F46     	 mov r7,r1
+ 507:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 248              	 .loc 1 507 0
+ 249 015c DDE90801 	 ldrd r0,[sp,#32]
+ 250 0160 53EC1C2B 	 fmrrd r2,r3,d12
+ 251 0164 FFF7FEFF 	 bl __aeabi_dmul
+ 252              	.LVL46:
+ 253 0168 0246     	 mov r2,r0
+ 254 016a 0B46     	 mov r3,r1
+ 509:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 255              	 .loc 1 509 0
+ 256 016c 3046     	 mov r0,r6
+ 257 016e 3946     	 mov r1,r7
+ 258 0170 FFF7FEFF 	 bl __aeabi_dadd
+ 259              	.LVL47:
+ 260 0174 0246     	 mov r2,r0
+ 261 0176 0B46     	 mov r3,r1
+ 518:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 262              	 .loc 1 518 0
+ 263 0178 DDE90C01 	 ldrd r0,[sp,#48]
+ 264 017c FFF7FEFF 	 bl __aeabi_dadd
+ 265              	.LVL48:
+ 266 0180 0246     	 mov r2,r0
+ 267 0182 0B46     	 mov r3,r1
+ 522:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn4;
+ 268              	 .loc 1 522 0
+ 269 0184 DDE90A01 	 ldrd r0,[sp,#40]
+ 270 0188 FFF7FEFF 	 bl __aeabi_dadd
+ 271              	.LVL49:
+ 272 018c 0646     	 mov r6,r0
+ 273 018e 0F46     	 mov r7,r1
+ 274              	.LVL50:
+ 523:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc3;
+ 275              	 .loc 1 523 0
+ 276 0190 DDE90001 	 ldrd r0,[sp]
+ 277 0194 53EC192B 	 fmrrd r2,r3,d9
+ 278 0198 FFF7FEFF 	 bl __aeabi_dmul
+ 279              	.LVL51:
+ 280 019c CDE90A01 	 strd r0,[sp,#40]
+ 521:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc3 = p0 + d1;
+ 281              	 .loc 1 521 0
+ 282 01a0 DDE90201 	 ldrd r0,[sp,#8]
+ 283 01a4 53EC182B 	 fmrrd r2,r3,d8
+ 284 01a8 FFF7FEFF 	 bl __aeabi_dmul
+ 285              	.LVL52:
+ 286 01ac CDE90C01 	 strd r0,[sp,#48]
+ 524:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn3;
+ 287              	 .loc 1 524 0
+ 288 01b0 DDE90601 	 ldrd r0,[sp,#24]
+ 289 01b4 3246     	 mov r2,r6
+ 290 01b6 3B46     	 mov r3,r7
+ 291 01b8 FFF7FEFF 	 bl __aeabi_dmul
+ 292              	.LVL53:
+ 293 01bc 0246     	 mov r2,r0
+ 294 01be 0B46     	 mov r3,r1
+ 526:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc3;
+ 295              	 .loc 1 526 0
+ 296 01c0 DDE90C01 	 ldrd r0,[sp,#48]
+ 297 01c4 FFF7FEFF 	 bl __aeabi_dadd
+ 298              	.LVL54:
+ 299 01c8 CDE90C01 	 strd r0,[sp,#48]
+ 515:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 300              	 .loc 1 515 0
+ 301 01cc DDE90401 	 ldrd r0,[sp,#16]
+ 302 01d0 5246     	 mov r2,r10
+ 303 01d2 5B46     	 mov r3,fp
+ 304 01d4 FFF7FEFF 	 bl __aeabi_dmul
+ 305              	.LVL55:
+ 306 01d8 8246     	 mov r10,r0
+ 307              	.LVL56:
+ 308 01da 8B46     	 mov fp,r1
+ 517:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 309              	 .loc 1 517 0
+ 310 01dc DDE90801 	 ldrd r0,[sp,#32]
+ 311 01e0 53EC1B2B 	 fmrrd r2,r3,d11
+ 312 01e4 FFF7FEFF 	 bl __aeabi_dmul
+ 313              	.LVL57:
+ 314 01e8 0246     	 mov r2,r0
+ 315 01ea 0B46     	 mov r3,r1
+ 519:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 316              	 .loc 1 519 0
+ 317 01ec 5046     	 mov r0,r10
+ 318 01ee 5946     	 mov r1,fp
+ 319 01f0 FFF7FEFF 	 bl __aeabi_dadd
+ 320              	.LVL58:
+ 321 01f4 0246     	 mov r2,r0
+ 322 01f6 0B46     	 mov r3,r1
+ 528:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 323              	 .loc 1 528 0
+ 324 01f8 DDE90C01 	 ldrd r0,[sp,#48]
+ 325 01fc FFF7FEFF 	 bl __aeabi_dadd
+ 326              	.LVL59:
+ 327 0200 0246     	 mov r2,r0
+ 328 0202 0B46     	 mov r3,r1
+ 531:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn4;
+ 329              	 .loc 1 531 0
+ 330 0204 DDE90A01 	 ldrd r0,[sp,#40]
+ 331 0208 FFF7FEFF 	 bl __aeabi_dadd
+ 332              	.LVL60:
+ 333 020c 8246     	 mov r10,r0
+ 334 020e 8B46     	 mov fp,r1
+ 335              	.LVL61:
+ 532:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc4;
+ 336              	 .loc 1 532 0
+ 337 0210 DDE90201 	 ldrd r0,[sp,#8]
+ 338 0214 53EC192B 	 fmrrd r2,r3,d9
+ 339 0218 FFF7FEFF 	 bl __aeabi_dmul
+ 340              	.LVL62:
+ 341 021c CDE90A01 	 strd r0,[sp,#40]
+ 533:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn4;
+ 342              	 .loc 1 533 0
+ 343 0220 DDE90601 	 ldrd r0,[sp,#24]
+ 344 0224 5246     	 mov r2,r10
+ 345 0226 5B46     	 mov r3,fp
+ 346 0228 FFF7FEFF 	 bl __aeabi_dmul
+ 347              	.LVL63:
+ 348 022c 0246     	 mov r2,r0
+ 349 022e 0B46     	 mov r3,r1
+ 535:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc4;
+ 350              	 .loc 1 535 0
+ 351 0230 DDE90A01 	 ldrd r0,[sp,#40]
+ 352 0234 FFF7FEFF 	 bl __aeabi_dadd
+ 353              	.LVL64:
+ 354 0238 CDE90A01 	 strd r0,[sp,#40]
+ 525:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 355              	 .loc 1 525 0
+ 356 023c DDE90401 	 ldrd r0,[sp,#16]
+ 357 0240 53EC182B 	 fmrrd r2,r3,d8
+ 358 0244 FFF7FEFF 	 bl __aeabi_dmul
+ 359              	.LVL65:
+ 360 0248 CDE90C01 	 strd r0,[sp,#48]
+ 527:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 361              	 .loc 1 527 0
+ 362 024c DDE90801 	 ldrd r0,[sp,#32]
+ 363 0250 3246     	 mov r2,r6
+ 364 0252 3B46     	 mov r3,r7
+ 365 0254 FFF7FEFF 	 bl __aeabi_dmul
+ 366              	.LVL66:
+ 367 0258 0246     	 mov r2,r0
+ 368 025a 0B46     	 mov r3,r1
+ 529:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 369              	 .loc 1 529 0
+ 370 025c DDE90C01 	 ldrd r0,[sp,#48]
+ 371 0260 FFF7FEFF 	 bl __aeabi_dadd
+ 372              	.LVL67:
+ 373 0264 0246     	 mov r2,r0
+ 374 0266 0B46     	 mov r3,r1
+ 537:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 375              	 .loc 1 537 0
+ 376 0268 DDE90A01 	 ldrd r0,[sp,#40]
+ 377 026c FFF7FEFF 	 bl __aeabi_dadd
+ 378              	.LVL68:
+ 379 0270 CDE90A01 	 strd r0,[sp,#40]
+ 380              	.LVL69:
+ 534:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 381              	 .loc 1 534 0
+ 382 0274 DDE90401 	 ldrd r0,[sp,#16]
+ 383              	.LVL70:
+ 384 0278 53EC192B 	 fmrrd r2,r3,d9
+ 385 027c FFF7FEFF 	 bl __aeabi_dmul
+ 386              	.LVL71:
+ 387 0280 CDE90C01 	 strd r0,[sp,#48]
+ 536:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 388              	 .loc 1 536 0
+ 389 0284 DDE90801 	 ldrd r0,[sp,#32]
+ 390 0288 5246     	 mov r2,r10
+ 391 028a 5B46     	 mov r3,fp
+ 392 028c FFF7FEFF 	 bl __aeabi_dmul
+ 393              	.LVL72:
+ 394 0290 0246     	 mov r2,r0
+ 395 0292 0B46     	 mov r3,r1
+ 538:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 396              	 .loc 1 538 0
+ 397 0294 DDE90C01 	 ldrd r0,[sp,#48]
+ 398 0298 FFF7FEFF 	 bl __aeabi_dadd
+ 399              	.LVL73:
+ 400 029c CDE90C01 	 strd r0,[sp,#48]
+ 401              	.LVL74:
+ 540:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[1] = acc2;
+ 402              	 .loc 1 540 0
+ 403 02a0 08ED08CB 	 fstd d12,[r8,#-32]
+ 541:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[2] = acc3;
+ 404              	 .loc 1 541 0
+ 405 02a4 08ED06BB 	 fstd d11,[r8,#-24]
+ 542:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          pOut[3] = acc4;
+ 406              	 .loc 1 542 0
+ 407 02a8 48E90467 	 strd r6,[r8,#-16]
+ 543:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 				 pOut += 4;
+ 408              	 .loc 1 543 0
+ 409 02ac 48E902AB 	 strd r10,[r8,#-8]
+ 410              	.LVL75:
+ 411 02b0 09F12009 	 add r9,r9,#32
+ 412              	.LVL76:
+ 413 02b4 08F12008 	 add r8,r8,#32
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 414              	 .loc 1 487 0
+ 415 02b8 013C     	 subs r4,r4,#1
+ 416              	.LVL77:
+ 417 02ba 7FF4EDAE 	 bne .L3
+ 418 02be 2E46     	 mov r6,r5
+ 419              	.LVL78:
+ 420 02c0 189B     	 ldr r3,[sp,#96]
+ 421 02c2 1E44     	 add r6,r6,r3
+ 544:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 422              	 .loc 1 544 0
+ 423 02c4 1B9D     	 ldr r5,[sp,#108]
+ 424 02c6 00E0     	 b .L2
+ 425              	.LVL79:
+ 426              	.L7:
+ 487:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 427              	 .loc 1 487 0
+ 428 02c8 159D     	 ldr r5,[sp,#84]
+ 429              	.LVL80:
+ 430              	.L2:
+ 431              	 .loc 1 549 0
+ 432 02ca 179B     	 ldr r3,[sp,#92]
+ 433 02cc 1C46     	 mov r4,r3
+ 434              	.LVL81:
+ 550:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       while (sample > 0u) {
+ 435              	 .loc 1 550 0
+ 436 02ce 002B     	 cmp r3,#0
+ 437 02d0 41D0     	 beq .L4
+ 438              	.LVL82:
+ 439              	.L8:
+ 551:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1 = *pIn++;
+ 440              	 .loc 1 551 0
+ 441 02d2 F6E80289 	 ldrd r8,[r6],#8
+ 442              	.LVL83:
+ 552:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 553:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p0 = b0 * Xn1;
+ 443              	 .loc 1 553 0
+ 444 02d6 DDE90001 	 ldrd r0,[sp]
+ 445 02da 4246     	 mov r2,r8
+ 446 02dc 4B46     	 mov r3,r9
+ 447 02de FFF7FEFF 	 bl __aeabi_dmul
+ 448              	.LVL84:
+ 554:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn1;
+ 555:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          acc1 = p0 + d1;
+ 449              	 .loc 1 555 0
+ 450 02e2 DDE90A23 	 ldrd r2,[sp,#40]
+ 451 02e6 FFF7FEFF 	 bl __aeabi_dadd
+ 452              	.LVL85:
+ 453 02ea 8246     	 mov r10,r0
+ 454 02ec 8B46     	 mov fp,r1
+ 455              	.LVL86:
+ 554:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p1 = b1 * Xn1;
+ 456              	 .loc 1 554 0
+ 457 02ee DDE90201 	 ldrd r0,[sp,#8]
+ 458 02f2 4246     	 mov r2,r8
+ 459 02f4 4B46     	 mov r3,r9
+ 460 02f6 FFF7FEFF 	 bl __aeabi_dmul
+ 461              	.LVL87:
+ 462 02fa CDE90A01 	 strd r0,[sp,#40]
+ 463              	.LVL88:
+ 556:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p3 = a1 * acc1;
+ 464              	 .loc 1 556 0
+ 465 02fe DDE90601 	 ldrd r0,[sp,#24]
+ 466 0302 5246     	 mov r2,r10
+ 467 0304 5B46     	 mov r3,fp
+ 468 0306 FFF7FEFF 	 bl __aeabi_dmul
+ 469              	.LVL89:
+ 470 030a 0246     	 mov r2,r0
+ 471 030c 0B46     	 mov r3,r1
+ 557:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn1;
+ 558:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          A1 = p1 + p3;
+ 472              	 .loc 1 558 0
+ 473 030e DDE90A01 	 ldrd r0,[sp,#40]
+ 474 0312 FFF7FEFF 	 bl __aeabi_dadd
+ 475              	.LVL90:
+ 559:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc1;
+ 560:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d1 = A1 + d2;
+ 476              	 .loc 1 560 0
+ 477 0316 DDE90C23 	 ldrd r2,[sp,#48]
+ 478 031a FFF7FEFF 	 bl __aeabi_dadd
+ 479              	.LVL91:
+ 480 031e CDE90A01 	 strd r0,[sp,#40]
+ 481              	.LVL92:
+ 557:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p2 = b2 * Xn1;
+ 482              	 .loc 1 557 0
+ 483 0322 DDE90401 	 ldrd r0,[sp,#16]
+ 484              	.LVL93:
+ 485 0326 4246     	 mov r2,r8
+ 486 0328 4B46     	 mov r3,r9
+ 487 032a FFF7FEFF 	 bl __aeabi_dmul
+ 488              	.LVL94:
+ 489 032e 8046     	 mov r8,r0
+ 490              	.LVL95:
+ 491 0330 8946     	 mov r9,r1
+ 559:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          p4 = a2 * acc1;
+ 492              	 .loc 1 559 0
+ 493 0332 DDE90801 	 ldrd r0,[sp,#32]
+ 494 0336 5246     	 mov r2,r10
+ 495 0338 5B46     	 mov r3,fp
+ 496 033a FFF7FEFF 	 bl __aeabi_dmul
+ 497              	.LVL96:
+ 498 033e 0246     	 mov r2,r0
+ 499 0340 0B46     	 mov r3,r1
+ 561:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          d2 = p2 + p4;
+ 500              	 .loc 1 561 0
+ 501 0342 4046     	 mov r0,r8
+ 502 0344 4946     	 mov r1,r9
+ 503 0346 FFF7FEFF 	 bl __aeabi_dadd
+ 504              	.LVL97:
+ 505 034a CDE90C01 	 strd r0,[sp,#48]
+ 506              	.LVL98:
+ 562:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 563:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          *pOut++ = acc1;
+ 507              	 .loc 1 563 0
+ 508 034e E5E802AB 	 strd r10,[r5],#8
+ 509              	.LVL99:
+ 550:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          Xn1 = *pIn++;
+ 510              	 .loc 1 550 0
+ 511 0352 013C     	 subs r4,r4,#1
+ 512              	.LVL100:
+ 513 0354 BDD1     	 bne .L8
+ 514              	.LVL101:
+ 515              	.L4:
+ 564:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 565:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****          sample--;
+ 566:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       }
+ 567:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 568:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* Store the updated state variables back into the state array */
+ 569:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       *pState++ = d1;
+ 516              	 .loc 1 569 0
+ 517 0356 149A     	 ldr r2,[sp,#80]
+ 518 0358 9DED0A7B 	 fldd d7,[sp,#40]
+ 519 035c 02ED047B 	 fstd d7,[r2,#-16]
+ 520              	.LVL102:
+ 570:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       *pState++ = d2;
+ 521              	 .loc 1 570 0
+ 522 0360 9DED0C7B 	 fldd d7,[sp,#48]
+ 523 0364 02ED027B 	 fstd d7,[r2,#-8]
+ 524              	.LVL103:
+ 525 0368 119B     	 ldr r3,[sp,#68]
+ 526 036a 2833     	 adds r3,r3,#40
+ 527 036c 1193     	 str r3,[sp,#68]
+ 528              	.LVL104:
+ 529 036e 129B     	 ldr r3,[sp,#72]
+ 530 0370 1033     	 adds r3,r3,#16
+ 531 0372 1293     	 str r3,[sp,#72]
+ 532              	.LVL105:
+ 571:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 572:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* The current stage input is given as the output to the next stage */
+ 573:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pIn = pDst;
+ 533              	 .loc 1 573 0
+ 534 0374 159E     	 ldr r6,[sp,#84]
+ 574:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 575:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /*Reset the output working pointer */
+ 576:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       pOut = pDst;
+ 577:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 578:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       /* decrement the loop counter */
+ 579:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****       stage--;
+ 580:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 581:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c ****    } while (stage > 0u);
+ 535              	 .loc 1 581 0
+ 536 0376 139B     	 ldr r3,[sp,#76]
+ 537              	.LVL106:
+ 538 0378 013B     	 subs r3,r3,#1
+ 539              	.LVL107:
+ 540 037a 1393     	 str r3,[sp,#76]
+ 541 037c 7FF461AE 	 bne .L6
+ 582:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 583:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** #endif
+ 584:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** 
+ 585:../Dave/Generated/CMSIS_DSP/FilteringFunctions/arm_biquad_cascade_df2T_f64.c **** }
+ 542              	 .loc 1 585 0
+ 543 0380 1DB0     	 add sp,sp,#116
+ 544              	.LCFI4:
+ 545              	 .cfi_def_cfa_offset 68
+ 546              	.LVL108:
+ 547              	 
+ 548 0382 BDEC04BB 	 fldmfdd sp!,{d11-d12}
+ 549              	.LCFI5:
+ 550              	 .cfi_restore 88
+ 551              	 .cfi_restore 89
+ 552              	 .cfi_restore 86
+ 553              	 .cfi_restore 87
+ 554              	 .cfi_def_cfa_offset 52
+ 555 0386 BDEC048B 	 fldmfdd sp!,{d8-d9}
+ 556              	.LCFI6:
+ 557              	 .cfi_restore 82
+ 558              	 .cfi_restore 83
+ 559              	 .cfi_restore 80
+ 560              	 .cfi_restore 81
+ 561              	 .cfi_def_cfa_offset 36
+ 562 038a BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 563              	 .cfi_endproc
+ 564              	.LFE135:
+ 566 038e 00BF     	 .text
+ 567              	.Letext0:
+ 568              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 569              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 570              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_biquad_cascade_df2T_f64.c
+    {standard input}:22     .text.arm_biquad_cascade_df2T_f64:00000000 $t
+    {standard input}:27     .text.arm_biquad_cascade_df2T_f64:00000000 arm_biquad_cascade_df2T_f64
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+__aeabi_dmul
+__aeabi_dadd

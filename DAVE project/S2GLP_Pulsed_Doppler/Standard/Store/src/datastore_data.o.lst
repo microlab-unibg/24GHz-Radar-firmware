@@ -1,0 +1,66 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "datastore_data.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .global ds_default_device_settings
+  20              	 .global ds_default_algo_settings
+  21              	 .section .data.ds_default_algo_settings,"aw",%progbits
+  22              	 .align 2
+  25              	ds_default_algo_settings:
+  26 0000 1C000000 	 .word 28
+  27 0004 C6E90200 	 .word 190918
+  28 0008 00004842 	 .word 1112014848
+  29 000c EC51383F 	 .word 1060655596
+  30 0010 CDCC2C41 	 .word 1093455053
+  31 0014 01000000 	 .word 1
+  32 0018 00002041 	 .word 1092616192
+  33              	 .section .rodata.ds_default_device_settings,"a",%progbits
+  34              	 .align 2
+  37              	ds_default_device_settings:
+  38 0000 40000000 	 .word 64
+  39 0004 1E0E0300 	 .word 200222
+  40 0008 01000000 	 .word 1
+  41 000c A87CB74B 	 .word 1270316200
+  42 0010 00000000 	 .word 0
+  43 0014 D0070000 	 .word 2000
+  44 0018 0C       	 .byte 12
+  45 0019 00       	 .byte 0
+  46 001a 0000     	 .space 2
+  47 001c 01000000 	 .word 1
+  48 0020 F0490200 	 .word 150000
+  49 0024 80000000 	 .word 128
+  50 0028 03       	 .byte 3
+  51 0029 000000   	 .space 3
+  52 002c 28000000 	 .word 40
+  53 0030 05000000 	 .word 5
+  54 0034 00000000 	 .word 0
+  55 0038 01000000 	 .word 1
+  56 003c E8030000 	 .word 1000
+  57              	 .text
+  58              	.Letext0:
+  59              	 .file 1 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+  60              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+  61              	 .file 3 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+  62              	 .file 4 "../Store/src/datastore_data.c"
+DEFINED SYMBOLS
+                            *ABS*:00000000 datastore_data.c
+    {standard input}:37     .rodata.ds_default_device_settings:00000000 ds_default_device_settings
+    {standard input}:25     .data.ds_default_algo_settings:00000000 ds_default_algo_settings
+    {standard input}:22     .data.ds_default_algo_settings:00000000 $d
+    {standard input}:34     .rodata.ds_default_device_settings:00000000 $d
+
+NO UNDEFINED SYMBOLS

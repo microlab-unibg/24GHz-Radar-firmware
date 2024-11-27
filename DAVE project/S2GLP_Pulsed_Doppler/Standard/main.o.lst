@@ -1,0 +1,209 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "main.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.startup.main,"ax",%progbits
+  20              	 .align 2
+  21              	 .global main
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	main:
+  26              	.LFB529:
+  27              	 .file 1 "../main.c"
+   1:../main.c     **** /**
+   2:../main.c     ****     @file: main.c
+   3:../main.c     **** 
+   4:../main.c     ****     @brief: This application runs on demo Sense2GoL Pulse board with BGT24LTR11 and XMC4700 MCU.
+   5:../main.c     ****             It consists on radar demonstration application.
+   6:../main.c     **** */
+   7:../main.c     **** 
+   8:../main.c     **** /* ===========================================================================
+   9:../main.c     **** ** Copyright (C) 2018-2021 Infineon Technologies AG
+  10:../main.c     **** ** All rights reserved.
+  11:../main.c     **** ** ===========================================================================
+  12:../main.c     **** **
+  13:../main.c     **** ** ===========================================================================
+  14:../main.c     **** ** This document contains proprietary information of Infineon Technologies AG.
+  15:../main.c     **** ** Passing on and copying of this document, and communication of its contents
+  16:../main.c     **** ** is not permitted without Infineon's prior written authorization.
+  17:../main.c     **** ** ===========================================================================
+  18:../main.c     **** */
+  19:../main.c     **** 
+  20:../main.c     **** /*
+  21:../main.c     **** ==============================================================================
+  22:../main.c     ****    1. INCLUDE FILES
+  23:../main.c     **** ==============================================================================
+  24:../main.c     ****  */
+  25:../main.c     **** 
+  26:../main.c     **** #include "application.h"
+  27:../main.c     **** 
+  28:../main.c     **** /*
+  29:../main.c     **** ==============================================================================
+  30:../main.c     ****    2. MAIN METHOD
+  31:../main.c     **** ==============================================================================
+  32:../main.c     ****  */
+  33:../main.c     **** 
+  34:../main.c     **** int main(void)
+  35:../main.c     **** {
+  28              	 .loc 1 35 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32 0000 08B5     	 push {r3,lr}
+  33              	.LCFI0:
+  34              	 .cfi_def_cfa_offset 8
+  35              	 .cfi_offset 3,-8
+  36              	 .cfi_offset 14,-4
+  36:../main.c     ****   DAVE_STATUS_t status;
+  37:../main.c     ****   
+  38:../main.c     ****   /* Initialize DAVE APPs */
+  39:../main.c     ****   status = DAVE_Init();
+  37              	 .loc 1 39 0
+  38 0002 FFF7FEFF 	 bl DAVE_Init
+  39              	.LVL0:
+  40:../main.c     ****   
+  41:../main.c     ****   if (status != DAVE_STATUS_SUCCESS)
+  40              	 .loc 1 41 0
+  41 0006 00B1     	 cbz r0,.L2
+  42              	.L5:
+  42:../main.c     ****   {
+  43:../main.c     ****     /* Placeholder for error handler code. The while loop below can be replaced with an user error 
+  44:../main.c     ****     XMC_DEBUG("DAVE APPs initialization failed\n");
+  45:../main.c     ****     while (1U);
+  43              	 .loc 1 45 0 discriminator 1
+  44 0008 FEE7     	 b .L5
+  45              	.L2:
+  46:../main.c     ****   }
+  47:../main.c     ****   
+  48:../main.c     ****   /* Register algorithm processing function:
+  49:../main.c     ****      Set the algorithm processing function pointer, it will
+  50:../main.c     ****      be used by the application for algorithm data processing */
+  51:../main.c     ****     app_register_algo_process(doppler_do);
+  46              	 .loc 1 51 0
+  47 000a 0448     	 ldr r0,.L8
+  48              	.LVL1:
+  49 000c FFF7FEFF 	 bl app_register_algo_process
+  50              	.LVL2:
+  52:../main.c     **** 
+  53:../main.c     ****   /* Initialize the application */
+  54:../main.c     ****   app_init();
+  51              	 .loc 1 54 0
+  52 0010 FFF7FEFF 	 bl app_init
+  53              	.LVL3:
+  54              	.L4:
+  55:../main.c     ****   
+  56:../main.c     ****   /* Infinite loop */
+  57:../main.c     ****   while (1U)
+  58:../main.c     ****   {
+  59:../main.c     ****     /* Main application process */
+  60:../main.c     ****     app_process();
+  55              	 .loc 1 60 0 discriminator 1
+  56 0014 FFF7FEFF 	 bl app_process
+  57              	.LVL4:
+  61:../main.c     ****   }
+  58              	 .loc 1 61 0 discriminator 1
+  59 0018 FCE7     	 b .L4
+  60              	.L9:
+  61 001a 00BF     	 .align 2
+  62              	.L8:
+  63 001c 00000000 	 .word doppler_do
+  64              	 .cfi_endproc
+  65              	.LFE529:
+  67              	 .section .text.acq_completed_cb,"ax",%progbits
+  68              	 .align 2
+  69              	 .global acq_completed_cb
+  70              	 .thumb
+  71              	 .thumb_func
+  73              	acq_completed_cb:
+  74              	.LFB530:
+  62:../main.c     **** }
+  63:../main.c     **** 
+  64:../main.c     **** void acq_completed_cb(void)
+  65:../main.c     **** {
+  75              	 .loc 1 65 0
+  76              	 .cfi_startproc
+  77              	 
+  78              	 
+  79              	 
+  80 0000 7047     	 bx lr
+  81              	 .cfi_endproc
+  82              	.LFE530:
+  84 0002 00BF     	 .section .text.algo_completed_cb,"ax",%progbits
+  85              	 .align 2
+  86              	 .global algo_completed_cb
+  87              	 .thumb
+  88              	 .thumb_func
+  90              	algo_completed_cb:
+  91              	.LFB531:
+  66:../main.c     ****   /*
+  67:../main.c     ****   The following code shows an example of how to access raw data buffer
+  68:../main.c     ****   
+  69:../main.c     ****   acq_buf_obj *p_acq_buf 	= ds_get_active_acq_buf();
+  70:../main.c     ****   uint8_t *raw_data 		= p_acq_buf->p_acq_buf;
+  71:../main.c     ****   uint32_t raw_data_size 	= p_acq_buf->used_size_of_acq_buffer;
+  72:../main.c     ****   
+  73:../main.c     ****   -- Add your code here --
+  74:../main.c     ****   
+  75:../main.c     ****   */
+  76:../main.c     **** }
+  77:../main.c     **** 
+  78:../main.c     **** void algo_completed_cb(void)
+  79:../main.c     **** {
+  92              	 .loc 1 79 0
+  93              	 .cfi_startproc
+  94              	 
+  95              	 
+  96              	 
+  97 0000 7047     	 bx lr
+  98              	 .cfi_endproc
+  99              	.LFE531:
+ 101 0002 00BF     	 .text
+ 102              	.Letext0:
+ 103              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 104              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 105              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 106              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 107              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 108              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 109              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 110              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 111              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DAVE.h"
+ 112              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 113              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 114              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
+ 115              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 116              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 117              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 118              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 119              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+    {standard input}:20     .text.startup.main:00000000 $t
+    {standard input}:25     .text.startup.main:00000000 main
+    {standard input}:63     .text.startup.main:0000001c $d
+    {standard input}:68     .text.acq_completed_cb:00000000 $t
+    {standard input}:73     .text.acq_completed_cb:00000000 acq_completed_cb
+    {standard input}:85     .text.algo_completed_cb:00000000 $t
+    {standard input}:90     .text.algo_completed_cb:00000000 algo_completed_cb
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+DAVE_Init
+app_register_algo_process
+app_init
+app_process
+doppler_do

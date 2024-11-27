@@ -1,0 +1,124 @@
+   1              	 .syntax unified
+   2              	 .cpu cortex-m4
+   3              	 .eabi_attribute 27,3
+   4              	 .fpu fpv4-sp-d16
+   5              	 .eabi_attribute 20,1
+   6              	 .eabi_attribute 21,1
+   7              	 .eabi_attribute 23,3
+   8              	 .eabi_attribute 24,1
+   9              	 .eabi_attribute 25,1
+  10              	 .eabi_attribute 26,1
+  11              	 .eabi_attribute 30,2
+  12              	 .eabi_attribute 34,1
+  13              	 .eabi_attribute 18,4
+  14              	 .thumb
+  15              	 .file "arm_mat_init_f32.c"
+  16              	 .text
+  17              	.Ltext0:
+  18              	 .cfi_sections .debug_frame
+  19              	 .section .text.arm_mat_init_f32,"ax",%progbits
+  20              	 .align 2
+  21              	 .global arm_mat_init_f32
+  22              	 .thumb
+  23              	 .thumb_func
+  25              	arm_mat_init_f32:
+  26              	.LFB135:
+  27              	 .file 1 "../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c"
+   1:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /* ----------------------------------------------------------------------
+   2:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Project:      CMSIS DSP Library
+   3:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Title:        arm_mat_init_f32.c
+   4:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Description:  Floating-point matrix initialization
+   5:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+   6:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * $Date:        27. January 2017
+   7:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * $Revision:    V.1.5.1
+   8:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+   9:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Target Processor: Cortex-M cores
+  10:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * -------------------------------------------------------------------- */
+  11:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /*
+  12:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Copyright (C) 2010-2017 ARM Limited or its affiliates. All rights reserved.
+  13:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+  14:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * SPDX-License-Identifier: Apache-2.0
+  15:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+  16:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  17:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * not use this file except in compliance with the License.
+  18:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * You may obtain a copy of the License at
+  19:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+  20:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * www.apache.org/licenses/LICENSE-2.0
+  21:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+  22:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Unless required by applicable law or agreed to in writing, software
+  23:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  24:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  25:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * See the License for the specific language governing permissions and
+  26:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * limitations under the License.
+  27:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  */
+  28:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  29:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** #include "CMSIS_DSP/cmsis_dsp.h"
+  30:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  31:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /**
+  32:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * @ingroup groupMatrix
+  33:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  */
+  34:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  35:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /**
+  36:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * @defgroup MatrixInit Matrix Initialization
+  37:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  *
+  38:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * Initializes the underlying matrix data structure.
+  39:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * The functions set the <code>numRows</code>,
+  40:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * <code>numCols</code>, and <code>pData</code> fields
+  41:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * of the matrix data structure.
+  42:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  */
+  43:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  44:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /**
+  45:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * @addtogroup MatrixInit
+  46:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  * @{
+  47:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****  */
+  48:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  49:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** /**
+  50:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @brief  Floating-point matrix initialization.
+  51:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @param[in,out] *S             points to an instance of the floating-point matrix structure.
+  52:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @param[in]     nRows          number of rows in the matrix.
+  53:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @param[in]     nColumns       number of columns in the matrix.
+  54:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @param[in]     *pData	   points to the matrix data array.
+  55:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    * @return        none
+  56:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****    */
+  57:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  58:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** void arm_mat_init_f32(
+  59:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   arm_matrix_instance_f32 * S,
+  60:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   uint16_t nRows,
+  61:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   uint16_t nColumns,
+  62:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   float32_t * pData)
+  63:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** {
+  28              	 .loc 1 63 0
+  29              	 .cfi_startproc
+  30              	 
+  31              	 
+  32              	 
+  33              	.LVL0:
+  64:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   /* Assign Number of Rows */
+  65:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   S->numRows = nRows;
+  34              	 .loc 1 65 0
+  35 0000 0180     	 strh r1,[r0]
+  66:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  67:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   /* Assign Number of Columns */
+  68:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   S->numCols = nColumns;
+  36              	 .loc 1 68 0
+  37 0002 4280     	 strh r2,[r0,#2]
+  69:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c **** 
+  70:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   /* Assign Data pointer */
+  71:../Dave/Generated/CMSIS_DSP/MatrixFunctions/arm_mat_init_f32.c ****   S->pData = pData;
+  38              	 .loc 1 71 0
+  39 0004 4360     	 str r3,[r0,#4]
+  40 0006 7047     	 bx lr
+  41              	 .cfi_endproc
+  42              	.LFE135:
+  44              	 .text
+  45              	.Letext0:
+  46              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+  47              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+  48              	 .file 4 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 arm_mat_init_f32.c
+    {standard input}:20     .text.arm_mat_init_f32:00000000 $t
+    {standard input}:25     .text.arm_mat_init_f32:00000000 arm_mat_init_f32
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS
