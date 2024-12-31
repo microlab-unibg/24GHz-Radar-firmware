@@ -74,13 +74,12 @@ oRS.oEPRadarS2GLP.get_parameters_def % display default radar parameters
 
 %%% Change parameters in memory
 NTS = 256;
-%oRS.oEPRadarS2GLP.parameters.number_of_samples = NTS;
+oRS.oEPRadarS2GLP.parameters.number_of_samples = NTS;
 %oRS.oEPRadarS2GLP.parameters.frame_time_sec = 0.1500;
 oRS.oEPRadarS2GLP.parameters.frame_time_sec = 2.0; %aumento tempo frame per migliorare risoluzione
 %oRS.oEPRadarS2GLP.parameters.min_speed_mps = 0.3;
 oRS.oEPRadarS2GLP.parameters.min_speed_mps = 1.9; %velocità minima
 oRS.oEPRadarS2GLP.parameters.doppler_sensitivity = 2000; %aumento sensibilità doppler
-oRS.oEPRadarS2GLP.parameters.number_of_samples = 256 %numero campioni maggiore per risoluzione temporale migliore
 
 %%% Send parameters to device
 oRS.oEPRadarS2GLP.apply_parameters;
@@ -102,8 +101,8 @@ hFig = figure;
 
 %applico un filtro passa-basso
 freq_s = 5000;  %frequenza campionamento
-freq_c =  1;    %freq di taglio 
-[b, a] = butter(4, freq_c/(freq_s/2), 'low'); %filtro Butterwoeth
+freq_c =  1;    %freq di taglio prova ad aumentare a 5
+[b, a] = butter(4, freq_c/(freq_s/2), 'low'); %filtro Butterworth
 
 %mxRawData = oRS.oEPRadarS2GLP.get_raw_data;
 %fprintf('Frame number: %d\n', mxRawData.frame_number);
