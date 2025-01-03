@@ -1,2 +1,2 @@
-BRPM medio: 1005.71
-BPM medio: 347.72
+BRPM medio: 990.16
+BPM medio: 309.64

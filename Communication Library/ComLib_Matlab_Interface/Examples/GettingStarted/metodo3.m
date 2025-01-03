@@ -1,7 +1,9 @@
-% Cleanup
+%% Cleanup
 clc;
 clear;
 close all;
+
+%% 1. Creazione dell'oggetto radar
 
 % Aggiunta del percorso API Radar
 addpath('..\..\RadarSystem');
@@ -16,7 +18,7 @@ if isempty(szPort)
 end
 oRS = RadarSystem(szPort);
 
-% Parametri Radar
+%% Parametri Radar
 disp('Impostazione dei parametri radar...');
 NTS = 256; % Numero di campioni per frame
 Nm = 9; % Numero di frame per blocco
@@ -28,16 +30,24 @@ oRS.oEPRadarS2GLP.parameters.frame_time_sec = 0.1500;
 oRS.oEPRadarS2GLP.parameters.min_speed_mps = 0.3;
 oRS.oEPRadarS2GLP.apply_parameters;
 
-% Background predefinito (simulato)
+%% Background predefinito (simulato)
 disp('Calcolo del background...');
 background = zeros(N/2, 1); % Puoi aggiornare con un background reale se necessario
 
+%% 4. Acquisizione e analisi dei dati
 % Variabili per memorizzare i massimi
 max_amplitudes_BRPM = []; % Respirazione
 max_amplitudes_BPM = []; % Battito
 
+% Variabili per i segnali accumulati nel tempo
+signal_I_total = []; % Segnale In-Phase totale
+signal_Q_total = []; % Segnale Quadrature totale
+
 % Figura per i grafici
 hFig = figure('Name', 'FFT Frequenze', 'NumberTitle', 'off');
+subplot(2, 2, 1); hTimeI = plot(nan); title('Segnale In-Phase (I)'); xlabel('Campioni'); ylabel('Ampiezza'); grid on;
+subplot(2, 2, 2); hTimeQ = plot(nan); title('Segnale Quadrature (Q)'); xlabel('Campioni'); ylabel('Ampiezza'); grid on;
+subplot(2, 2, [3, 4]); hFreq = plot(nan); title('Frequenze rilevate (0-30 Hz)'); xlabel('Frequenza [Hz]'); ylabel('Ampiezza'); grid on;
 
 % Ciclo di acquisizione e analisi
 disp('Inizio acquisizione e analisi...');
@@ -52,10 +62,22 @@ tempo_inizio = tic; % Inizia il timer
 while ishandle(hFig) && toc(tempo_inizio) < tempo_massimo
     % Acquisizione dei dati grezzi
     raw_data = oRS.oEPRadarS2GLP.get_raw_data;
+    frame_I = real(raw_data.sample_data(:)); % Segnale In-Phase (I)
+    frame_Q = imag(raw_data.sample_data(:)); % Segnale Quadrature (Q)
+    
+    % Accumulo dei segnali nel tempo
+    signal_I_total = [signal_I_total; frame_I];
+    signal_Q_total = [signal_Q_total; frame_Q];
+    
     frame_buffer = [frame_buffer; raw_data.sample_data(:)];
+    
+    % Aggiornamento dei grafici in tempo reale (dominio del tempo)
+    set(hTimeI, 'YData', signal_I_total, 'XData', 1:length(signal_I_total));
+    set(hTimeQ, 'YData', signal_Q_total, 'XData', 1:length(signal_Q_total));
     
     % Controllo se ci sono abbastanza frame per un blocco
     if length(frame_buffer) < Nm * NTS
+        drawnow;
         continue;
     end
 
@@ -83,19 +105,16 @@ while ishandle(hFig) && toc(tempo_inizio) < tempo_massimo
     fft_bpm = abs(combined_fft_no_background(bpm_mask));
     max_amplitudes_BPM = [max_amplitudes_BPM, max(fft_bpm)];
 
-    % Grafico delle frequenze
-    plot(xf_filtered, fft_amplitudes_filtered);
-    title('Frequenze rilevate (0-30 Hz)');
-    xlabel('Frequenza [Hz]');
-    ylabel('Ampiezza');
-    grid on;
+    % Aggiornamento del grafico delle frequenze
+    set(hFreq, 'YData', fft_amplitudes_filtered, 'XData', xf_filtered);
+
     drawnow;
 
     % Avanza al prossimo blocco
     block_idx = block_idx + step;
 end
 
-% Risultati finali
+%% Risultati finali
 BRPM = mean(max_amplitudes_BRPM);
 BPM = mean(max_amplitudes_BPM);
 
@@ -103,7 +122,7 @@ disp('Risultati:');
 fprintf('BRPM: %.2f\n', (BRPM / 2) * 60);
 fprintf('BPM: %.2f\n', (BPM / 2) * 60);
 
-% Salvataggio risultati
+%% Salvataggio risultati
 fileID = fopen('risultatiMATLAB.txt', 'w');
 fprintf(fileID, 'BRPM medio: %.2f\n', (BRPM / 2) * 60);
 fprintf(fileID, 'BPM medio: %.2f\n', (BPM / 2) * 60);
