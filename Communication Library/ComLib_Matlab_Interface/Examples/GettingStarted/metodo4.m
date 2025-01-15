@@ -27,8 +27,8 @@ oRS.oEPRadarS2GLP.parameters.number_of_samples = NTS;
 oRS.oEPRadarS2GLP.parameters.frame_time_sec = 0.1500;
 oRS.oEPRadarS2GLP.apply_parameters;
 
-%% 3. Acquisizione del background (simulazione)
-background = rand(1, N/2); % Sostituire con un background reale se disponibile
+%% 3. Background (simulazione)
+background = rand(1, N/2); % Sostituire con un background reale 
 
 %% 4. Acquisizione e analisi dei dati
 max_amplitudes_BRPM = [];

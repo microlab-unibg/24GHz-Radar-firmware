@@ -30,9 +30,8 @@ oRS.oEPRadarS2GLP.parameters.frame_time_sec = 0.1500;
 oRS.oEPRadarS2GLP.parameters.min_speed_mps = 0.3;
 oRS.oEPRadarS2GLP.apply_parameters;
 
-%% Background predefinito (simulato)
-disp('Calcolo del background...');
-background = zeros(N/2, 1); % Puoi aggiornare con un background reale se necessario
+%% 3. Background (simulazione)
+background = rand(1, N/2); % Sostituire con un background reale 
 
 %% 4. Acquisizione e analisi dei dati
 % Variabili per memorizzare i massimi
