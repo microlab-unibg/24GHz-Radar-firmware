@@ -1,0 +1,4 @@
+Media dei massimi valori di ampiezza tra 0 e 1 Hz: 0.70
+BRPM: 21.08
+Media dei massimi valori di ampiezza tra 0.66 e 6.66 Hz: 1.89
+BPM: 113.42

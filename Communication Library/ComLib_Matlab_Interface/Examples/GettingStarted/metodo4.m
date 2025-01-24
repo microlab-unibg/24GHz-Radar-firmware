@@ -21,24 +21,34 @@ Nm = 9;    % Numero di frame per blocco
 a = 10;    % Fattore di downsampling
 
 T = 1 * Nm; % Periodo totale del blocco
-N = (NTS * Nm) / a; % Numero di punti FFT dopo il downsampling
+N = floor((NTS * Nm) / a); % Assicura che N sia un numero intero
 
 oRS.oEPRadarS2GLP.parameters.number_of_samples = NTS;
 oRS.oEPRadarS2GLP.parameters.frame_time_sec = 0.1500;
 oRS.oEPRadarS2GLP.apply_parameters;
 
-%% 3. Background (simulazione)
-background = rand(1, N/2); % Sostituire con un background reale 
+%% 3. Acquisizione del background senza persona presente
+disp('Acquisizione del background, assicurarsi che nessuna persona sia davanti al radar...');
+pause(3); % Attendere per assicurarsi che l'utente sia pronto
 
-%% 4. Acquisizione e analisi dei dati
+num_background_frames = 20; % Numero di frame per il background
+background_frames = [];
+for i = 1:num_background_frames
+    mxRawData = oRS.oEPRadarS2GLP.get_raw_data;
+    background_frames = [background_frames; real(mxRawData.sample_data(:,1))];
+end
+
+background_signal = mean(background_frames, 1); % Media dei frame per ottenere il background
+background_fft = abs(fft(background_signal, N));
+background = background_fft(1:N/2); % Prendere solo la metà positiva dello spettro
+
+disp('Background acquisito. Ora posizionarsi davanti al radar.');
+pause(5); % Attendere il posizionamento della persona
+
+%% 4. Acquisizione e analisi dei dati in tempo reale
 max_amplitudes_BRPM = [];
 max_amplitudes_BPM = [];
 total_windows = 10; % Numero totale di finestre da analizzare
-
-
-pdf_filename = 'grafici_outputM4.pdf';
-results_filename = 'risultatiM4.txt';
-pdfObj = matlab.graphics.internal.createPDF(pdf_filename);
 
 for intervallo_tempo = 1:total_windows
     % Acquisizione dei frame dal radar
@@ -53,7 +63,7 @@ for intervallo_tempo = 1:total_windows
     block_frames = block_frames(1:a:end);
     
     % FFT e rimozione del background
-    combined_fft = fft(block_frames, N);
+    combined_fft = abs(fft(block_frames, N));
     combined_fft_no_background = combined_fft(1:N/2) - background;
     xf = (0:(N/2)-1) * (1/T);
     
@@ -69,28 +79,17 @@ for intervallo_tempo = 1:total_windows
     [~, max_idx_battito] = max(abs(fft_amplitudes_selected2));
     max_amplitudes_BPM(end+1) = abs(fft_amplitudes_selected2(max_idx_battito));
     
-    % Plot dei dati e salvataggio nel PDF
-    figure;
-    plot(xf, abs(combined_fft_no_background));
-    title(['Intervallo di tempo ', num2str(intervallo_tempo)]);
-    xlabel('Frequenza [Hz]');
-    ylabel('Ampiezza');
-    grid on;
-   
+    % Calcolo e stampa in tempo reale
+    BRPM = (mean(max_amplitudes_BRPM) / 2) * 60;
+    BPM = mean(max_amplitudes_BPM) * 60;
+    
+    clc;
+    fprintf('Intervallo: %d\n', intervallo_tempo);
+    fprintf('Respiro al minuto (BRPM): %.2f\n', BRPM);
+    fprintf('Battiti al minuto (BPM): %.2f\n', BPM);
+    pause(1); % Attesa per simulare il tempo reale
 end
 
-%% 5. Calcolo dei risultati finali
-BRPM = mean(max_amplitudes_BRPM);
-BPM = mean(max_amplitudes_BPM);
-
-fileID = fopen(results_filename, 'w');
-fprintf(fileID, 'Media dei massimi valori di ampiezza tra 0 e 1 Hz: %.2f\n', BRPM);
-fprintf(fileID, 'BRPM: %.2f\n', (BRPM / 2) * 60);
-fprintf(fileID, 'Media dei massimi valori di ampiezza tra 0.66 e 6.66 Hz: %.2f\n', BPM);
-fprintf(fileID, 'BPM: %.2f\n', BPM * 60);
-fclose(fileID);
-
-%% 6. Chiusura e pulizia
+%% 5. Chiusura e pulizia
 clearSP(szPort);
-close(pdfObj);
 disp('Script completato con successo!');
