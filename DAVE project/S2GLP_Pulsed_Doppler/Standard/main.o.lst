@@ -16,12 +16,12 @@
   16              	 .text
   17              	.Ltext0:
   18              	 .cfi_sections .debug_frame
-  19              	 .section .text.startup.main,"ax",%progbits
+  19              	 .section .text.init_fft_window,"ax",%progbits
   20              	 .align 2
-  21              	 .global main
+  21              	 .global init_fft_window
   22              	 .thumb
   23              	 .thumb_func
-  25              	main:
+  25              	init_fft_window:
   26              	.LFB529:
   27              	 .file 1 "../main.c"
    1:../main.c     **** /**
@@ -51,159 +51,1014 @@
   25:../main.c     **** 
   26:../main.c     **** #include "application.h"
   27:../main.c     **** 
-  28:../main.c     **** /*
-  29:../main.c     **** ==============================================================================
-  30:../main.c     ****    2. MAIN METHOD
-  31:../main.c     **** ==============================================================================
-  32:../main.c     ****  */
+  28:../main.c     **** 
+  29:../main.c     **** #include "i2c_master.h"
+  30:../main.c     **** #include "dsp_lib.h"
+  31:../main.c     **** #include "timer.h"
+  32:../main.c     **** #include <DAVE.h>
   33:../main.c     **** 
-  34:../main.c     **** int main(void)
-  35:../main.c     **** {
-  28              	 .loc 1 35 0
+  34:../main.c     **** #define FFT_SIZE 128
+  35:../main.c     **** #define DOWNSAMPLING_FACTOR 10
+  36:../main.c     **** #define BACKGROUND_FRAMES 100  // Numero di frame per acquisire il background
+  37:../main.c     **** #define WAIT_TIME 5000         // 5 secondi di attesa
+  38:../main.c     **** 
+  39:../main.c     **** // Stati del sistema
+  40:../main.c     **** typedef enum {
+  41:../main.c     ****     WAIT_BACKGROUND,
+  42:../main.c     ****     ACQUIRE_BACKGROUND,
+  43:../main.c     ****     WAIT_PERSON,
+  44:../main.c     ****     MEASURE_BREATH
+  45:../main.c     **** } SystemState_t;
+  46:../main.c     **** 
+  47:../main.c     **** static SystemState_t state = WAIT_BACKGROUND;
+  48:../main.c     **** static float background_fft[FFT_SIZE / 2] = {0};
+  49:../main.c     **** static int frame_count = 0;
+  50:../main.c     **** 
+  51:../main.c     **** 
+  52:../main.c     **** /* Struttura per la finestra FFT */
+  53:../main.c     **** static FFT_Window_Struct_t fft_window;
+  54:../main.c     **** static float fft_window_buffer[FFT_SIZE] = {0};
+  55:../main.c     **** 
+  56:../main.c     **** /*
+  57:../main.c     **** ==============================================================================
+  58:../main.c     ****    2. MAIN METHOD
+  59:../main.c     **** ==============================================================================
+  60:../main.c     ****  */
+  61:../main.c     **** 
+  62:../main.c     **** /* Funzione per inizializzare la finestra FFT */
+  63:../main.c     **** void init_fft_window() {
+  28              	 .loc 1 63 0
   29              	 .cfi_startproc
   30              	 
   31              	 
-  32 0000 08B5     	 push {r3,lr}
-  33              	.LCFI0:
-  34              	 .cfi_def_cfa_offset 8
-  35              	 .cfi_offset 3,-8
-  36              	 .cfi_offset 14,-4
-  36:../main.c     ****   DAVE_STATUS_t status;
-  37:../main.c     ****   
-  38:../main.c     ****   /* Initialize DAVE APPs */
-  39:../main.c     ****   status = DAVE_Init();
-  37              	 .loc 1 39 0
-  38 0002 FFF7FEFF 	 bl DAVE_Init
-  39              	.LVL0:
-  40:../main.c     ****   
-  41:../main.c     ****   if (status != DAVE_STATUS_SUCCESS)
-  40              	 .loc 1 41 0
-  41 0006 00B1     	 cbz r0,.L2
-  42              	.L5:
-  42:../main.c     ****   {
-  43:../main.c     ****     /* Placeholder for error handler code. The while loop below can be replaced with an user error 
-  44:../main.c     ****     XMC_DEBUG("DAVE APPs initialization failed\n");
-  45:../main.c     ****     while (1U);
-  43              	 .loc 1 45 0 discriminator 1
-  44 0008 FEE7     	 b .L5
-  45              	.L2:
-  46:../main.c     ****   }
-  47:../main.c     ****   
-  48:../main.c     ****   /* Register algorithm processing function:
-  49:../main.c     ****      Set the algorithm processing function pointer, it will
-  50:../main.c     ****      be used by the application for algorithm data processing */
-  51:../main.c     ****     app_register_algo_process(doppler_do);
-  46              	 .loc 1 51 0
-  47 000a 0448     	 ldr r0,.L8
-  48              	.LVL1:
-  49 000c FFF7FEFF 	 bl app_register_algo_process
-  50              	.LVL2:
-  52:../main.c     **** 
-  53:../main.c     ****   /* Initialize the application */
-  54:../main.c     ****   app_init();
-  51              	 .loc 1 54 0
-  52 0010 FFF7FEFF 	 bl app_init
-  53              	.LVL3:
-  54              	.L4:
-  55:../main.c     ****   
-  56:../main.c     ****   /* Infinite loop */
-  57:../main.c     ****   while (1U)
-  58:../main.c     ****   {
-  59:../main.c     ****     /* Main application process */
-  60:../main.c     ****     app_process();
-  55              	 .loc 1 60 0 discriminator 1
-  56 0014 FFF7FEFF 	 bl app_process
-  57              	.LVL4:
-  61:../main.c     ****   }
-  58              	 .loc 1 61 0 discriminator 1
-  59 0018 FCE7     	 b .L4
-  60              	.L9:
-  61 001a 00BF     	 .align 2
-  62              	.L8:
-  63 001c 00000000 	 .word doppler_do
-  64              	 .cfi_endproc
-  65              	.LFE529:
-  67              	 .section .text.acq_completed_cb,"ax",%progbits
-  68              	 .align 2
-  69              	 .global acq_completed_cb
-  70              	 .thumb
-  71              	 .thumb_func
-  73              	acq_completed_cb:
-  74              	.LFB530:
-  62:../main.c     **** }
-  63:../main.c     **** 
-  64:../main.c     **** void acq_completed_cb(void)
-  65:../main.c     **** {
-  75              	 .loc 1 65 0
-  76              	 .cfi_startproc
-  77              	 
-  78              	 
-  79              	 
-  80 0000 7047     	 bx lr
-  81              	 .cfi_endproc
-  82              	.LFE530:
-  84 0002 00BF     	 .section .text.algo_completed_cb,"ax",%progbits
-  85              	 .align 2
-  86              	 .global algo_completed_cb
-  87              	 .thumb
-  88              	 .thumb_func
-  90              	algo_completed_cb:
-  91              	.LFB531:
-  66:../main.c     ****   /*
-  67:../main.c     ****   The following code shows an example of how to access raw data buffer
-  68:../main.c     ****   
-  69:../main.c     ****   acq_buf_obj *p_acq_buf 	= ds_get_active_acq_buf();
-  70:../main.c     ****   uint8_t *raw_data 		= p_acq_buf->p_acq_buf;
-  71:../main.c     ****   uint32_t raw_data_size 	= p_acq_buf->used_size_of_acq_buffer;
-  72:../main.c     ****   
-  73:../main.c     ****   -- Add your code here --
-  74:../main.c     ****   
-  75:../main.c     ****   */
-  76:../main.c     **** }
-  77:../main.c     **** 
-  78:../main.c     **** void algo_completed_cb(void)
-  79:../main.c     **** {
-  92              	 .loc 1 79 0
-  93              	 .cfi_startproc
-  94              	 
-  95              	 
-  96              	 
-  97 0000 7047     	 bx lr
-  98              	 .cfi_endproc
-  99              	.LFE531:
- 101 0002 00BF     	 .text
- 102              	.Letext0:
- 103              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
- 104              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
- 105              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
- 106              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
- 107              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
- 108              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
- 109              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
- 110              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
- 111              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DAVE.h"
- 112              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
- 113              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
- 114              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
- 115              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
- 116              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
- 117              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
- 118              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
- 119              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
+  32              	 
+  64:../main.c     ****     fft_window.fft_window_type = FFT_WINDOW_HANN;  // Usa la finestra di Hanning
+  33              	 .loc 1 64 0
+  34 0000 074B     	 ldr r3,.L3
+  65:../main.c     ****     fft_window.fft_window_length = FFT_SIZE;
+  66:../main.c     ****     fft_window.fft_chebyshev_at_dB = 60;  // Usato solo per la finestra Chebyshev
+  35              	 .loc 1 66 0
+  36 0002 084A     	 ldr r2,.L3+4
+  67:../main.c     ****     fft_window.fft_window_buffer = fft_window_buffer;
+  37              	 .loc 1 67 0
+  38 0004 0849     	 ldr r1,.L3+8
+  63:../main.c     ****     fft_window.fft_window_type = FFT_WINDOW_HANN;  // Usa la finestra di Hanning
+  39              	 .loc 1 63 0
+  40 0006 10B4     	 push {r4}
+  41              	.LCFI0:
+  42              	 .cfi_def_cfa_offset 4
+  43              	 .cfi_offset 4,-4
+  64:../main.c     ****     fft_window.fft_window_length = FFT_SIZE;
+  44              	 .loc 1 64 0
+  45 0008 0224     	 movs r4,#2
+  66:../main.c     ****     fft_window.fft_window_buffer = fft_window_buffer;
+  46              	 .loc 1 66 0
+  47 000a 9A60     	 str r2,[r3,#8]
+  64:../main.c     ****     fft_window.fft_window_length = FFT_SIZE;
+  48              	 .loc 1 64 0
+  49 000c 1C70     	 strb r4,[r3]
+  65:../main.c     ****     fft_window.fft_chebyshev_at_dB = 60;  // Usato solo per la finestra Chebyshev
+  50              	 .loc 1 65 0
+  51 000e 8022     	 movs r2,#128
+  68:../main.c     ****     fft_window.fft_size = FFT_SIZE_128;
+  69:../main.c     **** 
+  70:../main.c     ****     fft_window_gen(&fft_window); // Genera la finestra
+  52              	 .loc 1 70 0
+  53 0010 1846     	 mov r0,r3
+  71:../main.c     **** }
+  54              	 .loc 1 71 0
+  55 0012 5DF8044B 	 ldr r4,[sp],#4
+  56              	.LCFI1:
+  57              	 .cfi_restore 4
+  58              	 .cfi_def_cfa_offset 0
+  67:../main.c     ****     fft_window.fft_size = FFT_SIZE_128;
+  59              	 .loc 1 67 0
+  60 0016 D960     	 str r1,[r3,#12]
+  65:../main.c     ****     fft_window.fft_chebyshev_at_dB = 60;  // Usato solo per la finestra Chebyshev
+  61              	 .loc 1 65 0
+  62 0018 5A60     	 str r2,[r3,#4]
+  68:../main.c     **** 
+  63              	 .loc 1 68 0
+  64 001a 5A80     	 strh r2,[r3,#2]
+  70:../main.c     **** }
+  65              	 .loc 1 70 0
+  66 001c FFF7FEBF 	 b fft_window_gen
+  67              	.LVL0:
+  68              	.L4:
+  69              	 .align 2
+  70              	.L3:
+  71 0020 00000000 	 .word .LANCHOR0
+  72 0024 00007042 	 .word 1114636288
+  73 0028 00000000 	 .word .LANCHOR1
+  74              	 .cfi_endproc
+  75              	.LFE529:
+  77              	 .section .text.startup.main,"ax",%progbits
+  78              	 .align 2
+  79              	 .global main
+  80              	 .thumb
+  81              	 .thumb_func
+  83              	main:
+  84              	.LFB530:
+  72:../main.c     **** 
+  73:../main.c     **** TIMER_t TIMER_0;
+  74:../main.c     **** 
+  75:../main.c     **** int main(void)
+  76:../main.c     **** {
+  85              	 .loc 1 76 0
+  86              	 .cfi_startproc
+  87              	 
+  88              	 
+  89 0000 08B5     	 push {r3,lr}
+  90              	.LCFI2:
+  91              	 .cfi_def_cfa_offset 8
+  92              	 .cfi_offset 3,-8
+  93              	 .cfi_offset 14,-4
+  77:../main.c     ****   DAVE_STATUS_t status;
+  78:../main.c     ****   TIMER_STATUS_t timer_status;
+  79:../main.c     ****   
+  80:../main.c     ****   /* Initialize DAVE APPs */
+  81:../main.c     ****   status = DAVE_Init();
+  94              	 .loc 1 81 0
+  95 0002 FFF7FEFF 	 bl DAVE_Init
+  96              	.LVL1:
+  82:../main.c     ****   
+  83:../main.c     ****   if (status != DAVE_STATUS_SUCCESS)
+  97              	 .loc 1 83 0
+  98 0006 50B9     	 cbnz r0,.L9
+  84:../main.c     ****   {
+  85:../main.c     ****     /* Placeholder for error handler code. The while loop below can be replaced with an user error 
+  86:../main.c     ****     XMC_DEBUG("DAVE APPs initialization failed\n");
+  87:../main.c     ****     while (1U);
+  88:../main.c     ****   }
+  89:../main.c     **** 
+  90:../main.c     ****   /*inizializzo tempo*/
+  91:../main.c     **** 
+  92:../main.c     ****   if (status == DAVE_STATUS_SUCCESS){
+  93:../main.c     ****   	timer_status = TIMER_Start(&TIMER_0);
+  99              	 .loc 1 93 0
+ 100 0008 0548     	 ldr r0,.L12
+ 101              	.LVL2:
+ 102 000a FFF7FEFF 	 bl TIMER_Start
+ 103              	.LVL3:
+  94:../main.c     ****   }
+  95:../main.c     **** 
+  96:../main.c     ****   /* Register algorithm processing function:
+  97:../main.c     ****      Set the algorithm processing function pointer, it will
+  98:../main.c     ****      be used by the application for algorithm data processing */
+  99:../main.c     ****     app_register_algo_process(doppler_do);
+ 104              	 .loc 1 99 0
+ 105 000e 0548     	 ldr r0,.L12+4
+ 106 0010 FFF7FEFF 	 bl app_register_algo_process
+ 107              	.LVL4:
+ 100:../main.c     **** 
+ 101:../main.c     ****   /* Initialize the application */
+ 102:../main.c     ****   app_init();
+ 108              	 .loc 1 102 0
+ 109 0014 FFF7FEFF 	 bl app_init
+ 110              	.LVL5:
+ 111              	.L8:
+ 103:../main.c     ****   
+ 104:../main.c     ****   /* Infinite loop */
+ 105:../main.c     ****   while (1U)
+ 106:../main.c     ****   {
+ 107:../main.c     ****     /* Main application process */
+ 108:../main.c     ****     app_process();
+ 112              	 .loc 1 108 0 discriminator 1
+ 113 0018 FFF7FEFF 	 bl app_process
+ 114              	.LVL6:
+ 109:../main.c     ****   }
+ 115              	 .loc 1 109 0 discriminator 1
+ 116 001c FCE7     	 b .L8
+ 117              	.LVL7:
+ 118              	.L9:
+  87:../main.c     ****   }
+ 119              	 .loc 1 87 0 discriminator 1
+ 120 001e FEE7     	 b .L9
+ 121              	.L13:
+ 122              	 .align 2
+ 123              	.L12:
+ 124 0020 00000000 	 .word TIMER_0
+ 125 0024 00000000 	 .word doppler_do
+ 126              	 .cfi_endproc
+ 127              	.LFE530:
+ 129              	 .global __aeabi_f2d
+ 130              	 .section .text.acq_completed_cb,"ax",%progbits
+ 131              	 .align 2
+ 132              	 .global acq_completed_cb
+ 133              	 .thumb
+ 134              	 .thumb_func
+ 136              	acq_completed_cb:
+ 137              	.LFB531:
+ 110:../main.c     **** }
+ 111:../main.c     **** 
+ 112:../main.c     **** 
+ 113:../main.c     **** void acq_completed_cb(void)
+ 114:../main.c     **** {
+ 138              	 .loc 1 114 0
+ 139              	 .cfi_startproc
+ 140              	 
+ 141              	 
+ 142 0000 2DE9F043 	 push {r4,r5,r6,r7,r8,r9,lr}
+ 143              	.LCFI3:
+ 144              	 .cfi_def_cfa_offset 28
+ 145              	 .cfi_offset 4,-28
+ 146              	 .cfi_offset 5,-24
+ 147              	 .cfi_offset 6,-20
+ 148              	 .cfi_offset 7,-16
+ 149              	 .cfi_offset 8,-12
+ 150              	 .cfi_offset 9,-8
+ 151              	 .cfi_offset 14,-4
+ 152 0004 ADF6640D 	 subw sp,sp,#2148
+ 153              	.LCFI4:
+ 154              	 .cfi_def_cfa_offset 2176
+ 115:../main.c     ****   /*
+ 116:../main.c     ****   The following code shows an example of how to access raw data buffer
+ 117:../main.c     ****   
+ 118:../main.c     ****   acq_buf_obj *p_acq_buf 	= ds_get_active_acq_buf();
+ 119:../main.c     ****   uint8_t *raw_data 		= p_acq_buf->p_acq_buf;
+ 120:../main.c     ****   uint32_t raw_data_size 	= p_acq_buf->used_size_of_acq_buffer;
+ 121:../main.c     ****   
+ 122:../main.c     ****   -- Add your code here --
+ 123:../main.c     ****   
+ 124:../main.c     ****   */
+ 125:../main.c     **** 
+ 126:../main.c     **** 	/*Inizializzo comunicazione*/
+ 127:../main.c     **** 	if (USBD_VCOM_Connect() != USBD_VCOM_STATUS_SUCCESS)
+ 155              	 .loc 1 127 0
+ 156 0008 FFF7FEFF 	 bl USBD_VCOM_Connect
+ 157              	.LVL8:
+ 158 000c 0028     	 cmp r0,#0
+ 159 000e 40F08980 	 bne .L14
+ 160              	.L16:
+ 128:../main.c     **** 	{
+ 129:../main.c     **** 		return -1;
+ 130:../main.c     **** 	}
+ 131:../main.c     **** 	while(!USBD_VCOM_IsEnumDone());
+ 161              	 .loc 1 131 0 discriminator 1
+ 162 0012 FFF7FEFF 	 bl USBD_VCOM_IsEnumDone
+ 163              	.LVL9:
+ 164 0016 0028     	 cmp r0,#0
+ 165 0018 FBD0     	 beq .L16
+ 132:../main.c     **** 
+ 133:../main.c     **** 
+ 134:../main.c     **** 
+ 135:../main.c     **** 	static uint32_t start_time = 0;
+ 136:../main.c     **** 	acq_buf_obj *p_acq_buf2;
+ 137:../main.c     **** 	uint8_t *raw_data2;
+ 138:../main.c     **** 
+ 139:../main.c     **** 	    switch (state) {
+ 166              	 .loc 1 139 0
+ 167 001a DFF8CC82 	 ldr r8,.L45+68
+ 168 001e 98F80030 	 ldrb r3,[r8]
+ 169 0022 032B     	 cmp r3,#3
+ 170 0024 7ED8     	 bhi .L14
+ 171 0026 DFE813F0 	 tbh [pc,r3,lsl#1]
+ 172              	.L18:
+ 173 002a 0301     	 .2byte (.L17-.L18)/2
+ 174 002c 0400     	 .2byte (.L19-.L18)/2
+ 175 002e 1501     	 .2byte (.L20-.L18)/2
+ 176 0030 8100     	 .2byte (.L21-.L18)/2
+ 177              	 .p2align 1
+ 178              	.L19:
+ 179              	.LBB2:
+ 140:../main.c     **** 	        case WAIT_BACKGROUND:
+ 141:../main.c     **** 	            USBD_VCOM_SendString("\r\nPosizionarsi LONTANO dal radar.\r\n");
+ 142:../main.c     **** 	            USBD_VCOM_SendString("Inizio acquisizione background tra 5 secondi...\r\n");
+ 143:../main.c     **** 	            start_time = TIMER_GetTime(&TIMER_0);
+ 144:../main.c     **** 	            state = ACQUIRE_BACKGROUND;
+ 145:../main.c     **** 	            break;
+ 146:../main.c     **** 
+ 147:../main.c     **** 	        case ACQUIRE_BACKGROUND:
+ 148:../main.c     **** 	            if (TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME) return;  // Attendi 5 sec
+ 180              	 .loc 1 148 0
+ 181 0032 9C48     	 ldr r0,.L45
+ 182 0034 9C4D     	 ldr r5,.L45+4
+ 183 0036 FFF7FEFF 	 bl TIMER_GetTime
+ 184              	.LVL10:
+ 185 003a 2B68     	 ldr r3,[r5]
+ 186 003c 41F28732 	 movw r2,#4999
+ 187 0040 C01A     	 subs r0,r0,r3
+ 188 0042 9042     	 cmp r0,r2
+ 189 0044 6ED9     	 bls .L14
+ 149:../main.c     **** 
+ 150:../main.c     **** 	            acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
+ 190              	 .loc 1 150 0
+ 191 0046 FFF7FEFF 	 bl ds_get_active_acq_buf
+ 192              	.LVL11:
+ 151:../main.c     **** 	            uint8_t *raw_data = p_acq_buf->p_acq_buf;
+ 152:../main.c     **** 	            uint32_t raw_data_size = p_acq_buf->used_size_of_acq_buffer;
+ 153:../main.c     **** 
+ 154:../main.c     **** 	            float signal[FFT_SIZE] = {0};
+ 193              	 .loc 1 154 0
+ 194 004a 98AF     	 add r7,sp,#608
+ 151:../main.c     **** 	            uint8_t *raw_data = p_acq_buf->p_acq_buf;
+ 195              	 .loc 1 151 0
+ 196 004c D0F82C90 	 ldr r9,[r0,#44]
+ 197              	.LVL12:
+ 198              	 .loc 1 154 0
+ 199 0050 0021     	 movs r1,#0
+ 200 0052 4FF40072 	 mov r2,#512
+ 201 0056 3846     	 mov r0,r7
+ 202              	.LVL13:
+ 155:../main.c     **** 	            float complex_fft_signal[FFT_SIZE * 2] = {0};  // Buffer per FFT complessa
+ 203              	 .loc 1 155 0
+ 204 0058 0DF58C66 	 add r6,sp,#1120
+ 154:../main.c     **** 	            float complex_fft_signal[FFT_SIZE * 2] = {0};  // Buffer per FFT complessa
+ 205              	 .loc 1 154 0
+ 206 005c FFF7FEFF 	 bl memset
+ 207              	.LVL14:
+ 156:../main.c     **** 	            float fft_result[FFT_SIZE / 2] = {0};
+ 208              	 .loc 1 156 0
+ 209 0060 58AC     	 add r4,sp,#352
+ 155:../main.c     **** 	            float complex_fft_signal[FFT_SIZE * 2] = {0};  // Buffer per FFT complessa
+ 210              	 .loc 1 155 0
+ 211 0062 0021     	 movs r1,#0
+ 212 0064 4FF48062 	 mov r2,#1024
+ 213 0068 3046     	 mov r0,r6
+ 214 006a FFF7FEFF 	 bl memset
+ 215              	.LVL15:
+ 216              	 .loc 1 156 0
+ 217 006e 4FF48072 	 mov r2,#256
+ 218 0072 2046     	 mov r0,r4
+ 219 0074 0021     	 movs r1,#0
+ 220 0076 FFF7FEFF 	 bl memset
+ 221              	.LVL16:
+ 222 007a 3A46     	 mov r2,r7
+ 223 007c 0023     	 movs r3,#0
+ 224              	.LVL17:
+ 225              	.L24:
+ 226              	.LBB3:
+ 157:../main.c     **** 
+ 158:../main.c     **** 	            /* Campionamento e conversione del segnale */
+ 159:../main.c     **** 	            for (int i = 0; i < FFT_SIZE; i++) {
+ 160:../main.c     **** 	            	signal[i] = raw_data[i * DOWNSAMPLING_FACTOR];
+ 227              	 .loc 1 160 0 discriminator 3
+ 228 007e 19F80310 	 ldrb r1,[r9,r3]
+ 229 0082 07EE901A 	 fmsr s15,r1
+ 230 0086 0A33     	 adds r3,r3,#10
+ 231 0088 F8EE677A 	 fuitos s15,s15
+ 159:../main.c     **** 	            	signal[i] = raw_data[i * DOWNSAMPLING_FACTOR];
+ 232              	 .loc 1 159 0 discriminator 3
+ 233 008c B3F5A06F 	 cmp r3,#1280
+ 234              	 .loc 1 160 0 discriminator 3
+ 235 0090 E2EC017A 	 fstmias r2!,{s15}
+ 159:../main.c     **** 	            	signal[i] = raw_data[i * DOWNSAMPLING_FACTOR];
+ 236              	 .loc 1 159 0 discriminator 3
+ 237 0094 F3D1     	 bne .L24
+ 238              	.LBE3:
+ 161:../main.c     **** 	            }
+ 162:../main.c     **** 
+ 163:../main.c     **** 	            /* Calcolo della FFT */
+ 164:../main.c     **** 	            compute_fft_signal(fft_window, signal, NULL, FFT_SIZE, FFT_SIZE, 1.0f, FFT_INPUT_REAL_
+ 239              	 .loc 1 164 0
+ 240 0096 854B     	 ldr r3,.L45+8
+ 241 0098 0197     	 str r7,[sp,#4]
+ 242 009a 1A69     	 ldr r2,[r3,#16]
+ 243 009c 0092     	 str r2,[sp]
+ 244 009e 4FF0000E 	 mov lr,#0
+ 245 00a2 8027     	 movs r7,#128
+ 246 00a4 4FF0010C 	 mov ip,#1
+ 247 00a8 0996     	 str r6,[sp,#36]
+ 248 00aa 4FF07E59 	 mov r9,#1065353216
+ 249              	.LVL18:
+ 250 00ae 0FCB     	 ldmia r3,{r0,r1,r2,r3}
+ 251 00b0 CDF808E0 	 str lr,[sp,#8]
+ 252 00b4 CDF81CE0 	 str lr,[sp,#28]
+ 253 00b8 CDF820E0 	 str lr,[sp,#32]
+ 254 00bc CDF818C0 	 str ip,[sp,#24]
+ 255 00c0 0397     	 str r7,[sp,#12]
+ 256 00c2 0497     	 str r7,[sp,#16]
+ 257 00c4 CDF81490 	 str r9,[sp,#20]
+ 258 00c8 FFF7FEFF 	 bl compute_fft_signal
+ 259              	.LVL19:
+ 165:../main.c     **** 	            compute_fft_spectrum(complex_fft_signal, FFT_SIZE, fft_result);
+ 260              	 .loc 1 165 0
+ 261 00cc 2246     	 mov r2,r4
+ 262 00ce 3046     	 mov r0,r6
+ 263 00d0 3946     	 mov r1,r7
+ 264 00d2 FFF7FEFF 	 bl compute_fft_spectrum
+ 265              	.LVL20:
+ 266 00d6 764B     	 ldr r3,.L45+12
+ 267              	.LBB4:
+ 166:../main.c     **** 
+ 167:../main.c     **** 	            /* Aggiornamento del background */
+ 168:../main.c     **** 	            for (int i = 0; i < FFT_SIZE / 2; i++) {
+ 169:../main.c     **** 	            	background_fft[i] += fft_result[i] / BACKGROUND_FRAMES;
+ 268              	 .loc 1 169 0
+ 269 00d8 DFED766A 	 flds s13,.L45+16
+ 270 00dc 03F58072 	 add r2,r3,#256
+ 271              	.LVL21:
+ 272              	.L25:
+ 273              	 .loc 1 169 0 is_stmt 0 discriminator 3
+ 274 00e0 F4EC017A 	 fldmias r4!,{s15}
+ 275 00e4 93ED007A 	 flds s14,[r3]
+ 276 00e8 C7EEA67A 	 fdivs s15,s15,s13
+ 277 00ec 77EE277A 	 fadds s15,s14,s15
+ 278 00f0 E3EC017A 	 fstmias r3!,{s15}
+ 168:../main.c     **** 	            	background_fft[i] += fft_result[i] / BACKGROUND_FRAMES;
+ 279              	 .loc 1 168 0 is_stmt 1 discriminator 3
+ 280 00f4 9342     	 cmp r3,r2
+ 281 00f6 F3D1     	 bne .L25
+ 282              	.LBE4:
+ 170:../main.c     **** 	            }
+ 171:../main.c     **** 
+ 172:../main.c     **** 	            frame_count++;
+ 283              	 .loc 1 172 0
+ 284 00f8 6F4A     	 ldr r2,.L45+20
+ 285 00fa 1368     	 ldr r3,[r2]
+ 286 00fc 0133     	 adds r3,r3,#1
+ 173:../main.c     **** 	            if (frame_count >= BACKGROUND_FRAMES) {
+ 287              	 .loc 1 173 0
+ 288 00fe 632B     	 cmp r3,#99
+ 172:../main.c     **** 	            if (frame_count >= BACKGROUND_FRAMES) {
+ 289              	 .loc 1 172 0
+ 290 0100 1360     	 str r3,[r2]
+ 291              	 .loc 1 173 0
+ 292 0102 0FDD     	 ble .L14
+ 174:../main.c     **** 	            	USBD_VCOM_SendString("\r\nBackground acquisito.\r\n");
+ 293              	 .loc 1 174 0
+ 294 0104 6D48     	 ldr r0,.L45+24
+ 295 0106 FFF7FEFF 	 bl USBD_VCOM_SendString
+ 296              	.LVL22:
+ 175:../main.c     **** 	            	USBD_VCOM_SendString("Posizionarsi DAVANTI al radar.\r\n");
+ 297              	 .loc 1 175 0
+ 298 010a 6D48     	 ldr r0,.L45+28
+ 299 010c FFF7FEFF 	 bl USBD_VCOM_SendString
+ 300              	.LVL23:
+ 176:../main.c     **** 	            	USBD_VCOM_SendString("Misurazione tra 5 secondi...\r\n");
+ 301              	 .loc 1 176 0
+ 302 0110 6C48     	 ldr r0,.L45+32
+ 303 0112 FFF7FEFF 	 bl USBD_VCOM_SendString
+ 304              	.LVL24:
+ 177:../main.c     **** 	                start_time = TIMER_GetTime(&TIMER_0);
+ 305              	 .loc 1 177 0
+ 306 0116 6348     	 ldr r0,.L45
+ 307 0118 FFF7FEFF 	 bl TIMER_GetTime
+ 308              	.LVL25:
+ 178:../main.c     **** 	                state = WAIT_PERSON;
+ 309              	 .loc 1 178 0
+ 310 011c 0223     	 movs r3,#2
+ 177:../main.c     **** 	                start_time = TIMER_GetTime(&TIMER_0);
+ 311              	 .loc 1 177 0
+ 312 011e 2860     	 str r0,[r5]
+ 313              	 .loc 1 178 0
+ 314 0120 88F80030 	 strb r3,[r8]
+ 315              	.L14:
+ 316              	.LBE2:
+ 179:../main.c     **** 	            }
+ 180:../main.c     **** 	            break;
+ 181:../main.c     **** 
+ 182:../main.c     **** 	        case WAIT_PERSON:
+ 183:../main.c     **** 	        	if (TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME) return;
+ 184:../main.c     **** 	        	USBD_VCOM_SendString("Inizio misurazione respiro...\r\n");
+ 185:../main.c     **** 	            state = MEASURE_BREATH;
+ 186:../main.c     **** 	            break;
+ 187:../main.c     **** 
+ 188:../main.c     **** 	        case MEASURE_BREATH:
+ 189:../main.c     **** 	        	p_acq_buf2 = ds_get_active_acq_buf();
+ 190:../main.c     **** 	        	raw_data2 = p_acq_buf2->p_acq_buf;
+ 191:../main.c     **** 
+ 192:../main.c     **** 	            float signal2[FFT_SIZE] = {0};
+ 193:../main.c     **** 	            float complex_fft_signal2[FFT_SIZE * 2] = {0};
+ 194:../main.c     **** 	            float fft_result2[FFT_SIZE / 2] = {0};
+ 195:../main.c     **** 	            float clean_fft[FFT_SIZE / 2] = {0};
+ 196:../main.c     **** 
+ 197:../main.c     **** 	            /* Campionamento e conversione del segnale */
+ 198:../main.c     **** 	            for (int i = 0; i < FFT_SIZE; i++) {
+ 199:../main.c     **** 	            	signal2[i] = raw_data2[i * DOWNSAMPLING_FACTOR];
+ 200:../main.c     **** 	            }
+ 201:../main.c     **** 
+ 202:../main.c     **** 	            /* Calcolo della FFT */
+ 203:../main.c     **** 	            compute_fft_signal(fft_window, signal2, NULL, FFT_SIZE, FFT_SIZE, 1.0f, FFT_INPUT_REAL
+ 204:../main.c     **** 	            compute_fft_spectrum(complex_fft_signal2, FFT_SIZE, fft_result2);
+ 205:../main.c     **** 
+ 206:../main.c     **** 	            /* Sottrazione del background */
+ 207:../main.c     **** 	            for (int i = 0; i < FFT_SIZE / 2; i++) {
+ 208:../main.c     **** 	            	clean_fft[i] = fft_result2[i] - background_fft[i];
+ 209:../main.c     **** 	            }
+ 210:../main.c     **** 
+ 211:../main.c     **** 	            /* Identificazione della frequenza dominante */
+ 212:../main.c     **** 	            float max_amplitude = 0;
+ 213:../main.c     **** 	            float breathing_frequency = 0;
+ 214:../main.c     **** 	            for (int i = 1; i < FFT_SIZE / 2; i++) {  // Ignora la DC (indice 0)
+ 215:../main.c     **** 	            	float freq = (float)i / FFT_SIZE;
+ 216:../main.c     **** 	            	if (freq > 0.1f && freq < 1.0f) {  // Frequenze tra 6 BPM e 60 BPM
+ 217:../main.c     **** 	            		if (clean_fft[i] > max_amplitude) {
+ 218:../main.c     **** 	            			max_amplitude = clean_fft[i];
+ 219:../main.c     **** 	            			breathing_frequency = freq;
+ 220:../main.c     **** 	            		}
+ 221:../main.c     **** 	            	}
+ 222:../main.c     **** 	            }
+ 223:../main.c     **** 
+ 224:../main.c     **** 	            /* Calcolo della frequenza respiratoria in BPM */
+ 225:../main.c     **** 	            float BRPM = breathing_frequency * 60;
+ 226:../main.c     **** 
+ 227:../main.c     **** 	            char msg[50];
+ 228:../main.c     **** 	            sprintf(msg, "BRPM: %.2f\r\n", BRPM);
+ 229:../main.c     **** 	            USBD_VCOM_SendString(msg);
+ 230:../main.c     **** 	            break;
+ 231:../main.c     **** 	    }
+ 232:../main.c     **** 	}
+ 317              	 .loc 1 232 0
+ 318 0124 0DF6640D 	 addw sp,sp,#2148
+ 319              	.LCFI5:
+ 320              	 .cfi_remember_state
+ 321              	 .cfi_def_cfa_offset 28
+ 322              	 
+ 323 0128 BDE8F083 	 pop {r4,r5,r6,r7,r8,r9,pc}
+ 324              	.L21:
+ 325              	.LCFI6:
+ 326              	 .cfi_restore_state
+ 327              	.LBB13:
+ 189:../main.c     **** 	        	raw_data2 = p_acq_buf2->p_acq_buf;
+ 328              	 .loc 1 189 0
+ 329 012c FFF7FEFF 	 bl ds_get_active_acq_buf
+ 330              	.LVL26:
+ 192:../main.c     **** 	            float complex_fft_signal2[FFT_SIZE * 2] = {0};
+ 331              	 .loc 1 192 0
+ 332 0130 98AF     	 add r7,sp,#608
+ 190:../main.c     **** 
+ 333              	 .loc 1 190 0
+ 334 0132 C56A     	 ldr r5,[r0,#44]
+ 335              	.LVL27:
+ 192:../main.c     **** 	            float complex_fft_signal2[FFT_SIZE * 2] = {0};
+ 336              	 .loc 1 192 0
+ 337 0134 0021     	 movs r1,#0
+ 338 0136 4FF40072 	 mov r2,#512
+ 339 013a 3846     	 mov r0,r7
+ 340              	.LVL28:
+ 193:../main.c     **** 	            float fft_result2[FFT_SIZE / 2] = {0};
+ 341              	 .loc 1 193 0
+ 342 013c 0DF58C66 	 add r6,sp,#1120
+ 192:../main.c     **** 	            float complex_fft_signal2[FFT_SIZE * 2] = {0};
+ 343              	 .loc 1 192 0
+ 344 0140 FFF7FEFF 	 bl memset
+ 345              	.LVL29:
+ 193:../main.c     **** 	            float fft_result2[FFT_SIZE / 2] = {0};
+ 346              	 .loc 1 193 0
+ 347 0144 0021     	 movs r1,#0
+ 348 0146 4FF48062 	 mov r2,#1024
+ 349 014a 3046     	 mov r0,r6
+ 350 014c FFF7FEFF 	 bl memset
+ 351              	.LVL30:
+ 195:../main.c     **** 
+ 352              	 .loc 1 195 0
+ 353 0150 58AC     	 add r4,sp,#352
+ 194:../main.c     **** 	            float clean_fft[FFT_SIZE / 2] = {0};
+ 354              	 .loc 1 194 0
+ 355 0152 0021     	 movs r1,#0
+ 356 0154 4FF48072 	 mov r2,#256
+ 357 0158 18A8     	 add r0,sp,#96
+ 358 015a FFF7FEFF 	 bl memset
+ 359              	.LVL31:
+ 195:../main.c     **** 
+ 360              	 .loc 1 195 0
+ 361 015e 4FF48072 	 mov r2,#256
+ 362 0162 2046     	 mov r0,r4
+ 363 0164 0021     	 movs r1,#0
+ 364 0166 FFF7FEFF 	 bl memset
+ 365              	.LVL32:
+ 366 016a 3A46     	 mov r2,r7
+ 367 016c 0023     	 movs r3,#0
+ 368              	.LVL33:
+ 369              	.L26:
+ 370              	.LBB5:
+ 199:../main.c     **** 	            }
+ 371              	 .loc 1 199 0 discriminator 3
+ 372 016e E95C     	 ldrb r1,[r5,r3]
+ 373 0170 07EE901A 	 fmsr s15,r1
+ 374 0174 0A33     	 adds r3,r3,#10
+ 375 0176 F8EE677A 	 fuitos s15,s15
+ 198:../main.c     **** 	            	signal2[i] = raw_data2[i * DOWNSAMPLING_FACTOR];
+ 376              	 .loc 1 198 0 discriminator 3
+ 377 017a B3F5A06F 	 cmp r3,#1280
+ 199:../main.c     **** 	            }
+ 378              	 .loc 1 199 0 discriminator 3
+ 379 017e E2EC017A 	 fstmias r2!,{s15}
+ 198:../main.c     **** 	            	signal2[i] = raw_data2[i * DOWNSAMPLING_FACTOR];
+ 380              	 .loc 1 198 0 discriminator 3
+ 381 0182 F4D1     	 bne .L26
+ 382              	.LBE5:
+ 203:../main.c     **** 	            compute_fft_spectrum(complex_fft_signal2, FFT_SIZE, fft_result2);
+ 383              	 .loc 1 203 0
+ 384 0184 494B     	 ldr r3,.L45+8
+ 385 0186 0197     	 str r7,[sp,#4]
+ 386 0188 1A69     	 ldr r2,[r3,#16]
+ 387 018a 0092     	 str r2,[sp]
+ 388 018c 0027     	 movs r7,#0
+ 389 018e 8025     	 movs r5,#128
+ 390              	.LVL34:
+ 391 0190 4FF07E5C 	 mov ip,#1065353216
+ 392 0194 4FF0010E 	 mov lr,#1
+ 393 0198 0996     	 str r6,[sp,#36]
+ 394 019a 0FCB     	 ldmia r3,{r0,r1,r2,r3}
+ 395 019c CDF814C0 	 str ip,[sp,#20]
+ 396 01a0 CDF818E0 	 str lr,[sp,#24]
+ 397 01a4 0297     	 str r7,[sp,#8]
+ 398 01a6 0797     	 str r7,[sp,#28]
+ 399 01a8 0897     	 str r7,[sp,#32]
+ 400 01aa 0395     	 str r5,[sp,#12]
+ 401 01ac 0495     	 str r5,[sp,#16]
+ 402 01ae FFF7FEFF 	 bl compute_fft_signal
+ 403              	.LVL35:
+ 204:../main.c     **** 
+ 404              	 .loc 1 204 0
+ 405 01b2 2946     	 mov r1,r5
+ 406 01b4 18AA     	 add r2,sp,#96
+ 407 01b6 3046     	 mov r0,r6
+ 408 01b8 FFF7FEFF 	 bl compute_fft_spectrum
+ 409              	.LVL36:
+ 410 01bc 3C49     	 ldr r1,.L45+12
+ 411 01be 18AB     	 add r3,sp,#96
+ 412 01c0 2246     	 mov r2,r4
+ 413              	.LVL37:
+ 414              	.L27:
+ 415              	.LBB6:
+ 208:../main.c     **** 	            }
+ 416              	 .loc 1 208 0 discriminator 3
+ 417 01c2 F3EC017A 	 fldmias r3!,{s15}
+ 418 01c6 B1EC017A 	 fldmias r1!,{s14}
+ 419 01ca 77EEC77A 	 fsubs s15,s15,s14
+ 207:../main.c     **** 	            	clean_fft[i] = fft_result2[i] - background_fft[i];
+ 420              	 .loc 1 207 0 discriminator 3
+ 421 01ce A342     	 cmp r3,r4
+ 208:../main.c     **** 	            }
+ 422              	 .loc 1 208 0 discriminator 3
+ 423 01d0 E2EC017A 	 fstmias r2!,{s15}
+ 207:../main.c     **** 	            	clean_fft[i] = fft_result2[i] - background_fft[i];
+ 424              	 .loc 1 207 0 discriminator 3
+ 425 01d4 F5D1     	 bne .L27
+ 207:../main.c     **** 	            	clean_fft[i] = fft_result2[i] - background_fft[i];
+ 426              	 .loc 1 207 0 is_stmt 0
+ 427 01d6 DFED3C4A 	 flds s9,.L45+36
+ 428              	.LBE6:
+ 429              	.LBB7:
+ 430              	.LBB8:
+ 215:../main.c     **** 	            	if (freq > 0.1f && freq < 1.0f) {  // Frequenze tra 6 BPM e 60 BPM
+ 431              	 .loc 1 215 0 is_stmt 1
+ 432 01da DFED3C6A 	 flds s13,.L45+40
+ 216:../main.c     **** 	            		if (clean_fft[i] > max_amplitude) {
+ 433              	 .loc 1 216 0
+ 434 01de 9FED3C7A 	 flds s14,.L45+44
+ 435              	.LBE8:
+ 436              	.LBE7:
+ 437              	.LBB11:
+ 207:../main.c     **** 	            	clean_fft[i] = fft_result2[i] - background_fft[i];
+ 438              	 .loc 1 207 0
+ 439 01e2 B0EE645A 	 fcpys s10,s9
+ 440 01e6 5AAA     	 add r2,sp,#360
+ 441 01e8 0123     	 movs r3,#1
+ 442              	.LBE11:
+ 443              	.LBB12:
+ 444              	.LBB9:
+ 216:../main.c     **** 	            		if (clean_fft[i] > max_amplitude) {
+ 445              	 .loc 1 216 0
+ 446 01ea B7EE006A 	 fconsts s12,#112
+ 447 01ee 00E0     	 b .L28
+ 448              	.LVL38:
+ 449              	.L29:
+ 450 01f0 0432     	 adds r2,r2,#4
+ 451              	.LVL39:
+ 452              	.L28:
+ 453              	.LBE9:
+ 214:../main.c     **** 	            	float freq = (float)i / FFT_SIZE;
+ 454              	 .loc 1 214 0 discriminator 2
+ 455 01f2 0133     	 adds r3,r3,#1
+ 456              	.LVL40:
+ 457 01f4 402B     	 cmp r3,#64
+ 458 01f6 3FD0     	 beq .L44
+ 459              	.LBB10:
+ 215:../main.c     **** 	            	if (freq > 0.1f && freq < 1.0f) {  // Frequenze tra 6 BPM e 60 BPM
+ 460              	 .loc 1 215 0
+ 461 01f8 07EE903A 	 fmsr s15,r3
+ 462 01fc F8EEE77A 	 fsitos s15,s15
+ 463 0200 67EEA67A 	 fmuls s15,s15,s13
+ 464              	.LVL41:
+ 216:../main.c     **** 	            		if (clean_fft[i] > max_amplitude) {
+ 465              	 .loc 1 216 0
+ 466 0204 F4EEC77A 	 fcmpes s15,s14
+ 467 0208 F1EE10FA 	 fmstat
+ 468 020c F0DD     	 ble .L29
+ 216:../main.c     **** 	            		if (clean_fft[i] > max_amplitude) {
+ 469              	 .loc 1 216 0 is_stmt 0 discriminator 1
+ 470 020e F4EEC67A 	 fcmpes s15,s12
+ 471 0212 F1EE10FA 	 fmstat
+ 472 0216 EBD5     	 bpl .L29
+ 217:../main.c     **** 	            			max_amplitude = clean_fft[i];
+ 473              	 .loc 1 217 0 is_stmt 1
+ 474 0218 D2ED005A 	 flds s11,[r2]
+ 475 021c B4EEE55A 	 fcmpes s10,s11
+ 476 0220 F1EE10FA 	 fmstat
+ 215:../main.c     **** 	            	if (freq > 0.1f && freq < 1.0f) {  // Frequenze tra 6 BPM e 60 BPM
+ 477              	 .loc 1 215 0
+ 478 0224 44BF     	 itt mi
+ 479 0226 F0EE674A 	 fcpysmi s9,s15
+ 218:../main.c     **** 	            			breathing_frequency = freq;
+ 480              	 .loc 1 218 0
+ 481 022a B0EE655A 	 fcpysmi s10,s11
+ 482              	.LVL42:
+ 483 022e DFE7     	 b .L29
+ 484              	.LVL43:
+ 485              	.L17:
+ 486              	.LBE10:
+ 487              	.LBE12:
+ 141:../main.c     **** 	            USBD_VCOM_SendString("Inizio acquisizione background tra 5 secondi...\r\n");
+ 488              	 .loc 1 141 0
+ 489 0230 2848     	 ldr r0,.L45+48
+ 490 0232 FFF7FEFF 	 bl USBD_VCOM_SendString
+ 491              	.LVL44:
+ 142:../main.c     **** 	            start_time = TIMER_GetTime(&TIMER_0);
+ 492              	 .loc 1 142 0
+ 493 0236 2848     	 ldr r0,.L45+52
+ 494 0238 FFF7FEFF 	 bl USBD_VCOM_SendString
+ 495              	.LVL45:
+ 143:../main.c     **** 	            state = ACQUIRE_BACKGROUND;
+ 496              	 .loc 1 143 0
+ 497 023c 1948     	 ldr r0,.L45
+ 498 023e FFF7FEFF 	 bl TIMER_GetTime
+ 499              	.LVL46:
+ 500 0242 194A     	 ldr r2,.L45+4
+ 144:../main.c     **** 	            break;
+ 501              	 .loc 1 144 0
+ 502 0244 0123     	 movs r3,#1
+ 143:../main.c     **** 	            state = ACQUIRE_BACKGROUND;
+ 503              	 .loc 1 143 0
+ 504 0246 1060     	 str r0,[r2]
+ 144:../main.c     **** 	            break;
+ 505              	 .loc 1 144 0
+ 506 0248 88F80030 	 strb r3,[r8]
+ 507              	.LBE13:
+ 508              	 .loc 1 232 0
+ 509 024c 0DF6640D 	 addw sp,sp,#2148
+ 510              	.LCFI7:
+ 511              	 .cfi_remember_state
+ 512              	 .cfi_def_cfa_offset 28
+ 513              	 
+ 514 0250 BDE8F083 	 pop {r4,r5,r6,r7,r8,r9,pc}
+ 515              	.L20:
+ 516              	.LCFI8:
+ 517              	 .cfi_restore_state
+ 518              	.LBB14:
+ 183:../main.c     **** 	        	USBD_VCOM_SendString("Inizio misurazione respiro...\r\n");
+ 519              	 .loc 1 183 0
+ 520 0254 1348     	 ldr r0,.L45
+ 521 0256 FFF7FEFF 	 bl TIMER_GetTime
+ 522              	.LVL47:
+ 523 025a 134B     	 ldr r3,.L45+4
+ 524 025c 1B68     	 ldr r3,[r3]
+ 525 025e 41F28732 	 movw r2,#4999
+ 526 0262 C01A     	 subs r0,r0,r3
+ 527 0264 9042     	 cmp r0,r2
+ 528 0266 7FF65DAF 	 bls .L14
+ 184:../main.c     **** 	            state = MEASURE_BREATH;
+ 529              	 .loc 1 184 0
+ 530 026a 1C48     	 ldr r0,.L45+56
+ 531 026c FFF7FEFF 	 bl USBD_VCOM_SendString
+ 532              	.LVL48:
+ 185:../main.c     **** 	            break;
+ 533              	 .loc 1 185 0
+ 534 0270 0323     	 movs r3,#3
+ 535 0272 88F80030 	 strb r3,[r8]
+ 186:../main.c     **** 
+ 536              	 .loc 1 186 0
+ 537 0276 55E7     	 b .L14
+ 538              	.LVL49:
+ 539              	.L44:
+ 225:../main.c     **** 
+ 540              	 .loc 1 225 0
+ 541 0278 DFED197A 	 flds s15,.L45+60
+ 228:../main.c     **** 	            USBD_VCOM_SendString(msg);
+ 542              	 .loc 1 228 0
+ 543 027c 64EEA77A 	 fmuls s15,s9,s15
+ 544              	.LVL50:
+ 545 0280 17EE900A 	 fmrs r0,s15
+ 546 0284 FFF7FEFF 	 bl __aeabi_f2d
+ 547              	.LVL51:
+ 548 0288 0246     	 mov r2,r0
+ 549 028a 0B46     	 mov r3,r1
+ 550 028c 0BA8     	 add r0,sp,#44
+ 551 028e 1549     	 ldr r1,.L45+64
+ 552 0290 FFF7FEFF 	 bl sprintf
+ 553              	.LVL52:
+ 229:../main.c     **** 	            break;
+ 554              	 .loc 1 229 0
+ 555 0294 0BA8     	 add r0,sp,#44
+ 556 0296 FFF7FEFF 	 bl USBD_VCOM_SendString
+ 557              	.LVL53:
+ 558              	.LBE14:
+ 559              	 .loc 1 232 0
+ 560 029a 0DF6640D 	 addw sp,sp,#2148
+ 561              	.LCFI9:
+ 562              	 .cfi_def_cfa_offset 28
+ 563              	 
+ 564 029e BDE8F083 	 pop {r4,r5,r6,r7,r8,r9,pc}
+ 565              	.L46:
+ 566 02a2 00BF     	 .align 2
+ 567              	.L45:
+ 568 02a4 00000000 	 .word TIMER_0
+ 569 02a8 00000000 	 .word .LANCHOR3
+ 570 02ac 00000000 	 .word .LANCHOR0
+ 571 02b0 00000000 	 .word .LANCHOR4
+ 572 02b4 0000C842 	 .word 1120403456
+ 573 02b8 00000000 	 .word .LANCHOR5
+ 574 02bc 58000000 	 .word .LC2
+ 575 02c0 74000000 	 .word .LC3
+ 576 02c4 98000000 	 .word .LC4
+ 577 02c8 00000000 	 .word 0
+ 578 02cc 0000003C 	 .word 1006632960
+ 579 02d0 CDCCCC3D 	 .word 1036831949
+ 580 02d4 00000000 	 .word .LC0
+ 581 02d8 24000000 	 .word .LC1
+ 582 02dc B8000000 	 .word .LC5
+ 583 02e0 00007042 	 .word 1114636288
+ 584 02e4 D8000000 	 .word .LC6
+ 585 02e8 00000000 	 .word .LANCHOR2
+ 586              	 .cfi_endproc
+ 587              	.LFE531:
+ 589              	 .section .text.algo_completed_cb,"ax",%progbits
+ 590              	 .align 2
+ 591              	 .global algo_completed_cb
+ 592              	 .thumb
+ 593              	 .thumb_func
+ 595              	algo_completed_cb:
+ 596              	.LFB532:
+ 233:../main.c     **** 
+ 234:../main.c     **** 
+ 235:../main.c     **** 
+ 236:../main.c     **** void algo_completed_cb(void)
+ 237:../main.c     **** {
+ 597              	 .loc 1 237 0
+ 598              	 .cfi_startproc
+ 599              	 
+ 600              	 
+ 601              	 
+ 602 0000 7047     	 bx lr
+ 603              	 .cfi_endproc
+ 604              	.LFE532:
+ 606              	 .comm TIMER_0,40,4
+ 607 0002 00BF     	 .section .bss.frame_count,"aw",%nobits
+ 608              	 .align 2
+ 609              	 .set .LANCHOR5,.+0
+ 612              	frame_count:
+ 613 0000 00000000 	 .space 4
+ 614              	 .section .bss.state,"aw",%nobits
+ 615              	 .set .LANCHOR2,.+0
+ 618              	state:
+ 619 0000 00       	 .space 1
+ 620              	 .section .bss.fft_window,"aw",%nobits
+ 621              	 .align 2
+ 622              	 .set .LANCHOR0,.+0
+ 625              	fft_window:
+ 626 0000 00000000 	 .space 20
+ 626      00000000 
+ 626      00000000 
+ 626      00000000 
+ 626      00000000 
+ 627              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 628              	 .align 2
+ 629              	.LC0:
+ 630 0000 0D0A506F 	 .ascii "\015\012Posizionarsi LONTANO dal radar.\015\012\000"
+ 630      73697A69 
+ 630      6F6E6172 
+ 630      7369204C 
+ 630      4F4E5441 
+ 631              	.LC1:
+ 632 0024 496E697A 	 .ascii "Inizio acquisizione background tra 5 secondi...\015"
+ 632      696F2061 
+ 632      63717569 
+ 632      73697A69 
+ 632      6F6E6520 
+ 633 0054 0A00     	 .ascii "\012\000"
+ 634 0056 0000     	 .space 2
+ 635              	.LC2:
+ 636 0058 0D0A4261 	 .ascii "\015\012Background acquisito.\015\012\000"
+ 636      636B6772 
+ 636      6F756E64 
+ 636      20616371 
+ 636      75697369 
+ 637 0072 0000     	 .space 2
+ 638              	.LC3:
+ 639 0074 506F7369 	 .ascii "Posizionarsi DAVANTI al radar.\015\012\000"
+ 639      7A696F6E 
+ 639      61727369 
+ 639      20444156 
+ 639      414E5449 
+ 640 0095 000000   	 .space 3
+ 641              	.LC4:
+ 642 0098 4D697375 	 .ascii "Misurazione tra 5 secondi...\015\012\000"
+ 642      72617A69 
+ 642      6F6E6520 
+ 642      74726120 
+ 642      35207365 
+ 643 00b7 00       	 .space 1
+ 644              	.LC5:
+ 645 00b8 496E697A 	 .ascii "Inizio misurazione respiro...\015\012\000"
+ 645      696F206D 
+ 645      69737572 
+ 645      617A696F 
+ 645      6E652072 
+ 646              	.LC6:
+ 647 00d8 4252504D 	 .ascii "BRPM: %.2f\015\012\000"
+ 647      3A20252E 
+ 647      32660D0A 
+ 647      00
+ 648 00e5 000000   	 .section .bss.background_fft,"aw",%nobits
+ 649              	 .align 2
+ 650              	 .set .LANCHOR4,.+0
+ 653              	background_fft:
+ 654 0000 00000000 	 .space 256
+ 654      00000000 
+ 654      00000000 
+ 654      00000000 
+ 654      00000000 
+ 655              	 .section .bss.fft_window_buffer,"aw",%nobits
+ 656              	 .align 2
+ 657              	 .set .LANCHOR1,.+0
+ 660              	fft_window_buffer:
+ 661 0000 00000000 	 .space 512
+ 661      00000000 
+ 661      00000000 
+ 661      00000000 
+ 661      00000000 
+ 662              	 .section .bss.start_time.18229,"aw",%nobits
+ 663              	 .align 2
+ 664              	 .set .LANCHOR3,.+0
+ 667              	start_time.18229:
+ 668 0000 00000000 	 .space 4
+ 669              	 .text
+ 670              	.Letext0:
+ 671              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 672              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 673              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 674              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 675              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
+ 676              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 677              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+ 678              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu4.h"
+ 679              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/GLOBAL_CCU4/global_ccu4.h"
+ 680              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h"
+ 681              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 682              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 683              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 684              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD_VCOM/usbd_vcom.h"
+ 685              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 686              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DAVE.h"
+ 687              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 688              	 .file 19 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 689              	 .file 20 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
+ 690              	 .file 21 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/DSP_LIB/inc/dsp_lib.h"
+ 691              	 .file 22 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 692              	 .file 23 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 693              	 .file 24 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 694              	 .file 25 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 695              	 .file 26 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
+ 696              	 .file 27 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdio.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-    {standard input}:20     .text.startup.main:00000000 $t
-    {standard input}:25     .text.startup.main:00000000 main
-    {standard input}:63     .text.startup.main:0000001c $d
-    {standard input}:68     .text.acq_completed_cb:00000000 $t
-    {standard input}:73     .text.acq_completed_cb:00000000 acq_completed_cb
-    {standard input}:85     .text.algo_completed_cb:00000000 $t
-    {standard input}:90     .text.algo_completed_cb:00000000 algo_completed_cb
+    {standard input}:20     .text.init_fft_window:00000000 $t
+    {standard input}:25     .text.init_fft_window:00000000 init_fft_window
+    {standard input}:71     .text.init_fft_window:00000020 $d
+    {standard input}:78     .text.startup.main:00000000 $t
+    {standard input}:83     .text.startup.main:00000000 main
+    {standard input}:124    .text.startup.main:00000020 $d
+                            *COM*:00000028 TIMER_0
+    {standard input}:131    .text.acq_completed_cb:00000000 $t
+    {standard input}:136    .text.acq_completed_cb:00000000 acq_completed_cb
+    {standard input}:173    .text.acq_completed_cb:0000002a $d
+    {standard input}:177    .text.acq_completed_cb:00000032 $t
+    {standard input}:568    .text.acq_completed_cb:000002a4 $d
+    {standard input}:590    .text.algo_completed_cb:00000000 $t
+    {standard input}:595    .text.algo_completed_cb:00000000 algo_completed_cb
+    {standard input}:608    .bss.frame_count:00000000 $d
+    {standard input}:612    .bss.frame_count:00000000 frame_count
+    {standard input}:618    .bss.state:00000000 state
+    {standard input}:619    .bss.state:00000000 $d
+    {standard input}:621    .bss.fft_window:00000000 $d
+    {standard input}:625    .bss.fft_window:00000000 fft_window
+    {standard input}:628    .rodata.str1.4:00000000 $d
+    {standard input}:649    .bss.background_fft:00000000 $d
+    {standard input}:653    .bss.background_fft:00000000 background_fft
+    {standard input}:656    .bss.fft_window_buffer:00000000 $d
+    {standard input}:660    .bss.fft_window_buffer:00000000 fft_window_buffer
+    {standard input}:663    .bss.start_time.18229:00000000 $d
+    {standard input}:667    .bss.start_time.18229:00000000 start_time.18229
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS
+fft_window_gen
 DAVE_Init
+TIMER_Start
 app_register_algo_process
 app_init
 app_process
 doppler_do
+__aeabi_f2d
+USBD_VCOM_Connect
+USBD_VCOM_IsEnumDone
+TIMER_GetTime
+ds_get_active_acq_buf
+memset
+compute_fft_signal
+compute_fft_spectrum
+USBD_VCOM_SendString
+sprintf

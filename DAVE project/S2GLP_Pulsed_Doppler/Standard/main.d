@@ -139,7 +139,9 @@ main.o main.d main.o: ../main.c \
  C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_const_structs.h \
  C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/cmsis_dsp.h \
  C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_common_tables.h \
- C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h
+ C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h \
+ C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/BSP/dave_fixes/I2C_MASTER/i2c_master.h \
+ C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h
 
 C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Application/inc/application.h:
 
@@ -422,3 +424,7 @@ C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Dopple
 C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_common_tables.h:
 
 C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h:
+
+C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/BSP/dave_fixes/I2C_MASTER/i2c_master.h:
+
+C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE\ project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h:
