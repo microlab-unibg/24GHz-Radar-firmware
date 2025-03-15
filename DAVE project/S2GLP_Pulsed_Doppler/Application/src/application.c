@@ -326,7 +326,9 @@ void radar_app_process(void)
 	if (acq_started)
 	{
 		/* ... */
+
 		acq_started = 0;
+		acq_completed_cb();
 	}
 
 	if (acq_completed)
@@ -464,6 +466,9 @@ void app_destructor(void)
  */
 void app_data_acq_started_cb(void *parameter)
 {
+	/*bsp_led_red_off();
+	bsp_led_blue_off();
+	bsp_led_green_off();*/
 	acq_started += 1;
 }
 
@@ -472,6 +477,9 @@ void app_data_acq_started_cb(void *parameter)
  */
 void app_data_acq_done_cb(void *parameter)
 {
+	/*bsp_led_red_off();
+	bsp_led_blue_off();
+	bsp_led_green_off();*/
 	acq_completed += 1;
 	acq_completed_cb();
 }

@@ -352,152 +352,157 @@
  326:../Application/src/application.c **** 	if (acq_started)
  327:../Application/src/application.c **** 	{
  328:../Application/src/application.c **** 		/* ... */
- 329:../Application/src/application.c **** 		acq_started = 0;
- 330:../Application/src/application.c **** 	}
- 331:../Application/src/application.c **** 
- 332:../Application/src/application.c **** 	if (acq_completed)
- 333:../Application/src/application.c **** 	{
- 334:../Application/src/application.c **** 
- 335:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
- 336:../Application/src/application.c **** 		/* Start the processing of the algorithm assigned in the function pointer 'algo_processor' */
- 337:../Application/src/application.c **** 		if (algo_processing_function != NULL)
- 338:../Application/src/application.c **** 		{
- 339:../Application/src/application.c **** 			do_algo_helper();
- 340:../Application/src/application.c **** 			algo_completed += 1;
- 341:../Application/src/application.c **** 		}
- 342:../Application/src/application.c **** #endif
- 343:../Application/src/application.c **** 		acq_completed = 0;
- 344:../Application/src/application.c **** 	}
- 345:../Application/src/application.c **** 
- 346:../Application/src/application.c **** 	if (algo_completed)
- 347:../Application/src/application.c **** 	{
- 348:../Application/src/application.c **** 		algo_completed_cb();
- 349:../Application/src/application.c **** 		algo_completed = 0;
- 350:../Application/src/application.c **** 	}
- 351:../Application/src/application.c **** 
- 352:../Application/src/application.c **** 	if (app_initalized)
- 353:../Application/src/application.c **** 	{
- 354:../Application/src/application.c **** 		switch (radar_app_state)
- 355:../Application/src/application.c **** 		{
- 356:../Application/src/application.c **** 		case APP_IDLE:
- 357:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_SETTINGS_UPDATE;
- 358:../Application/src/application.c **** 			break;
- 359:../Application/src/application.c **** 
- 360:../Application/src/application.c **** 		case APP_CHECK_FOR_SETTINGS_UPDATE:
- 361:../Application/src/application.c **** 			/* Check if a new hardware settings are required */
- 362:../Application/src/application.c **** 			if (ds_is_device_parameter_changed() || ds_is_device_settings_updated())
- 363:../Application/src/application.c **** 			{
- 364:../Application/src/application.c **** 				radar_app_state = APP_APPLY_DEVICE_SETTINGS;
- 365:../Application/src/application.c **** 			}
- 366:../Application/src/application.c **** 			else
- 367:../Application/src/application.c **** 			{
- 368:../Application/src/application.c **** 				radar_app_state = APP_CHECK_FOR_ERROR;
- 369:../Application/src/application.c **** 			}
- 370:../Application/src/application.c **** 			break;
- 371:../Application/src/application.c **** 
- 372:../Application/src/application.c **** 		case APP_APPLY_DEVICE_SETTINGS:
- 373:../Application/src/application.c **** 			helper_do_hw_settings();
- 374:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
- 375:../Application/src/application.c **** 			break;
- 376:../Application/src/application.c **** 
- 377:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
- 378:../Application/src/application.c **** 		{
- 379:../Application/src/application.c **** 			int status = device_status_check();
- 380:../Application/src/application.c **** 			if (status < 0)
- 381:../Application/src/application.c **** 			{
- 382:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
- 383:../Application/src/application.c **** 			}
- 384:../Application/src/application.c **** 			else
- 385:../Application/src/application.c **** 			{
- 386:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
- 387:../Application/src/application.c **** 			}
- 388:../Application/src/application.c **** 		}
- 389:../Application/src/application.c **** 		break;
- 390:../Application/src/application.c **** 
- 391:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
- 392:../Application/src/application.c **** 			send_device_status_response();
- 393:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
- 394:../Application/src/application.c **** 			break;
- 395:../Application/src/application.c **** 
- 396:../Application/src/application.c **** 		default:
- 397:../Application/src/application.c **** 			break;
- 398:../Application/src/application.c **** 		}
- 399:../Application/src/application.c **** 	}
- 400:../Application/src/application.c **** 	else
- 401:../Application/src/application.c **** 	{
- 402:../Application/src/application.c **** 		switch (radar_app_state)
- 403:../Application/src/application.c **** 		{
- 404:../Application/src/application.c **** 		case APP_IDLE:
- 405:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
- 406:../Application/src/application.c **** 		{
- 407:../Application/src/application.c **** 			int status = device_status_check();
- 408:../Application/src/application.c **** 			if (status < 0)
- 409:../Application/src/application.c **** 			{
- 410:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
- 411:../Application/src/application.c **** 			}
- 412:../Application/src/application.c **** 			else
- 413:../Application/src/application.c **** 			{
- 414:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
- 415:../Application/src/application.c **** 			}
- 416:../Application/src/application.c **** 		}
- 417:../Application/src/application.c **** 		break;
- 418:../Application/src/application.c **** 
- 419:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
- 420:../Application/src/application.c **** 		{
- 421:../Application/src/application.c **** 			/* Send out error only once, if PC app is not requesting it! */
- 422:../Application/src/application.c **** 			if (!app_connected)
- 423:../Application/src/application.c **** 			{
- 424:../Application/src/application.c **** 
- 425:../Application/src/application.c **** 				delayCount += 1;
- 426:../Application/src/application.c **** 				if (delayCount == 100)
- 427:../Application/src/application.c **** 				{
- 428:../Application/src/application.c **** 					send_device_status_response();
- 429:../Application/src/application.c **** 					app_connected = 1;
- 430:../Application/src/application.c **** 					delayCount = 0;
- 431:../Application/src/application.c **** 				}
- 432:../Application/src/application.c **** 				bsp_time_delay(20, BSP_TIMER_DELAY_MILLISECOND);
- 433:../Application/src/application.c **** 			}
- 434:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
- 435:../Application/src/application.c **** 		}
- 436:../Application/src/application.c **** 		break;
- 437:../Application/src/application.c **** 
- 438:../Application/src/application.c **** 		default:
- 439:../Application/src/application.c **** 			break;
- 440:../Application/src/application.c **** 		}
- 441:../Application/src/application.c **** 	}
- 442:../Application/src/application.c **** }
- 443:../Application/src/application.c **** 
- 444:../Application/src/application.c **** //============================================================================
+ 329:../Application/src/application.c **** 
+ 330:../Application/src/application.c **** 		acq_started = 0;
+ 331:../Application/src/application.c **** 		acq_completed_cb();
+ 332:../Application/src/application.c **** 	}
+ 333:../Application/src/application.c **** 
+ 334:../Application/src/application.c **** 	if (acq_completed)
+ 335:../Application/src/application.c **** 	{
+ 336:../Application/src/application.c **** 
+ 337:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 338:../Application/src/application.c **** 		/* Start the processing of the algorithm assigned in the function pointer 'algo_processor' */
+ 339:../Application/src/application.c **** 		if (algo_processing_function != NULL)
+ 340:../Application/src/application.c **** 		{
+ 341:../Application/src/application.c **** 			do_algo_helper();
+ 342:../Application/src/application.c **** 			algo_completed += 1;
+ 343:../Application/src/application.c **** 		}
+ 344:../Application/src/application.c **** #endif
+ 345:../Application/src/application.c **** 		acq_completed = 0;
+ 346:../Application/src/application.c **** 	}
+ 347:../Application/src/application.c **** 
+ 348:../Application/src/application.c **** 	if (algo_completed)
+ 349:../Application/src/application.c **** 	{
+ 350:../Application/src/application.c **** 		algo_completed_cb();
+ 351:../Application/src/application.c **** 		algo_completed = 0;
+ 352:../Application/src/application.c **** 	}
+ 353:../Application/src/application.c **** 
+ 354:../Application/src/application.c **** 	if (app_initalized)
+ 355:../Application/src/application.c **** 	{
+ 356:../Application/src/application.c **** 		switch (radar_app_state)
+ 357:../Application/src/application.c **** 		{
+ 358:../Application/src/application.c **** 		case APP_IDLE:
+ 359:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_SETTINGS_UPDATE;
+ 360:../Application/src/application.c **** 			break;
+ 361:../Application/src/application.c **** 
+ 362:../Application/src/application.c **** 		case APP_CHECK_FOR_SETTINGS_UPDATE:
+ 363:../Application/src/application.c **** 			/* Check if a new hardware settings are required */
+ 364:../Application/src/application.c **** 			if (ds_is_device_parameter_changed() || ds_is_device_settings_updated())
+ 365:../Application/src/application.c **** 			{
+ 366:../Application/src/application.c **** 				radar_app_state = APP_APPLY_DEVICE_SETTINGS;
+ 367:../Application/src/application.c **** 			}
+ 368:../Application/src/application.c **** 			else
+ 369:../Application/src/application.c **** 			{
+ 370:../Application/src/application.c **** 				radar_app_state = APP_CHECK_FOR_ERROR;
+ 371:../Application/src/application.c **** 			}
+ 372:../Application/src/application.c **** 			break;
+ 373:../Application/src/application.c **** 
+ 374:../Application/src/application.c **** 		case APP_APPLY_DEVICE_SETTINGS:
+ 375:../Application/src/application.c **** 			helper_do_hw_settings();
+ 376:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
+ 377:../Application/src/application.c **** 			break;
+ 378:../Application/src/application.c **** 
+ 379:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
+ 380:../Application/src/application.c **** 		{
+ 381:../Application/src/application.c **** 			int status = device_status_check();
+ 382:../Application/src/application.c **** 			if (status < 0)
+ 383:../Application/src/application.c **** 			{
+ 384:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
+ 385:../Application/src/application.c **** 			}
+ 386:../Application/src/application.c **** 			else
+ 387:../Application/src/application.c **** 			{
+ 388:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
+ 389:../Application/src/application.c **** 			}
+ 390:../Application/src/application.c **** 		}
+ 391:../Application/src/application.c **** 		break;
+ 392:../Application/src/application.c **** 
+ 393:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
+ 394:../Application/src/application.c **** 			send_device_status_response();
+ 395:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 396:../Application/src/application.c **** 			break;
+ 397:../Application/src/application.c **** 
+ 398:../Application/src/application.c **** 		default:
+ 399:../Application/src/application.c **** 			break;
+ 400:../Application/src/application.c **** 		}
+ 401:../Application/src/application.c **** 	}
+ 402:../Application/src/application.c **** 	else
+ 403:../Application/src/application.c **** 	{
+ 404:../Application/src/application.c **** 		switch (radar_app_state)
+ 405:../Application/src/application.c **** 		{
+ 406:../Application/src/application.c **** 		case APP_IDLE:
+ 407:../Application/src/application.c **** 		case APP_CHECK_FOR_ERROR:
+ 408:../Application/src/application.c **** 		{
+ 409:../Application/src/application.c **** 			int status = device_status_check();
+ 410:../Application/src/application.c **** 			if (status < 0)
+ 411:../Application/src/application.c **** 			{
+ 412:../Application/src/application.c **** 				radar_app_state = APP_HANDLE_ERROR;
+ 413:../Application/src/application.c **** 			}
+ 414:../Application/src/application.c **** 			else
+ 415:../Application/src/application.c **** 			{
+ 416:../Application/src/application.c **** 				radar_app_state = APP_IDLE;
+ 417:../Application/src/application.c **** 			}
+ 418:../Application/src/application.c **** 		}
+ 419:../Application/src/application.c **** 		break;
+ 420:../Application/src/application.c **** 
+ 421:../Application/src/application.c **** 		case APP_HANDLE_ERROR:
+ 422:../Application/src/application.c **** 		{
+ 423:../Application/src/application.c **** 			/* Send out error only once, if PC app is not requesting it! */
+ 424:../Application/src/application.c **** 			if (!app_connected)
+ 425:../Application/src/application.c **** 			{
+ 426:../Application/src/application.c **** 
+ 427:../Application/src/application.c **** 				delayCount += 1;
+ 428:../Application/src/application.c **** 				if (delayCount == 100)
+ 429:../Application/src/application.c **** 				{
+ 430:../Application/src/application.c **** 					send_device_status_response();
+ 431:../Application/src/application.c **** 					app_connected = 1;
+ 432:../Application/src/application.c **** 					delayCount = 0;
+ 433:../Application/src/application.c **** 				}
+ 434:../Application/src/application.c **** 				bsp_time_delay(20, BSP_TIMER_DELAY_MILLISECOND);
+ 435:../Application/src/application.c **** 			}
+ 436:../Application/src/application.c **** 			radar_app_state = APP_CHECK_FOR_ERROR;
+ 437:../Application/src/application.c **** 		}
+ 438:../Application/src/application.c **** 		break;
+ 439:../Application/src/application.c **** 
+ 440:../Application/src/application.c **** 		default:
+ 441:../Application/src/application.c **** 			break;
+ 442:../Application/src/application.c **** 		}
+ 443:../Application/src/application.c **** 	}
+ 444:../Application/src/application.c **** }
  445:../Application/src/application.c **** 
- 446:../Application/src/application.c **** /* De-initialize and free all resources used by the application */
- 447:../Application/src/application.c **** void app_destructor(void)
- 448:../Application/src/application.c **** {
- 449:../Application/src/application.c **** 	/* Unregister user callback functions */
- 450:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_STARTED_CB_ID);
- 451:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
- 452:../Application/src/application.c **** }
- 453:../Application/src/application.c **** 
- 454:../Application/src/application.c **** /*
- 455:../Application/src/application.c **** ==============================================================================
- 456:../Application/src/application.c ****    6. USER CALLBACK FUNCTIONS
+ 446:../Application/src/application.c **** //============================================================================
+ 447:../Application/src/application.c **** 
+ 448:../Application/src/application.c **** /* De-initialize and free all resources used by the application */
+ 449:../Application/src/application.c **** void app_destructor(void)
+ 450:../Application/src/application.c **** {
+ 451:../Application/src/application.c **** 	/* Unregister user callback functions */
+ 452:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_STARTED_CB_ID);
+ 453:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
+ 454:../Application/src/application.c **** }
+ 455:../Application/src/application.c **** 
+ 456:../Application/src/application.c **** /*
  457:../Application/src/application.c **** ==============================================================================
- 458:../Application/src/application.c ****  */
- 459:../Application/src/application.c **** 
- 460:../Application/src/application.c **** /* Here an example of user callback implementation */
+ 458:../Application/src/application.c ****    6. USER CALLBACK FUNCTIONS
+ 459:../Application/src/application.c **** ==============================================================================
+ 460:../Application/src/application.c ****  */
  461:../Application/src/application.c **** 
- 462:../Application/src/application.c **** /* This callback function will be executed by radar control when starting data acquisition process
- 463:../Application/src/application.c ****  *   it can be used to get information about the beginning of data acquisition
- 464:../Application/src/application.c ****  */
- 465:../Application/src/application.c **** void app_data_acq_started_cb(void *parameter)
- 466:../Application/src/application.c **** {
-  28              	 .loc 1 466 0
+ 462:../Application/src/application.c **** /* Here an example of user callback implementation */
+ 463:../Application/src/application.c **** 
+ 464:../Application/src/application.c **** /* This callback function will be executed by radar control when starting data acquisition process
+ 465:../Application/src/application.c ****  *   it can be used to get information about the beginning of data acquisition
+ 466:../Application/src/application.c ****  */
+ 467:../Application/src/application.c **** void app_data_acq_started_cb(void *parameter)
+ 468:../Application/src/application.c **** {
+  28              	 .loc 1 468 0
   29              	 .cfi_startproc
   30              	 
   31              	 
   32              	 
   33              	.LVL0:
- 467:../Application/src/application.c **** 	acq_started += 1;
-  34              	 .loc 1 467 0
+ 469:../Application/src/application.c **** 	/*bsp_led_red_off();
+ 470:../Application/src/application.c **** 	bsp_led_blue_off();
+ 471:../Application/src/application.c **** 	bsp_led_green_off();*/
+ 472:../Application/src/application.c **** 	acq_started += 1;
+  34              	 .loc 1 472 0
   35 0000 024A     	 ldr r2,.L2
   36 0002 1368     	 ldr r3,[r2]
   37 0004 0133     	 adds r3,r3,#1
@@ -516,81 +521,84 @@
   51              	 .thumb_func
   53              	system_reset:
   54              	.LFB541:
- 468:../Application/src/application.c **** }
- 469:../Application/src/application.c **** 
- 470:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
- 471:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
- 472:../Application/src/application.c ****  */
- 473:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter)
- 474:../Application/src/application.c **** {
- 475:../Application/src/application.c **** 	acq_completed += 1;
- 476:../Application/src/application.c **** 	acq_completed_cb();
- 477:../Application/src/application.c **** }
- 478:../Application/src/application.c **** 
- 479:../Application/src/application.c **** //============================================================================
- 480:../Application/src/application.c **** 
- 481:../Application/src/application.c **** void update_leds(algo_result_t *pResult)
- 482:../Application/src/application.c **** {
- 483:../Application/src/application.c **** 	if (pResult->target_approaching)
- 484:../Application/src/application.c **** 	{
- 485:../Application/src/application.c **** 		/*bsp_led_red_off();
- 486:../Application/src/application.c **** 		bsp_led_blue_off();
- 487:../Application/src/application.c **** 		bsp_led_green_on();*/
+ 473:../Application/src/application.c **** }
+ 474:../Application/src/application.c **** 
+ 475:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
+ 476:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
+ 477:../Application/src/application.c ****  */
+ 478:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter)
+ 479:../Application/src/application.c **** {
+ 480:../Application/src/application.c **** 	/*bsp_led_red_off();
+ 481:../Application/src/application.c **** 	bsp_led_blue_off();
+ 482:../Application/src/application.c **** 	bsp_led_green_off();*/
+ 483:../Application/src/application.c **** 	acq_completed += 1;
+ 484:../Application/src/application.c **** 	acq_completed_cb();
+ 485:../Application/src/application.c **** }
+ 486:../Application/src/application.c **** 
+ 487:../Application/src/application.c **** //============================================================================
  488:../Application/src/application.c **** 
- 489:../Application/src/application.c **** 		bsp_led_red_on();
- 490:../Application/src/application.c **** 		bsp_led_blue_off();
- 491:../Application/src/application.c **** 		bsp_led_green_off();
- 492:../Application/src/application.c **** 
- 493:../Application/src/application.c **** 		/* Arduino status IO */
- 494:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
- 495:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 496:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 497:../Application/src/application.c **** 	}
- 498:../Application/src/application.c **** 	else if (pResult->target_departing)
- 499:../Application/src/application.c **** 	{
- 500:../Application/src/application.c **** 		/*bsp_led_red_on();
- 501:../Application/src/application.c **** 		bsp_led_blue_off();
- 502:../Application/src/application.c **** 		bsp_led_green_off();*/
- 503:../Application/src/application.c **** 
- 504:../Application/src/application.c **** 		bsp_led_red_off();
- 505:../Application/src/application.c **** 		bsp_led_blue_off();
- 506:../Application/src/application.c **** 		bsp_led_green_on();
- 507:../Application/src/application.c **** 
- 508:../Application/src/application.c **** 		/* Arduino IO */
- 509:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);
- 510:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 511:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 512:../Application/src/application.c **** 	}
- 513:../Application/src/application.c **** 	else if (pResult->motion_detected)
- 514:../Application/src/application.c **** 	{
- 515:../Application/src/application.c **** 		bsp_led_red_off();
- 516:../Application/src/application.c **** 		bsp_led_blue_on();
- 517:../Application/src/application.c **** 		bsp_led_green_off();
- 518:../Application/src/application.c **** 
- 519:../Application/src/application.c **** 		/* Arduino IO */
- 520:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D4);
- 521:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 522:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 523:../Application/src/application.c **** 	}
- 524:../Application/src/application.c **** 	else
- 525:../Application/src/application.c **** 	{
- 526:../Application/src/application.c **** 		bsp_led_red_off();
- 527:../Application/src/application.c **** 		bsp_led_blue_off();
- 528:../Application/src/application.c **** 		bsp_led_green_off();
- 529:../Application/src/application.c **** 
- 530:../Application/src/application.c **** 		/* Arduino IO */
- 531:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 532:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 533:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 534:../Application/src/application.c **** 	}
- 535:../Application/src/application.c **** }
- 536:../Application/src/application.c **** 
- 537:../Application/src/application.c **** //============================================================================
- 538:../Application/src/application.c **** 
- 539:../Application/src/application.c **** /* This function yet to be filled in case of software reset */
- 540:../Application/src/application.c **** void system_reset(void)
- 541:../Application/src/application.c **** {
-  55              	 .loc 1 541 0
+ 489:../Application/src/application.c **** void update_leds(algo_result_t *pResult)
+ 490:../Application/src/application.c **** {
+ 491:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 492:../Application/src/application.c **** 	{
+ 493:../Application/src/application.c **** 		/*bsp_led_red_off();
+ 494:../Application/src/application.c **** 		bsp_led_blue_off();
+ 495:../Application/src/application.c **** 		bsp_led_green_on();*/
+ 496:../Application/src/application.c **** 
+ 497:../Application/src/application.c **** 		bsp_led_red_on();
+ 498:../Application/src/application.c **** 		bsp_led_blue_off();
+ 499:../Application/src/application.c **** 		bsp_led_green_off();
+ 500:../Application/src/application.c **** 
+ 501:../Application/src/application.c **** 		/* Arduino status IO */
+ 502:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
+ 503:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 504:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 505:../Application/src/application.c **** 	}
+ 506:../Application/src/application.c **** 	else if (pResult->target_departing)
+ 507:../Application/src/application.c **** 	{
+ 508:../Application/src/application.c **** 		/*bsp_led_red_on();
+ 509:../Application/src/application.c **** 		bsp_led_blue_off();
+ 510:../Application/src/application.c **** 		bsp_led_green_off();*/
+ 511:../Application/src/application.c **** 
+ 512:../Application/src/application.c **** 		bsp_led_red_off();
+ 513:../Application/src/application.c **** 		bsp_led_blue_off();
+ 514:../Application/src/application.c **** 		bsp_led_green_on();
+ 515:../Application/src/application.c **** 
+ 516:../Application/src/application.c **** 		/* Arduino IO */
+ 517:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);
+ 518:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 519:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 520:../Application/src/application.c **** 	}
+ 521:../Application/src/application.c **** 	else if (pResult->motion_detected)
+ 522:../Application/src/application.c **** 	{
+ 523:../Application/src/application.c **** 		bsp_led_red_off();
+ 524:../Application/src/application.c **** 		bsp_led_blue_on();
+ 525:../Application/src/application.c **** 		bsp_led_green_off();
+ 526:../Application/src/application.c **** 
+ 527:../Application/src/application.c **** 		/* Arduino IO */
+ 528:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D4);
+ 529:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 530:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 531:../Application/src/application.c **** 	}
+ 532:../Application/src/application.c **** 	else
+ 533:../Application/src/application.c **** 	{
+ 534:../Application/src/application.c **** 		bsp_led_red_off();
+ 535:../Application/src/application.c **** 		bsp_led_blue_off();
+ 536:../Application/src/application.c **** 		bsp_led_green_off();
+ 537:../Application/src/application.c **** 
+ 538:../Application/src/application.c **** 		/* Arduino IO */
+ 539:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 540:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 541:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 542:../Application/src/application.c **** 	}
+ 543:../Application/src/application.c **** }
+ 544:../Application/src/application.c **** 
+ 545:../Application/src/application.c **** //============================================================================
+ 546:../Application/src/application.c **** 
+ 547:../Application/src/application.c **** /* This function yet to be filled in case of software reset */
+ 548:../Application/src/application.c **** void system_reset(void)
+ 549:../Application/src/application.c **** {
+  55              	 .loc 1 549 0
   56              	 .cfi_startproc
   57              	 
   58              	 
@@ -605,21 +613,21 @@
   68              	 .thumb_func
   70              	app_data_acq_done_cb:
   71              	.LFB539:
- 474:../Application/src/application.c **** 	acq_completed += 1;
-  72              	 .loc 1 474 0
+ 479:../Application/src/application.c **** 	/*bsp_led_red_off();
+  72              	 .loc 1 479 0
   73              	 .cfi_startproc
   74              	 
   75              	 
   76              	 
   77              	.LVL1:
- 475:../Application/src/application.c **** 	acq_completed_cb();
-  78              	 .loc 1 475 0
+ 483:../Application/src/application.c **** 	acq_completed_cb();
+  78              	 .loc 1 483 0
   79 0000 024A     	 ldr r2,.L6
   80 0002 1368     	 ldr r3,[r2]
   81 0004 0133     	 adds r3,r3,#1
   82 0006 1360     	 str r3,[r2]
- 476:../Application/src/application.c **** }
-  83              	 .loc 1 476 0
+ 484:../Application/src/application.c **** }
+  83              	 .loc 1 484 0
   84 0008 FFF7FEBF 	 b acq_completed_cb
   85              	.LVL2:
   86              	.L7:
@@ -1284,8 +1292,8 @@
  627              	 .thumb_func
  629              	app_destructor:
  630              	.LFB537:
- 448:../Application/src/application.c **** 	/* Unregister user callback functions */
- 631              	 .loc 1 448 0
+ 450:../Application/src/application.c **** 	/* Unregister user callback functions */
+ 631              	 .loc 1 450 0
  632              	 .cfi_startproc
  633              	 
  634              	 
@@ -1294,23 +1302,23 @@
  637              	 .cfi_def_cfa_offset 8
  638              	 .cfi_offset 3,-8
  639              	 .cfi_offset 14,-4
- 450:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
- 640              	 .loc 1 450 0
+ 452:../Application/src/application.c **** 	radar_unregister_callback(RADAR_ACQUISITION_DONE_CB_ID);
+ 640              	 .loc 1 452 0
  641 0002 0120     	 movs r0,#1
  642 0004 FFF7FEFF 	 bl radar_unregister_callback
  643              	.LVL46:
- 451:../Application/src/application.c **** }
- 644              	 .loc 1 451 0
+ 453:../Application/src/application.c **** }
+ 644              	 .loc 1 453 0
  645 0008 0220     	 movs r0,#2
- 452:../Application/src/application.c **** 
- 646              	 .loc 1 452 0
+ 454:../Application/src/application.c **** 
+ 646              	 .loc 1 454 0
  647 000a BDE80840 	 pop {r3,lr}
  648              	.LCFI8:
  649              	 .cfi_restore 14
  650              	 .cfi_restore 3
  651              	 .cfi_def_cfa_offset 0
- 451:../Application/src/application.c **** }
- 652              	 .loc 1 451 0
+ 453:../Application/src/application.c **** }
+ 652              	 .loc 1 453 0
  653 000e FFF7FEBF 	 b radar_unregister_callback
  654              	.LVL47:
  655              	 .cfi_endproc
@@ -1322,8 +1330,8 @@
  662              	 .thumb_func
  664              	update_leds:
  665              	.LFB540:
- 482:../Application/src/application.c **** 	if (pResult->target_approaching)
- 666              	 .loc 1 482 0
+ 490:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 666              	 .loc 1 490 0
  667              	 .cfi_startproc
  668              	 
  669              	 
@@ -1337,30 +1345,30 @@
  677              	 .cfi_offset 6,-12
  678              	 .cfi_offset 7,-8
  679              	 .cfi_offset 14,-4
- 483:../Application/src/application.c **** 	{
- 680              	 .loc 1 483 0
+ 491:../Application/src/application.c **** 	{
+ 680              	 .loc 1 491 0
  681 0002 437A     	 ldrb r3,[r0,#9]
  682 0004 002B     	 cmp r3,#0
  683 0006 38D1     	 bne .L62
- 498:../Application/src/application.c **** 	{
- 684              	 .loc 1 498 0
+ 506:../Application/src/application.c **** 	{
+ 684              	 .loc 1 506 0
  685 0008 037A     	 ldrb r3,[r0,#8]
  686 000a 002B     	 cmp r3,#0
  687 000c 3ED1     	 bne .L63
- 513:../Application/src/application.c **** 	{
- 688              	 .loc 1 513 0
+ 521:../Application/src/application.c **** 	{
+ 688              	 .loc 1 521 0
  689 000e 837A     	 ldrb r3,[r0,#10]
  690 0010 CBB9     	 cbnz r3,.L64
- 526:../Application/src/application.c **** 		bsp_led_blue_off();
- 691              	 .loc 1 526 0
+ 534:../Application/src/application.c **** 		bsp_led_blue_off();
+ 691              	 .loc 1 534 0
  692 0012 FFF7FEFF 	 bl bsp_led_red_off
  693              	.LVL49:
- 527:../Application/src/application.c **** 		bsp_led_green_off();
- 694              	 .loc 1 527 0
+ 535:../Application/src/application.c **** 		bsp_led_green_off();
+ 694              	 .loc 1 535 0
  695 0016 FFF7FEFF 	 bl bsp_led_blue_off
  696              	.LVL50:
- 528:../Application/src/application.c **** 
- 697              	 .loc 1 528 0
+ 536:../Application/src/application.c **** 
+ 697              	 .loc 1 536 0
  698 001a FFF7FEFF 	 bl bsp_led_green_off
  699              	.LVL51:
  700 001e 2049     	 ldr r1,.L65
@@ -1727,16 +1735,16 @@
  775              	.LBE78:
  776              	.LBE80:
  777              	.LBE86:
- 515:../Application/src/application.c **** 		bsp_led_blue_on();
- 778              	 .loc 1 515 0
+ 523:../Application/src/application.c **** 		bsp_led_blue_on();
+ 778              	 .loc 1 523 0
  779 0046 FFF7FEFF 	 bl bsp_led_red_off
  780              	.LVL56:
- 516:../Application/src/application.c **** 		bsp_led_green_off();
- 781              	 .loc 1 516 0
+ 524:../Application/src/application.c **** 		bsp_led_green_off();
+ 781              	 .loc 1 524 0
  782 004a FFF7FEFF 	 bl bsp_led_blue_on
  783              	.LVL57:
- 517:../Application/src/application.c **** 
- 784              	 .loc 1 517 0
+ 525:../Application/src/application.c **** 
+ 784              	 .loc 1 525 0
  785 004e FFF7FEFF 	 bl bsp_led_green_off
  786              	.LVL58:
  787 0052 1349     	 ldr r1,.L65
@@ -1836,16 +1844,16 @@
  877              	.LBE107:
  878              	.LBE109:
  879              	.LBE116:
- 489:../Application/src/application.c **** 		bsp_led_blue_off();
- 880              	 .loc 1 489 0
+ 497:../Application/src/application.c **** 		bsp_led_blue_off();
+ 880              	 .loc 1 497 0
  881 007a FFF7FEFF 	 bl bsp_led_red_on
  882              	.LVL63:
- 490:../Application/src/application.c **** 		bsp_led_green_off();
- 883              	 .loc 1 490 0
+ 498:../Application/src/application.c **** 		bsp_led_green_off();
+ 883              	 .loc 1 498 0
  884 007e FFF7FEFF 	 bl bsp_led_blue_off
  885              	.LVL64:
- 491:../Application/src/application.c **** 
- 886              	 .loc 1 491 0
+ 499:../Application/src/application.c **** 
+ 886              	 .loc 1 499 0
  887 0082 FFF7FEFF 	 bl bsp_led_green_off
  888              	.LVL65:
  889 0086 0749     	 ldr r1,.L65+4
@@ -1853,16 +1861,16 @@
  891 008a E4E7     	 b .L61
  892              	.LVL66:
  893              	.L63:
- 504:../Application/src/application.c **** 		bsp_led_blue_off();
- 894              	 .loc 1 504 0
+ 512:../Application/src/application.c **** 		bsp_led_blue_off();
+ 894              	 .loc 1 512 0
  895 008c FFF7FEFF 	 bl bsp_led_red_off
  896              	.LVL67:
- 505:../Application/src/application.c **** 		bsp_led_green_on();
- 897              	 .loc 1 505 0
+ 513:../Application/src/application.c **** 		bsp_led_green_on();
+ 897              	 .loc 1 513 0
  898 0090 FFF7FEFF 	 bl bsp_led_blue_off
  899              	.LVL68:
- 506:../Application/src/application.c **** 
- 900              	 .loc 1 506 0
+ 514:../Application/src/application.c **** 
+ 900              	 .loc 1 514 0
  901 0094 FFF7FEFF 	 bl bsp_led_green_on
  902              	.LVL69:
  903 0098 0349     	 ldr r1,.L65+8
@@ -1891,7 +1899,7 @@
  927              	 
  326:../Application/src/application.c **** 	{
  928              	 .loc 1 326 0
- 929 0000 514B     	 ldr r3,.L113
+ 929 0000 534B     	 ldr r3,.L114
  930 0002 1A68     	 ldr r2,[r3]
  325:../Application/src/application.c **** 	if (acq_started)
  931              	 .loc 1 325 0
@@ -1906,876 +1914,892 @@
  940              	 .cfi_offset 14,-4
  326:../Application/src/application.c **** 	{
  941              	 .loc 1 326 0
- 942 0008 0AB1     	 cbz r2,.L68
- 329:../Application/src/application.c **** 	}
- 943              	 .loc 1 329 0
- 944 000a 0022     	 movs r2,#0
- 945 000c 1A60     	 str r2,[r3]
- 946              	.L68:
- 332:../Application/src/application.c **** 	{
- 947              	 .loc 1 332 0
- 948 000e 4F4D     	 ldr r5,.L113+4
- 949 0010 2B68     	 ldr r3,[r5]
- 950 0012 CBB9     	 cbnz r3,.L69
- 951 0014 4E4C     	 ldr r4,.L113+8
- 952 0016 2368     	 ldr r3,[r4]
- 346:../Application/src/application.c **** 	{
- 953              	 .loc 1 346 0
- 954 0018 002B     	 cmp r3,#0
- 955 001a 3ED1     	 bne .L108
- 956              	.L73:
- 352:../Application/src/application.c **** 	{
- 957              	 .loc 1 352 0
- 958 001c 4D4B     	 ldr r3,.L113+12
- 354:../Application/src/application.c **** 		{
+ 942 0008 002A     	 cmp r2,#0
+ 943 000a 53D1     	 bne .L108
+ 944              	.L68:
+ 334:../Application/src/application.c **** 	{
+ 945              	 .loc 1 334 0
+ 946 000c 514D     	 ldr r5,.L114+4
+ 947 000e 2B68     	 ldr r3,[r5]
+ 948 0010 CBB9     	 cbnz r3,.L69
+ 949 0012 514C     	 ldr r4,.L114+8
+ 950 0014 2368     	 ldr r3,[r4]
+ 348:../Application/src/application.c **** 	{
+ 951              	 .loc 1 348 0
+ 952 0016 002B     	 cmp r3,#0
+ 953 0018 3FD1     	 bne .L109
+ 954              	.L73:
+ 354:../Application/src/application.c **** 	{
+ 955              	 .loc 1 354 0
+ 956 001a 504B     	 ldr r3,.L114+12
+ 356:../Application/src/application.c **** 		{
+ 957              	 .loc 1 356 0
+ 958 001c 504C     	 ldr r4,.L114+16
+ 354:../Application/src/application.c **** 	{
  959              	 .loc 1 354 0
- 960 001e 4E4C     	 ldr r4,.L113+16
- 352:../Application/src/application.c **** 	{
- 961              	 .loc 1 352 0
- 962 0020 1B68     	 ldr r3,[r3]
- 963 0022 43B1     	 cbz r3,.L74
- 354:../Application/src/application.c **** 		{
- 964              	 .loc 1 354 0
- 965 0024 2378     	 ldrb r3,[r4]
- 966 0026 013B     	 subs r3,r3,#1
- 967 0028 042B     	 cmp r3,#4
- 968 002a 0BD8     	 bhi .L67
- 969 002c DFE803F0 	 tbb [pc,r3]
- 970              	.L77:
- 971 0030 63       	 .byte (.L76-.L77)/2
- 972 0031 45       	 .byte (.L78-.L77)/2
- 973 0032 5C       	 .byte (.L79-.L77)/2
- 974 0033 3A       	 .byte (.L80-.L77)/2
- 975 0034 67       	 .byte (.L81-.L77)/2
- 976 0035 00       	 .p2align 1
- 977              	.L74:
- 402:../Application/src/application.c **** 		{
- 978              	 .loc 1 402 0
- 979 0036 2378     	 ldrb r3,[r4]
- 980 0038 042B     	 cmp r3,#4
- 981 003a 33D0     	 beq .L80
- 982 003c 052B     	 cmp r3,#5
- 983 003e 65D0     	 beq .L88
- 984 0040 012B     	 cmp r3,#1
- 985 0042 2FD0     	 beq .L80
- 986              	.L67:
- 987 0044 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 988              	.L69:
- 337:../Application/src/application.c **** 		{
- 989              	 .loc 1 337 0
- 990 0048 444C     	 ldr r4,.L113+20
- 991 004a 2368     	 ldr r3,[r4]
- 992 004c 93B3     	 cbz r3,.L109
- 993              	.LBB125:
- 994              	.LBB126:
- 542:../Application/src/application.c **** 
- 543:../Application/src/application.c **** }
- 544:../Application/src/application.c **** 
- 545:../Application/src/application.c **** //============================================================================
- 546:../Application/src/application.c **** 
- 547:../Application/src/application.c **** /* Run the selected algorithm */
- 548:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
- 549:../Application/src/application.c **** 
- 550:../Application/src/application.c **** static algo_result_t algo_result;
- 551:../Application/src/application.c **** 
- 552:../Application/src/application.c **** void do_algo_helper(void)
- 553:../Application/src/application.c **** {
- 554:../Application/src/application.c **** 	acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
- 995              	 .loc 1 554 0
- 996 004e FFF7FEFF 	 bl ds_get_active_acq_buf
- 997              	.LVL70:
- 998 0052 0746     	 mov r7,r0
- 999              	.LVL71:
- 555:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
- 1000              	 .loc 1 555 0
- 1001 0054 FFF7FEFF 	 bl ds_algo_get_settings
- 1002              	.LVL72:
- 1003 0058 8046     	 mov r8,r0
- 1004              	.LVL73:
- 556:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
- 1005              	 .loc 1 556 0
- 1006 005a FFF7FEFF 	 bl ds_device_get_shadow_settings
- 1007              	.LVL74:
- 1008 005e 0646     	 mov r6,r0
- 1009              	.LVL75:
- 557:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
- 558:../Application/src/application.c **** 
- 559:../Application/src/application.c **** 	/* this is the async raw data streaming to host device */
- 560:../Application/src/application.c **** 	radar_pulse_raw_data(p_acq_buf, p_dev_settings);
- 1010              	 .loc 1 560 0
- 1011 0060 3146     	 mov r1,r6
- 1012 0062 3846     	 mov r0,r7
- 1013              	.LVL76:
- 1014 0064 FFF7FEFF 	 bl radar_pulse_raw_data
- 1015              	.LVL77:
- 561:../Application/src/application.c **** 
- 562:../Application/src/application.c **** 	algo_processing_function(p_acq_buf, p_algo_settings, p_dev_settings, p_algo_result);
- 1016              	 .loc 1 562 0
- 1017 0068 3246     	 mov r2,r6
- 1018 006a 3D4B     	 ldr r3,.L113+24
- 1019 006c 2668     	 ldr r6,[r4]
- 1020              	.LVL78:
- 1021              	.LBE126:
- 1022              	.LBE125:
- 340:../Application/src/application.c **** 		}
- 1023              	 .loc 1 340 0
- 1024 006e 384C     	 ldr r4,.L113+8
- 1025              	.LBB128:
- 1026              	.LBB127:
- 1027              	 .loc 1 562 0
- 1028 0070 4146     	 mov r1,r8
- 1029 0072 3846     	 mov r0,r7
- 1030 0074 B047     	 blx r6
- 1031              	.LVL79:
- 563:../Application/src/application.c **** 
- 564:../Application/src/application.c **** 	ds_store_algo_result_ptr(p_algo_result);
- 1032              	 .loc 1 564 0
- 1033 0076 3A48     	 ldr r0,.L113+24
- 1034 0078 FFF7FEFF 	 bl ds_store_algo_result_ptr
- 1035              	.LVL80:
- 565:../Application/src/application.c **** 
- 566:../Application/src/application.c **** 	radar_pulse_results_updates(p_algo_result);
- 1036              	 .loc 1 566 0
- 1037 007c 3848     	 ldr r0,.L113+24
- 1038 007e FFF7FEFF 	 bl radar_pulse_results_updates
- 1039              	.LVL81:
- 567:../Application/src/application.c **** 
- 568:../Application/src/application.c **** 	mcu_base_updates();
- 1040              	 .loc 1 568 0
- 1041 0082 FFF7FEFF 	 bl mcu_base_updates
- 1042              	.LVL82:
- 569:../Application/src/application.c **** 
- 570:../Application/src/application.c **** 	update_leds(p_algo_result);
- 1043              	 .loc 1 570 0
- 1044 0086 3648     	 ldr r0,.L113+24
- 1045 0088 FFF7FEFF 	 bl update_leds
- 1046              	.LVL83:
- 1047              	.LBE127:
- 1048              	.LBE128:
- 340:../Application/src/application.c **** 		}
- 1049              	 .loc 1 340 0
- 1050 008c 2368     	 ldr r3,[r4]
- 1051 008e 0133     	 adds r3,r3,#1
- 1052 0090 2360     	 str r3,[r4]
- 1053              	.LVL84:
- 1054              	.L72:
- 343:../Application/src/application.c **** 	}
- 1055              	 .loc 1 343 0
- 1056 0092 0022     	 movs r2,#0
- 1057 0094 2A60     	 str r2,[r5]
- 346:../Application/src/application.c **** 	{
- 1058              	 .loc 1 346 0
- 1059 0096 002B     	 cmp r3,#0
- 1060 0098 C0D0     	 beq .L73
- 1061              	.L108:
- 348:../Application/src/application.c **** 		algo_completed = 0;
- 1062              	 .loc 1 348 0
- 1063 009a FFF7FEFF 	 bl algo_completed_cb
- 1064              	.LVL85:
- 349:../Application/src/application.c **** 	}
- 1065              	 .loc 1 349 0
- 1066 009e 0023     	 movs r3,#0
- 1067 00a0 2360     	 str r3,[r4]
- 1068 00a2 BBE7     	 b .L73
- 1069              	.L80:
- 1070              	.LBB129:
- 379:../Application/src/application.c **** 			if (status < 0)
- 1071              	 .loc 1 379 0
- 1072 00a4 FFF7FEFF 	 bl device_status_check
- 1073              	.LVL86:
- 380:../Application/src/application.c **** 			{
- 1074              	 .loc 1 380 0
- 1075 00a8 0028     	 cmp r0,#0
- 1076 00aa 2BDB     	 blt .L110
- 1077              	.LVL87:
- 1078              	.L106:
- 1079              	.LBE129:
- 393:../Application/src/application.c **** 			break;
- 1080              	 .loc 1 393 0
- 1081 00ac 0123     	 movs r3,#1
- 1082 00ae 2370     	 strb r3,[r4]
- 394:../Application/src/application.c **** 
- 1083              	 .loc 1 394 0
- 1084 00b0 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1085              	.L109:
- 1086 00b4 264C     	 ldr r4,.L113+8
- 1087 00b6 2368     	 ldr r3,[r4]
- 1088 00b8 EBE7     	 b .L72
- 1089              	.L78:
- 1090              	.LBB130:
- 1091              	.LBB131:
- 282:../Application/src/application.c **** 
- 1092              	 .loc 1 282 0
- 1093 00ba FFF7FEFF 	 bl ds_device_get_settings
- 1094              	.LVL88:
- 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
- 1095              	 .loc 1 284 0
- 1096 00be 294E     	 ldr r6,.L113+28
- 282:../Application/src/application.c **** 
- 1097              	 .loc 1 282 0
- 1098 00c0 0546     	 mov r5,r0
- 1099              	.LVL89:
- 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
- 1100              	 .loc 1 284 0
- 1101 00c2 0146     	 mov r1,r0
- 1102 00c4 3068     	 ldr r0,[r6]
- 1103              	.LVL90:
- 1104 00c6 FFF7FEFF 	 bl radar_apply_hw_settings
- 1105              	.LVL91:
- 285:../Application/src/application.c **** 	{
- 1106              	 .loc 1 285 0
- 1107 00ca 70B3     	 cbz r0,.L111
- 292:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
- 1108              	 .loc 1 292 0
- 1109 00cc FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
- 1110              	.LVL92:
- 1111              	.L85:
- 295:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
- 1112              	 .loc 1 295 0
- 1113 00d0 0123     	 movs r3,#1
- 1114 00d2 2370     	 strb r3,[r4]
- 296:../Application/src/application.c **** 
- 1115              	 .loc 1 296 0
- 1116 00d4 FFF7FEFF 	 bl ds_clear_device_parameter_changed
- 1117              	.LVL93:
- 298:../Application/src/application.c **** 	return error;
- 1118              	 .loc 1 298 0
- 1119 00d8 3068     	 ldr r0,[r6]
- 1120 00da 296A     	 ldr r1,[r5,#32]
- 1121 00dc FFF7FEFF 	 bl radar_set_automatic_frame_trigger
- 1122              	.LVL94:
- 1123              	.L107:
- 1124              	.LBE131:
- 1125              	.LBE130:
- 374:../Application/src/application.c **** 			break;
- 1126              	 .loc 1 374 0
- 1127 00e0 0423     	 movs r3,#4
- 1128 00e2 2370     	 strb r3,[r4]
- 375:../Application/src/application.c **** 
- 1129              	 .loc 1 375 0
- 1130 00e4 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1131              	.L79:
- 362:../Application/src/application.c **** 			{
- 1132              	 .loc 1 362 0
- 1133 00e8 FFF7FEFF 	 bl ds_is_device_parameter_changed
- 1134              	.LVL95:
- 1135 00ec 00B3     	 cbz r0,.L82
- 1136              	.L83:
- 364:../Application/src/application.c **** 			}
- 1137              	 .loc 1 364 0
- 1138 00ee 0223     	 movs r3,#2
- 1139 00f0 2370     	 strb r3,[r4]
- 1140 00f2 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1141              	.L76:
- 357:../Application/src/application.c **** 			break;
- 1142              	 .loc 1 357 0
- 1143 00f6 0323     	 movs r3,#3
- 1144 00f8 2370     	 strb r3,[r4]
- 358:../Application/src/application.c **** 
- 1145              	 .loc 1 358 0
- 1146 00fa BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1147              	.L81:
- 392:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
- 1148              	 .loc 1 392 0
- 1149 00fe FFF7FEFF 	 bl send_device_status_response
- 1150              	.LVL96:
- 1151 0102 D3E7     	 b .L106
- 1152              	.LVL97:
- 1153              	.L110:
- 1154              	.LBB133:
- 382:../Application/src/application.c **** 			}
- 1155              	 .loc 1 382 0
- 1156 0104 0523     	 movs r3,#5
- 1157 0106 2370     	 strb r3,[r4]
- 1158 0108 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1159              	.LVL98:
- 1160              	.L88:
- 1161              	.LBE133:
- 422:../Application/src/application.c **** 			{
- 1162              	 .loc 1 422 0
- 1163 010c 164D     	 ldr r5,.L113+32
- 1164 010e 2E68     	 ldr r6,[r5]
- 1165 0110 002E     	 cmp r6,#0
- 1166 0112 E5D1     	 bne .L107
- 425:../Application/src/application.c **** 				if (delayCount == 100)
- 1167              	 .loc 1 425 0
- 1168 0114 154F     	 ldr r7,.L113+36
- 1169 0116 3B68     	 ldr r3,[r7]
- 1170 0118 0133     	 adds r3,r3,#1
- 426:../Application/src/application.c **** 				{
- 1171              	 .loc 1 426 0
- 1172 011a 642B     	 cmp r3,#100
- 425:../Application/src/application.c **** 				if (delayCount == 100)
- 1173              	 .loc 1 425 0
- 1174 011c 3B60     	 str r3,[r7]
- 426:../Application/src/application.c **** 				{
- 1175              	 .loc 1 426 0
- 1176 011e 0CD0     	 beq .L112
- 1177              	.L91:
- 432:../Application/src/application.c **** 			}
- 1178              	 .loc 1 432 0
- 1179 0120 1420     	 movs r0,#20
- 1180 0122 0121     	 movs r1,#1
- 1181 0124 FFF7FEFF 	 bl bsp_time_delay
- 1182              	.LVL99:
- 1183 0128 DAE7     	 b .L107
- 1184              	.LVL100:
- 1185              	.L111:
- 1186              	.LBB134:
- 1187              	.LBB132:
- 287:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
- 1188              	 .loc 1 287 0
- 1189 012a FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
- 1190              	.LVL101:
- 1191 012e CFE7     	 b .L85
- 1192              	.LVL102:
- 1193              	.L82:
- 1194              	.LBE132:
- 1195              	.LBE134:
- 362:../Application/src/application.c **** 			{
- 1196              	 .loc 1 362 0 discriminator 1
- 1197 0130 FFF7FEFF 	 bl ds_is_device_settings_updated
- 1198              	.LVL103:
- 1199 0134 0028     	 cmp r0,#0
- 1200 0136 DAD1     	 bne .L83
- 1201 0138 D2E7     	 b .L107
- 1202              	.L112:
- 428:../Application/src/application.c **** 					app_connected = 1;
- 1203              	 .loc 1 428 0
- 1204 013a FFF7FEFF 	 bl send_device_status_response
- 1205              	.LVL104:
- 429:../Application/src/application.c **** 					delayCount = 0;
- 1206              	 .loc 1 429 0
- 1207 013e 0123     	 movs r3,#1
- 430:../Application/src/application.c **** 				}
- 1208              	 .loc 1 430 0
- 1209 0140 3E60     	 str r6,[r7]
- 429:../Application/src/application.c **** 					delayCount = 0;
- 1210              	 .loc 1 429 0
- 1211 0142 2B60     	 str r3,[r5]
- 1212 0144 ECE7     	 b .L91
- 1213              	.L114:
- 1214 0146 00BF     	 .align 2
- 1215              	.L113:
- 1216 0148 00000000 	 .word .LANCHOR0
- 1217 014c 00000000 	 .word .LANCHOR1
- 1218 0150 00000000 	 .word .LANCHOR8
- 1219 0154 00000000 	 .word .LANCHOR4
- 1220 0158 00000000 	 .word .LANCHOR10
- 1221 015c 00000000 	 .word .LANCHOR5
- 1222 0160 00000000 	 .word .LANCHOR9
- 1223 0164 00000000 	 .word .LANCHOR3
- 1224 0168 00000000 	 .word .LANCHOR7
- 1225 016c 00000000 	 .word .LANCHOR6
- 1226              	 .cfi_endproc
- 1227              	.LFE536:
- 1229              	 .section .text.app_process,"ax",%progbits
- 1230              	 .align 2
- 1231              	 .global app_process
- 1232              	 .thumb
- 1233              	 .thumb_func
- 1235              	app_process:
- 1236              	.LFB532:
- 260:../Application/src/application.c ****   if (g_usb_init == true)
- 1237              	 .loc 1 260 0
- 1238              	 .cfi_startproc
- 1239              	 
- 1240              	 
- 1241 0000 2DE9F041 	 push {r4,r5,r6,r7,r8,lr}
- 1242              	.LCFI11:
- 1243              	 .cfi_def_cfa_offset 24
- 1244              	 .cfi_offset 4,-24
- 1245              	 .cfi_offset 5,-20
- 1246              	 .cfi_offset 6,-16
- 1247              	 .cfi_offset 7,-12
- 1248              	 .cfi_offset 8,-8
- 1249              	 .cfi_offset 14,-4
- 261:../Application/src/application.c ****   {
- 1250              	 .loc 1 261 0
- 1251 0004 574C     	 ldr r4,.L164
- 1252 0006 2378     	 ldrb r3,[r4]
- 1253 0008 012B     	 cmp r3,#1
- 1254 000a 00F08B80 	 beq .L158
- 269:../Application/src/application.c ****     {
- 1255              	 .loc 1 269 0
- 1256 000e 40F6FF70 	 movw r0,#4095
- 1257 0012 FFF7FEFF 	 bl bsp_usb_init
- 1258              	.LVL105:
- 1259 0016 08B9     	 cbnz r0,.L117
- 271:../Application/src/application.c ****     }
- 1260              	 .loc 1 271 0
- 1261 0018 0123     	 movs r3,#1
- 1262 001a 2370     	 strb r3,[r4]
- 1263              	.L117:
- 1264              	.LBB143:
- 1265              	.LBB144:
- 326:../Application/src/application.c **** 	{
- 1266              	 .loc 1 326 0
- 1267 001c 524B     	 ldr r3,.L164+4
- 1268 001e 1A68     	 ldr r2,[r3]
- 1269 0020 0AB1     	 cbz r2,.L118
- 329:../Application/src/application.c **** 	}
- 1270              	 .loc 1 329 0
- 1271 0022 0022     	 movs r2,#0
- 1272 0024 1A60     	 str r2,[r3]
- 1273              	.L118:
- 332:../Application/src/application.c **** 	{
- 1274              	 .loc 1 332 0
- 1275 0026 514D     	 ldr r5,.L164+8
- 1276 0028 2B68     	 ldr r3,[r5]
- 1277 002a CBB9     	 cbnz r3,.L119
- 1278 002c 504C     	 ldr r4,.L164+12
- 1279 002e 2368     	 ldr r3,[r4]
- 346:../Application/src/application.c **** 	{
- 1280              	 .loc 1 346 0
- 1281 0030 002B     	 cmp r3,#0
- 1282 0032 3ED1     	 bne .L159
- 1283              	.L123:
- 352:../Application/src/application.c **** 	{
- 1284              	 .loc 1 352 0
- 1285 0034 4F4B     	 ldr r3,.L164+16
- 354:../Application/src/application.c **** 		{
- 1286              	 .loc 1 354 0
- 1287 0036 504C     	 ldr r4,.L164+20
- 352:../Application/src/application.c **** 	{
- 1288              	 .loc 1 352 0
- 1289 0038 1B68     	 ldr r3,[r3]
- 1290 003a 43B1     	 cbz r3,.L124
- 354:../Application/src/application.c **** 		{
- 1291              	 .loc 1 354 0
- 1292 003c 2378     	 ldrb r3,[r4]
- 1293 003e 013B     	 subs r3,r3,#1
- 1294 0040 042B     	 cmp r3,#4
- 1295 0042 0BD8     	 bhi .L115
- 1296 0044 DFE803F0 	 tbb [pc,r3]
- 1297              	.L127:
- 1298 0048 45       	 .byte (.L126-.L127)/2
- 1299 0049 49       	 .byte (.L128-.L127)/2
- 1300 004a 60       	 .byte (.L129-.L127)/2
- 1301 004b 3A       	 .byte (.L130-.L127)/2
- 1302 004c 67       	 .byte (.L131-.L127)/2
- 1303 004d 00       	 .p2align 1
- 1304              	.L124:
- 402:../Application/src/application.c **** 		{
- 1305              	 .loc 1 402 0
- 1306 004e 2378     	 ldrb r3,[r4]
- 1307 0050 042B     	 cmp r3,#4
- 1308 0052 33D0     	 beq .L130
- 1309 0054 052B     	 cmp r3,#5
- 1310 0056 68D0     	 beq .L138
- 1311 0058 012B     	 cmp r3,#1
- 1312 005a 2FD0     	 beq .L130
- 1313              	.L115:
- 1314 005c BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1315              	.L119:
- 337:../Application/src/application.c **** 		{
- 1316              	 .loc 1 337 0
- 1317 0060 464C     	 ldr r4,.L164+24
- 1318 0062 2368     	 ldr r3,[r4]
- 1319 0064 93B3     	 cbz r3,.L160
- 1320              	.LBB145:
- 1321              	.LBB146:
- 554:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
- 1322              	 .loc 1 554 0
- 1323 0066 FFF7FEFF 	 bl ds_get_active_acq_buf
- 1324              	.LVL106:
- 1325 006a 0746     	 mov r7,r0
- 1326              	.LVL107:
- 555:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
- 1327              	 .loc 1 555 0
- 1328 006c FFF7FEFF 	 bl ds_algo_get_settings
- 1329              	.LVL108:
- 1330 0070 8046     	 mov r8,r0
- 1331              	.LVL109:
- 556:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
- 1332              	 .loc 1 556 0
- 1333 0072 FFF7FEFF 	 bl ds_device_get_shadow_settings
- 1334              	.LVL110:
- 1335 0076 0646     	 mov r6,r0
- 1336              	.LVL111:
- 560:../Application/src/application.c **** 
- 1337              	 .loc 1 560 0
- 1338 0078 3146     	 mov r1,r6
- 1339 007a 3846     	 mov r0,r7
- 1340              	.LVL112:
- 1341 007c FFF7FEFF 	 bl radar_pulse_raw_data
- 1342              	.LVL113:
- 562:../Application/src/application.c **** 
- 1343              	 .loc 1 562 0
- 1344 0080 3246     	 mov r2,r6
- 1345 0082 3F4B     	 ldr r3,.L164+28
- 1346 0084 2668     	 ldr r6,[r4]
- 1347              	.LVL114:
- 1348              	.LBE146:
- 1349              	.LBE145:
- 340:../Application/src/application.c **** 		}
- 1350              	 .loc 1 340 0
- 1351 0086 3A4C     	 ldr r4,.L164+12
- 1352              	.LBB148:
- 1353              	.LBB147:
- 562:../Application/src/application.c **** 
- 1354              	 .loc 1 562 0
- 1355 0088 4146     	 mov r1,r8
- 1356 008a 3846     	 mov r0,r7
- 1357 008c B047     	 blx r6
- 1358              	.LVL115:
- 564:../Application/src/application.c **** 
- 1359              	 .loc 1 564 0
- 1360 008e 3C48     	 ldr r0,.L164+28
- 1361 0090 FFF7FEFF 	 bl ds_store_algo_result_ptr
- 1362              	.LVL116:
+ 960 001e 1B68     	 ldr r3,[r3]
+ 961 0020 43B1     	 cbz r3,.L74
+ 356:../Application/src/application.c **** 		{
+ 962              	 .loc 1 356 0
+ 963 0022 2378     	 ldrb r3,[r4]
+ 964 0024 013B     	 subs r3,r3,#1
+ 965 0026 042B     	 cmp r3,#4
+ 966 0028 0BD8     	 bhi .L67
+ 967 002a DFE803F0 	 tbb [pc,r3]
+ 968              	.L77:
+ 969 002e 4B       	 .byte (.L76-.L77)/2
+ 970 002f 4F       	 .byte (.L78-.L77)/2
+ 971 0030 66       	 .byte (.L79-.L77)/2
+ 972 0031 3B       	 .byte (.L80-.L77)/2
+ 973 0032 6D       	 .byte (.L81-.L77)/2
+ 974 0033 00       	 .p2align 1
+ 975              	.L74:
+ 404:../Application/src/application.c **** 		{
+ 976              	 .loc 1 404 0
+ 977 0034 2378     	 ldrb r3,[r4]
+ 978 0036 042B     	 cmp r3,#4
+ 979 0038 34D0     	 beq .L80
+ 980 003a 052B     	 cmp r3,#5
+ 981 003c 6BD0     	 beq .L88
+ 982 003e 012B     	 cmp r3,#1
+ 983 0040 30D0     	 beq .L80
+ 984              	.L67:
+ 985 0042 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 986              	.L69:
+ 339:../Application/src/application.c **** 		{
+ 987              	 .loc 1 339 0
+ 988 0046 474C     	 ldr r4,.L114+20
+ 989 0048 2368     	 ldr r3,[r4]
+ 990 004a 002B     	 cmp r3,#0
+ 991 004c 37D0     	 beq .L110
+ 992              	.LBB125:
+ 993              	.LBB126:
+ 550:../Application/src/application.c **** 
+ 551:../Application/src/application.c **** }
+ 552:../Application/src/application.c **** 
+ 553:../Application/src/application.c **** //============================================================================
+ 554:../Application/src/application.c **** 
+ 555:../Application/src/application.c **** /* Run the selected algorithm */
+ 556:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 557:../Application/src/application.c **** 
+ 558:../Application/src/application.c **** static algo_result_t algo_result;
+ 559:../Application/src/application.c **** 
+ 560:../Application/src/application.c **** void do_algo_helper(void)
+ 561:../Application/src/application.c **** {
+ 562:../Application/src/application.c **** 	acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
+ 994              	 .loc 1 562 0
+ 995 004e FFF7FEFF 	 bl ds_get_active_acq_buf
+ 996              	.LVL70:
+ 997 0052 0746     	 mov r7,r0
+ 998              	.LVL71:
+ 563:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 999              	 .loc 1 563 0
+ 1000 0054 FFF7FEFF 	 bl ds_algo_get_settings
+ 1001              	.LVL72:
+ 1002 0058 8046     	 mov r8,r0
+ 1003              	.LVL73:
+ 564:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1004              	 .loc 1 564 0
+ 1005 005a FFF7FEFF 	 bl ds_device_get_shadow_settings
+ 1006              	.LVL74:
+ 1007 005e 0646     	 mov r6,r0
+ 1008              	.LVL75:
+ 565:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
  566:../Application/src/application.c **** 
- 1363              	 .loc 1 566 0
- 1364 0094 3A48     	 ldr r0,.L164+28
- 1365 0096 FFF7FEFF 	 bl radar_pulse_results_updates
- 1366              	.LVL117:
- 568:../Application/src/application.c **** 
- 1367              	 .loc 1 568 0
- 1368 009a FFF7FEFF 	 bl mcu_base_updates
- 1369              	.LVL118:
- 1370              	 .loc 1 570 0
- 1371 009e 3848     	 ldr r0,.L164+28
- 1372 00a0 FFF7FEFF 	 bl update_leds
- 1373              	.LVL119:
- 1374              	.LBE147:
- 1375              	.LBE148:
- 340:../Application/src/application.c **** 		}
- 1376              	 .loc 1 340 0
- 1377 00a4 2368     	 ldr r3,[r4]
- 1378 00a6 0133     	 adds r3,r3,#1
- 1379 00a8 2360     	 str r3,[r4]
- 1380              	.LVL120:
- 1381              	.L122:
- 343:../Application/src/application.c **** 	}
- 1382              	 .loc 1 343 0
- 1383 00aa 0022     	 movs r2,#0
- 1384 00ac 2A60     	 str r2,[r5]
- 346:../Application/src/application.c **** 	{
- 1385              	 .loc 1 346 0
- 1386 00ae 002B     	 cmp r3,#0
- 1387 00b0 C0D0     	 beq .L123
- 1388              	.L159:
- 348:../Application/src/application.c **** 		algo_completed = 0;
- 1389              	 .loc 1 348 0
- 1390 00b2 FFF7FEFF 	 bl algo_completed_cb
- 1391              	.LVL121:
- 349:../Application/src/application.c **** 	}
- 1392              	 .loc 1 349 0
- 1393 00b6 0023     	 movs r3,#0
- 1394 00b8 2360     	 str r3,[r4]
- 1395 00ba BBE7     	 b .L123
- 1396              	.L130:
- 1397              	.LBB149:
- 379:../Application/src/application.c **** 			if (status < 0)
- 1398              	 .loc 1 379 0
- 1399 00bc FFF7FEFF 	 bl device_status_check
- 1400              	.LVL122:
- 380:../Application/src/application.c **** 			{
- 1401              	 .loc 1 380 0
- 1402 00c0 0028     	 cmp r0,#0
- 1403 00c2 2BDB     	 blt .L161
- 1404              	.LVL123:
- 1405              	.L156:
- 1406              	.LBE149:
- 393:../Application/src/application.c **** 			break;
- 1407              	 .loc 1 393 0
- 1408 00c4 0123     	 movs r3,#1
- 1409 00c6 2370     	 strb r3,[r4]
- 1410 00c8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1411              	.L160:
- 1412 00cc 284C     	 ldr r4,.L164+12
- 1413 00ce 2368     	 ldr r3,[r4]
- 1414 00d0 EBE7     	 b .L122
- 1415              	.L126:
- 357:../Application/src/application.c **** 			break;
- 1416              	 .loc 1 357 0
- 1417 00d2 0323     	 movs r3,#3
- 1418 00d4 2370     	 strb r3,[r4]
- 1419 00d6 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1420              	.L128:
- 1421              	.LBB150:
- 1422              	.LBB151:
+ 567:../Application/src/application.c **** 	/* this is the async raw data streaming to host device */
+ 568:../Application/src/application.c **** 	radar_pulse_raw_data(p_acq_buf, p_dev_settings);
+ 1009              	 .loc 1 568 0
+ 1010 0060 3146     	 mov r1,r6
+ 1011 0062 3846     	 mov r0,r7
+ 1012              	.LVL76:
+ 1013 0064 FFF7FEFF 	 bl radar_pulse_raw_data
+ 1014              	.LVL77:
+ 569:../Application/src/application.c **** 
+ 570:../Application/src/application.c **** 	algo_processing_function(p_acq_buf, p_algo_settings, p_dev_settings, p_algo_result);
+ 1015              	 .loc 1 570 0
+ 1016 0068 3246     	 mov r2,r6
+ 1017 006a 3F4B     	 ldr r3,.L114+24
+ 1018 006c 2668     	 ldr r6,[r4]
+ 1019              	.LVL78:
+ 1020              	.LBE126:
+ 1021              	.LBE125:
+ 342:../Application/src/application.c **** 		}
+ 1022              	 .loc 1 342 0
+ 1023 006e 3A4C     	 ldr r4,.L114+8
+ 1024              	.LBB128:
+ 1025              	.LBB127:
+ 1026              	 .loc 1 570 0
+ 1027 0070 4146     	 mov r1,r8
+ 1028 0072 3846     	 mov r0,r7
+ 1029 0074 B047     	 blx r6
+ 1030              	.LVL79:
+ 571:../Application/src/application.c **** 
+ 572:../Application/src/application.c **** 	ds_store_algo_result_ptr(p_algo_result);
+ 1031              	 .loc 1 572 0
+ 1032 0076 3C48     	 ldr r0,.L114+24
+ 1033 0078 FFF7FEFF 	 bl ds_store_algo_result_ptr
+ 1034              	.LVL80:
+ 573:../Application/src/application.c **** 
+ 574:../Application/src/application.c **** 	radar_pulse_results_updates(p_algo_result);
+ 1035              	 .loc 1 574 0
+ 1036 007c 3A48     	 ldr r0,.L114+24
+ 1037 007e FFF7FEFF 	 bl radar_pulse_results_updates
+ 1038              	.LVL81:
+ 575:../Application/src/application.c **** 
+ 576:../Application/src/application.c **** 	mcu_base_updates();
+ 1039              	 .loc 1 576 0
+ 1040 0082 FFF7FEFF 	 bl mcu_base_updates
+ 1041              	.LVL82:
+ 577:../Application/src/application.c **** 
+ 578:../Application/src/application.c **** 	update_leds(p_algo_result);
+ 1042              	 .loc 1 578 0
+ 1043 0086 3848     	 ldr r0,.L114+24
+ 1044 0088 FFF7FEFF 	 bl update_leds
+ 1045              	.LVL83:
+ 1046              	.LBE127:
+ 1047              	.LBE128:
+ 342:../Application/src/application.c **** 		}
+ 1048              	 .loc 1 342 0
+ 1049 008c 2368     	 ldr r3,[r4]
+ 1050 008e 0133     	 adds r3,r3,#1
+ 1051 0090 2360     	 str r3,[r4]
+ 1052              	.LVL84:
+ 1053              	.L72:
+ 345:../Application/src/application.c **** 	}
+ 1054              	 .loc 1 345 0
+ 1055 0092 0022     	 movs r2,#0
+ 1056 0094 2A60     	 str r2,[r5]
+ 348:../Application/src/application.c **** 	{
+ 1057              	 .loc 1 348 0
+ 1058 0096 002B     	 cmp r3,#0
+ 1059 0098 BFD0     	 beq .L73
+ 1060              	.L109:
+ 350:../Application/src/application.c **** 		algo_completed = 0;
+ 1061              	 .loc 1 350 0
+ 1062 009a FFF7FEFF 	 bl algo_completed_cb
+ 1063              	.LVL85:
+ 351:../Application/src/application.c **** 	}
+ 1064              	 .loc 1 351 0
+ 1065 009e 0023     	 movs r3,#0
+ 1066 00a0 2360     	 str r3,[r4]
+ 1067 00a2 BAE7     	 b .L73
+ 1068              	.L80:
+ 1069              	.LBB129:
+ 381:../Application/src/application.c **** 			if (status < 0)
+ 1070              	 .loc 1 381 0
+ 1071 00a4 FFF7FEFF 	 bl device_status_check
+ 1072              	.LVL86:
+ 382:../Application/src/application.c **** 			{
+ 1073              	 .loc 1 382 0
+ 1074 00a8 0028     	 cmp r0,#0
+ 1075 00aa 30DB     	 blt .L111
+ 1076              	.LVL87:
+ 1077              	.L106:
+ 1078              	.LBE129:
+ 395:../Application/src/application.c **** 			break;
+ 1079              	 .loc 1 395 0
+ 1080 00ac 0123     	 movs r3,#1
+ 1081 00ae 2370     	 strb r3,[r4]
+ 396:../Application/src/application.c **** 
+ 1082              	 .loc 1 396 0
+ 1083 00b0 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1084              	.L108:
+ 330:../Application/src/application.c **** 		acq_completed_cb();
+ 1085              	 .loc 1 330 0
+ 1086 00b4 0022     	 movs r2,#0
+ 1087 00b6 1A60     	 str r2,[r3]
+ 331:../Application/src/application.c **** 	}
+ 1088              	 .loc 1 331 0
+ 1089 00b8 FFF7FEFF 	 bl acq_completed_cb
+ 1090              	.LVL88:
+ 1091 00bc A6E7     	 b .L68
+ 1092              	.L110:
+ 1093 00be 264C     	 ldr r4,.L114+8
+ 1094 00c0 2368     	 ldr r3,[r4]
+ 1095 00c2 E6E7     	 b .L72
+ 1096              	.L76:
+ 359:../Application/src/application.c **** 			break;
+ 1097              	 .loc 1 359 0
+ 1098 00c4 0323     	 movs r3,#3
+ 1099 00c6 2370     	 strb r3,[r4]
+ 360:../Application/src/application.c **** 
+ 1100              	 .loc 1 360 0
+ 1101 00c8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1102              	.L78:
+ 1103              	.LBB130:
+ 1104              	.LBB131:
  282:../Application/src/application.c **** 
- 1423              	 .loc 1 282 0
- 1424 00da FFF7FEFF 	 bl ds_device_get_settings
- 1425              	.LVL124:
+ 1105              	 .loc 1 282 0
+ 1106 00cc FFF7FEFF 	 bl ds_device_get_settings
+ 1107              	.LVL89:
  284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
- 1426              	 .loc 1 284 0
- 1427 00de 294E     	 ldr r6,.L164+32
+ 1108              	 .loc 1 284 0
+ 1109 00d0 264E     	 ldr r6,.L114+28
  282:../Application/src/application.c **** 
- 1428              	 .loc 1 282 0
- 1429 00e0 0546     	 mov r5,r0
- 1430              	.LVL125:
+ 1110              	 .loc 1 282 0
+ 1111 00d2 0546     	 mov r5,r0
+ 1112              	.LVL90:
  284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
- 1431              	 .loc 1 284 0
- 1432 00e2 0146     	 mov r1,r0
- 1433 00e4 3068     	 ldr r0,[r6]
- 1434              	.LVL126:
- 1435 00e6 FFF7FEFF 	 bl radar_apply_hw_settings
- 1436              	.LVL127:
+ 1113              	 .loc 1 284 0
+ 1114 00d4 0146     	 mov r1,r0
+ 1115 00d6 3068     	 ldr r0,[r6]
+ 1116              	.LVL91:
+ 1117 00d8 FFF7FEFF 	 bl radar_apply_hw_settings
+ 1118              	.LVL92:
  285:../Application/src/application.c **** 	{
- 1437              	 .loc 1 285 0
- 1438 00ea 68B3     	 cbz r0,.L162
+ 1119              	 .loc 1 285 0
+ 1120 00dc 50B3     	 cbz r0,.L112
  292:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
- 1439              	 .loc 1 292 0
- 1440 00ec FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
- 1441              	.LVL128:
- 1442              	.L135:
+ 1121              	 .loc 1 292 0
+ 1122 00de FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
+ 1123              	.LVL93:
+ 1124              	.L85:
  295:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
- 1443              	 .loc 1 295 0
- 1444 00f0 0123     	 movs r3,#1
- 1445 00f2 2370     	 strb r3,[r4]
+ 1125              	 .loc 1 295 0
+ 1126 00e2 0123     	 movs r3,#1
+ 1127 00e4 2370     	 strb r3,[r4]
  296:../Application/src/application.c **** 
- 1446              	 .loc 1 296 0
- 1447 00f4 FFF7FEFF 	 bl ds_clear_device_parameter_changed
- 1448              	.LVL129:
+ 1128              	 .loc 1 296 0
+ 1129 00e6 FFF7FEFF 	 bl ds_clear_device_parameter_changed
+ 1130              	.LVL94:
  298:../Application/src/application.c **** 	return error;
- 1449              	 .loc 1 298 0
- 1450 00f8 3068     	 ldr r0,[r6]
- 1451 00fa 296A     	 ldr r1,[r5,#32]
- 1452 00fc FFF7FEFF 	 bl radar_set_automatic_frame_trigger
- 1453              	.LVL130:
- 1454              	.L157:
- 1455              	.LBE151:
- 1456              	.LBE150:
- 374:../Application/src/application.c **** 			break;
- 1457              	 .loc 1 374 0
- 1458 0100 0423     	 movs r3,#4
- 1459 0102 2370     	 strb r3,[r4]
- 1460 0104 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1461              	.L129:
- 362:../Application/src/application.c **** 			{
- 1462              	 .loc 1 362 0
- 1463 0108 FFF7FEFF 	 bl ds_is_device_parameter_changed
- 1464              	.LVL131:
- 1465 010c F8B1     	 cbz r0,.L132
- 1466              	.L133:
- 364:../Application/src/application.c **** 			}
- 1467              	 .loc 1 364 0
- 1468 010e 0223     	 movs r3,#2
- 1469 0110 2370     	 strb r3,[r4]
- 1470 0112 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1471              	.L131:
- 392:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
- 1472              	 .loc 1 392 0
- 1473 0116 FFF7FEFF 	 bl send_device_status_response
- 1474              	.LVL132:
- 1475 011a D3E7     	 b .L156
- 1476              	.LVL133:
- 1477              	.L161:
- 1478              	.LBB153:
- 382:../Application/src/application.c **** 			}
- 1479              	 .loc 1 382 0
- 1480 011c 0523     	 movs r3,#5
- 1481 011e 2370     	 strb r3,[r4]
- 1482 0120 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
- 1483              	.LVL134:
- 1484              	.L158:
- 1485              	.LBE153:
- 1486              	.LBE144:
- 1487              	.LBE143:
- 264:../Application/src/application.c ****   }
- 1488              	 .loc 1 264 0
- 1489 0124 FFF7FEFF 	 bl protocol_run
- 1490              	.LVL135:
- 1491 0128 78E7     	 b .L117
- 1492              	.L138:
- 1493              	.LBB156:
- 1494              	.LBB155:
- 422:../Application/src/application.c **** 			{
- 1495              	 .loc 1 422 0
- 1496 012a 174D     	 ldr r5,.L164+36
- 1497 012c 2E68     	 ldr r6,[r5]
- 1498 012e 002E     	 cmp r6,#0
- 1499 0130 E6D1     	 bne .L157
- 425:../Application/src/application.c **** 				if (delayCount == 100)
- 1500              	 .loc 1 425 0
- 1501 0132 164F     	 ldr r7,.L164+40
- 1502 0134 3B68     	 ldr r3,[r7]
- 1503 0136 0133     	 adds r3,r3,#1
- 426:../Application/src/application.c **** 				{
- 1504              	 .loc 1 426 0
- 1505 0138 642B     	 cmp r3,#100
- 425:../Application/src/application.c **** 				if (delayCount == 100)
- 1506              	 .loc 1 425 0
- 1507 013a 3B60     	 str r3,[r7]
- 426:../Application/src/application.c **** 				{
- 1508              	 .loc 1 426 0
- 1509 013c 0CD0     	 beq .L163
- 1510              	.L141:
- 432:../Application/src/application.c **** 			}
- 1511              	 .loc 1 432 0
- 1512 013e 1420     	 movs r0,#20
- 1513 0140 0121     	 movs r1,#1
- 1514 0142 FFF7FEFF 	 bl bsp_time_delay
- 1515              	.LVL136:
- 1516 0146 DBE7     	 b .L157
- 1517              	.LVL137:
- 1518              	.L162:
- 1519              	.LBB154:
- 1520              	.LBB152:
+ 1131              	 .loc 1 298 0
+ 1132 00ea 3068     	 ldr r0,[r6]
+ 1133 00ec 296A     	 ldr r1,[r5,#32]
+ 1134 00ee FFF7FEFF 	 bl radar_set_automatic_frame_trigger
+ 1135              	.LVL95:
+ 1136              	.L107:
+ 1137              	.LBE131:
+ 1138              	.LBE130:
+ 376:../Application/src/application.c **** 			break;
+ 1139              	 .loc 1 376 0
+ 1140 00f2 0423     	 movs r3,#4
+ 1141 00f4 2370     	 strb r3,[r4]
+ 377:../Application/src/application.c **** 
+ 1142              	 .loc 1 377 0
+ 1143 00f6 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1144              	.L79:
+ 364:../Application/src/application.c **** 			{
+ 1145              	 .loc 1 364 0
+ 1146 00fa FFF7FEFF 	 bl ds_is_device_parameter_changed
+ 1147              	.LVL96:
+ 1148 00fe E0B1     	 cbz r0,.L82
+ 1149              	.L83:
+ 366:../Application/src/application.c **** 			}
+ 1150              	 .loc 1 366 0
+ 1151 0100 0223     	 movs r3,#2
+ 1152 0102 2370     	 strb r3,[r4]
+ 1153 0104 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1154              	.L81:
+ 394:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 1155              	 .loc 1 394 0
+ 1156 0108 FFF7FEFF 	 bl send_device_status_response
+ 1157              	.LVL97:
+ 1158 010c CEE7     	 b .L106
+ 1159              	.LVL98:
+ 1160              	.L111:
+ 1161              	.LBB133:
+ 384:../Application/src/application.c **** 			}
+ 1162              	 .loc 1 384 0
+ 1163 010e 0523     	 movs r3,#5
+ 1164 0110 2370     	 strb r3,[r4]
+ 1165 0112 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1166              	.LVL99:
+ 1167              	.L88:
+ 1168              	.LBE133:
+ 424:../Application/src/application.c **** 			{
+ 1169              	 .loc 1 424 0
+ 1170 0116 164D     	 ldr r5,.L114+32
+ 1171 0118 2E68     	 ldr r6,[r5]
+ 1172 011a 002E     	 cmp r6,#0
+ 1173 011c E9D1     	 bne .L107
+ 427:../Application/src/application.c **** 				if (delayCount == 100)
+ 1174              	 .loc 1 427 0
+ 1175 011e 154F     	 ldr r7,.L114+36
+ 1176 0120 3B68     	 ldr r3,[r7]
+ 1177 0122 0133     	 adds r3,r3,#1
+ 428:../Application/src/application.c **** 				{
+ 1178              	 .loc 1 428 0
+ 1179 0124 642B     	 cmp r3,#100
+ 427:../Application/src/application.c **** 				if (delayCount == 100)
+ 1180              	 .loc 1 427 0
+ 1181 0126 3B60     	 str r3,[r7]
+ 428:../Application/src/application.c **** 				{
+ 1182              	 .loc 1 428 0
+ 1183 0128 0CD0     	 beq .L113
+ 1184              	.L91:
+ 434:../Application/src/application.c **** 			}
+ 1185              	 .loc 1 434 0
+ 1186 012a 1420     	 movs r0,#20
+ 1187 012c 0121     	 movs r1,#1
+ 1188 012e FFF7FEFF 	 bl bsp_time_delay
+ 1189              	.LVL100:
+ 1190 0132 DEE7     	 b .L107
+ 1191              	.LVL101:
+ 1192              	.L112:
+ 1193              	.LBB134:
+ 1194              	.LBB132:
  287:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
- 1521              	 .loc 1 287 0
- 1522 0148 FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
- 1523              	.LVL138:
- 1524 014c D0E7     	 b .L135
- 1525              	.LVL139:
- 1526              	.L132:
- 1527              	.LBE152:
- 1528              	.LBE154:
- 362:../Application/src/application.c **** 			{
- 1529              	 .loc 1 362 0
- 1530 014e FFF7FEFF 	 bl ds_is_device_settings_updated
- 1531              	.LVL140:
- 1532 0152 0028     	 cmp r0,#0
- 1533 0154 DBD1     	 bne .L133
- 1534 0156 D3E7     	 b .L157
- 1535              	.L163:
- 428:../Application/src/application.c **** 					app_connected = 1;
- 1536              	 .loc 1 428 0
- 1537 0158 FFF7FEFF 	 bl send_device_status_response
- 1538              	.LVL141:
- 429:../Application/src/application.c **** 					delayCount = 0;
- 1539              	 .loc 1 429 0
- 1540 015c 0123     	 movs r3,#1
- 430:../Application/src/application.c **** 				}
- 1541              	 .loc 1 430 0
- 1542 015e 3E60     	 str r6,[r7]
- 429:../Application/src/application.c **** 					delayCount = 0;
- 1543              	 .loc 1 429 0
- 1544 0160 2B60     	 str r3,[r5]
- 1545 0162 ECE7     	 b .L141
- 1546              	.L165:
- 1547              	 .align 2
- 1548              	.L164:
- 1549 0164 00000000 	 .word .LANCHOR2
- 1550 0168 00000000 	 .word .LANCHOR0
- 1551 016c 00000000 	 .word .LANCHOR1
- 1552 0170 00000000 	 .word .LANCHOR8
- 1553 0174 00000000 	 .word .LANCHOR4
- 1554 0178 00000000 	 .word .LANCHOR10
- 1555 017c 00000000 	 .word .LANCHOR5
- 1556 0180 00000000 	 .word .LANCHOR9
- 1557 0184 00000000 	 .word .LANCHOR3
- 1558 0188 00000000 	 .word .LANCHOR7
- 1559 018c 00000000 	 .word .LANCHOR6
- 1560              	.LBE155:
- 1561              	.LBE156:
- 1562              	 .cfi_endproc
- 1563              	.LFE532:
- 1565              	 .global g_usb_init
- 1566              	 .comm endpoint_list,60,4
- 1567              	 .global h_radar_device
- 1568              	 .global firmware_information
- 1569              	 .section .bss.g_usb_init,"aw",%nobits
- 1570              	 .set .LANCHOR2,.+0
- 1573              	g_usb_init:
- 1574 0000 00       	 .space 1
- 1575              	 .section .bss.algo_result,"aw",%nobits
- 1576              	 .align 2
- 1577              	 .set .LANCHOR9,.+0
- 1580              	algo_result:
- 1581 0000 00000000 	 .space 32
- 1581      00000000 
- 1581      00000000 
- 1581      00000000 
- 1581      00000000 
- 1582              	 .section .bss.app_connected,"aw",%nobits
- 1583              	 .align 2
- 1584              	 .set .LANCHOR7,.+0
- 1587              	app_connected:
- 1588 0000 00000000 	 .space 4
- 1589              	 .section .bss.algo_completed,"aw",%nobits
+ 1195              	 .loc 1 287 0
+ 1196 0134 FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
+ 1197              	.LVL102:
+ 1198 0138 D3E7     	 b .L85
+ 1199              	.LVL103:
+ 1200              	.L82:
+ 1201              	.LBE132:
+ 1202              	.LBE134:
+ 364:../Application/src/application.c **** 			{
+ 1203              	 .loc 1 364 0 discriminator 1
+ 1204 013a FFF7FEFF 	 bl ds_is_device_settings_updated
+ 1205              	.LVL104:
+ 1206 013e 0028     	 cmp r0,#0
+ 1207 0140 DED1     	 bne .L83
+ 1208 0142 D6E7     	 b .L107
+ 1209              	.L113:
+ 430:../Application/src/application.c **** 					app_connected = 1;
+ 1210              	 .loc 1 430 0
+ 1211 0144 FFF7FEFF 	 bl send_device_status_response
+ 1212              	.LVL105:
+ 431:../Application/src/application.c **** 					delayCount = 0;
+ 1213              	 .loc 1 431 0
+ 1214 0148 0123     	 movs r3,#1
+ 432:../Application/src/application.c **** 				}
+ 1215              	 .loc 1 432 0
+ 1216 014a 3E60     	 str r6,[r7]
+ 431:../Application/src/application.c **** 					delayCount = 0;
+ 1217              	 .loc 1 431 0
+ 1218 014c 2B60     	 str r3,[r5]
+ 1219 014e ECE7     	 b .L91
+ 1220              	.L115:
+ 1221              	 .align 2
+ 1222              	.L114:
+ 1223 0150 00000000 	 .word .LANCHOR0
+ 1224 0154 00000000 	 .word .LANCHOR1
+ 1225 0158 00000000 	 .word .LANCHOR8
+ 1226 015c 00000000 	 .word .LANCHOR4
+ 1227 0160 00000000 	 .word .LANCHOR10
+ 1228 0164 00000000 	 .word .LANCHOR5
+ 1229 0168 00000000 	 .word .LANCHOR9
+ 1230 016c 00000000 	 .word .LANCHOR3
+ 1231 0170 00000000 	 .word .LANCHOR7
+ 1232 0174 00000000 	 .word .LANCHOR6
+ 1233              	 .cfi_endproc
+ 1234              	.LFE536:
+ 1236              	 .section .text.app_process,"ax",%progbits
+ 1237              	 .align 2
+ 1238              	 .global app_process
+ 1239              	 .thumb
+ 1240              	 .thumb_func
+ 1242              	app_process:
+ 1243              	.LFB532:
+ 260:../Application/src/application.c ****   if (g_usb_init == true)
+ 1244              	 .loc 1 260 0
+ 1245              	 .cfi_startproc
+ 1246              	 
+ 1247              	 
+ 1248 0000 2DE9F041 	 push {r4,r5,r6,r7,r8,lr}
+ 1249              	.LCFI11:
+ 1250              	 .cfi_def_cfa_offset 24
+ 1251              	 .cfi_offset 4,-24
+ 1252              	 .cfi_offset 5,-20
+ 1253              	 .cfi_offset 6,-16
+ 1254              	 .cfi_offset 7,-12
+ 1255              	 .cfi_offset 8,-8
+ 1256              	 .cfi_offset 14,-4
+ 261:../Application/src/application.c ****   {
+ 1257              	 .loc 1 261 0
+ 1258 0004 5A4C     	 ldr r4,.L166
+ 1259 0006 2378     	 ldrb r3,[r4]
+ 1260 0008 012B     	 cmp r3,#1
+ 1261 000a 00F09080 	 beq .L159
+ 269:../Application/src/application.c ****     {
+ 1262              	 .loc 1 269 0
+ 1263 000e 40F6FF70 	 movw r0,#4095
+ 1264 0012 FFF7FEFF 	 bl bsp_usb_init
+ 1265              	.LVL106:
+ 1266 0016 08B9     	 cbnz r0,.L118
+ 271:../Application/src/application.c ****     }
+ 1267              	 .loc 1 271 0
+ 1268 0018 0123     	 movs r3,#1
+ 1269 001a 2370     	 strb r3,[r4]
+ 1270              	.L118:
+ 1271              	.LBB143:
+ 1272              	.LBB144:
+ 326:../Application/src/application.c **** 	{
+ 1273              	 .loc 1 326 0
+ 1274 001c 554B     	 ldr r3,.L166+4
+ 1275 001e 1A68     	 ldr r2,[r3]
+ 1276 0020 002A     	 cmp r2,#0
+ 1277 0022 53D1     	 bne .L160
+ 1278              	.L119:
+ 334:../Application/src/application.c **** 	{
+ 1279              	 .loc 1 334 0
+ 1280 0024 544D     	 ldr r5,.L166+8
+ 1281 0026 2B68     	 ldr r3,[r5]
+ 1282 0028 CBB9     	 cbnz r3,.L120
+ 1283 002a 544C     	 ldr r4,.L166+12
+ 1284 002c 2368     	 ldr r3,[r4]
+ 348:../Application/src/application.c **** 	{
+ 1285              	 .loc 1 348 0
+ 1286 002e 002B     	 cmp r3,#0
+ 1287 0030 3FD1     	 bne .L161
+ 1288              	.L124:
+ 354:../Application/src/application.c **** 	{
+ 1289              	 .loc 1 354 0
+ 1290 0032 534B     	 ldr r3,.L166+16
+ 356:../Application/src/application.c **** 		{
+ 1291              	 .loc 1 356 0
+ 1292 0034 534C     	 ldr r4,.L166+20
+ 354:../Application/src/application.c **** 	{
+ 1293              	 .loc 1 354 0
+ 1294 0036 1B68     	 ldr r3,[r3]
+ 1295 0038 43B1     	 cbz r3,.L125
+ 356:../Application/src/application.c **** 		{
+ 1296              	 .loc 1 356 0
+ 1297 003a 2378     	 ldrb r3,[r4]
+ 1298 003c 013B     	 subs r3,r3,#1
+ 1299 003e 042B     	 cmp r3,#4
+ 1300 0040 0BD8     	 bhi .L116
+ 1301 0042 DFE803F0 	 tbb [pc,r3]
+ 1302              	.L128:
+ 1303 0046 4B       	 .byte (.L127-.L128)/2
+ 1304 0047 4F       	 .byte (.L129-.L128)/2
+ 1305 0048 69       	 .byte (.L130-.L128)/2
+ 1306 0049 3B       	 .byte (.L131-.L128)/2
+ 1307 004a 66       	 .byte (.L132-.L128)/2
+ 1308 004b 00       	 .p2align 1
+ 1309              	.L125:
+ 404:../Application/src/application.c **** 		{
+ 1310              	 .loc 1 404 0
+ 1311 004c 2378     	 ldrb r3,[r4]
+ 1312 004e 042B     	 cmp r3,#4
+ 1313 0050 34D0     	 beq .L131
+ 1314 0052 052B     	 cmp r3,#5
+ 1315 0054 6ED0     	 beq .L139
+ 1316 0056 012B     	 cmp r3,#1
+ 1317 0058 30D0     	 beq .L131
+ 1318              	.L116:
+ 1319 005a BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1320              	.L120:
+ 339:../Application/src/application.c **** 		{
+ 1321              	 .loc 1 339 0
+ 1322 005e 4A4C     	 ldr r4,.L166+24
+ 1323 0060 2368     	 ldr r3,[r4]
+ 1324 0062 002B     	 cmp r3,#0
+ 1325 0064 37D0     	 beq .L162
+ 1326              	.LBB145:
+ 1327              	.LBB146:
+ 562:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 1328              	 .loc 1 562 0
+ 1329 0066 FFF7FEFF 	 bl ds_get_active_acq_buf
+ 1330              	.LVL107:
+ 1331 006a 0746     	 mov r7,r0
+ 1332              	.LVL108:
+ 563:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1333              	 .loc 1 563 0
+ 1334 006c FFF7FEFF 	 bl ds_algo_get_settings
+ 1335              	.LVL109:
+ 1336 0070 8046     	 mov r8,r0
+ 1337              	.LVL110:
+ 564:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
+ 1338              	 .loc 1 564 0
+ 1339 0072 FFF7FEFF 	 bl ds_device_get_shadow_settings
+ 1340              	.LVL111:
+ 1341 0076 0646     	 mov r6,r0
+ 1342              	.LVL112:
+ 568:../Application/src/application.c **** 
+ 1343              	 .loc 1 568 0
+ 1344 0078 3146     	 mov r1,r6
+ 1345 007a 3846     	 mov r0,r7
+ 1346              	.LVL113:
+ 1347 007c FFF7FEFF 	 bl radar_pulse_raw_data
+ 1348              	.LVL114:
+ 570:../Application/src/application.c **** 
+ 1349              	 .loc 1 570 0
+ 1350 0080 3246     	 mov r2,r6
+ 1351 0082 424B     	 ldr r3,.L166+28
+ 1352 0084 2668     	 ldr r6,[r4]
+ 1353              	.LVL115:
+ 1354              	.LBE146:
+ 1355              	.LBE145:
+ 342:../Application/src/application.c **** 		}
+ 1356              	 .loc 1 342 0
+ 1357 0086 3D4C     	 ldr r4,.L166+12
+ 1358              	.LBB148:
+ 1359              	.LBB147:
+ 570:../Application/src/application.c **** 
+ 1360              	 .loc 1 570 0
+ 1361 0088 4146     	 mov r1,r8
+ 1362 008a 3846     	 mov r0,r7
+ 1363 008c B047     	 blx r6
+ 1364              	.LVL116:
+ 572:../Application/src/application.c **** 
+ 1365              	 .loc 1 572 0
+ 1366 008e 3F48     	 ldr r0,.L166+28
+ 1367 0090 FFF7FEFF 	 bl ds_store_algo_result_ptr
+ 1368              	.LVL117:
+ 574:../Application/src/application.c **** 
+ 1369              	 .loc 1 574 0
+ 1370 0094 3D48     	 ldr r0,.L166+28
+ 1371 0096 FFF7FEFF 	 bl radar_pulse_results_updates
+ 1372              	.LVL118:
+ 576:../Application/src/application.c **** 
+ 1373              	 .loc 1 576 0
+ 1374 009a FFF7FEFF 	 bl mcu_base_updates
+ 1375              	.LVL119:
+ 1376              	 .loc 1 578 0
+ 1377 009e 3B48     	 ldr r0,.L166+28
+ 1378 00a0 FFF7FEFF 	 bl update_leds
+ 1379              	.LVL120:
+ 1380              	.LBE147:
+ 1381              	.LBE148:
+ 342:../Application/src/application.c **** 		}
+ 1382              	 .loc 1 342 0
+ 1383 00a4 2368     	 ldr r3,[r4]
+ 1384 00a6 0133     	 adds r3,r3,#1
+ 1385 00a8 2360     	 str r3,[r4]
+ 1386              	.LVL121:
+ 1387              	.L123:
+ 345:../Application/src/application.c **** 	}
+ 1388              	 .loc 1 345 0
+ 1389 00aa 0022     	 movs r2,#0
+ 1390 00ac 2A60     	 str r2,[r5]
+ 348:../Application/src/application.c **** 	{
+ 1391              	 .loc 1 348 0
+ 1392 00ae 002B     	 cmp r3,#0
+ 1393 00b0 BFD0     	 beq .L124
+ 1394              	.L161:
+ 350:../Application/src/application.c **** 		algo_completed = 0;
+ 1395              	 .loc 1 350 0
+ 1396 00b2 FFF7FEFF 	 bl algo_completed_cb
+ 1397              	.LVL122:
+ 351:../Application/src/application.c **** 	}
+ 1398              	 .loc 1 351 0
+ 1399 00b6 0023     	 movs r3,#0
+ 1400 00b8 2360     	 str r3,[r4]
+ 1401 00ba BAE7     	 b .L124
+ 1402              	.L131:
+ 1403              	.LBB149:
+ 381:../Application/src/application.c **** 			if (status < 0)
+ 1404              	 .loc 1 381 0
+ 1405 00bc FFF7FEFF 	 bl device_status_check
+ 1406              	.LVL123:
+ 382:../Application/src/application.c **** 			{
+ 1407              	 .loc 1 382 0
+ 1408 00c0 0028     	 cmp r0,#0
+ 1409 00c2 30DB     	 blt .L163
+ 1410              	.LVL124:
+ 1411              	.L157:
+ 1412              	.LBE149:
+ 395:../Application/src/application.c **** 			break;
+ 1413              	 .loc 1 395 0
+ 1414 00c4 0123     	 movs r3,#1
+ 1415 00c6 2370     	 strb r3,[r4]
+ 1416 00c8 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1417              	.L160:
+ 330:../Application/src/application.c **** 		acq_completed_cb();
+ 1418              	 .loc 1 330 0
+ 1419 00cc 0022     	 movs r2,#0
+ 1420 00ce 1A60     	 str r2,[r3]
+ 331:../Application/src/application.c **** 	}
+ 1421              	 .loc 1 331 0
+ 1422 00d0 FFF7FEFF 	 bl acq_completed_cb
+ 1423              	.LVL125:
+ 1424 00d4 A6E7     	 b .L119
+ 1425              	.L162:
+ 1426 00d6 294C     	 ldr r4,.L166+12
+ 1427 00d8 2368     	 ldr r3,[r4]
+ 1428 00da E6E7     	 b .L123
+ 1429              	.L127:
+ 359:../Application/src/application.c **** 			break;
+ 1430              	 .loc 1 359 0
+ 1431 00dc 0323     	 movs r3,#3
+ 1432 00de 2370     	 strb r3,[r4]
+ 1433 00e0 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1434              	.L129:
+ 1435              	.LBB150:
+ 1436              	.LBB151:
+ 282:../Application/src/application.c **** 
+ 1437              	 .loc 1 282 0
+ 1438 00e4 FFF7FEFF 	 bl ds_device_get_settings
+ 1439              	.LVL126:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1440              	 .loc 1 284 0
+ 1441 00e8 294E     	 ldr r6,.L166+32
+ 282:../Application/src/application.c **** 
+ 1442              	 .loc 1 282 0
+ 1443 00ea 0546     	 mov r5,r0
+ 1444              	.LVL127:
+ 284:../Application/src/application.c **** 	if (error == RADAR_ERR_OK)
+ 1445              	 .loc 1 284 0
+ 1446 00ec 0146     	 mov r1,r0
+ 1447 00ee 3068     	 ldr r0,[r6]
+ 1448              	.LVL128:
+ 1449 00f0 FFF7FEFF 	 bl radar_apply_hw_settings
+ 1450              	.LVL129:
+ 285:../Application/src/application.c **** 	{
+ 1451              	 .loc 1 285 0
+ 1452 00f4 68B3     	 cbz r0,.L164
+ 292:../Application/src/application.c **** 		// current and new parameter differs, if an error occurred, tell to the application
+ 1453              	 .loc 1 292 0
+ 1454 00f6 FFF7FEFF 	 bl ds_device_settings_revert_from_shadow
+ 1455              	.LVL130:
+ 1456              	.L136:
+ 295:../Application/src/application.c **** 	ds_clear_device_parameter_changed();
+ 1457              	 .loc 1 295 0
+ 1458 00fa 0123     	 movs r3,#1
+ 1459 00fc 2370     	 strb r3,[r4]
+ 296:../Application/src/application.c **** 
+ 1460              	 .loc 1 296 0
+ 1461 00fe FFF7FEFF 	 bl ds_clear_device_parameter_changed
+ 1462              	.LVL131:
+ 298:../Application/src/application.c **** 	return error;
+ 1463              	 .loc 1 298 0
+ 1464 0102 3068     	 ldr r0,[r6]
+ 1465 0104 296A     	 ldr r1,[r5,#32]
+ 1466 0106 FFF7FEFF 	 bl radar_set_automatic_frame_trigger
+ 1467              	.LVL132:
+ 1468              	.L158:
+ 1469              	.LBE151:
+ 1470              	.LBE150:
+ 376:../Application/src/application.c **** 			break;
+ 1471              	 .loc 1 376 0
+ 1472 010a 0423     	 movs r3,#4
+ 1473 010c 2370     	 strb r3,[r4]
+ 1474 010e BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1475              	.L132:
+ 394:../Application/src/application.c **** 			radar_app_state = APP_IDLE;
+ 1476              	 .loc 1 394 0
+ 1477 0112 FFF7FEFF 	 bl send_device_status_response
+ 1478              	.LVL133:
+ 1479 0116 D5E7     	 b .L157
+ 1480              	.L130:
+ 364:../Application/src/application.c **** 			{
+ 1481              	 .loc 1 364 0
+ 1482 0118 FFF7FEFF 	 bl ds_is_device_parameter_changed
+ 1483              	.LVL134:
+ 1484 011c E0B1     	 cbz r0,.L133
+ 1485              	.L134:
+ 366:../Application/src/application.c **** 			}
+ 1486              	 .loc 1 366 0
+ 1487 011e 0223     	 movs r3,#2
+ 1488 0120 2370     	 strb r3,[r4]
+ 1489 0122 BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1490              	.LVL135:
+ 1491              	.L163:
+ 1492              	.LBB153:
+ 384:../Application/src/application.c **** 			}
+ 1493              	 .loc 1 384 0
+ 1494 0126 0523     	 movs r3,#5
+ 1495 0128 2370     	 strb r3,[r4]
+ 1496 012a BDE8F081 	 pop {r4,r5,r6,r7,r8,pc}
+ 1497              	.LVL136:
+ 1498              	.L159:
+ 1499              	.LBE153:
+ 1500              	.LBE144:
+ 1501              	.LBE143:
+ 264:../Application/src/application.c ****   }
+ 1502              	 .loc 1 264 0
+ 1503 012e FFF7FEFF 	 bl protocol_run
+ 1504              	.LVL137:
+ 1505 0132 73E7     	 b .L118
+ 1506              	.L139:
+ 1507              	.LBB156:
+ 1508              	.LBB155:
+ 424:../Application/src/application.c **** 			{
+ 1509              	 .loc 1 424 0
+ 1510 0134 174D     	 ldr r5,.L166+36
+ 1511 0136 2E68     	 ldr r6,[r5]
+ 1512 0138 002E     	 cmp r6,#0
+ 1513 013a E6D1     	 bne .L158
+ 427:../Application/src/application.c **** 				if (delayCount == 100)
+ 1514              	 .loc 1 427 0
+ 1515 013c 164F     	 ldr r7,.L166+40
+ 1516 013e 3B68     	 ldr r3,[r7]
+ 1517 0140 0133     	 adds r3,r3,#1
+ 428:../Application/src/application.c **** 				{
+ 1518              	 .loc 1 428 0
+ 1519 0142 642B     	 cmp r3,#100
+ 427:../Application/src/application.c **** 				if (delayCount == 100)
+ 1520              	 .loc 1 427 0
+ 1521 0144 3B60     	 str r3,[r7]
+ 428:../Application/src/application.c **** 				{
+ 1522              	 .loc 1 428 0
+ 1523 0146 0CD0     	 beq .L165
+ 1524              	.L142:
+ 434:../Application/src/application.c **** 			}
+ 1525              	 .loc 1 434 0
+ 1526 0148 1420     	 movs r0,#20
+ 1527 014a 0121     	 movs r1,#1
+ 1528 014c FFF7FEFF 	 bl bsp_time_delay
+ 1529              	.LVL138:
+ 1530 0150 DBE7     	 b .L158
+ 1531              	.LVL139:
+ 1532              	.L164:
+ 1533              	.LBB154:
+ 1534              	.LBB152:
+ 287:../Application/src/application.c **** 		/* add com-lib callback to send-out updated parameters!!! */
+ 1535              	 .loc 1 287 0
+ 1536 0152 FFF7FEFF 	 bl ds_device_settings_copy_to_shadow
+ 1537              	.LVL140:
+ 1538 0156 D0E7     	 b .L136
+ 1539              	.LVL141:
+ 1540              	.L133:
+ 1541              	.LBE152:
+ 1542              	.LBE154:
+ 364:../Application/src/application.c **** 			{
+ 1543              	 .loc 1 364 0
+ 1544 0158 FFF7FEFF 	 bl ds_is_device_settings_updated
+ 1545              	.LVL142:
+ 1546 015c 0028     	 cmp r0,#0
+ 1547 015e DED1     	 bne .L134
+ 1548 0160 D3E7     	 b .L158
+ 1549              	.L165:
+ 430:../Application/src/application.c **** 					app_connected = 1;
+ 1550              	 .loc 1 430 0
+ 1551 0162 FFF7FEFF 	 bl send_device_status_response
+ 1552              	.LVL143:
+ 431:../Application/src/application.c **** 					delayCount = 0;
+ 1553              	 .loc 1 431 0
+ 1554 0166 0123     	 movs r3,#1
+ 432:../Application/src/application.c **** 				}
+ 1555              	 .loc 1 432 0
+ 1556 0168 3E60     	 str r6,[r7]
+ 431:../Application/src/application.c **** 					delayCount = 0;
+ 1557              	 .loc 1 431 0
+ 1558 016a 2B60     	 str r3,[r5]
+ 1559 016c ECE7     	 b .L142
+ 1560              	.L167:
+ 1561 016e 00BF     	 .align 2
+ 1562              	.L166:
+ 1563 0170 00000000 	 .word .LANCHOR2
+ 1564 0174 00000000 	 .word .LANCHOR0
+ 1565 0178 00000000 	 .word .LANCHOR1
+ 1566 017c 00000000 	 .word .LANCHOR8
+ 1567 0180 00000000 	 .word .LANCHOR4
+ 1568 0184 00000000 	 .word .LANCHOR10
+ 1569 0188 00000000 	 .word .LANCHOR5
+ 1570 018c 00000000 	 .word .LANCHOR9
+ 1571 0190 00000000 	 .word .LANCHOR3
+ 1572 0194 00000000 	 .word .LANCHOR7
+ 1573 0198 00000000 	 .word .LANCHOR6
+ 1574              	.LBE155:
+ 1575              	.LBE156:
+ 1576              	 .cfi_endproc
+ 1577              	.LFE532:
+ 1579              	 .global g_usb_init
+ 1580              	 .comm endpoint_list,60,4
+ 1581              	 .global h_radar_device
+ 1582              	 .global firmware_information
+ 1583              	 .section .bss.g_usb_init,"aw",%nobits
+ 1584              	 .set .LANCHOR2,.+0
+ 1587              	g_usb_init:
+ 1588 0000 00       	 .space 1
+ 1589              	 .section .bss.algo_result,"aw",%nobits
  1590              	 .align 2
- 1591              	 .set .LANCHOR8,.+0
- 1594              	algo_completed:
- 1595 0000 00000000 	 .space 4
- 1596              	 .section .bss.delayCount,"aw",%nobits
+ 1591              	 .set .LANCHOR9,.+0
+ 1594              	algo_result:
+ 1595 0000 00000000 	 .space 32
+ 1595      00000000 
+ 1595      00000000 
+ 1595      00000000 
+ 1595      00000000 
+ 1596              	 .section .bss.app_connected,"aw",%nobits
  1597              	 .align 2
- 1598              	 .set .LANCHOR6,.+0
- 1601              	delayCount:
+ 1598              	 .set .LANCHOR7,.+0
+ 1601              	app_connected:
  1602 0000 00000000 	 .space 4
- 1603              	 .section .bss.acq_completed,"aw",%nobits
+ 1603              	 .section .bss.algo_completed,"aw",%nobits
  1604              	 .align 2
- 1605              	 .set .LANCHOR1,.+0
- 1608              	acq_completed:
+ 1605              	 .set .LANCHOR8,.+0
+ 1608              	algo_completed:
  1609 0000 00000000 	 .space 4
- 1610              	 .section .bss.algo_processing_function,"aw",%nobits
+ 1610              	 .section .bss.delayCount,"aw",%nobits
  1611              	 .align 2
- 1612              	 .set .LANCHOR5,.+0
- 1615              	algo_processing_function:
+ 1612              	 .set .LANCHOR6,.+0
+ 1615              	delayCount:
  1616 0000 00000000 	 .space 4
- 1617              	 .section .bss.h_radar_device,"aw",%nobits
+ 1617              	 .section .bss.acq_completed,"aw",%nobits
  1618              	 .align 2
- 1619              	 .set .LANCHOR3,.+0
- 1622              	h_radar_device:
+ 1619              	 .set .LANCHOR1,.+0
+ 1622              	acq_completed:
  1623 0000 00000000 	 .space 4
- 1624              	 .section .bss.acq_started,"aw",%nobits
+ 1624              	 .section .bss.algo_processing_function,"aw",%nobits
  1625              	 .align 2
- 1626              	 .set .LANCHOR0,.+0
- 1629              	acq_started:
+ 1626              	 .set .LANCHOR5,.+0
+ 1629              	algo_processing_function:
  1630 0000 00000000 	 .space 4
- 1631              	 .section .data.firmware_information,"aw",%progbits
+ 1631              	 .section .bss.h_radar_device,"aw",%nobits
  1632              	 .align 2
- 1635              	firmware_information:
- 1636 0000 00000000 	 .word .LC0
- 1637 0004 0300     	 .short 3
- 1638 0006 0000     	 .short 0
- 1639 0008 0000     	 .short 0
- 1640 000a 0000     	 .space 2
- 1641              	 .section .bss.app_initalized,"aw",%nobits
- 1642              	 .align 2
- 1643              	 .set .LANCHOR4,.+0
- 1646              	app_initalized:
- 1647 0000 00000000 	 .space 4
- 1648              	 .section .rodata.str1.4,"aMS",%progbits,1
- 1649              	 .align 2
- 1650              	.LC0:
- 1651 0000 53656E73 	 .ascii "Sense2GoL Pulse BGT24LTR11 Demo Radar Board\000"
- 1651      6532476F 
- 1651      4C205075 
- 1651      6C736520 
- 1651      42475432 
- 1652              	 .section .data.radar_app_state,"aw",%progbits
- 1653              	 .set .LANCHOR10,.+0
- 1656              	radar_app_state:
- 1657 0000 01       	 .byte 1
- 1658              	 .text
- 1659              	.Letext0:
- 1660              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
- 1661              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
- 1662              	 .file 5 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
- 1663              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
- 1664              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
- 1665              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_gpio.h"
- 1666              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
- 1667              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu4.h"
- 1668              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/GLOBAL_CCU4/global_ccu4.h"
- 1669              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h"
- 1670              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
- 1671              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
- 1672              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
- 1673              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io.h"
- 1674              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
- 1675              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/Protocol.h"
- 1676              	 .file 19 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
- 1677              	 .file 20 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
- 1678              	 .file 21 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/radar_mcu4/inc/radar_mcu4_bsp.h"
- 1679              	 .file 22 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_api.h"
- 1680              	 .file 23 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
- 1681              	 .file 24 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
- 1682              	 .file 25 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
- 1683              	 .file 26 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
- 1684              	 .file 27 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
- 1685              	 .file 28 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer_extern.h"
- 1686              	 .file 29 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
- 1687              	 .file 30 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io_extern.h"
- 1688              	 .file 31 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_usb.h"
- 1689              	 .file 32 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_bsp.h"
- 1690              	 .file 33 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_pulse.h"
- 1691              	 .file 34 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_mcubase.h"
- 1692              	 .file 35 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_device_status.h"
- 1693              	 .file 36 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/EndpointRadarDeviceStatus.h"
+ 1633              	 .set .LANCHOR3,.+0
+ 1636              	h_radar_device:
+ 1637 0000 00000000 	 .space 4
+ 1638              	 .section .bss.acq_started,"aw",%nobits
+ 1639              	 .align 2
+ 1640              	 .set .LANCHOR0,.+0
+ 1643              	acq_started:
+ 1644 0000 00000000 	 .space 4
+ 1645              	 .section .data.firmware_information,"aw",%progbits
+ 1646              	 .align 2
+ 1649              	firmware_information:
+ 1650 0000 00000000 	 .word .LC0
+ 1651 0004 0300     	 .short 3
+ 1652 0006 0000     	 .short 0
+ 1653 0008 0000     	 .short 0
+ 1654 000a 0000     	 .space 2
+ 1655              	 .section .bss.app_initalized,"aw",%nobits
+ 1656              	 .align 2
+ 1657              	 .set .LANCHOR4,.+0
+ 1660              	app_initalized:
+ 1661 0000 00000000 	 .space 4
+ 1662              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 1663              	 .align 2
+ 1664              	.LC0:
+ 1665 0000 53656E73 	 .ascii "Sense2GoL Pulse BGT24LTR11 Demo Radar Board\000"
+ 1665      6532476F 
+ 1665      4C205075 
+ 1665      6C736520 
+ 1665      42475432 
+ 1666              	 .section .data.radar_app_state,"aw",%progbits
+ 1667              	 .set .LANCHOR10,.+0
+ 1670              	radar_app_state:
+ 1671 0000 01       	 .byte 1
+ 1672              	 .text
+ 1673              	.Letext0:
+ 1674              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 1675              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 1676              	 .file 5 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 1677              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 1678              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_scu.h"
+ 1679              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc4_gpio.h"
+ 1680              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 1681              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_ccu4.h"
+ 1682              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/GLOBAL_CCU4/global_ccu4.h"
+ 1683              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer.h"
+ 1684              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 1685              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 1686              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 1687              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io.h"
+ 1688              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 1689              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/Protocol.h"
+ 1690              	 .file 19 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 1691              	 .file 20 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 1692              	 .file 21 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/radar_mcu4/inc/radar_mcu4_bsp.h"
+ 1693              	 .file 22 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_api.h"
+ 1694              	 .file 23 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_control.h"
+ 1695              	 .file 24 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Application/inc/application.h"
+ 1696              	 .file 25 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 1697              	 .file 26 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 1698              	 .file 27 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 1699              	 .file 28 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/TIMER/timer_extern.h"
+ 1700              	 .file 29 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 1701              	 .file 30 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/DIGITAL_IO/digital_io_extern.h"
+ 1702              	 .file 31 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_usb.h"
+ 1703              	 .file 32 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/BSP/Sense2GoLPulse/inc/sense2gol_bsp.h"
+ 1704              	 .file 33 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_pulse.h"
+ 1705              	 .file 34 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_mcubase.h"
+ 1706              	 .file 35 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/radar_device_status.h"
+ 1707              	 .file 36 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/HostCommunication/inc/EndpointRadarDeviceStatus.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 application.c
     {standard input}:20     .text.app_data_acq_started_cb:00000000 $t
@@ -2809,41 +2833,41 @@ DEFINED SYMBOLS
     {standard input}:910    .text.update_leds:000000a0 $d
     {standard input}:917    .text.radar_app_process:00000000 $t
     {standard input}:922    .text.radar_app_process:00000000 radar_app_process
-    {standard input}:971    .text.radar_app_process:00000030 $d
-    {standard input}:1216   .text.radar_app_process:00000148 $d
-    {standard input}:1230   .text.app_process:00000000 $t
-    {standard input}:1235   .text.app_process:00000000 app_process
-    {standard input}:1298   .text.app_process:00000048 $d
-    {standard input}:1549   .text.app_process:00000164 $d
-    {standard input}:1573   .bss.g_usb_init:00000000 g_usb_init
-    {standard input}:1622   .bss.h_radar_device:00000000 h_radar_device
-    {standard input}:1635   .data.firmware_information:00000000 firmware_information
-    {standard input}:1574   .bss.g_usb_init:00000000 $d
-    {standard input}:1576   .bss.algo_result:00000000 $d
-    {standard input}:1580   .bss.algo_result:00000000 algo_result
-    {standard input}:1583   .bss.app_connected:00000000 $d
-    {standard input}:1587   .bss.app_connected:00000000 app_connected
-    {standard input}:1590   .bss.algo_completed:00000000 $d
-    {standard input}:1594   .bss.algo_completed:00000000 algo_completed
-    {standard input}:1597   .bss.delayCount:00000000 $d
-    {standard input}:1601   .bss.delayCount:00000000 delayCount
-    {standard input}:1604   .bss.acq_completed:00000000 $d
-    {standard input}:1608   .bss.acq_completed:00000000 acq_completed
-    {standard input}:1611   .bss.algo_processing_function:00000000 $d
-    {standard input}:1615   .bss.algo_processing_function:00000000 algo_processing_function
-    {standard input}:1618   .bss.h_radar_device:00000000 $d
-    {standard input}:1625   .bss.acq_started:00000000 $d
-    {standard input}:1629   .bss.acq_started:00000000 acq_started
-    {standard input}:1632   .data.firmware_information:00000000 $d
-    {standard input}:1642   .bss.app_initalized:00000000 $d
-    {standard input}:1646   .bss.app_initalized:00000000 app_initalized
-    {standard input}:1649   .rodata.str1.4:00000000 $d
-    {standard input}:1656   .data.radar_app_state:00000000 radar_app_state
+    {standard input}:969    .text.radar_app_process:0000002e $d
+    {standard input}:1223   .text.radar_app_process:00000150 $d
+    {standard input}:1237   .text.app_process:00000000 $t
+    {standard input}:1242   .text.app_process:00000000 app_process
+    {standard input}:1303   .text.app_process:00000046 $d
+    {standard input}:1563   .text.app_process:00000170 $d
+    {standard input}:1587   .bss.g_usb_init:00000000 g_usb_init
+    {standard input}:1636   .bss.h_radar_device:00000000 h_radar_device
+    {standard input}:1649   .data.firmware_information:00000000 firmware_information
+    {standard input}:1588   .bss.g_usb_init:00000000 $d
+    {standard input}:1590   .bss.algo_result:00000000 $d
+    {standard input}:1594   .bss.algo_result:00000000 algo_result
+    {standard input}:1597   .bss.app_connected:00000000 $d
+    {standard input}:1601   .bss.app_connected:00000000 app_connected
+    {standard input}:1604   .bss.algo_completed:00000000 $d
+    {standard input}:1608   .bss.algo_completed:00000000 algo_completed
+    {standard input}:1611   .bss.delayCount:00000000 $d
+    {standard input}:1615   .bss.delayCount:00000000 delayCount
+    {standard input}:1618   .bss.acq_completed:00000000 $d
+    {standard input}:1622   .bss.acq_completed:00000000 acq_completed
+    {standard input}:1625   .bss.algo_processing_function:00000000 $d
+    {standard input}:1629   .bss.algo_processing_function:00000000 algo_processing_function
+    {standard input}:1632   .bss.h_radar_device:00000000 $d
+    {standard input}:1639   .bss.acq_started:00000000 $d
+    {standard input}:1643   .bss.acq_started:00000000 acq_started
+    {standard input}:1646   .data.firmware_information:00000000 $d
+    {standard input}:1656   .bss.app_initalized:00000000 $d
+    {standard input}:1660   .bss.app_initalized:00000000 app_initalized
+    {standard input}:1663   .rodata.str1.4:00000000 $d
+    {standard input}:1670   .data.radar_app_state:00000000 radar_app_state
                      .debug_frame:00000010 $d
-    {standard input}:976    .text.radar_app_process:00000035 $d
-    {standard input}:976    .text.radar_app_process:00000036 $t
-    {standard input}:1303   .text.app_process:0000004d $d
-    {standard input}:1303   .text.app_process:0000004e $t
+    {standard input}:974    .text.radar_app_process:00000033 $d
+    {standard input}:974    .text.radar_app_process:00000034 $t
+    {standard input}:1308   .text.app_process:0000004b $d
+    {standard input}:1308   .text.app_process:0000004c $t
 
 UNDEFINED SYMBOLS
 acq_completed_cb

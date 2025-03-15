@@ -70,6 +70,8 @@ extern "C"
  void doppler_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
  		        const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result);
 
+ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings, const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result);
+
 
 /**
  * \brief  Performs the doppler post-processing means computation of spectrum, detecting speed and direction of motion.

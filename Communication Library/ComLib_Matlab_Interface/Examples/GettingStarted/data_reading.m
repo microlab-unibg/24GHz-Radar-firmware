@@ -1,6 +1,6 @@
 % Impostare porta seriale 
 serialPort = "COM3"; 
-baudRate = 115200;   
+baudRate = 9600;   
 
 % Aprertura connessione seriale
 s = serialport(serialPort, baudRate);
