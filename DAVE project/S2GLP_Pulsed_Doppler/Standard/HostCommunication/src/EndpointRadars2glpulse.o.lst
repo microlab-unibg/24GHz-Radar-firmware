@@ -3316,55 +3316,55 @@
  2007              	 .cfi_endproc
  2008              	.LFE550:
  2010              	 .comm g_parameter_pulse,36,4
- 2011 0002 00BF     	 .section .bss.message.18169,"aw",%nobits
+ 2011 0002 00BF     	 .section .bss.message.18167,"aw",%nobits
  2012              	 .align 2
  2013              	 .set .LANCHOR4,.+0
- 2016              	message.18169:
+ 2016              	message.18167:
  2017 0000 00000000 	 .space 512
  2017      00000000 
  2017      00000000 
  2017      00000000 
  2017      00000000 
- 2018              	 .section .bss.message.18120,"aw",%nobits
+ 2018              	 .section .bss.message.18182,"aw",%nobits
  2019              	 .align 2
- 2020              	 .set .LANCHOR0,.+0
- 2023              	message.18120:
- 2024 0000 00000000 	 .space 40
+ 2020              	 .set .LANCHOR5,.+0
+ 2023              	message.18182:
+ 2024 0000 00000000 	 .space 512
  2024      00000000 
  2024      00000000 
  2024      00000000 
  2024      00000000 
- 2025              	 .section .bss.message.18184,"aw",%nobits
+ 2025              	 .section .bss.message.18118,"aw",%nobits
  2026              	 .align 2
- 2027              	 .set .LANCHOR5,.+0
- 2030              	message.18184:
- 2031 0000 00000000 	 .space 512
+ 2027              	 .set .LANCHOR0,.+0
+ 2030              	message.18118:
+ 2031 0000 00000000 	 .space 40
  2031      00000000 
  2031      00000000 
  2031      00000000 
  2031      00000000 
- 2032              	 .section .bss.message.18127,"aw",%nobits
+ 2032              	 .section .bss.message.18125,"aw",%nobits
  2033              	 .align 2
  2034              	 .set .LANCHOR2,.+0
- 2037              	message.18127:
+ 2037              	message.18125:
  2038 0000 00000000 	 .space 256
  2038      00000000 
  2038      00000000 
  2038      00000000 
  2038      00000000 
- 2039              	 .section .bss.transport_buffer.18137,"aw",%nobits
+ 2039              	 .section .bss.transport_buffer.18135,"aw",%nobits
  2040              	 .align 2
  2041              	 .set .LANCHOR3,.+0
- 2044              	transport_buffer.18137:
+ 2044              	transport_buffer.18135:
  2045 0000 00000000 	 .space 4096
  2045      00000000 
  2045      00000000 
  2045      00000000 
  2045      00000000 
- 2046              	 .section .bss.result_cnt.18119,"aw",%nobits
+ 2046              	 .section .bss.result_cnt.18117,"aw",%nobits
  2047              	 .align 2
  2048              	 .set .LANCHOR1,.+0
- 2051              	result_cnt.18119:
+ 2051              	result_cnt.18117:
  2052 0000 00000000 	 .space 4
  2053              	 .text
  2054              	.Letext0:
@@ -3407,18 +3407,18 @@ DEFINED SYMBOLS
     {standard input}:1985   .text.ep_radar_s2glpulse_handle_message:00000418 $d
     {standard input}:1993   .text.ep_radar_s2glpulse_handle_change:00000000 $t
     {standard input}:1998   .text.ep_radar_s2glpulse_handle_change:00000000 ep_radar_s2glpulse_handle_change
-    {standard input}:2012   .bss.message.18169:00000000 $d
-    {standard input}:2016   .bss.message.18169:00000000 message.18169
-    {standard input}:2019   .bss.message.18120:00000000 $d
-    {standard input}:2023   .bss.message.18120:00000000 message.18120
-    {standard input}:2026   .bss.message.18184:00000000 $d
-    {standard input}:2030   .bss.message.18184:00000000 message.18184
-    {standard input}:2033   .bss.message.18127:00000000 $d
-    {standard input}:2037   .bss.message.18127:00000000 message.18127
-    {standard input}:2040   .bss.transport_buffer.18137:00000000 $d
-    {standard input}:2044   .bss.transport_buffer.18137:00000000 transport_buffer.18137
-    {standard input}:2047   .bss.result_cnt.18119:00000000 $d
-    {standard input}:2051   .bss.result_cnt.18119:00000000 result_cnt.18119
+    {standard input}:2012   .bss.message.18167:00000000 $d
+    {standard input}:2016   .bss.message.18167:00000000 message.18167
+    {standard input}:2019   .bss.message.18182:00000000 $d
+    {standard input}:2023   .bss.message.18182:00000000 message.18182
+    {standard input}:2026   .bss.message.18118:00000000 $d
+    {standard input}:2030   .bss.message.18118:00000000 message.18118
+    {standard input}:2033   .bss.message.18125:00000000 $d
+    {standard input}:2037   .bss.message.18125:00000000 message.18125
+    {standard input}:2040   .bss.transport_buffer.18135:00000000 $d
+    {standard input}:2044   .bss.transport_buffer.18135:00000000 transport_buffer.18135
+    {standard input}:2047   .bss.result_cnt.18117:00000000 $d
+    {standard input}:2051   .bss.result_cnt.18117:00000000 result_cnt.18117
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS

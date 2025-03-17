@@ -16,14 +16,15 @@
   16              	 .text
   17              	.Ltext0:
   18              	 .cfi_sections .debug_frame
-  19              	 .section .text.breathing_calc_frequency,"ax",%progbits
-  20              	 .align 2
-  21              	 .global breathing_calc_frequency
-  22              	 .thumb
-  23              	 .thumb_func
-  25              	breathing_calc_frequency:
-  26              	.LFB530:
-  27              	 .file 1 "../Algorithms/src/doppler.c"
+  19              	 .global __aeabi_f2d
+  20              	 .section .text.breathing_calc_frequency,"ax",%progbits
+  21              	 .align 2
+  22              	 .global breathing_calc_frequency
+  23              	 .thumb
+  24              	 .thumb_func
+  26              	breathing_calc_frequency:
+  27              	.LFB530:
+  28              	 .file 1 "../Algorithms/src/doppler.c"
    1:../Algorithms/src/doppler.c **** /**
    2:../Algorithms/src/doppler.c ****     @file: doppler.c
    3:../Algorithms/src/doppler.c **** 
@@ -61,1692 +62,2132 @@
   35:../Algorithms/src/doppler.c **** #define DOWNSAMPLING_FACTOR 10
   36:../Algorithms/src/doppler.c **** #define BACKGROUND_FRAMES 100  // Numero di frame per acquisire il background
   37:../Algorithms/src/doppler.c **** #define WAIT_TIME 500000000        // 5 secondi di attesa
-  38:../Algorithms/src/doppler.c **** 
+  38:../Algorithms/src/doppler.c **** #define BACKGROUND_FRAMES 50
   39:../Algorithms/src/doppler.c **** 
-  40:../Algorithms/src/doppler.c **** /*
-  41:../Algorithms/src/doppler.c **** ==============================================================================
-  42:../Algorithms/src/doppler.c ****    2. LOCAL DEFINITIONS
-  43:../Algorithms/src/doppler.c **** ==============================================================================
-  44:../Algorithms/src/doppler.c ****  */
-  45:../Algorithms/src/doppler.c **** 
-  46:../Algorithms/src/doppler.c **** /*
-  47:../Algorithms/src/doppler.c **** ==============================================================================
-  48:../Algorithms/src/doppler.c ****    3. LOCAL TYPES
-  49:../Algorithms/src/doppler.c **** ==============================================================================
-  50:../Algorithms/src/doppler.c ****  */
-  51:../Algorithms/src/doppler.c **** 
-  52:../Algorithms/src/doppler.c **** /*
-  53:../Algorithms/src/doppler.c **** ==============================================================================
-  54:../Algorithms/src/doppler.c ****    4. DATA
-  55:../Algorithms/src/doppler.c **** ==============================================================================
-  56:../Algorithms/src/doppler.c ****  */
-  57:../Algorithms/src/doppler.c **** 
-  58:../Algorithms/src/doppler.c **** /* Allocate in static memory, the pointer is used in results passed to application */
-  59:../Algorithms/src/doppler.c **** /* 2 time FFT_SIZE elements is needed, because we first calculate the complex spectrum */
-  60:../Algorithms/src/doppler.c **** static float   doppler_spectrum[2*FFT_SIZE];
-  61:../Algorithms/src/doppler.c **** static float*  doppler_fft_signal = doppler_spectrum;
-  62:../Algorithms/src/doppler.c **** 
-  63:../Algorithms/src/doppler.c **** static float   breathing_spectrum[2*FFT_SIZE];
-  64:../Algorithms/src/doppler.c **** static float*  breathing_fft_signal = doppler_spectrum;
-  65:../Algorithms/src/doppler.c **** 
-  66:../Algorithms/src/doppler.c **** static float   if_scale = (float)DOPPLER_IQ_SCALE * 3.3f / 4095.0f;
-  67:../Algorithms/src/doppler.c **** 
-  68:../Algorithms/src/doppler.c **** /* FFT window */
-  69:../Algorithms/src/doppler.c **** static float   fft_fast_window_buffer[FFT_SIZE];
-  70:../Algorithms/src/doppler.c **** static uint32_t fft_fast_window_flag = 0;
-  71:../Algorithms/src/doppler.c **** static FFT_Window_Struct_t fft_fast_time_window =
-  72:../Algorithms/src/doppler.c **** {
-  73:../Algorithms/src/doppler.c **** 	//
-  74:../Algorithms/src/doppler.c ****   .fft_window_type = FFT_WINDOW_CHEBYSHEV,       /* Type of window defined by \ref FFT_Window_Type_
-  75:../Algorithms/src/doppler.c ****   .fft_size = FFT_SIZE_256,                      /* FFT size \ref FFT_Size_t  */
-  76:../Algorithms/src/doppler.c ****   .fft_window_length = 0,                        /* Number of elements in the FFT window  */
-  77:../Algorithms/src/doppler.c ****   //TODO: To be checked with CW the value of AT
-  78:../Algorithms/src/doppler.c ****   .fft_chebyshev_at_dB = 60,                     /* Attenuation parameter needed in case of Chebysh
-  79:../Algorithms/src/doppler.c ****   .fft_time_twiddle_table = NULL,                /* Pointer to twiddle factor table for FFT windowi
-  80:../Algorithms/src/doppler.c ****   .fft_window_buffer = fft_fast_window_buffer    /* Pointer to floating point memory containing dat
-  81:../Algorithms/src/doppler.c **** };
-  82:../Algorithms/src/doppler.c **** 
-  83:../Algorithms/src/doppler.c **** //==============================================================================
-  84:../Algorithms/src/doppler.c **** /* Struttura per la finestra FFT */
-  85:../Algorithms/src/doppler.c **** /*static FFT_Window_Struct_t fft_window;
-  86:../Algorithms/src/doppler.c **** static float fft_window_buffer[FFT_SIZE] = {0};
-  87:../Algorithms/src/doppler.c **** 
-  88:../Algorithms/src/doppler.c **** /* Funzione per inizializzare la finestra FFT */
-  89:../Algorithms/src/doppler.c **** /*void init_fft_window() {
-  90:../Algorithms/src/doppler.c ****     fft_window.fft_window_type = FFT_WINDOW_HANN;  // Usa la finestra di Hanning
-  91:../Algorithms/src/doppler.c ****     fft_window.fft_window_length = FFT_SIZE;
-  92:../Algorithms/src/doppler.c ****     fft_window.fft_chebyshev_at_dB = 60;  // Usato solo per la finestra Chebyshev
-  93:../Algorithms/src/doppler.c ****     fft_window.fft_window_buffer = fft_window_buffer;
-  94:../Algorithms/src/doppler.c ****     fft_window.fft_size = FFT_SIZE_128;
-  95:../Algorithms/src/doppler.c **** 
-  96:../Algorithms/src/doppler.c ****     fft_window_gen(&fft_window); // Genera la finestra
-  97:../Algorithms/src/doppler.c **** }*/
-  98:../Algorithms/src/doppler.c **** 
-  99:../Algorithms/src/doppler.c **** // Stati del sistema
- 100:../Algorithms/src/doppler.c **** /*typedef enum {
- 101:../Algorithms/src/doppler.c ****     WAIT_BACKGROUND,
- 102:../Algorithms/src/doppler.c ****     ACQUIRE_BACKGROUND,
- 103:../Algorithms/src/doppler.c ****     WAIT_PERSON,
- 104:../Algorithms/src/doppler.c ****     MEASURE_BREATH
- 105:../Algorithms/src/doppler.c **** } SystemState_t;
- 106:../Algorithms/src/doppler.c **** 
- 107:../Algorithms/src/doppler.c **** static SystemState_t state = WAIT_PERSON;
- 108:../Algorithms/src/doppler.c **** static float background_fft[FFT_SIZE / 2] = {0};
- 109:../Algorithms/src/doppler.c **** static int frame_count = 0;
- 110:../Algorithms/src/doppler.c **** static uint32_t start_time = 0;
- 111:../Algorithms/src/doppler.c **** 
- 112:../Algorithms/src/doppler.c **** TIMER_t TIMER_0;*/
- 113:../Algorithms/src/doppler.c **** 
- 114:../Algorithms/src/doppler.c **** /*
- 115:../Algorithms/src/doppler.c **** ==============================================================================
- 116:../Algorithms/src/doppler.c ****    5. LOCAL FUNCTION PROTOTYPES
- 117:../Algorithms/src/doppler.c **** ==============================================================================
- 118:../Algorithms/src/doppler.c ****  */
- 119:../Algorithms/src/doppler.c **** 
- 120:../Algorithms/src/doppler.c **** /*
- 121:../Algorithms/src/doppler.c **** ==============================================================================
- 122:../Algorithms/src/doppler.c ****    6. EXPORTED FUNCTIONS
- 123:../Algorithms/src/doppler.c **** ==============================================================================
- 124:../Algorithms/src/doppler.c ****  */
- 125:../Algorithms/src/doppler.c **** 
- 126:../Algorithms/src/doppler.c **** /*void delay_ms(uint32_t ms) {
- 127:../Algorithms/src/doppler.c ****     uint32_t start = TIMER_GetTime(&TIMER_0);
- 128:../Algorithms/src/doppler.c ****     while (TIMER_GetTime(&TIMER_0) - start < ms * 1000);  // Aspetta il tempo desiderato
- 129:../Algorithms/src/doppler.c **** }
- 130:../Algorithms/src/doppler.c **** 
- 131:../Algorithms/src/doppler.c **** void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
- 132:../Algorithms/src/doppler.c ****                 const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
- 133:../Algorithms/src/doppler.c **** {
- 134:../Algorithms/src/doppler.c ****     static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 135:../Algorithms/src/doppler.c ****     static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 136:../Algorithms/src/doppler.c ****     uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
- 137:../Algorithms/src/doppler.c ****     uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
- 138:../Algorithms/src/doppler.c **** 
- 139:../Algorithms/src/doppler.c ****     switch (state) {
- 140:../Algorithms/src/doppler.c ****         case WAIT_BACKGROUND:
- 141:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("\r\nPosizionarsi LONTANO dal radar.\r\n");
- 142:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("Inizio acquisizione background tra 5 secondi...\r\n");
- 143:../Algorithms/src/doppler.c ****             start_time = TIMER_GetTime(&TIMER_0);
- 144:../Algorithms/src/doppler.c ****             while(TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME){
- 145:../Algorithms/src/doppler.c ****             bsp_led_red_on();
- 146:../Algorithms/src/doppler.c ****             bsp_led_blue_on();
- 147:../Algorithms/src/doppler.c ****             bsp_led_green_off();
- 148:../Algorithms/src/doppler.c ****             }
- 149:../Algorithms/src/doppler.c ****             state = ACQUIRE_BACKGROUND;
- 150:../Algorithms/src/doppler.c ****             break;
- 151:../Algorithms/src/doppler.c **** 
- 152:../Algorithms/src/doppler.c ****         case ACQUIRE_BACKGROUND:
- 153:../Algorithms/src/doppler.c **** 
- 154:../Algorithms/src/doppler.c ****         	bsp_led_red_off();
- 155:../Algorithms/src/doppler.c ****         	bsp_led_blue_on();
- 156:../Algorithms/src/doppler.c ****         	bsp_led_green_off();
- 157:../Algorithms/src/doppler.c **** 
- 158:../Algorithms/src/doppler.c ****             p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
- 159:../Algorithms/src/doppler.c ****             p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
- 160:../Algorithms/src/doppler.c **** 
- 161:../Algorithms/src/doppler.c ****             for (uint32_t i = 0; i < FFT_SIZE; i++) {
- 162:../Algorithms/src/doppler.c ****                 raw_data_i1[i] = (float)((p_temp[0])[i * DOWNSAMPLING_FACTOR]) * if_scale;
- 163:../Algorithms/src/doppler.c ****                 raw_data_q1[i] = (float)((p_temp[1])[i * DOWNSAMPLING_FACTOR]) * if_scale;
- 164:../Algorithms/src/doppler.c ****             }
- 165:../Algorithms/src/doppler.c **** 
- 166:../Algorithms/src/doppler.c ****             float complex_fft_signal[FFT_SIZE * 2] = {0};
- 167:../Algorithms/src/doppler.c ****             float fft_result[FFT_SIZE / 2] = {0};
- 168:../Algorithms/src/doppler.c **** 
- 169:../Algorithms/src/doppler.c ****             compute_fft_signal(fft_fast_time_window, raw_data_i1, raw_data_q1, FFT_SIZE, FFT_SIZE, 
- 170:../Algorithms/src/doppler.c ****                                FFT_INPUT_COMPLEX, NULL, NULL, complex_fft_signal);
- 171:../Algorithms/src/doppler.c ****             compute_fft_spectrum(complex_fft_signal, FFT_SIZE, fft_result);
- 172:../Algorithms/src/doppler.c **** 
- 173:../Algorithms/src/doppler.c ****             for (int i = 0; i < FFT_SIZE / 2; i++) {
- 174:../Algorithms/src/doppler.c ****                 background_fft[i] += fft_result[i] / BACKGROUND_FRAMES;
- 175:../Algorithms/src/doppler.c ****             }
- 176:../Algorithms/src/doppler.c **** 
- 177:../Algorithms/src/doppler.c ****             frame_count++;
- 178:../Algorithms/src/doppler.c ****             if (frame_count >= BACKGROUND_FRAMES) {
- 179:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("\r\nBackground acquisito.\r\n");
- 180:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("Posizionarsi DAVANTI al radar.\r\n");
- 181:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("Misurazione tra 5 secondi...\r\n");
- 182:../Algorithms/src/doppler.c ****                 start_time = TIMER_GetTime(&TIMER_0);
- 183:../Algorithms/src/doppler.c ****                 while(TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME){
- 184:../Algorithms/src/doppler.c ****                 	bsp_led_red_off();
- 185:../Algorithms/src/doppler.c ****                 	bsp_led_blue_on();
- 186:../Algorithms/src/doppler.c ****                 	bsp_led_green_on();
- 187:../Algorithms/src/doppler.c ****                 }
- 188:../Algorithms/src/doppler.c ****             state = WAIT_PERSON;
- 189:../Algorithms/src/doppler.c ****             }
- 190:../Algorithms/src/doppler.c ****             break;
- 191:../Algorithms/src/doppler.c **** 
- 192:../Algorithms/src/doppler.c ****         case WAIT_PERSON:
- 193:../Algorithms/src/doppler.c **** 
- 194:../Algorithms/src/doppler.c ****         	bsp_led_red_off();
- 195:../Algorithms/src/doppler.c ****         	bsp_led_blue_off();
- 196:../Algorithms/src/doppler.c ****         	bsp_led_green_on();
- 197:../Algorithms/src/doppler.c **** 
- 198:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("Inizio misurazione respiro...\r\n");
- 199:../Algorithms/src/doppler.c ****             state = MEASURE_BREATH;
- 200:../Algorithms/src/doppler.c ****             break;
- 201:../Algorithms/src/doppler.c **** 
- 202:../Algorithms/src/doppler.c ****         case MEASURE_BREATH:
- 203:../Algorithms/src/doppler.c ****             p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
- 204:../Algorithms/src/doppler.c ****             p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
- 205:../Algorithms/src/doppler.c **** 
- 206:../Algorithms/src/doppler.c ****             for (uint32_t i = 0; i < FFT_SIZE; i++) {
- 207:../Algorithms/src/doppler.c ****                 raw_data_i1[i] = (float)((p_temp[0])[i * DOWNSAMPLING_FACTOR]) * if_scale;
- 208:../Algorithms/src/doppler.c ****                 raw_data_q1[i] = (float)((p_temp[1])[i * DOWNSAMPLING_FACTOR]) * if_scale;
- 209:../Algorithms/src/doppler.c ****             }
- 210:../Algorithms/src/doppler.c **** 
- 211:../Algorithms/src/doppler.c ****             float complex_fft_signal2[FFT_SIZE * 2] = {0};
- 212:../Algorithms/src/doppler.c ****             float fft_result2[FFT_SIZE / 2] = {0};
- 213:../Algorithms/src/doppler.c ****             float clean_fft[FFT_SIZE / 2] = {0};
- 214:../Algorithms/src/doppler.c **** 
- 215:../Algorithms/src/doppler.c ****             compute_fft_signal(fft_fast_time_window, raw_data_i1, raw_data_q1, FFT_SIZE, FFT_SIZE, 
- 216:../Algorithms/src/doppler.c ****                                FFT_INPUT_COMPLEX, NULL, NULL, complex_fft_signal2);
- 217:../Algorithms/src/doppler.c ****             compute_fft_spectrum(complex_fft_signal2, FFT_SIZE, fft_result2);
- 218:../Algorithms/src/doppler.c **** 
- 219:../Algorithms/src/doppler.c ****             for (int i = 0; i < FFT_SIZE / 2; i++) {
- 220:../Algorithms/src/doppler.c ****                 clean_fft[i] = fft_result2[i];//- background_fft[i];
- 221:../Algorithms/src/doppler.c ****             }
- 222:../Algorithms/src/doppler.c **** 
- 223:../Algorithms/src/doppler.c ****             float max_amplitude = 0;
- 224:../Algorithms/src/doppler.c ****             float breathing_frequency = 0;
- 225:../Algorithms/src/doppler.c ****             for (int i = 1; i < FFT_SIZE / 2; i++) {
- 226:../Algorithms/src/doppler.c ****                 float freq = (float)i / FFT_SIZE;
- 227:../Algorithms/src/doppler.c ****                 if (freq > 0.1f && freq < 1.0f) {
- 228:../Algorithms/src/doppler.c ****                     if (clean_fft[i] > max_amplitude) {
- 229:../Algorithms/src/doppler.c ****                         max_amplitude = clean_fft[i];
- 230:../Algorithms/src/doppler.c ****                         breathing_frequency = freq;
- 231:../Algorithms/src/doppler.c ****                     }
- 232:../Algorithms/src/doppler.c ****                 }
- 233:../Algorithms/src/doppler.c ****             }
- 234:../Algorithms/src/doppler.c **** 
- 235:../Algorithms/src/doppler.c ****             float BRPM = breathing_frequency * 60;
- 236:../Algorithms/src/doppler.c **** 
- 237:../Algorithms/src/doppler.c ****             if (BRPM < 12) {
- 238:../Algorithms/src/doppler.c ****                 bsp_led_blue_on();
- 239:../Algorithms/src/doppler.c ****                 bsp_led_red_on();
- 240:../Algorithms/src/doppler.c ****                 bsp_led_green_off();
- 241:../Algorithms/src/doppler.c ****             } else if (BRPM > 16) {
- 242:../Algorithms/src/doppler.c ****                 bsp_led_red_on();
- 243:../Algorithms/src/doppler.c ****                 bsp_led_blue_off();
- 244:../Algorithms/src/doppler.c ****                 bsp_led_green_off();
- 245:../Algorithms/src/doppler.c ****             } else {
- 246:../Algorithms/src/doppler.c ****                 bsp_led_green_on();
- 247:../Algorithms/src/doppler.c ****                 bsp_led_red_off();
- 248:../Algorithms/src/doppler.c ****                 bsp_led_blue_on();
- 249:../Algorithms/src/doppler.c ****              }
- 250:../Algorithms/src/doppler.c ****             break;
- 251:../Algorithms/src/doppler.c ****     }
- 252:../Algorithms/src/doppler.c **** }*/
- 253:../Algorithms/src/doppler.c **** void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings, const device_set
- 254:../Algorithms/src/doppler.c **** 
- 255:../Algorithms/src/doppler.c ****     static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 256:../Algorithms/src/doppler.c ****     static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 257:../Algorithms/src/doppler.c **** 
- 258:../Algorithms/src/doppler.c ****     uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
- 259:../Algorithms/src/doppler.c ****     uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
- 260:../Algorithms/src/doppler.c **** 
- 261:../Algorithms/src/doppler.c ****     /* Genera la finestra FFT se necessario */
- 262:../Algorithms/src/doppler.c ****     if (fft_fast_window_flag != Ns) {
- 263:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
- 264:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
- 265:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
- 266:../Algorithms/src/doppler.c ****             while (1);
- 267:../Algorithms/src/doppler.c ****         }
- 268:../Algorithms/src/doppler.c ****         fft_fast_window_flag = Ns;
- 269:../Algorithms/src/doppler.c ****     }
- 270:../Algorithms/src/doppler.c **** 
- 271:../Algorithms/src/doppler.c ****     /* Pulizia buffer */
- 272:../Algorithms/src/doppler.c ****     memset(raw_data_i1, 0, sizeof(raw_data_i1));
- 273:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
- 274:../Algorithms/src/doppler.c **** 
- 275:../Algorithms/src/doppler.c ****     /* Acquisizione dati */
- 276:../Algorithms/src/doppler.c ****     p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 0, 0);
- 277:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 278:../Algorithms/src/doppler.c **** 
- 279:../Algorithms/src/doppler.c ****     for (uint32_t i = 0; i < Ns; i++) {
- 280:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
- 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 282:../Algorithms/src/doppler.c ****     }
- 283:../Algorithms/src/doppler.c **** 
- 284:../Algorithms/src/doppler.c ****     /* Calcola la frequenza respiratoria */
- 285:../Algorithms/src/doppler.c ****     breathing_calc_frequency(fft_fast_time_window, raw_data_i1, raw_data_q1, Ns, cp_algo_settings, 
- 286:../Algorithms/src/doppler.c **** 
- 287:../Algorithms/src/doppler.c ****     /* Salva il frame corrente */
- 288:../Algorithms/src/doppler.c ****     p_algo_result->frame_counter = p_acq_buf->frame_counter;
- 289:../Algorithms/src/doppler.c **** }
- 290:../Algorithms/src/doppler.c **** 
- 291:../Algorithms/src/doppler.c **** //============================================================================
- 292:../Algorithms/src/doppler.c **** 
- 293:../Algorithms/src/doppler.c **** void breathing_calc_frequency(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q, uint16_t 
-  28              	 .loc 1 293 0
-  29              	 .cfi_startproc
-  30              	 
+  40:../Algorithms/src/doppler.c **** 
+  41:../Algorithms/src/doppler.c **** /*
+  42:../Algorithms/src/doppler.c **** ==============================================================================
+  43:../Algorithms/src/doppler.c ****    2. LOCAL DEFINITIONS
+  44:../Algorithms/src/doppler.c **** ==============================================================================
+  45:../Algorithms/src/doppler.c ****  */
+  46:../Algorithms/src/doppler.c **** 
+  47:../Algorithms/src/doppler.c **** /*
+  48:../Algorithms/src/doppler.c **** ==============================================================================
+  49:../Algorithms/src/doppler.c ****    3. LOCAL TYPES
+  50:../Algorithms/src/doppler.c **** ==============================================================================
+  51:../Algorithms/src/doppler.c ****  */
+  52:../Algorithms/src/doppler.c **** 
+  53:../Algorithms/src/doppler.c **** /*
+  54:../Algorithms/src/doppler.c **** ==============================================================================
+  55:../Algorithms/src/doppler.c ****    4. DATA
+  56:../Algorithms/src/doppler.c **** ==============================================================================
+  57:../Algorithms/src/doppler.c ****  */
+  58:../Algorithms/src/doppler.c **** 
+  59:../Algorithms/src/doppler.c **** /* Allocate in static memory, the pointer is used in results passed to application */
+  60:../Algorithms/src/doppler.c **** /* 2 time FFT_SIZE elements is needed, because we first calculate the complex spectrum */
+  61:../Algorithms/src/doppler.c **** static float   doppler_spectrum[2*FFT_SIZE];
+  62:../Algorithms/src/doppler.c **** static float*  doppler_fft_signal = doppler_spectrum;
+  63:../Algorithms/src/doppler.c **** 
+  64:../Algorithms/src/doppler.c **** static float   breathing_spectrum[2*FFT_SIZE];
+  65:../Algorithms/src/doppler.c **** static float*  breathing_fft_signal = doppler_spectrum;
+  66:../Algorithms/src/doppler.c **** 
+  67:../Algorithms/src/doppler.c **** static float   if_scale = (float)DOPPLER_IQ_SCALE * 3.3f / 4095.0f;
+  68:../Algorithms/src/doppler.c **** 
+  69:../Algorithms/src/doppler.c **** /* FFT window */
+  70:../Algorithms/src/doppler.c **** static float   fft_fast_window_buffer[FFT_SIZE];
+  71:../Algorithms/src/doppler.c **** static uint32_t fft_fast_window_flag = 0;
+  72:../Algorithms/src/doppler.c **** static FFT_Window_Struct_t fft_fast_time_window =
+  73:../Algorithms/src/doppler.c **** {
+  74:../Algorithms/src/doppler.c **** 	//
+  75:../Algorithms/src/doppler.c ****   .fft_window_type = FFT_WINDOW_CHEBYSHEV,       /* Type of window defined by \ref FFT_Window_Type_
+  76:../Algorithms/src/doppler.c ****   .fft_size = FFT_SIZE_256,                      /* FFT size \ref FFT_Size_t  */
+  77:../Algorithms/src/doppler.c ****   .fft_window_length = 0,                        /* Number of elements in the FFT window  */
+  78:../Algorithms/src/doppler.c ****   //TODO: To be checked with CW the value of AT
+  79:../Algorithms/src/doppler.c ****   .fft_chebyshev_at_dB = 60,                     /* Attenuation parameter needed in case of Chebysh
+  80:../Algorithms/src/doppler.c ****   .fft_time_twiddle_table = NULL,                /* Pointer to twiddle factor table for FFT windowi
+  81:../Algorithms/src/doppler.c ****   .fft_window_buffer = fft_fast_window_buffer    /* Pointer to floating point memory containing dat
+  82:../Algorithms/src/doppler.c **** };
+  83:../Algorithms/src/doppler.c **** 
+  84:../Algorithms/src/doppler.c **** //==============================================================================
+  85:../Algorithms/src/doppler.c **** /* Struttura per la finestra FFT */
+  86:../Algorithms/src/doppler.c **** /*static FFT_Window_Struct_t fft_window;
+  87:../Algorithms/src/doppler.c **** static float fft_window_buffer[FFT_SIZE] = {0};
+  88:../Algorithms/src/doppler.c **** 
+  89:../Algorithms/src/doppler.c **** /* Funzione per inizializzare la finestra FFT */
+  90:../Algorithms/src/doppler.c **** /*void init_fft_window() {
+  91:../Algorithms/src/doppler.c ****     fft_window.fft_window_type = FFT_WINDOW_HANN;  // Usa la finestra di Hanning
+  92:../Algorithms/src/doppler.c ****     fft_window.fft_window_length = FFT_SIZE;
+  93:../Algorithms/src/doppler.c ****     fft_window.fft_chebyshev_at_dB = 60;  // Usato solo per la finestra Chebyshev
+  94:../Algorithms/src/doppler.c ****     fft_window.fft_window_buffer = fft_window_buffer;
+  95:../Algorithms/src/doppler.c ****     fft_window.fft_size = FFT_SIZE_128;
+  96:../Algorithms/src/doppler.c **** 
+  97:../Algorithms/src/doppler.c ****     fft_window_gen(&fft_window); // Genera la finestra
+  98:../Algorithms/src/doppler.c **** }*/
+  99:../Algorithms/src/doppler.c **** 
+ 100:../Algorithms/src/doppler.c **** // Stati del sistema
+ 101:../Algorithms/src/doppler.c **** /*typedef enum {
+ 102:../Algorithms/src/doppler.c ****     WAIT_BACKGROUND,
+ 103:../Algorithms/src/doppler.c ****     ACQUIRE_BACKGROUND,
+ 104:../Algorithms/src/doppler.c ****     WAIT_PERSON,
+ 105:../Algorithms/src/doppler.c ****     MEASURE_BREATH
+ 106:../Algorithms/src/doppler.c **** } SystemState_t;
+ 107:../Algorithms/src/doppler.c **** 
+ 108:../Algorithms/src/doppler.c **** static SystemState_t state = WAIT_PERSON;
+ 109:../Algorithms/src/doppler.c **** static float background_fft[FFT_SIZE / 2] = {0};
+ 110:../Algorithms/src/doppler.c **** static int frame_count = 0;
+ 111:../Algorithms/src/doppler.c **** static uint32_t start_time = 0;
+ 112:../Algorithms/src/doppler.c **** 
+ 113:../Algorithms/src/doppler.c **** TIMER_t TIMER_0;*/
+ 114:../Algorithms/src/doppler.c **** 
+ 115:../Algorithms/src/doppler.c **** /*
+ 116:../Algorithms/src/doppler.c **** ==============================================================================
+ 117:../Algorithms/src/doppler.c ****    5. LOCAL FUNCTION PROTOTYPES
+ 118:../Algorithms/src/doppler.c **** ==============================================================================
+ 119:../Algorithms/src/doppler.c ****  */
+ 120:../Algorithms/src/doppler.c **** 
+ 121:../Algorithms/src/doppler.c **** /*
+ 122:../Algorithms/src/doppler.c **** ==============================================================================
+ 123:../Algorithms/src/doppler.c ****    6. EXPORTED FUNCTIONS
+ 124:../Algorithms/src/doppler.c **** ==============================================================================
+ 125:../Algorithms/src/doppler.c ****  */
+ 126:../Algorithms/src/doppler.c **** 
+ 127:../Algorithms/src/doppler.c **** /*void delay_ms(uint32_t ms) {
+ 128:../Algorithms/src/doppler.c ****     uint32_t start = TIMER_GetTime(&TIMER_0);
+ 129:../Algorithms/src/doppler.c ****     while (TIMER_GetTime(&TIMER_0) - start < ms * 1000);
+ 130:../Algorithms/src/doppler.c **** }
+ 131:../Algorithms/src/doppler.c **** 
+ 132:../Algorithms/src/doppler.c **** void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
+ 133:../Algorithms/src/doppler.c ****                 const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
+ 134:../Algorithms/src/doppler.c **** {
+ 135:../Algorithms/src/doppler.c ****     static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+ 136:../Algorithms/src/doppler.c ****     static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+ 137:../Algorithms/src/doppler.c ****     uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
+ 138:../Algorithms/src/doppler.c ****     uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
+ 139:../Algorithms/src/doppler.c **** 
+ 140:../Algorithms/src/doppler.c ****     switch (state) {
+ 141:../Algorithms/src/doppler.c ****         case WAIT_BACKGROUND:
+ 142:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("\r\nPosizionarsi LONTANO dal radar.\r\n");
+ 143:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("Inizio acquisizione background tra 5 secondi...\r\n");
+ 144:../Algorithms/src/doppler.c ****             start_time = TIMER_GetTime(&TIMER_0);
+ 145:../Algorithms/src/doppler.c ****             while(TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME){
+ 146:../Algorithms/src/doppler.c ****             bsp_led_red_on();
+ 147:../Algorithms/src/doppler.c ****             bsp_led_blue_on();
+ 148:../Algorithms/src/doppler.c ****             bsp_led_green_off();
+ 149:../Algorithms/src/doppler.c ****             }
+ 150:../Algorithms/src/doppler.c ****             state = ACQUIRE_BACKGROUND;
+ 151:../Algorithms/src/doppler.c ****             break;
+ 152:../Algorithms/src/doppler.c **** 
+ 153:../Algorithms/src/doppler.c ****         case ACQUIRE_BACKGROUND:
+ 154:../Algorithms/src/doppler.c **** 
+ 155:../Algorithms/src/doppler.c ****         	bsp_led_red_off();
+ 156:../Algorithms/src/doppler.c ****         	bsp_led_blue_on();
+ 157:../Algorithms/src/doppler.c ****         	bsp_led_green_off();
+ 158:../Algorithms/src/doppler.c **** 
+ 159:../Algorithms/src/doppler.c ****             p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
+ 160:../Algorithms/src/doppler.c ****             p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
+ 161:../Algorithms/src/doppler.c **** 
+ 162:../Algorithms/src/doppler.c ****             for (uint32_t i = 0; i < FFT_SIZE; i++) {
+ 163:../Algorithms/src/doppler.c ****                 raw_data_i1[i] = (float)((p_temp[0])[i * DOWNSAMPLING_FACTOR]) * if_scale;
+ 164:../Algorithms/src/doppler.c ****                 raw_data_q1[i] = (float)((p_temp[1])[i * DOWNSAMPLING_FACTOR]) * if_scale;
+ 165:../Algorithms/src/doppler.c ****             }
+ 166:../Algorithms/src/doppler.c **** 
+ 167:../Algorithms/src/doppler.c ****             float complex_fft_signal[FFT_SIZE * 2] = {0};
+ 168:../Algorithms/src/doppler.c ****             float fft_result[FFT_SIZE / 2] = {0};
+ 169:../Algorithms/src/doppler.c **** 
+ 170:../Algorithms/src/doppler.c ****             compute_fft_signal(fft_fast_time_window, raw_data_i1, raw_data_q1, FFT_SIZE, FFT_SIZE, 
+ 171:../Algorithms/src/doppler.c ****                                FFT_INPUT_COMPLEX, NULL, NULL, complex_fft_signal);
+ 172:../Algorithms/src/doppler.c ****             compute_fft_spectrum(complex_fft_signal, FFT_SIZE, fft_result);
+ 173:../Algorithms/src/doppler.c **** 
+ 174:../Algorithms/src/doppler.c ****             for (int i = 0; i < FFT_SIZE / 2; i++) {
+ 175:../Algorithms/src/doppler.c ****                 background_fft[i] += fft_result[i] / BACKGROUND_FRAMES;
+ 176:../Algorithms/src/doppler.c ****             }
+ 177:../Algorithms/src/doppler.c **** 
+ 178:../Algorithms/src/doppler.c ****             frame_count++;
+ 179:../Algorithms/src/doppler.c ****             if (frame_count >= BACKGROUND_FRAMES) {
+ 180:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("\r\nBackground acquisito.\r\n");
+ 181:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("Posizionarsi DAVANTI al radar.\r\n");
+ 182:../Algorithms/src/doppler.c ****                 USBD_VCOM_SendString("Misurazione tra 5 secondi...\r\n");
+ 183:../Algorithms/src/doppler.c ****                 start_time = TIMER_GetTime(&TIMER_0);
+ 184:../Algorithms/src/doppler.c ****                 while(TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME){
+ 185:../Algorithms/src/doppler.c ****                 	bsp_led_red_off();
+ 186:../Algorithms/src/doppler.c ****                 	bsp_led_blue_on();
+ 187:../Algorithms/src/doppler.c ****                 	bsp_led_green_on();
+ 188:../Algorithms/src/doppler.c ****                 }
+ 189:../Algorithms/src/doppler.c ****             state = WAIT_PERSON;
+ 190:../Algorithms/src/doppler.c ****             }
+ 191:../Algorithms/src/doppler.c ****             break;
+ 192:../Algorithms/src/doppler.c **** 
+ 193:../Algorithms/src/doppler.c ****         case WAIT_PERSON:
+ 194:../Algorithms/src/doppler.c **** 
+ 195:../Algorithms/src/doppler.c ****         	bsp_led_red_off();
+ 196:../Algorithms/src/doppler.c ****         	bsp_led_blue_off();
+ 197:../Algorithms/src/doppler.c ****         	bsp_led_green_on();
+ 198:../Algorithms/src/doppler.c **** 
+ 199:../Algorithms/src/doppler.c ****             USBD_VCOM_SendString("Inizio misurazione respiro...\r\n");
+ 200:../Algorithms/src/doppler.c ****             state = MEASURE_BREATH;
+ 201:../Algorithms/src/doppler.c ****             break;
+ 202:../Algorithms/src/doppler.c **** 
+ 203:../Algorithms/src/doppler.c ****         case MEASURE_BREATH:
+ 204:../Algorithms/src/doppler.c ****             p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
+ 205:../Algorithms/src/doppler.c ****             p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
+ 206:../Algorithms/src/doppler.c **** 
+ 207:../Algorithms/src/doppler.c ****             for (uint32_t i = 0; i < FFT_SIZE; i++) {
+ 208:../Algorithms/src/doppler.c ****                 raw_data_i1[i] = (float)((p_temp[0])[i * DOWNSAMPLING_FACTOR]) * if_scale;
+ 209:../Algorithms/src/doppler.c ****                 raw_data_q1[i] = (float)((p_temp[1])[i * DOWNSAMPLING_FACTOR]) * if_scale;
+ 210:../Algorithms/src/doppler.c ****             }
+ 211:../Algorithms/src/doppler.c **** 
+ 212:../Algorithms/src/doppler.c ****             float complex_fft_signal2[FFT_SIZE * 2] = {0};
+ 213:../Algorithms/src/doppler.c ****             float fft_result2[FFT_SIZE / 2] = {0};
+ 214:../Algorithms/src/doppler.c ****             float clean_fft[FFT_SIZE / 2] = {0};
+ 215:../Algorithms/src/doppler.c **** 
+ 216:../Algorithms/src/doppler.c ****             compute_fft_signal(fft_fast_time_window, raw_data_i1, raw_data_q1, FFT_SIZE, FFT_SIZE, 
+ 217:../Algorithms/src/doppler.c ****                                FFT_INPUT_COMPLEX, NULL, NULL, complex_fft_signal2);
+ 218:../Algorithms/src/doppler.c ****             compute_fft_spectrum(complex_fft_signal2, FFT_SIZE, fft_result2);
+ 219:../Algorithms/src/doppler.c **** 
+ 220:../Algorithms/src/doppler.c ****             for (int i = 0; i < FFT_SIZE / 2; i++) {
+ 221:../Algorithms/src/doppler.c ****                 clean_fft[i] = fft_result2[i];//- background_fft[i];
+ 222:../Algorithms/src/doppler.c ****             }
+ 223:../Algorithms/src/doppler.c **** 
+ 224:../Algorithms/src/doppler.c ****             float max_amplitude = 0;
+ 225:../Algorithms/src/doppler.c ****             float breathing_frequency = 0;
+ 226:../Algorithms/src/doppler.c ****             for (int i = 1; i < FFT_SIZE / 2; i++) {
+ 227:../Algorithms/src/doppler.c ****                 float freq = (float)i / FFT_SIZE;
+ 228:../Algorithms/src/doppler.c ****                 if (freq > 0.1f && freq < 1.0f) {
+ 229:../Algorithms/src/doppler.c ****                     if (clean_fft[i] > max_amplitude) {
+ 230:../Algorithms/src/doppler.c ****                         max_amplitude = clean_fft[i];
+ 231:../Algorithms/src/doppler.c ****                         breathing_frequency = freq;
+ 232:../Algorithms/src/doppler.c ****                     }
+ 233:../Algorithms/src/doppler.c ****                 }
+ 234:../Algorithms/src/doppler.c ****             }
+ 235:../Algorithms/src/doppler.c **** 
+ 236:../Algorithms/src/doppler.c ****             float BRPM = breathing_frequency * 60;
+ 237:../Algorithms/src/doppler.c **** 
+ 238:../Algorithms/src/doppler.c ****             if (BRPM < 12) {
+ 239:../Algorithms/src/doppler.c ****                 bsp_led_blue_on();
+ 240:../Algorithms/src/doppler.c ****                 bsp_led_red_on();
+ 241:../Algorithms/src/doppler.c ****                 bsp_led_green_off();
+ 242:../Algorithms/src/doppler.c ****             } else if (BRPM > 16) {
+ 243:../Algorithms/src/doppler.c ****                 bsp_led_red_on();
+ 244:../Algorithms/src/doppler.c ****                 bsp_led_blue_off();
+ 245:../Algorithms/src/doppler.c ****                 bsp_led_green_off();
+ 246:../Algorithms/src/doppler.c ****             } else {
+ 247:../Algorithms/src/doppler.c ****                 bsp_led_green_on();
+ 248:../Algorithms/src/doppler.c ****                 bsp_led_red_off();
+ 249:../Algorithms/src/doppler.c ****                 bsp_led_blue_on();
+ 250:../Algorithms/src/doppler.c ****              }
+ 251:../Algorithms/src/doppler.c ****             break;
+ 252:../Algorithms/src/doppler.c ****     }
+ 253:../Algorithms/src/doppler.c **** }*/
+ 254:../Algorithms/src/doppler.c **** void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings, const device_set
+ 255:../Algorithms/src/doppler.c **** 
+ 256:../Algorithms/src/doppler.c ****     static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+ 257:../Algorithms/src/doppler.c ****     static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+ 258:../Algorithms/src/doppler.c **** 
+ 259:../Algorithms/src/doppler.c ****     uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
+ 260:../Algorithms/src/doppler.c ****     uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
+ 261:../Algorithms/src/doppler.c **** 
+ 262:../Algorithms/src/doppler.c ****     /* Genera finestra FFT */
+ 263:../Algorithms/src/doppler.c ****     if (fft_fast_window_flag != Ns) {
+ 264:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
+ 265:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
+ 266:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
+ 267:../Algorithms/src/doppler.c ****             while (1);
+ 268:../Algorithms/src/doppler.c ****         }
+ 269:../Algorithms/src/doppler.c ****         fft_fast_window_flag = Ns;
+ 270:../Algorithms/src/doppler.c ****     }
+ 271:../Algorithms/src/doppler.c **** 
+ 272:../Algorithms/src/doppler.c ****     /* Pulizia buffer */
+ 273:../Algorithms/src/doppler.c ****     memset(raw_data_i1, 0, sizeof(raw_data_i1));
+ 274:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
+ 275:../Algorithms/src/doppler.c **** 
+ 276:../Algorithms/src/doppler.c ****     /* Acquisizione dati */
+ 277:../Algorithms/src/doppler.c ****     p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 0, 0);
+ 278:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 279:../Algorithms/src/doppler.c **** 
+ 280:../Algorithms/src/doppler.c ****     for (uint32_t i = 0; i < Ns; i++) {
+ 281:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+ 282:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 283:../Algorithms/src/doppler.c ****     }
+ 284:../Algorithms/src/doppler.c **** 
+ 285:../Algorithms/src/doppler.c ****     /* Calcolo frequenza respiratoria */
+ 286:../Algorithms/src/doppler.c ****     breathing_calc_frequency(fft_fast_time_window, raw_data_i1, raw_data_q1, Ns, cp_algo_settings, 
+ 287:../Algorithms/src/doppler.c **** 
+ 288:../Algorithms/src/doppler.c ****     /* Salva frame corrente */
+ 289:../Algorithms/src/doppler.c ****     p_algo_result->frame_counter = p_acq_buf->frame_counter;
+ 290:../Algorithms/src/doppler.c **** }
+ 291:../Algorithms/src/doppler.c **** 
+ 292:../Algorithms/src/doppler.c **** //============================================================================
+ 293:../Algorithms/src/doppler.c **** 
+ 294:../Algorithms/src/doppler.c **** void breathing_calc_frequency(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q,
+ 295:../Algorithms/src/doppler.c ****                               uint16_t number_samples, const algo_settings_t *cp_algo_settings,
+ 296:../Algorithms/src/doppler.c ****                               const device_settings_t *cp_dev_settings, algo_result_t *p_algo_resul
+  29              	 .loc 1 296 0
+  30              	 .cfi_startproc
   31              	 
-  32              	.LVL0:
-  33 0000 84B0     	 sub sp,sp,#16
-  34              	.LCFI0:
-  35              	 .cfi_def_cfa_offset 16
-  36 0002 2DE9F04E 	 push {r4,r5,r6,r7,r9,r10,fp,lr}
-  37              	.LCFI1:
-  38              	 .cfi_def_cfa_offset 48
-  39              	 .cfi_offset 4,-48
-  40              	 .cfi_offset 5,-44
-  41              	 .cfi_offset 6,-40
-  42              	 .cfi_offset 7,-36
-  43              	 .cfi_offset 9,-32
-  44              	 .cfi_offset 10,-28
-  45              	 .cfi_offset 11,-24
+  32              	 
+  33              	.LVL0:
+  34 0000 84B0     	 sub sp,sp,#16
+  35              	.LCFI0:
+  36              	 .cfi_def_cfa_offset 16
+  37 0002 2DE9F043 	 push {r4,r5,r6,r7,r8,r9,lr}
+  38              	.LCFI1:
+  39              	 .cfi_def_cfa_offset 44
+  40              	 .cfi_offset 4,-44
+  41              	 .cfi_offset 5,-40
+  42              	 .cfi_offset 6,-36
+  43              	 .cfi_offset 7,-32
+  44              	 .cfi_offset 8,-28
+  45              	 .cfi_offset 9,-24
   46              	 .cfi_offset 14,-20
-  47 0006 2DED028B 	 fstmfdd sp!,{d8}
+  47 0006 2DED088B 	 fstmfdd sp!,{d8,d9,d10,d11}
   48              	.LCFI2:
-  49              	 .cfi_def_cfa_offset 56
-  50              	 .cfi_offset 80,-56
-  51              	 .cfi_offset 81,-52
-  52 000a 8EB0     	 sub sp,sp,#56
-  53              	.LCFI3:
-  54              	 .cfi_def_cfa_offset 112
-  55              	 .loc 1 293 0
-  56 000c 18AC     	 add r4,sp,#96
-  57 000e 84E80F00 	 stmia r4,{r0,r1,r2,r3}
-  58 0012 BDF87C30 	 ldrh r3,[sp,#124]
- 294:../Algorithms/src/doppler.c **** 
- 295:../Algorithms/src/doppler.c ****     uint32_t maxBin = 0;
- 296:../Algorithms/src/doppler.c ****     float maxVal = 0;
- 297:../Algorithms/src/doppler.c ****     float freq_per_bin;
- 298:../Algorithms/src/doppler.c ****     float if1_real, if1_imag;
- 299:../Algorithms/src/doppler.c **** 
- 300:../Algorithms/src/doppler.c ****     float breathing_frequency = 0.0f;
- 301:../Algorithms/src/doppler.c ****     float breathing_level = 0.0f;
- 302:../Algorithms/src/doppler.c **** 
- 303:../Algorithms/src/doppler.c ****     /* Calcola la FFT */
- 304:../Algorithms/src/doppler.c ****     compute_fft_signal(fft_window, if1_i, if1_q, number_samples, FFT_SIZE, 1.0, FFT_INPUT_COMPLEX,
-  59              	 .loc 1 304 0
-  60 0016 0393     	 str r3,[sp,#12]
-  61 0018 0DAD     	 add r5,sp,#52
-  62 001a 18AB     	 add r3,sp,#96
-  63 001c 0FCB     	 ldmia r3,{r0,r1,r2,r3}
- 305:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
+  49              	 .cfi_def_cfa_offset 76
+  50              	 .cfi_offset 80,-76
+  51              	 .cfi_offset 81,-72
+  52              	 .cfi_offset 82,-68
+  53              	 .cfi_offset 83,-64
+  54              	 .cfi_offset 84,-60
+  55              	 .cfi_offset 85,-56
+  56              	 .cfi_offset 86,-52
+  57              	 .cfi_offset 87,-48
+  58 000a ADF6344D 	 subw sp,sp,#3124
+  59              	.LCFI3:
+  60              	 .cfi_def_cfa_offset 3200
+  61              	 .loc 1 296 0
+  62 000e 0DF54765 	 add r5,sp,#3184
+ 297:../Algorithms/src/doppler.c **** 
+ 298:../Algorithms/src/doppler.c ****     static float background_fft[FFT_SIZE / 2] = {0};  // Media della FFT di background
+ 299:../Algorithms/src/doppler.c ****     static uint32_t frame_count = 0;                 // Contatore per la fase di background
+ 300:../Algorithms/src/doppler.c ****     static bool background_acquired = false;         // Flag per sapere se il background è pronto
+ 301:../Algorithms/src/doppler.c **** 
+ 302:../Algorithms/src/doppler.c ****     static float raw_data_i1[FFT_SIZE];
+ 303:../Algorithms/src/doppler.c ****     static float raw_data_q1[FFT_SIZE];
+ 304:../Algorithms/src/doppler.c ****     float breathing_fft_signal[FFT_SIZE * 2] = {0};
+  63              	 .loc 1 304 0
+  64 0012 0DF58664 	 add r4,sp,#1072
+ 296:../Algorithms/src/doppler.c **** 
+  65              	 .loc 1 296 0
+  66 0016 85E80F00 	 stmia r5,{r0,r1,r2,r3}
+  67              	 .loc 1 304 0
+  68 001a 0021     	 movs r1,#0
+  69 001c 4FF40062 	 mov r2,#2048
+  70 0020 2046     	 mov r0,r4
+ 296:../Algorithms/src/doppler.c **** 
+  71              	 .loc 1 296 0
+  72 0022 DDF8848C 	 ldr r8,[sp,#3204]
+  73 0026 DDF8887C 	 ldr r7,[sp,#3208]
+  74 002a DDF8946C 	 ldr r6,[sp,#3220]
+  75 002e DDF8985C 	 ldr r5,[sp,#3224]
+  76 0032 DFF84494 	 ldr r9,.L67+40
+  77              	 .loc 1 304 0
+  78 0036 FFF7FEFF 	 bl memset
+  79              	.LVL1:
+ 305:../Algorithms/src/doppler.c ****     float breathing_spectrum[FFT_SIZE / 2] = {0};
+  80              	 .loc 1 305 0
+  81 003a 0021     	 movs r1,#0
+  82 003c 4FF40072 	 mov r2,#512
+  83 0040 0CA8     	 add r0,sp,#48
+  84 0042 FFF7FEFF 	 bl memset
+  85              	.LVL2:
+  86 0046 DFF834C4 	 ldr ip,.L67+44
+  87 004a 4946     	 mov r1,r9
+  88 004c 6246     	 mov r2,ip
+  89 004e 0023     	 movs r3,#0
+  90              	.LVL3:
+  91              	.L2:
+  92 0050 08EB0300 	 add r0,r8,r3
+  93              	.LBB2:
  306:../Algorithms/src/doppler.c **** 
- 307:../Algorithms/src/doppler.c ****     compute_fft_spectrum(breathing_fft_signal, FFT_SIZE, breathing_spectrum);
-  64              	 .loc 1 307 0
-  65 001e 4A4C     	 ldr r4,.L16
- 304:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
-  66              	 .loc 1 304 0
-  67 0020 DFF83CB1 	 ldr fp,.L16+24
-  68 0024 0895     	 str r5,[sp,#32]
-  69 0026 4FF07E5E 	 mov lr,#1065353216
-  70 002a 1D9D     	 ldr r5,[sp,#116]
-  71 002c CDF814E0 	 str lr,[sp,#20]
-  72 0030 0327     	 movs r7,#3
-  73 0032 0CAE     	 add r6,sp,#48
- 295:../Algorithms/src/doppler.c ****     float maxVal = 0;
-  74              	 .loc 1 295 0
-  75 0034 4FF0000E 	 mov lr,#0
- 296:../Algorithms/src/doppler.c ****     float freq_per_bin;
-  76              	 .loc 1 296 0
-  77 0038 4FF00009 	 mov r9,#0
- 304:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
-  78              	 .loc 1 304 0
-  79 003c 4FF4807A 	 mov r10,#256
-  80 0040 0697     	 str r7,[sp,#24]
-  81 0042 0796     	 str r6,[sp,#28]
- 293:../Algorithms/src/doppler.c **** 
-  82              	 .loc 1 293 0
-  83 0044 219F     	 ldr r7,[sp,#132]
-  84 0046 1E9E     	 ldr r6,[sp,#120]
- 304:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
-  85              	 .loc 1 304 0
-  86 0048 0195     	 str r5,[sp,#4]
-  87 004a CDF824B0 	 str fp,[sp,#36]
-  88 004e 1C9D     	 ldr r5,[sp,#112]
- 295:../Algorithms/src/doppler.c ****     float maxVal = 0;
-  89              	 .loc 1 295 0
-  90 0050 CDF828E0 	 str lr,[sp,#40]
- 304:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
-  91              	 .loc 1 304 0
-  92 0054 0296     	 str r6,[sp,#8]
-  93 0056 0095     	 str r5,[sp]
-  94 0058 CDF810A0 	 str r10,[sp,#16]
- 296:../Algorithms/src/doppler.c ****     float freq_per_bin;
-  95              	 .loc 1 296 0
-  96 005c CDF82C90 	 str r9,[sp,#44]
-  97              	.LVL1:
- 293:../Algorithms/src/doppler.c **** 
-  98              	 .loc 1 293 0
-  99 0060 229E     	 ldr r6,[sp,#136]
- 304:../Algorithms/src/doppler.c ****                        &if1_real, &if1_imag, breathing_fft_signal);
- 100              	 .loc 1 304 0
- 101 0062 FFF7FEFF 	 bl compute_fft_signal
- 102              	.LVL2:
- 103              	 .loc 1 307 0
- 104 0066 5146     	 mov r1,r10
- 105 0068 2246     	 mov r2,r4
- 106 006a 5846     	 mov r0,fp
- 107 006c FFF7FEFF 	 bl compute_fft_spectrum
- 108              	.LVL3:
- 308:../Algorithms/src/doppler.c **** 
- 309:../Algorithms/src/doppler.c ****     /* Rimuove il rumore a bassa frequenza */
- 310:../Algorithms/src/doppler.c ****     breathing_spectrum[0] = 0;
- 311:../Algorithms/src/doppler.c ****     breathing_spectrum[FFT_SIZE/2] = 0;
- 312:../Algorithms/src/doppler.c **** 
- 313:../Algorithms/src/doppler.c ****     /* Definisce il range della respirazione (tra 0.1 Hz e 1.0 Hz) */
- 314:../Algorithms/src/doppler.c ****     uint32_t fft_min_check = (uint32_t) ceilf(0.1f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_
- 109              	 .loc 1 314 0
- 110 0070 97ED058A 	 flds s16,[r7,#20]
- 111 0074 DFED357A 	 flds s15,.L16+4
- 310:../Algorithms/src/doppler.c ****     breathing_spectrum[FFT_SIZE/2] = 0;
- 112              	 .loc 1 310 0
- 113 0078 C4F80090 	 str r9,[r4]
- 114              	 .loc 1 314 0
- 115 007c B8EE488A 	 fuitos s16,s16
- 311:../Algorithms/src/doppler.c **** 
- 116              	 .loc 1 311 0
- 117 0080 C4F80092 	 str r9,[r4,#512]
- 118              	 .loc 1 314 0
- 119 0084 C7EE887A 	 fdivs s15,s15,s16
- 120 0088 17EE900A 	 fmrs r0,s15
- 121 008c FFF7FEFF 	 bl ceilf
- 122              	.LVL4:
- 315:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(1.0f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_
- 123              	 .loc 1 315 0
- 124 0090 DFED2F7A 	 flds s15,.L16+8
- 125 0094 C7EE887A 	 fdivs s15,s15,s16
- 314:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(1.0f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_
- 126              	 .loc 1 314 0
- 127 0098 07EE100A 	 fmsr s14,r0
- 128 009c BCEEC77A 	 ftouizs s14,s14
- 129              	 .loc 1 315 0
- 130 00a0 17EE900A 	 fmrs r0,s15
- 314:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(1.0f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_
- 131              	 .loc 1 314 0
- 132 00a4 17EE105A 	 fmrs r5,s14
- 133              	.LVL5:
- 134              	 .loc 1 315 0
- 135 00a8 FFF7FEFF 	 bl ceilf
- 136              	.LVL6:
- 137 00ac 07EE900A 	 fmsr s15,r0
- 138 00b0 FCEEE77A 	 ftouizs s15,s15
- 316:../Algorithms/src/doppler.c **** 
- 317:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
- 318:../Algorithms/src/doppler.c **** 
- 319:../Algorithms/src/doppler.c ****     /* Trova la frequenza respiratoria dominante */
- 320:../Algorithms/src/doppler.c ****     arm_max_f32(&breathing_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
- 139              	 .loc 1 320 0
- 140 00b4 04EB8500 	 add r0,r4,r5,lsl#2
- 141              	.LVL7:
+ 307:../Algorithms/src/doppler.c ****     uint16_t downsampling_factor = 10; // Riduzione del numero di campioni
+ 308:../Algorithms/src/doppler.c ****     uint16_t downsampled_size = FFT_SIZE / downsampling_factor;
+ 309:../Algorithms/src/doppler.c **** 
+ 310:../Algorithms/src/doppler.c ****     /* Downsampling */
+ 311:../Algorithms/src/doppler.c ****     for (uint32_t i = 0; i < downsampled_size; i++) {
+ 312:../Algorithms/src/doppler.c ****         raw_data_i1[i] = if1_i[i * downsampling_factor];
+  94              	 .loc 1 312 0 discriminator 3
+  95 0054 D0F800E0 	 ldr lr,[r0]
+  96 0058 41F804EB 	 str lr,[r1],#4
+  97 005c F818     	 adds r0,r7,r3
+  98 005e 2833     	 adds r3,r3,#40
+ 313:../Algorithms/src/doppler.c ****         raw_data_q1[i] = if1_q[i * downsampling_factor];
+  99              	 .loc 1 313 0 discriminator 3
+ 100 0060 0068     	 ldr r0,[r0]
+ 101 0062 42F8040B 	 str r0,[r2],#4
+ 311:../Algorithms/src/doppler.c ****         raw_data_i1[i] = if1_i[i * downsampling_factor];
+ 102              	 .loc 1 311 0 discriminator 3
+ 103 0066 B3F57A7F 	 cmp r3,#1000
+ 104 006a F1D1     	 bne .L2
+ 105              	.LBE2:
+ 314:../Algorithms/src/doppler.c ****     }
  315:../Algorithms/src/doppler.c **** 
- 142              	 .loc 1 315 0
- 143 00b8 17EE901A 	 fmrs r1,s15
- 144 00bc 0131     	 adds r1,r1,#1
- 145              	 .loc 1 320 0
- 146 00be 0BAA     	 add r2,sp,#44
- 147 00c0 0AAB     	 add r3,sp,#40
- 148 00c2 491B     	 subs r1,r1,r5
- 149 00c4 FFF7FEFF 	 bl arm_max_f32
- 150              	.LVL8:
- 321:../Algorithms/src/doppler.c ****     maxBin += fft_min_check;
- 151              	 .loc 1 321 0
- 152 00c8 0A98     	 ldr r0,[sp,#40]
- 322:../Algorithms/src/doppler.c **** 
- 323:../Algorithms/src/doppler.c ****     freq_per_bin = cp_dev_settings->adc_sampling_freq_Hz / (float)FFT_SIZE;
- 153              	 .loc 1 323 0
- 154 00ca D7ED058A 	 flds s17,[r7,#20]
- 324:../Algorithms/src/doppler.c ****     breathing_level = maxVal;
- 325:../Algorithms/src/doppler.c ****     breathing_frequency = maxBin * freq_per_bin;
- 326:../Algorithms/src/doppler.c **** 
- 327:../Algorithms/src/doppler.c ****     /* Converte in respiri per minuto */
- 328:../Algorithms/src/doppler.c ****     float breathing_rate = breathing_frequency * 60.0f;
- 155              	 .loc 1 328 0
- 156 00ce 9FED218A 	 flds s16,.L16+12
- 329:../Algorithms/src/doppler.c **** 
- 330:../Algorithms/src/doppler.c ****     /* Mostra i risultati con i LED */
- 331:../Algorithms/src/doppler.c ****     if (breathing_rate < 200.0f) {
- 157              	 .loc 1 331 0
- 158 00d2 9FED217A 	 flds s14,.L16+16
- 321:../Algorithms/src/doppler.c **** 
- 159              	 .loc 1 321 0
- 160 00d6 2844     	 add r0,r0,r5
- 325:../Algorithms/src/doppler.c **** 
- 161              	 .loc 1 325 0
- 162 00d8 07EE900A 	 fmsr s15,r0
- 323:../Algorithms/src/doppler.c ****     breathing_level = maxVal;
- 163              	 .loc 1 323 0
- 164 00dc FBEECC8A 	 vcvt.f32.u32 s17,s17,#8
- 325:../Algorithms/src/doppler.c **** 
- 165              	 .loc 1 325 0
- 166 00e0 F8EE677A 	 fuitos s15,s15
- 321:../Algorithms/src/doppler.c **** 
- 167              	 .loc 1 321 0
- 168 00e4 0A90     	 str r0,[sp,#40]
- 169              	.LVL9:
- 325:../Algorithms/src/doppler.c **** 
- 170              	 .loc 1 325 0
- 171 00e6 67EEA88A 	 fmuls s17,s15,s17
- 172              	.LVL10:
- 328:../Algorithms/src/doppler.c **** 
- 173              	 .loc 1 328 0
- 174 00ea 28EE888A 	 fmuls s16,s17,s16
- 175              	.LVL11:
- 176              	 .loc 1 331 0
- 177 00ee B4EEC78A 	 fcmpes s16,s14
- 178 00f2 F1EE10FA 	 fmstat
- 179 00f6 18D4     	 bmi .L14
- 332:../Algorithms/src/doppler.c ****         bsp_led_red_off();
- 333:../Algorithms/src/doppler.c ****         bsp_led_blue_on();   // Respirazione bassa
- 334:../Algorithms/src/doppler.c ****         bsp_led_green_off();
- 335:../Algorithms/src/doppler.c ****     }
- 336:../Algorithms/src/doppler.c ****     else if (breathing_rate >= 200.0f && breathing_rate <= 500.0f) {
- 180              	 .loc 1 336 0
- 181 00f8 06DB     	 blt .L5
- 182              	 .loc 1 336 0 is_stmt 0 discriminator 1
- 183 00fa DFED187A 	 flds s15,.L16+20
- 184 00fe B4EEE78A 	 fcmpes s16,s15
- 185 0102 F1EE10FA 	 fmstat
- 186 0106 17D9     	 bls .L15
- 187              	.L5:
- 188              	.LBB2:
- 337:../Algorithms/src/doppler.c ****         bsp_led_red_off();
- 338:../Algorithms/src/doppler.c ****         bsp_led_blue_off();
- 339:../Algorithms/src/doppler.c ****         bsp_led_green_on();  // Respirazione normale
- 340:../Algorithms/src/doppler.c ****     }
- 341:../Algorithms/src/doppler.c ****     else {
- 342:../Algorithms/src/doppler.c ****         bsp_led_red_on();    // Respirazione elevata
- 189              	 .loc 1 342 0 is_stmt 1
- 190 0108 FFF7FEFF 	 bl bsp_led_red_on
- 191              	.LVL12:
- 343:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
- 192              	 .loc 1 343 0
- 193 010c FFF7FEFF 	 bl bsp_led_blue_on
- 194              	.LVL13:
- 344:../Algorithms/src/doppler.c ****         bsp_led_green_off();
- 195              	 .loc 1 344 0
- 196 0110 FFF7FEFF 	 bl bsp_led_green_off
- 197              	.LVL14:
- 198              	.L4:
- 199              	.LBE2:
+ 316:../Algorithms/src/doppler.c ****     /* Calcolo FFT */
+ 317:../Algorithms/src/doppler.c ****     compute_fft_signal(fft_window, raw_data_i1, raw_data_q1, downsampled_size, downsampled_size,
+ 106              	 .loc 1 317 0
+ 107 006c 4FF01908 	 mov r8,#25
+ 108 0070 DDF8803C 	 ldr r3,[sp,#3200]
+ 109 0074 CDF808C0 	 str ip,[sp,#8]
+ 110 0078 4FF07E51 	 mov r1,#1065353216
+ 111 007c 0322     	 movs r2,#3
+ 112 007e 0027     	 movs r7,#0
+ 113 0080 0093     	 str r3,[sp]
+ 114 0082 CDF80490 	 str r9,[sp,#4]
+ 115 0086 0994     	 str r4,[sp,#36]
+ 116 0088 CDF80C80 	 str r8,[sp,#12]
+ 117 008c CDF81080 	 str r8,[sp,#16]
+ 118 0090 0591     	 str r1,[sp,#20]
+ 119 0092 0692     	 str r2,[sp,#24]
+ 120 0094 0797     	 str r7,[sp,#28]
+ 121 0096 0897     	 str r7,[sp,#32]
+ 122 0098 0DF54763 	 add r3,sp,#3184
+ 123 009c 0FCB     	 ldmia r3,{r0,r1,r2,r3}
+ 124 009e FFF7FEFF 	 bl compute_fft_signal
+ 125              	.LVL4:
+ 318:../Algorithms/src/doppler.c ****                        1.0, FFT_INPUT_COMPLEX, NULL, NULL, breathing_fft_signal);
+ 319:../Algorithms/src/doppler.c ****     compute_fft_spectrum(breathing_fft_signal, downsampled_size, breathing_spectrum);
+ 126              	 .loc 1 319 0
+ 127 00a2 4146     	 mov r1,r8
+ 128 00a4 2046     	 mov r0,r4
+ 129 00a6 0CAA     	 add r2,sp,#48
+ 130 00a8 FFF7FEFF 	 bl compute_fft_spectrum
+ 131              	.LVL5:
+ 320:../Algorithms/src/doppler.c **** 
+ 321:../Algorithms/src/doppler.c ****     /* Rimozione DC */
+ 322:../Algorithms/src/doppler.c ****     breathing_spectrum[0] = 0;
+ 323:../Algorithms/src/doppler.c ****     breathing_spectrum[downsampled_size / 2] = 0;
+ 324:../Algorithms/src/doppler.c **** 
+ 325:../Algorithms/src/doppler.c ****     /* Se siamo nella fase di background */
+ 326:../Algorithms/src/doppler.c ****     if (!background_acquired) {
+ 132              	 .loc 1 326 0
+ 133 00ac E849     	 ldr r1,.L67
+ 322:../Algorithms/src/doppler.c ****     breathing_spectrum[downsampled_size / 2] = 0;
+ 134              	 .loc 1 322 0
+ 135 00ae 9FEDE98A 	 flds s16,.L67+4
+ 136              	 .loc 1 326 0
+ 137 00b2 0B78     	 ldrb r3,[r1]
+ 322:../Algorithms/src/doppler.c ****     breathing_spectrum[downsampled_size / 2] = 0;
+ 138              	 .loc 1 322 0
+ 139 00b4 8DED0C8A 	 fsts s16,[sp,#48]
+ 323:../Algorithms/src/doppler.c **** 
+ 140              	 .loc 1 323 0
+ 141 00b8 8DED188A 	 fsts s16,[sp,#96]
+ 142              	 .loc 1 326 0
+ 143 00bc 002B     	 cmp r3,#0
+ 144 00be 40F08680 	 bne .L3
+ 145              	.LVL6:
+ 146              	.LBB3:
+ 327:../Algorithms/src/doppler.c ****         for (int i = 0; i < downsampled_size / 2; i++) {
+ 328:../Algorithms/src/doppler.c ****             background_fft[i] += breathing_spectrum[i] / BACKGROUND_FRAMES;
+ 147              	 .loc 1 328 0
+ 148 00c2 DFEDE57A 	 flds s15,.L67+8
+ 149 00c6 DDED0DAA 	 flds s21,[sp,#52]
+ 150 00ca 9DED0E9A 	 flds s18,[sp,#56]
+ 151 00ce 9DED0F0A 	 flds s0,[sp,#60]
+ 152 00d2 9DED101A 	 flds s2,[sp,#64]
+ 153 00d6 9DED112A 	 flds s4,[sp,#68]
+ 154 00da 9DED123A 	 flds s6,[sp,#72]
+ 155 00de 9DED134A 	 flds s8,[sp,#76]
+ 156 00e2 9DED145A 	 flds s10,[sp,#80]
+ 157 00e6 9DED156A 	 flds s12,[sp,#84]
+ 158 00ea 9DED167A 	 flds s14,[sp,#88]
+ 159 00ee DDED17BA 	 flds s23,[sp,#92]
+ 160 00f2 DA4B     	 ldr r3,.L67+12
+ 161              	.LBE3:
+ 329:../Algorithms/src/doppler.c ****         }
+ 330:../Algorithms/src/doppler.c **** 
+ 331:../Algorithms/src/doppler.c ****         frame_count++;
+ 162              	 .loc 1 331 0
+ 163 00f4 DA48     	 ldr r0,.L67+16
+ 164              	.LBB4:
+ 328:../Algorithms/src/doppler.c ****         }
+ 165              	 .loc 1 328 0
+ 166 00f6 93ED01BA 	 flds s22,[r3,#4]
+ 167 00fa 93ED00AA 	 flds s20,[r3]
+ 168 00fe D3ED029A 	 flds s19,[r3,#8]
+ 169 0102 D3ED038A 	 flds s17,[r3,#12]
+ 170 0106 D3ED040A 	 flds s1,[r3,#16]
+ 171 010a D3ED051A 	 flds s3,[r3,#20]
+ 172 010e D3ED062A 	 flds s5,[r3,#24]
+ 173 0112 D3ED073A 	 flds s7,[r3,#28]
+ 174 0116 D3ED084A 	 flds s9,[r3,#32]
+ 175 011a D3ED095A 	 flds s11,[r3,#36]
+ 176 011e D3ED0A6A 	 flds s13,[r3,#40]
+ 177 0122 CAEEA7AA 	 fdivs s21,s21,s15
+ 178 0126 89EE279A 	 fdivs s18,s18,s15
+ 179 012a 80EE270A 	 fdivs s0,s0,s15
+ 180 012e 81EE271A 	 fdivs s2,s2,s15
+ 181 0132 82EE272A 	 fdivs s4,s4,s15
+ 182 0136 83EE273A 	 fdivs s6,s6,s15
+ 183 013a 84EE274A 	 fdivs s8,s8,s15
+ 184 013e 85EE275A 	 fdivs s10,s10,s15
+ 185 0142 86EE276A 	 fdivs s12,s12,s15
+ 186 0146 87EE277A 	 fdivs s14,s14,s15
+ 187 014a CBEEA77A 	 fdivs s15,s23,s15
+ 188 014e 36EE877A 	 fadds s14,s13,s14
+ 189 0152 7BEE2AAA 	 fadds s21,s22,s21
+ 190 0156 3AEE088A 	 fadds s16,s20,s16
+ 191 015a 39EE899A 	 fadds s18,s19,s18
+ 192 015e 38EE800A 	 fadds s0,s17,s0
+ 193 0162 30EE811A 	 fadds s2,s1,s2
+ 194 0166 31EE822A 	 fadds s4,s3,s4
+ 195 016a 32EE833A 	 fadds s6,s5,s6
+ 196 016e 33EE844A 	 fadds s8,s7,s8
+ 197 0172 34EE855A 	 fadds s10,s9,s10
+ 198 0176 35EE866A 	 fadds s12,s11,s12
+ 199 017a C3ED01AA 	 fsts s21,[r3,#4]
+ 200 017e 83ED008A 	 fsts s16,[r3]
+ 201              	.LVL7:
+ 202 0182 83ED029A 	 fsts s18,[r3,#8]
+ 203              	.LVL8:
+ 204 0186 83ED030A 	 fsts s0,[r3,#12]
+ 205              	.LVL9:
+ 206 018a 83ED041A 	 fsts s2,[r3,#16]
+ 207              	.LVL10:
+ 208 018e 83ED052A 	 fsts s4,[r3,#20]
+ 209              	.LVL11:
+ 210 0192 83ED063A 	 fsts s6,[r3,#24]
+ 211              	.LVL12:
+ 212 0196 83ED074A 	 fsts s8,[r3,#28]
+ 213              	.LVL13:
+ 214 019a 83ED085A 	 fsts s10,[r3,#32]
+ 215              	.LVL14:
+ 216 019e 83ED096A 	 fsts s12,[r3,#36]
+ 217              	.LVL15:
+ 218 01a2 83ED0A7A 	 fsts s14,[r3,#40]
+ 219              	.LVL16:
+ 220 01a6 93ED0B7A 	 flds s14,[r3,#44]
+ 221              	.LBE4:
+ 222              	 .loc 1 331 0
+ 223 01aa 0268     	 ldr r2,[r0]
+ 224              	.LBB5:
+ 328:../Algorithms/src/doppler.c ****         }
+ 225              	 .loc 1 328 0
+ 226 01ac 77EE277A 	 fadds s15,s14,s15
+ 227              	.LBE5:
+ 228              	 .loc 1 331 0
+ 229 01b0 0132     	 adds r2,r2,#1
+ 332:../Algorithms/src/doppler.c ****         if (frame_count >= BACKGROUND_FRAMES) {
+ 230              	 .loc 1 332 0
+ 231 01b2 312A     	 cmp r2,#49
+ 232              	.LBB6:
+ 328:../Algorithms/src/doppler.c ****         }
+ 233              	 .loc 1 328 0
+ 234 01b4 C3ED0B7A 	 fsts s15,[r3,#44]
+ 235              	.LVL17:
+ 236              	.LBE6:
+ 331:../Algorithms/src/doppler.c ****         if (frame_count >= BACKGROUND_FRAMES) {
+ 237              	 .loc 1 331 0
+ 238 01b8 0260     	 str r2,[r0]
+ 239              	 .loc 1 332 0
+ 240 01ba 00F23A81 	 bhi .L64
+ 241              	.LVL18:
+ 242              	.L1:
+ 333:../Algorithms/src/doppler.c ****             background_acquired = true;  // Fine fase di background
+ 334:../Algorithms/src/doppler.c ****             printf("Background acquisito!\n");
+ 335:../Algorithms/src/doppler.c ****         }
+ 336:../Algorithms/src/doppler.c **** 
+ 337:../Algorithms/src/doppler.c ****         return;  // Uscita dalla funzione fino alla fine della fase di background
+ 338:../Algorithms/src/doppler.c ****     }
+ 339:../Algorithms/src/doppler.c **** 
+ 340:../Algorithms/src/doppler.c ****     /* Sottrazione del background */
+ 341:../Algorithms/src/doppler.c ****     float clean_spectrum[FFT_SIZE / 2] = {0};
+ 342:../Algorithms/src/doppler.c ****     for (int i = 0; i < downsampled_size / 2; i++) {
+ 343:../Algorithms/src/doppler.c ****         clean_spectrum[i] = breathing_spectrum[i] - background_fft[i];
+ 344:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
  345:../Algorithms/src/doppler.c ****     }
  346:../Algorithms/src/doppler.c **** 
- 347:../Algorithms/src/doppler.c ****     /* Salva i risultati */
- 348:../Algorithms/src/doppler.c ****     p_algo_result->doppler_frequency_hz = breathing_frequency;
- 200              	 .loc 1 348 0
- 201 0114 C6ED048A 	 fsts s17,[r6,#16]
- 349:../Algorithms/src/doppler.c ****     p_algo_result->velocity_kmph = breathing_rate; // Usa il campo della velocità per mostrare il 
- 202              	 .loc 1 349 0
- 203 0118 86ED008A 	 fsts s16,[r6]
- 350:../Algorithms/src/doppler.c **** }
- 204              	 .loc 1 350 0
- 205 011c 0EB0     	 add sp,sp,#56
- 206              	.LCFI4:
- 207              	 .cfi_remember_state
- 208              	 .cfi_def_cfa_offset 56
- 209              	 
- 210 011e BDEC028B 	 fldmfdd sp!,{d8}
- 211              	.LCFI5:
- 212              	 .cfi_restore 80
- 213              	 .cfi_restore 81
- 214              	 .cfi_def_cfa_offset 48
- 215              	.LVL15:
- 216 0122 BDE8F04E 	 pop {r4,r5,r6,r7,r9,r10,fp,lr}
- 217              	.LCFI6:
- 218              	 .cfi_restore 14
- 219              	 .cfi_restore 11
- 220              	 .cfi_restore 10
- 221              	 .cfi_restore 9
- 222              	 .cfi_restore 7
- 223              	 .cfi_restore 6
- 224              	 .cfi_restore 5
- 225              	 .cfi_restore 4
- 226              	 .cfi_def_cfa_offset 16
- 227              	.LVL16:
- 228 0126 04B0     	 add sp,sp,#16
- 229              	.LCFI7:
- 230              	 .cfi_def_cfa_offset 0
- 231 0128 7047     	 bx lr
- 232              	.LVL17:
- 233              	.L14:
- 234              	.LCFI8:
- 235              	 .cfi_restore_state
- 236              	.LBB3:
- 332:../Algorithms/src/doppler.c ****         bsp_led_blue_on();   // Respirazione bassa
- 237              	 .loc 1 332 0
- 238 012a FFF7FEFF 	 bl bsp_led_red_off
- 239              	.LVL18:
- 333:../Algorithms/src/doppler.c ****         bsp_led_green_off();
- 240              	 .loc 1 333 0
- 241 012e FFF7FEFF 	 bl bsp_led_blue_on
- 242              	.LVL19:
- 334:../Algorithms/src/doppler.c ****     }
- 243              	 .loc 1 334 0
- 244 0132 FFF7FEFF 	 bl bsp_led_green_off
- 245              	.LVL20:
- 246              	.LBE3:
- 247 0136 EDE7     	 b .L4
- 248              	.LVL21:
- 249              	.L15:
- 250              	.LBB4:
- 337:../Algorithms/src/doppler.c ****         bsp_led_blue_off();
- 251              	 .loc 1 337 0
- 252 0138 FFF7FEFF 	 bl bsp_led_red_off
- 253              	.LVL22:
- 338:../Algorithms/src/doppler.c ****         bsp_led_green_on();  // Respirazione normale
- 254              	 .loc 1 338 0
- 255 013c FFF7FEFF 	 bl bsp_led_blue_off
- 256              	.LVL23:
- 339:../Algorithms/src/doppler.c ****     }
- 257              	 .loc 1 339 0
- 258 0140 FFF7FEFF 	 bl bsp_led_green_on
- 259              	.LVL24:
- 260              	.LBE4:
- 336:../Algorithms/src/doppler.c ****         bsp_led_red_off();
- 261              	 .loc 1 336 0
- 262 0144 E6E7     	 b .L4
- 263              	.L17:
- 264 0146 00BF     	 .align 2
- 265              	.L16:
- 266 0148 00000000 	 .word .LANCHOR1
- 267 014c CDCCCC41 	 .word 1103940813
- 268 0150 00008043 	 .word 1132462080
- 269 0154 00007042 	 .word 1114636288
- 270 0158 00004843 	 .word 1128792064
- 271 015c 0000FA43 	 .word 1140457472
- 272 0160 00000000 	 .word .LANCHOR0
- 273              	 .cfi_endproc
- 274              	.LFE530:
- 276              	 .section .text.breathing_do,"ax",%progbits
- 277              	 .align 2
- 278              	 .global breathing_do
- 279              	 .thumb
- 280              	 .thumb_func
- 282              	breathing_do:
- 283              	.LFB529:
- 253:../Algorithms/src/doppler.c **** 
- 284              	 .loc 1 253 0
- 285              	 .cfi_startproc
- 286              	 
- 287              	 
- 288              	.LVL25:
- 289 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
- 290              	.LCFI9:
- 291              	 .cfi_def_cfa_offset 36
- 292              	 .cfi_offset 4,-36
- 293              	 .cfi_offset 5,-32
- 294              	 .cfi_offset 6,-28
- 295              	 .cfi_offset 7,-24
- 296              	 .cfi_offset 8,-20
- 297              	 .cfi_offset 9,-16
- 298              	 .cfi_offset 10,-12
- 299              	 .cfi_offset 11,-8
- 300              	 .cfi_offset 14,-4
- 262:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
- 301              	 .loc 1 262 0
- 302 0004 DFF8D0A0 	 ldr r10,.L30+8
- 259:../Algorithms/src/doppler.c **** 
- 303              	 .loc 1 259 0
- 304 0008 4588     	 ldrh r5,[r0,#2]
- 305              	.LVL26:
- 263:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
- 306              	 .loc 1 263 0
- 307 000a 314C     	 ldr r4,.L30
- 253:../Algorithms/src/doppler.c **** 
- 308              	 .loc 1 253 0
- 309 000c 0646     	 mov r6,r0
- 262:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
- 310              	 .loc 1 262 0
- 311 000e DAF80000 	 ldr r0,[r10]
- 312              	.LVL27:
- 253:../Algorithms/src/doppler.c **** 
- 313              	 .loc 1 253 0
- 314 0012 8BB0     	 sub sp,sp,#44
- 315              	.LCFI10:
- 316              	 .cfi_def_cfa_offset 80
- 262:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
- 317              	 .loc 1 262 0
- 318 0014 8542     	 cmp r5,r0
- 253:../Algorithms/src/doppler.c **** 
- 319              	 .loc 1 253 0
- 320 0016 0991     	 str r1,[sp,#36]
- 321 0018 9146     	 mov r9,r2
- 322 001a 1F46     	 mov r7,r3
- 262:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
- 323              	 .loc 1 262 0
- 324 001c 07D0     	 beq .L19
- 264:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
- 325              	 .loc 1 264 0
- 326 001e 2046     	 mov r0,r4
- 263:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
- 327              	 .loc 1 263 0
- 328 0020 6560     	 str r5,[r4,#4]
- 264:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
- 329              	 .loc 1 264 0
- 330 0022 FFF7FEFF 	 bl fft_window_gen
- 331              	.LVL28:
- 332 0026 0028     	 cmp r0,#0
- 333 0028 51D0     	 beq .L21
- 268:../Algorithms/src/doppler.c ****     }
- 334              	 .loc 1 268 0
- 335 002a CAF80050 	 str r5,[r10]
- 336              	.L19:
- 272:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
- 337              	 .loc 1 272 0
- 338 002e DFF8ACB0 	 ldr fp,.L30+12
- 273:../Algorithms/src/doppler.c **** 
- 339              	 .loc 1 273 0
- 340 0032 DFF8ACA0 	 ldr r10,.L30+16
- 272:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
- 341              	 .loc 1 272 0
- 342 0036 0021     	 movs r1,#0
- 343 0038 4FF48062 	 mov r2,#1024
- 344 003c 5846     	 mov r0,fp
- 345 003e FFF7FEFF 	 bl memset
- 346              	.LVL29:
- 273:../Algorithms/src/doppler.c **** 
- 347              	 .loc 1 273 0
- 348 0042 0021     	 movs r1,#0
- 349 0044 4FF48062 	 mov r2,#1024
- 350 0048 5046     	 mov r0,r10
- 351 004a FFF7FEFF 	 bl memset
- 352              	.LVL30:
- 276:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 353              	 .loc 1 276 0
- 354 004e 0021     	 movs r1,#0
- 355 0050 0A46     	 mov r2,r1
- 356 0052 3046     	 mov r0,r6
- 357 0054 FFF7FEFF 	 bl get_buffer_address_by_chirp
- 358              	.LVL31:
- 277:../Algorithms/src/doppler.c **** 
- 359              	 .loc 1 277 0
- 360 0058 0121     	 movs r1,#1
- 276:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 361              	 .loc 1 276 0
- 362 005a 8046     	 mov r8,r0
- 363              	.LVL32:
- 277:../Algorithms/src/doppler.c **** 
- 364              	 .loc 1 277 0
- 365 005c 0022     	 movs r2,#0
- 366 005e 3046     	 mov r0,r6
- 367              	.LVL33:
- 368 0060 FFF7FEFF 	 bl get_buffer_address_by_chirp
- 369              	.LVL34:
- 370              	.LBB5:
- 279:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
- 371              	 .loc 1 279 0
- 372 0064 F5B1     	 cbz r5,.L24
- 280:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 373              	 .loc 1 280 0
- 374 0066 DFED1B6A 	 flds s13,.L30+4
- 375 006a 821E     	 subs r2,r0,#2
- 376 006c A8F10201 	 sub r1,r8,#2
- 377 0070 5B46     	 mov r3,fp
- 378 0072 5046     	 mov r0,r10
- 379              	.LVL35:
- 380 0074 0BEB850E 	 add lr,fp,r5,lsl#2
- 381              	.LVL36:
- 382              	.L23:
- 280:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 383              	 .loc 1 280 0 is_stmt 0 discriminator 3
- 384 0078 31F802CF 	 ldrh ip,[r1,#2]!
- 385 007c 07EE10CA 	 fmsr s14,ip
- 281:../Algorithms/src/doppler.c ****     }
- 386              	 .loc 1 281 0 is_stmt 1 discriminator 3
- 387 0080 32F802CF 	 ldrh ip,[r2,#2]!
- 280:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 388              	 .loc 1 280 0 discriminator 3
- 389 0084 B8EE477A 	 fuitos s14,s14
- 281:../Algorithms/src/doppler.c ****     }
- 390              	 .loc 1 281 0 discriminator 3
- 391 0088 07EE90CA 	 fmsr s15,ip
- 280:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 392              	 .loc 1 280 0 discriminator 3
- 393 008c 27EE267A 	 fmuls s14,s14,s13
- 281:../Algorithms/src/doppler.c ****     }
- 394              	 .loc 1 281 0 discriminator 3
- 395 0090 F8EE677A 	 fuitos s15,s15
- 280:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 396              	 .loc 1 280 0 discriminator 3
- 397 0094 A3EC017A 	 fstmias r3!,{s14}
- 281:../Algorithms/src/doppler.c ****     }
- 398              	 .loc 1 281 0 discriminator 3
- 399 0098 67EEA67A 	 fmuls s15,s15,s13
- 279:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
- 400              	 .loc 1 279 0 discriminator 3
- 401 009c 7345     	 cmp r3,lr
- 281:../Algorithms/src/doppler.c ****     }
- 402              	 .loc 1 281 0 discriminator 3
- 403 009e E0EC017A 	 fstmias r0!,{s15}
- 279:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
- 404              	 .loc 1 279 0 discriminator 3
- 405 00a2 E9D1     	 bne .L23
- 406              	.L24:
- 407              	.LBE5:
- 285:../Algorithms/src/doppler.c **** 
- 408              	 .loc 1 285 0
- 409 00a4 2369     	 ldr r3,[r4,#16]
- 410 00a6 099A     	 ldr r2,[sp,#36]
- 411 00a8 0492     	 str r2,[sp,#16]
- 412 00aa 0093     	 str r3,[sp]
- 413 00ac 94E80F00 	 ldmia r4,{r0,r1,r2,r3}
- 414 00b0 CDF804B0 	 str fp,[sp,#4]
- 415 00b4 CDF808A0 	 str r10,[sp,#8]
- 416 00b8 0395     	 str r5,[sp,#12]
- 417 00ba CDF81490 	 str r9,[sp,#20]
- 418 00be 0697     	 str r7,[sp,#24]
- 419 00c0 FFF7FEFF 	 bl breathing_calc_frequency
- 420              	.LVL37:
- 288:../Algorithms/src/doppler.c **** }
- 421              	 .loc 1 288 0
- 422 00c4 736B     	 ldr r3,[r6,#52]
- 423 00c6 FB61     	 str r3,[r7,#28]
- 289:../Algorithms/src/doppler.c **** 
- 424              	 .loc 1 289 0
- 425 00c8 0BB0     	 add sp,sp,#44
- 426              	.LCFI11:
- 427              	 .cfi_remember_state
- 428              	 .cfi_def_cfa_offset 36
- 429              	 
- 430 00ca BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
- 431              	.LVL38:
- 432              	.L21:
- 433              	.LCFI12:
- 434              	 .cfi_restore_state
- 266:../Algorithms/src/doppler.c ****         }
- 435              	 .loc 1 266 0 discriminator 1
- 436 00ce FEE7     	 b .L21
- 437              	.L31:
- 438              	 .align 2
- 439              	.L30:
- 440 00d0 00000000 	 .word .LANCHOR3
- 441 00d4 6740D33B 	 .word 1003700327
- 442 00d8 00000000 	 .word .LANCHOR2
- 443 00dc 00000000 	 .word .LANCHOR4
- 444 00e0 00000000 	 .word .LANCHOR5
- 445              	 .cfi_endproc
- 446              	.LFE529:
- 448              	 .section .text.doppler_calc_speed,"ax",%progbits
- 449              	 .align 2
- 450              	 .global doppler_calc_speed
- 451              	 .thumb
- 452              	 .thumb_func
- 454              	doppler_calc_speed:
- 455              	.LFB532:
+ 347:../Algorithms/src/doppler.c ****     /* Definizione del range respiratorio tra 0.1 Hz e 1.0 Hz */
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_min_check = (uint32_t) ceilf(0.15f * downsampled_size / cp_dev_settings->adc_sampl
+ 349:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 350:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
  351:../Algorithms/src/doppler.c **** 
- 352:../Algorithms/src/doppler.c **** 
- 353:../Algorithms/src/doppler.c **** void doppler_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
- 354:../Algorithms/src/doppler.c **** 				const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
- 355:../Algorithms/src/doppler.c **** {
- 356:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
- 357:../Algorithms/src/doppler.c **** 	static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 358:../Algorithms/src/doppler.c **** 	static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
- 359:../Algorithms/src/doppler.c **** 
- 360:../Algorithms/src/doppler.c **** 	uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
- 361:../Algorithms/src/doppler.c **** 	uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
- 362:../Algorithms/src/doppler.c **** 
- 363:../Algorithms/src/doppler.c **** 	/* Generate FFT window, it will be used for FFT calculation */
- 364:../Algorithms/src/doppler.c **** 	if (fft_fast_window_flag != Ns)
- 365:../Algorithms/src/doppler.c **** 	{
- 366:../Algorithms/src/doppler.c **** 		fft_fast_time_window.fft_window_length = Ns; /* Number of elements in the FFT window  */
- 367:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
- 368:../Algorithms/src/doppler.c **** 		{
- 369:../Algorithms/src/doppler.c **** 			XMC_DEBUG("Invalid FFT window parameters !\n");
- 370:../Algorithms/src/doppler.c **** 			while (1);
- 371:../Algorithms/src/doppler.c **** 		}
- 372:../Algorithms/src/doppler.c **** 		fft_fast_window_flag = Ns;
- 373:../Algorithms/src/doppler.c **** 	}
- 374:../Algorithms/src/doppler.c **** 
- 375:../Algorithms/src/doppler.c **** 	/* clear array values that are not acquired */
- 376:../Algorithms/src/doppler.c **** 	memset(raw_data_i1, 0, sizeof(raw_data_i1));
- 377:../Algorithms/src/doppler.c **** 	memset(raw_data_q1, 0, sizeof(raw_data_q1));
- 378:../Algorithms/src/doppler.c **** 
- 379:../Algorithms/src/doppler.c **** 	if (cp_algo_settings->use_high_gain_doppler)
- 380:../Algorithms/src/doppler.c **** 	{
- 381:../Algorithms/src/doppler.c **** 		/* Only one chirp for Doppler */
- 382:../Algorithms/src/doppler.c **** 		p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 0, 0);
- 383:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 384:../Algorithms/src/doppler.c **** 	}
- 385:../Algorithms/src/doppler.c **** 	else
- 386:../Algorithms/src/doppler.c **** 	{
- 387:../Algorithms/src/doppler.c **** 		/* Only one chirp for Doppler */
- 388:../Algorithms/src/doppler.c **** 		p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
- 389:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
- 390:../Algorithms/src/doppler.c **** 	}
- 391:../Algorithms/src/doppler.c **** 
- 392:../Algorithms/src/doppler.c **** 	for (uint32_t i = 0; i < Ns; i++)
- 393:../Algorithms/src/doppler.c **** 	{
- 394:../Algorithms/src/doppler.c **** 		raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
- 395:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 396:../Algorithms/src/doppler.c **** 	}
+ 352:../Algorithms/src/doppler.c ****     /* Trovo la frequenza dominante */
+ 353:../Algorithms/src/doppler.c ****     uint32_t maxBin = 0;
+ 354:../Algorithms/src/doppler.c ****     float maxVal = 0;
+ 355:../Algorithms/src/doppler.c ****     arm_max_f32(&clean_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
+ 356:../Algorithms/src/doppler.c ****     maxBin += fft_min_check;
+ 357:../Algorithms/src/doppler.c **** 
+ 358:../Algorithms/src/doppler.c ****     float freq_per_bin = cp_dev_settings->adc_sampling_freq_Hz / (float)downsampled_size;
+ 359:../Algorithms/src/doppler.c ****     float breathing_frequency = maxBin * freq_per_bin;
+ 360:../Algorithms/src/doppler.c ****     float breathing_rate = breathing_frequency * 60.0f;  // Conversione in respiri al minuto
+ 361:../Algorithms/src/doppler.c **** 
+ 362:../Algorithms/src/doppler.c ****     /* Debug */
+ 363:../Algorithms/src/doppler.c ****     printf("DEBUG: maxBin=%u, breathing_frequency=%.2f Hz, BRPM=%.2f\n", maxBin, breathing_frequenc
+ 364:../Algorithms/src/doppler.c **** 
+ 365:../Algorithms/src/doppler.c ****     /* Classificazione del respiro */
+ 366:../Algorithms/src/doppler.c ****     if (breathing_rate < 12.0f) {  // Respirazione bassa
+ 367:../Algorithms/src/doppler.c ****         p_algo_result->motion_detected = 1;
+ 368:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 369:../Algorithms/src/doppler.c ****         bsp_led_red_on();
+ 370:../Algorithms/src/doppler.c ****         bsp_led_green_on();
+ 371:../Algorithms/src/doppler.c ****     }
+ 372:../Algorithms/src/doppler.c ****     else if (breathing_rate > 16.0f) {  // Respirazione alta
+ 373:../Algorithms/src/doppler.c ****         p_algo_result->target_approaching = 1;
+ 374:../Algorithms/src/doppler.c ****         bsp_led_red_on();
+ 375:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 376:../Algorithms/src/doppler.c ****         bsp_led_green_off();
+ 377:../Algorithms/src/doppler.c ****     }
+ 378:../Algorithms/src/doppler.c ****     else {  // Respirazione normale
+ 379:../Algorithms/src/doppler.c ****         p_algo_result->target_departing = 1;
+ 380:../Algorithms/src/doppler.c ****         bsp_led_green_on();
+ 381:../Algorithms/src/doppler.c ****         bsp_led_red_off();
+ 382:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 383:../Algorithms/src/doppler.c ****     }
+ 384:../Algorithms/src/doppler.c **** 
+ 385:../Algorithms/src/doppler.c ****     /* Salva i risultati */
+ 386:../Algorithms/src/doppler.c ****     p_algo_result->doppler_frequency_hz = breathing_frequency;
+ 387:../Algorithms/src/doppler.c ****     p_algo_result->velocity_kmph = breathing_rate; // Uso il campo della velocità per il respiro
+ 388:../Algorithms/src/doppler.c **** }
+ 243              	 .loc 1 388 0
+ 244 01be 0DF6344D 	 addw sp,sp,#3124
+ 245              	.LCFI4:
+ 246              	 .cfi_remember_state
+ 247              	 .cfi_def_cfa_offset 76
+ 248              	 
+ 249 01c2 BDEC088B 	 fldmfdd sp!,{d8-d11}
+ 250              	.LCFI5:
+ 251              	 .cfi_restore 86
+ 252              	 .cfi_restore 87
+ 253              	 .cfi_restore 84
+ 254              	 .cfi_restore 85
+ 255              	 .cfi_restore 82
+ 256              	 .cfi_restore 83
+ 257              	 .cfi_restore 80
+ 258              	 .cfi_restore 81
+ 259              	 .cfi_def_cfa_offset 44
+ 260 01c6 BDE8F043 	 pop {r4,r5,r6,r7,r8,r9,lr}
+ 261              	.LCFI6:
+ 262              	 .cfi_restore 14
+ 263              	 .cfi_restore 9
+ 264              	 .cfi_restore 8
+ 265              	 .cfi_restore 7
+ 266              	 .cfi_restore 6
+ 267              	 .cfi_restore 5
+ 268              	 .cfi_restore 4
+ 269              	 .cfi_def_cfa_offset 16
+ 270 01ca 04B0     	 add sp,sp,#16
+ 271              	.LCFI7:
+ 272              	 .cfi_def_cfa_offset 0
+ 273 01cc 7047     	 bx lr
+ 274              	.L3:
+ 275              	.LCFI8:
+ 276              	 .cfi_restore_state
+ 341:../Algorithms/src/doppler.c ****     for (int i = 0; i < downsampled_size / 2; i++) {
+ 277              	 .loc 1 341 0
+ 278 01ce 3946     	 mov r1,r7
+ 279 01d0 4FF40072 	 mov r2,#512
+ 280 01d4 8CA8     	 add r0,sp,#560
+ 281 01d6 FFF7FEFF 	 bl memset
+ 282              	.LVL19:
+ 283              	.LBB7:
+ 343:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
+ 284              	 .loc 1 343 0
+ 285 01da A04B     	 ldr r3,.L67+12
+ 286 01dc 9DED0C2A 	 flds s4,[sp,#48]
+ 287 01e0 D3ED00BA 	 flds s23,[r3]
+ 288 01e4 93ED01BA 	 flds s22,[r3,#4]
+ 289 01e8 DDED0D2A 	 flds s5,[sp,#52]
+ 290 01ec D3ED02AA 	 flds s21,[r3,#8]
+ 291 01f0 DDED0E3A 	 flds s7,[sp,#56]
+ 292 01f4 93ED03AA 	 flds s20,[r3,#12]
+ 293 01f8 9DED0F4A 	 flds s8,[sp,#60]
+ 294 01fc D3ED049A 	 flds s19,[r3,#16]
+ 295 0200 DDED104A 	 flds s9,[sp,#64]
+ 296 0204 93ED059A 	 flds s18,[r3,#20]
+ 297 0208 9DED115A 	 flds s10,[sp,#68]
+ 298 020c D3ED068A 	 flds s17,[r3,#24]
+ 299 0210 DDED125A 	 flds s11,[sp,#72]
+ 300 0214 93ED070A 	 flds s0,[r3,#28]
+ 301 0218 9DED136A 	 flds s12,[sp,#76]
+ 302 021c D3ED080A 	 flds s1,[r3,#32]
+ 303 0220 DDED146A 	 flds s13,[sp,#80]
+ 304 0224 93ED091A 	 flds s2,[r3,#36]
+ 305 0228 9DED157A 	 flds s14,[sp,#84]
+ 306 022c D3ED0A1A 	 flds s3,[r3,#40]
+ 307 0230 DDED167A 	 flds s15,[sp,#88]
+ 308              	.LBE7:
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 309              	 .loc 1 348 0
+ 310 0234 9FED8B3A 	 flds s6,.L67+20
+ 311              	.LBB8:
+ 343:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
+ 312              	 .loc 1 343 0
+ 313 0238 32EE6B2A 	 fsubs s4,s4,s23
+ 314 023c 72EECB2A 	 fsubs s5,s5,s22
+ 315 0240 B5EEC02A 	 fcmpezs s4
+ 316 0244 73EEEA3A 	 fsubs s7,s7,s21
+ 317 0248 F1EE10FA 	 fmstat
+ 318 024c 34EE4A4A 	 fsubs s8,s8,s20
+ 319 0250 F5EEC02A 	 fcmpezs s5
+ 320 0254 48BF     	 it mi
+ 321 0256 B0EE482A 	 fcpysmi s4,s16
+ 322 025a 74EEE94A 	 fsubs s9,s9,s19
+ 323 025e F1EE10FA 	 fmstat
+ 324 0262 F5EEC03A 	 fcmpezs s7
+ 325 0266 48BF     	 it mi
+ 326 0268 F0EE482A 	 fcpysmi s5,s16
+ 327 026c 35EE495A 	 fsubs s10,s10,s18
+ 328 0270 F1EE10FA 	 fmstat
+ 329 0274 B5EEC04A 	 fcmpezs s8
+ 330 0278 48BF     	 it mi
+ 331 027a F0EE483A 	 fcpysmi s7,s16
+ 332 027e 75EEE85A 	 fsubs s11,s11,s17
+ 333 0282 F1EE10FA 	 fmstat
+ 334 0286 F5EEC04A 	 fcmpezs s9
+ 335 028a 48BF     	 it mi
+ 336 028c B0EE484A 	 fcpysmi s8,s16
+ 337 0290 36EE406A 	 fsubs s12,s12,s0
+ 338 0294 F1EE10FA 	 fmstat
+ 339 0298 B5EEC05A 	 fcmpezs s10
+ 340 029c 48BF     	 it mi
+ 341 029e F0EE484A 	 fcpysmi s9,s16
+ 342 02a2 76EEE06A 	 fsubs s13,s13,s1
+ 343 02a6 F1EE10FA 	 fmstat
+ 344 02aa F5EEC05A 	 fcmpezs s11
+ 345 02ae 48BF     	 it mi
+ 346 02b0 B0EE485A 	 fcpysmi s10,s16
+ 347 02b4 37EE417A 	 fsubs s14,s14,s2
+ 348 02b8 F1EE10FA 	 fmstat
+ 349 02bc B5EEC06A 	 fcmpezs s12
+ 350 02c0 48BF     	 it mi
+ 351 02c2 F0EE485A 	 fcpysmi s11,s16
+ 352 02c6 77EEE17A 	 fsubs s15,s15,s3
+ 353 02ca F1EE10FA 	 fmstat
+ 354 02ce F5EEC06A 	 fcmpezs s13
+ 355 02d2 48BF     	 it mi
+ 356 02d4 B0EE486A 	 fcpysmi s12,s16
+ 357 02d8 F1EE10FA 	 fmstat
+ 358 02dc B5EEC07A 	 fcmpezs s14
+ 359 02e0 48BF     	 it mi
+ 360 02e2 F0EE486A 	 fcpysmi s13,s16
+ 361 02e6 F1EE10FA 	 fmstat
+ 362 02ea F5EEC07A 	 fcmpezs s15
+ 363 02ee 48BF     	 it mi
+ 364 02f0 B0EE487A 	 fcpysmi s14,s16
+ 365 02f4 F1EE10FA 	 fmstat
+ 366 02f8 48BF     	 it mi
+ 367 02fa F0EE487A 	 fcpysmi s15,s16
+ 368 02fe 8DED8C2A 	 fsts s4,[sp,#560]
+ 369              	.LVL20:
+ 370 0302 CDED8D2A 	 fsts s5,[sp,#564]
+ 371              	.LVL21:
+ 372 0306 CDED8E3A 	 fsts s7,[sp,#568]
+ 373              	.LVL22:
+ 374 030a 8DED8F4A 	 fsts s8,[sp,#572]
+ 375              	.LVL23:
+ 376 030e CDED904A 	 fsts s9,[sp,#576]
+ 377              	.LVL24:
+ 378 0312 8DED915A 	 fsts s10,[sp,#580]
+ 379              	.LVL25:
+ 380 0316 CDED925A 	 fsts s11,[sp,#584]
+ 381              	.LVL26:
+ 382 031a 8DED936A 	 fsts s12,[sp,#588]
+ 383              	.LVL27:
+ 384 031e CDED946A 	 fsts s13,[sp,#592]
+ 385              	.LVL28:
+ 386 0322 8DED957A 	 fsts s14,[sp,#596]
+ 387              	.LVL29:
+ 388 0326 CDED967A 	 fsts s15,[sp,#600]
+ 389              	.LVL30:
+ 390 032a DDED177A 	 flds s15,[sp,#92]
+ 391 032e 93ED0B7A 	 flds s14,[r3,#44]
+ 392 0332 77EEC77A 	 fsubs s15,s15,s14
+ 393              	.LBE8:
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 394              	 .loc 1 348 0
+ 395 0336 96ED057A 	 flds s14,[r6,#20]
+ 396 033a F8EE478A 	 fuitos s17,s14
+ 397              	.LBB9:
+ 343:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
+ 398              	 .loc 1 343 0
+ 399 033e F5EEC07A 	 fcmpezs s15
+ 400              	.LBE9:
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 401              	 .loc 1 348 0
+ 402 0342 83EE287A 	 fdivs s14,s6,s17
+ 403              	.LBB10:
+ 343:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
+ 404              	 .loc 1 343 0
+ 405 0346 F1EE10FA 	 fmstat
+ 406 034a 48BF     	 it mi
+ 407 034c F0EE487A 	 fcpysmi s15,s16
+ 408              	.LBE10:
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 409              	 .loc 1 348 0
+ 410 0350 17EE100A 	 fmrs r0,s14
+ 411              	.LBB11:
+ 343:../Algorithms/src/doppler.c ****         if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Evita valori negativi
+ 412              	 .loc 1 343 0
+ 413 0354 CDED977A 	 fsts s15,[sp,#604]
+ 414              	.LVL31:
+ 415              	.LBE11:
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 416              	 .loc 1 348 0
+ 417 0358 FFF7FEFF 	 bl ceilf
+ 418              	.LVL32:
+ 349:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
+ 419              	 .loc 1 349 0
+ 420 035c DFED427A 	 flds s15,.L67+24
+ 421 0360 C7EEA87A 	 fdivs s15,s15,s17
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 422              	 .loc 1 348 0
+ 423 0364 07EE100A 	 fmsr s14,r0
+ 424 0368 BCEEC77A 	 ftouizs s14,s14
+ 349:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
+ 425              	 .loc 1 349 0
+ 426 036c 17EE900A 	 fmrs r0,s15
+ 348:../Algorithms/src/doppler.c ****     uint32_t fft_max_check = (uint32_t) ceilf(0.6f * downsampled_size / cp_dev_settings->adc_sampli
+ 427              	 .loc 1 348 0
+ 428 0370 17EE104A 	 fmrs r4,s14
+ 429              	.LVL33:
+ 349:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
+ 430              	 .loc 1 349 0
+ 431 0374 FFF7FEFF 	 bl ceilf
+ 432              	.LVL34:
+ 433 0378 07EE900A 	 fmsr s15,r0
+ 434 037c FCEEE77A 	 ftouizs s15,s15
+ 355:../Algorithms/src/doppler.c ****     maxBin += fft_min_check;
+ 435              	 .loc 1 355 0
+ 436 0380 8CA8     	 add r0,sp,#560
+ 437              	.LVL35:
+ 349:../Algorithms/src/doppler.c ****     uint32_t size_check = fft_max_check - fft_min_check + 1;
+ 438              	 .loc 1 349 0
+ 439 0382 17EE901A 	 fmrs r1,s15
+ 440 0386 0131     	 adds r1,r1,#1
+ 355:../Algorithms/src/doppler.c ****     maxBin += fft_min_check;
+ 441              	 .loc 1 355 0
+ 442 0388 0BAA     	 add r2,sp,#44
+ 443 038a 00EB8400 	 add r0,r0,r4,lsl#2
+ 444 038e 091B     	 subs r1,r1,r4
+ 445 0390 0AAB     	 add r3,sp,#40
+ 353:../Algorithms/src/doppler.c ****     float maxVal = 0;
+ 446              	 .loc 1 353 0
+ 447 0392 0A97     	 str r7,[sp,#40]
+ 354:../Algorithms/src/doppler.c ****     arm_max_f32(&clean_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
+ 448              	 .loc 1 354 0
+ 449 0394 8DED0B8A 	 fsts s16,[sp,#44]
+ 355:../Algorithms/src/doppler.c ****     maxBin += fft_min_check;
+ 450              	 .loc 1 355 0
+ 451 0398 FFF7FEFF 	 bl arm_max_f32
+ 452              	.LVL36:
+ 358:../Algorithms/src/doppler.c ****     float breathing_frequency = maxBin * freq_per_bin;
+ 453              	 .loc 1 358 0
+ 454 039c D6ED058A 	 flds s17,[r6,#20]
+ 356:../Algorithms/src/doppler.c **** 
+ 455              	 .loc 1 356 0
+ 456 03a0 0A9B     	 ldr r3,[sp,#40]
+ 360:../Algorithms/src/doppler.c **** 
+ 457              	 .loc 1 360 0
+ 458 03a2 9FED328A 	 flds s16,.L67+28
+ 358:../Algorithms/src/doppler.c ****     float breathing_frequency = maxBin * freq_per_bin;
+ 459              	 .loc 1 358 0
+ 460 03a6 F8EE687A 	 fuitos s15,s17
+ 461 03aa F3EE098A 	 fconsts s17,#57
+ 462 03ae C7EEA88A 	 fdivs s17,s15,s17
+ 356:../Algorithms/src/doppler.c **** 
+ 463              	 .loc 1 356 0
+ 464 03b2 1C44     	 add r4,r4,r3
+ 465              	.LVL37:
+ 466 03b4 0A94     	 str r4,[sp,#40]
+ 467              	.LVL38:
+ 359:../Algorithms/src/doppler.c ****     float breathing_rate = breathing_frequency * 60.0f;  // Conversione in respiri al minuto
+ 468              	 .loc 1 359 0
+ 469 03b6 07EE904A 	 fmsr s15,r4
+ 470 03ba F8EE677A 	 fuitos s15,s15
+ 471 03be 67EEA88A 	 fmuls s17,s15,s17
+ 472              	.LVL39:
+ 363:../Algorithms/src/doppler.c **** 
+ 473              	 .loc 1 363 0
+ 474 03c2 18EE900A 	 fmrs r0,s17
+ 475 03c6 FFF7FEFF 	 bl __aeabi_f2d
+ 476              	.LVL40:
+ 360:../Algorithms/src/doppler.c **** 
+ 477              	 .loc 1 360 0
+ 478 03ca 28EE888A 	 fmuls s16,s17,s16
+ 479              	.LVL41:
+ 363:../Algorithms/src/doppler.c **** 
+ 480              	 .loc 1 363 0
+ 481 03ce 0646     	 mov r6,r0
+ 482 03d0 18EE100A 	 fmrs r0,s16
+ 483 03d4 0F46     	 mov r7,r1
+ 484 03d6 FFF7FEFF 	 bl __aeabi_f2d
+ 485              	.LVL42:
+ 486 03da 3246     	 mov r2,r6
+ 487 03dc CDE90001 	 strd r0,[sp]
+ 488 03e0 3B46     	 mov r3,r7
+ 489 03e2 2146     	 mov r1,r4
+ 490 03e4 2248     	 ldr r0,.L67+32
+ 491 03e6 FFF7FEFF 	 bl printf
+ 492              	.LVL43:
+ 366:../Algorithms/src/doppler.c ****         p_algo_result->motion_detected = 1;
+ 493              	 .loc 1 366 0
+ 494 03ea F2EE087A 	 fconsts s15,#40
+ 495 03ee B4EEE78A 	 fcmpes s16,s15
+ 496 03f2 F1EE10FA 	 fmstat
+ 497 03f6 22D4     	 bmi .L65
+ 372:../Algorithms/src/doppler.c ****         p_algo_result->target_approaching = 1;
+ 498              	 .loc 1 372 0
+ 499 03f8 F3EE007A 	 fconsts s15,#48
+ 500 03fc B4EEE78A 	 fcmpes s16,s15
+ 501 0400 F1EE10FA 	 fmstat
+ 502              	.LBB12:
+ 373:../Algorithms/src/doppler.c ****         bsp_led_red_on();
+ 503              	 .loc 1 373 0
+ 504 0404 4FF00103 	 mov r3,#1
+ 505              	.LBE12:
+ 372:../Algorithms/src/doppler.c ****         p_algo_result->target_approaching = 1;
+ 506              	 .loc 1 372 0
+ 507 0408 0BDC     	 bgt .L66
+ 508              	.LBB13:
+ 379:../Algorithms/src/doppler.c ****         bsp_led_green_on();
+ 509              	 .loc 1 379 0
+ 510 040a 2B72     	 strb r3,[r5,#8]
+ 380:../Algorithms/src/doppler.c ****         bsp_led_red_off();
+ 511              	 .loc 1 380 0
+ 512 040c FFF7FEFF 	 bl bsp_led_green_on
+ 513              	.LVL44:
+ 381:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 514              	 .loc 1 381 0
+ 515 0410 FFF7FEFF 	 bl bsp_led_red_off
+ 516              	.LVL45:
+ 382:../Algorithms/src/doppler.c ****     }
+ 517              	 .loc 1 382 0
+ 518 0414 FFF7FEFF 	 bl bsp_led_blue_on
+ 519              	.LVL46:
+ 520              	.L42:
+ 521              	.LBE13:
+ 386:../Algorithms/src/doppler.c ****     p_algo_result->velocity_kmph = breathing_rate; // Uso il campo della velocità per il respiro
+ 522              	 .loc 1 386 0
+ 523 0418 C5ED038A 	 fsts s17,[r5,#12]
+ 387:../Algorithms/src/doppler.c **** }
+ 524              	 .loc 1 387 0
+ 525 041c 85ED008A 	 fsts s16,[r5]
+ 526 0420 CDE6     	 b .L1
+ 527              	.L66:
+ 528              	.LBB14:
+ 373:../Algorithms/src/doppler.c ****         bsp_led_red_on();
+ 529              	 .loc 1 373 0
+ 530 0422 6B72     	 strb r3,[r5,#9]
+ 374:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 531              	 .loc 1 374 0
+ 532 0424 FFF7FEFF 	 bl bsp_led_red_on
+ 533              	.LVL47:
+ 375:../Algorithms/src/doppler.c ****         bsp_led_green_off();
+ 534              	 .loc 1 375 0
+ 535 0428 FFF7FEFF 	 bl bsp_led_blue_on
+ 536              	.LVL48:
+ 376:../Algorithms/src/doppler.c ****     }
+ 537              	 .loc 1 376 0
+ 538 042c FFF7FEFF 	 bl bsp_led_green_off
+ 539              	.LVL49:
+ 540              	.LBE14:
+ 541 0430 F2E7     	 b .L42
+ 542              	.LVL50:
+ 543              	.L64:
+ 333:../Algorithms/src/doppler.c ****             printf("Background acquisito!\n");
+ 544              	 .loc 1 333 0
+ 545 0432 0123     	 movs r3,#1
+ 334:../Algorithms/src/doppler.c ****         }
+ 546              	 .loc 1 334 0
+ 547 0434 0F48     	 ldr r0,.L67+36
+ 333:../Algorithms/src/doppler.c ****             printf("Background acquisito!\n");
+ 548              	 .loc 1 333 0
+ 549 0436 0B70     	 strb r3,[r1]
+ 334:../Algorithms/src/doppler.c ****         }
+ 550              	 .loc 1 334 0
+ 551 0438 FFF7FEFF 	 bl puts
+ 552              	.LVL51:
+ 553 043c BFE6     	 b .L1
+ 554              	.LVL52:
+ 555              	.L65:
+ 556              	.LBB15:
+ 367:../Algorithms/src/doppler.c ****         bsp_led_blue_on();
+ 557              	 .loc 1 367 0
+ 558 043e 0123     	 movs r3,#1
+ 559 0440 AB72     	 strb r3,[r5,#10]
+ 368:../Algorithms/src/doppler.c ****         bsp_led_red_on();
+ 560              	 .loc 1 368 0
+ 561 0442 FFF7FEFF 	 bl bsp_led_blue_on
+ 562              	.LVL53:
+ 369:../Algorithms/src/doppler.c ****         bsp_led_green_on();
+ 563              	 .loc 1 369 0
+ 564 0446 FFF7FEFF 	 bl bsp_led_red_on
+ 565              	.LVL54:
+ 370:../Algorithms/src/doppler.c ****     }
+ 566              	 .loc 1 370 0
+ 567 044a FFF7FEFF 	 bl bsp_led_green_on
+ 568              	.LVL55:
+ 569              	.LBE15:
+ 570 044e E3E7     	 b .L42
+ 571              	.L68:
+ 572              	 .align 2
+ 573              	.L67:
+ 574 0450 00000000 	 .word .LANCHOR2
+ 575 0454 00000000 	 .word 0
+ 576 0458 00004842 	 .word 1112014848
+ 577 045c 00000000 	 .word .LANCHOR3
+ 578 0460 00000000 	 .word .LANCHOR4
+ 579 0464 01007040 	 .word 1081081857
+ 580 0468 01007041 	 .word 1097859073
+ 581 046c 00007042 	 .word 1114636288
+ 582 0470 18000000 	 .word .LC1
+ 583 0474 00000000 	 .word .LC0
+ 584 0478 00000000 	 .word .LANCHOR0
+ 585 047c 00000000 	 .word .LANCHOR1
+ 586              	 .cfi_endproc
+ 587              	.LFE530:
+ 589              	 .section .text.breathing_do,"ax",%progbits
+ 590              	 .align 2
+ 591              	 .global breathing_do
+ 592              	 .thumb
+ 593              	 .thumb_func
+ 595              	breathing_do:
+ 596              	.LFB529:
+ 254:../Algorithms/src/doppler.c **** 
+ 597              	 .loc 1 254 0
+ 598              	 .cfi_startproc
+ 599              	 
+ 600              	 
+ 601              	.LVL56:
+ 602 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+ 603              	.LCFI9:
+ 604              	 .cfi_def_cfa_offset 36
+ 605              	 .cfi_offset 4,-36
+ 606              	 .cfi_offset 5,-32
+ 607              	 .cfi_offset 6,-28
+ 608              	 .cfi_offset 7,-24
+ 609              	 .cfi_offset 8,-20
+ 610              	 .cfi_offset 9,-16
+ 611              	 .cfi_offset 10,-12
+ 612              	 .cfi_offset 11,-8
+ 613              	 .cfi_offset 14,-4
+ 263:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
+ 614              	 .loc 1 263 0
+ 615 0004 DFF8D0A0 	 ldr r10,.L81+8
+ 260:../Algorithms/src/doppler.c **** 
+ 616              	 .loc 1 260 0
+ 617 0008 4588     	 ldrh r5,[r0,#2]
+ 618              	.LVL57:
+ 264:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
+ 619              	 .loc 1 264 0
+ 620 000a 314C     	 ldr r4,.L81
+ 254:../Algorithms/src/doppler.c **** 
+ 621              	 .loc 1 254 0
+ 622 000c 0646     	 mov r6,r0
+ 263:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
+ 623              	 .loc 1 263 0
+ 624 000e DAF80000 	 ldr r0,[r10]
+ 625              	.LVL58:
+ 254:../Algorithms/src/doppler.c **** 
+ 626              	 .loc 1 254 0
+ 627 0012 8BB0     	 sub sp,sp,#44
+ 628              	.LCFI10:
+ 629              	 .cfi_def_cfa_offset 80
+ 263:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
+ 630              	 .loc 1 263 0
+ 631 0014 8542     	 cmp r5,r0
+ 254:../Algorithms/src/doppler.c **** 
+ 632              	 .loc 1 254 0
+ 633 0016 0991     	 str r1,[sp,#36]
+ 634 0018 9146     	 mov r9,r2
+ 635 001a 1F46     	 mov r7,r3
+ 263:../Algorithms/src/doppler.c ****         fft_fast_time_window.fft_window_length = Ns;
+ 636              	 .loc 1 263 0
+ 637 001c 07D0     	 beq .L70
+ 265:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
+ 638              	 .loc 1 265 0
+ 639 001e 2046     	 mov r0,r4
+ 264:../Algorithms/src/doppler.c ****         if (fft_window_gen(&fft_fast_time_window) == 0) {
+ 640              	 .loc 1 264 0
+ 641 0020 6560     	 str r5,[r4,#4]
+ 265:../Algorithms/src/doppler.c ****             XMC_DEBUG("Errore generazione finestra FFT!\n");
+ 642              	 .loc 1 265 0
+ 643 0022 FFF7FEFF 	 bl fft_window_gen
+ 644              	.LVL59:
+ 645 0026 0028     	 cmp r0,#0
+ 646 0028 51D0     	 beq .L72
+ 269:../Algorithms/src/doppler.c ****     }
+ 647              	 .loc 1 269 0
+ 648 002a CAF80050 	 str r5,[r10]
+ 649              	.L70:
+ 273:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
+ 650              	 .loc 1 273 0
+ 651 002e DFF8ACB0 	 ldr fp,.L81+12
+ 274:../Algorithms/src/doppler.c **** 
+ 652              	 .loc 1 274 0
+ 653 0032 DFF8ACA0 	 ldr r10,.L81+16
+ 273:../Algorithms/src/doppler.c ****     memset(raw_data_q1, 0, sizeof(raw_data_q1));
+ 654              	 .loc 1 273 0
+ 655 0036 0021     	 movs r1,#0
+ 656 0038 4FF48062 	 mov r2,#1024
+ 657 003c 5846     	 mov r0,fp
+ 658 003e FFF7FEFF 	 bl memset
+ 659              	.LVL60:
+ 274:../Algorithms/src/doppler.c **** 
+ 660              	 .loc 1 274 0
+ 661 0042 0021     	 movs r1,#0
+ 662 0044 4FF48062 	 mov r2,#1024
+ 663 0048 5046     	 mov r0,r10
+ 664 004a FFF7FEFF 	 bl memset
+ 665              	.LVL61:
+ 277:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 666              	 .loc 1 277 0
+ 667 004e 0021     	 movs r1,#0
+ 668 0050 0A46     	 mov r2,r1
+ 669 0052 3046     	 mov r0,r6
+ 670 0054 FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 671              	.LVL62:
+ 278:../Algorithms/src/doppler.c **** 
+ 672              	 .loc 1 278 0
+ 673 0058 0121     	 movs r1,#1
+ 277:../Algorithms/src/doppler.c ****     p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 674              	 .loc 1 277 0
+ 675 005a 8046     	 mov r8,r0
+ 676              	.LVL63:
+ 278:../Algorithms/src/doppler.c **** 
+ 677              	 .loc 1 278 0
+ 678 005c 0022     	 movs r2,#0
+ 679 005e 3046     	 mov r0,r6
+ 680              	.LVL64:
+ 681 0060 FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 682              	.LVL65:
+ 683              	.LBB16:
+ 280:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+ 684              	 .loc 1 280 0
+ 685 0064 F5B1     	 cbz r5,.L75
+ 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 686              	 .loc 1 281 0
+ 687 0066 DFED1B6A 	 flds s13,.L81+4
+ 688 006a 821E     	 subs r2,r0,#2
+ 689 006c A8F10201 	 sub r1,r8,#2
+ 690 0070 5B46     	 mov r3,fp
+ 691 0072 5046     	 mov r0,r10
+ 692              	.LVL66:
+ 693 0074 0BEB850E 	 add lr,fp,r5,lsl#2
+ 694              	.LVL67:
+ 695              	.L74:
+ 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 696              	 .loc 1 281 0 is_stmt 0 discriminator 3
+ 697 0078 31F802CF 	 ldrh ip,[r1,#2]!
+ 698 007c 07EE10CA 	 fmsr s14,ip
+ 282:../Algorithms/src/doppler.c ****     }
+ 699              	 .loc 1 282 0 is_stmt 1 discriminator 3
+ 700 0080 32F802CF 	 ldrh ip,[r2,#2]!
+ 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 701              	 .loc 1 281 0 discriminator 3
+ 702 0084 B8EE477A 	 fuitos s14,s14
+ 282:../Algorithms/src/doppler.c ****     }
+ 703              	 .loc 1 282 0 discriminator 3
+ 704 0088 07EE90CA 	 fmsr s15,ip
+ 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 705              	 .loc 1 281 0 discriminator 3
+ 706 008c 27EE267A 	 fmuls s14,s14,s13
+ 282:../Algorithms/src/doppler.c ****     }
+ 707              	 .loc 1 282 0 discriminator 3
+ 708 0090 F8EE677A 	 fuitos s15,s15
+ 281:../Algorithms/src/doppler.c ****         raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 709              	 .loc 1 281 0 discriminator 3
+ 710 0094 A3EC017A 	 fstmias r3!,{s14}
+ 282:../Algorithms/src/doppler.c ****     }
+ 711              	 .loc 1 282 0 discriminator 3
+ 712 0098 67EEA67A 	 fmuls s15,s15,s13
+ 280:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+ 713              	 .loc 1 280 0 discriminator 3
+ 714 009c 7345     	 cmp r3,lr
+ 282:../Algorithms/src/doppler.c ****     }
+ 715              	 .loc 1 282 0 discriminator 3
+ 716 009e E0EC017A 	 fstmias r0!,{s15}
+ 280:../Algorithms/src/doppler.c ****         raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+ 717              	 .loc 1 280 0 discriminator 3
+ 718 00a2 E9D1     	 bne .L74
+ 719              	.L75:
+ 720              	.LBE16:
+ 286:../Algorithms/src/doppler.c **** 
+ 721              	 .loc 1 286 0
+ 722 00a4 2369     	 ldr r3,[r4,#16]
+ 723 00a6 099A     	 ldr r2,[sp,#36]
+ 724 00a8 0492     	 str r2,[sp,#16]
+ 725 00aa 0093     	 str r3,[sp]
+ 726 00ac 94E80F00 	 ldmia r4,{r0,r1,r2,r3}
+ 727 00b0 CDF804B0 	 str fp,[sp,#4]
+ 728 00b4 CDF808A0 	 str r10,[sp,#8]
+ 729 00b8 0395     	 str r5,[sp,#12]
+ 730 00ba CDF81490 	 str r9,[sp,#20]
+ 731 00be 0697     	 str r7,[sp,#24]
+ 732 00c0 FFF7FEFF 	 bl breathing_calc_frequency
+ 733              	.LVL68:
+ 289:../Algorithms/src/doppler.c **** }
+ 734              	 .loc 1 289 0
+ 735 00c4 736B     	 ldr r3,[r6,#52]
+ 736 00c6 BB61     	 str r3,[r7,#24]
+ 290:../Algorithms/src/doppler.c **** 
+ 737              	 .loc 1 290 0
+ 738 00c8 0BB0     	 add sp,sp,#44
+ 739              	.LCFI11:
+ 740              	 .cfi_remember_state
+ 741              	 .cfi_def_cfa_offset 36
+ 742              	 
+ 743 00ca BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 744              	.LVL69:
+ 745              	.L72:
+ 746              	.LCFI12:
+ 747              	 .cfi_restore_state
+ 267:../Algorithms/src/doppler.c ****         }
+ 748              	 .loc 1 267 0 discriminator 1
+ 749 00ce FEE7     	 b .L72
+ 750              	.L82:
+ 751              	 .align 2
+ 752              	.L81:
+ 753 00d0 00000000 	 .word .LANCHOR6
+ 754 00d4 6740D33B 	 .word 1003700327
+ 755 00d8 00000000 	 .word .LANCHOR5
+ 756 00dc 00000000 	 .word .LANCHOR7
+ 757 00e0 00000000 	 .word .LANCHOR8
+ 758              	 .cfi_endproc
+ 759              	.LFE529:
+ 761              	 .section .text.doppler_calc_speed,"ax",%progbits
+ 762              	 .align 2
+ 763              	 .global doppler_calc_speed
+ 764              	 .thumb
+ 765              	 .thumb_func
+ 767              	doppler_calc_speed:
+ 768              	.LFB532:
+ 389:../Algorithms/src/doppler.c **** 
+ 390:../Algorithms/src/doppler.c **** 
+ 391:../Algorithms/src/doppler.c **** void doppler_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
+ 392:../Algorithms/src/doppler.c **** 				const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
+ 393:../Algorithms/src/doppler.c **** {
+ 394:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
+ 395:../Algorithms/src/doppler.c **** 	static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+ 396:../Algorithms/src/doppler.c **** 	static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
  397:../Algorithms/src/doppler.c **** 
- 398:../Algorithms/src/doppler.c **** 	doppler_calc_speed(fft_fast_time_window, raw_data_i1, raw_data_q1, Ns, cp_algo_settings, cp_dev_se
- 399:../Algorithms/src/doppler.c **** 
- 400:../Algorithms/src/doppler.c **** 	/* indicated, that the results are taken from dedicated frame */
- 401:../Algorithms/src/doppler.c **** 	p_algo_result->frame_counter = p_acq_buf->frame_counter;
- 402:../Algorithms/src/doppler.c **** }
- 403:../Algorithms/src/doppler.c **** 
- 404:../Algorithms/src/doppler.c **** //============================================================================
- 405:../Algorithms/src/doppler.c **** 
- 406:../Algorithms/src/doppler.c **** void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q, uint16_t number
- 407:../Algorithms/src/doppler.c **** 		                const algo_settings_t  *cp_algo_settings, const device_settings_t *cp_dev_setting
- 408:../Algorithms/src/doppler.c **** {
- 456              	 .loc 1 408 0
- 457              	 .cfi_startproc
- 458              	 
- 459              	 
- 460              	.LVL39:
- 461 0000 84B0     	 sub sp,sp,#16
- 462              	.LCFI13:
- 463              	 .cfi_def_cfa_offset 16
- 464 0002 2DE9F047 	 push {r4,r5,r6,r7,r8,r9,r10,lr}
- 465              	.LCFI14:
- 466              	 .cfi_def_cfa_offset 48
- 467              	 .cfi_offset 4,-48
- 468              	 .cfi_offset 5,-44
- 469              	 .cfi_offset 6,-40
- 470              	 .cfi_offset 7,-36
- 471              	 .cfi_offset 8,-32
- 472              	 .cfi_offset 9,-28
- 473              	 .cfi_offset 10,-24
- 474              	 .cfi_offset 14,-20
- 475 0006 2DED048B 	 fstmfdd sp!,{d8,d9}
- 476              	.LCFI15:
- 477              	 .cfi_def_cfa_offset 64
- 478              	 .cfi_offset 80,-64
- 479              	 .cfi_offset 81,-60
- 480              	 .cfi_offset 82,-56
- 481              	 .cfi_offset 83,-52
- 482 000a 8EB0     	 sub sp,sp,#56
- 483              	.LCFI16:
- 484              	 .cfi_def_cfa_offset 120
- 485              	 .loc 1 408 0
- 486 000c 1AAC     	 add r4,sp,#104
- 487 000e 84E80F00 	 stmia r4,{r0,r1,r2,r3}
- 409:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 410:../Algorithms/src/doppler.c **** 	float maxVal = 0;
- 411:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
- 412:../Algorithms/src/doppler.c **** 	float if1_real, if1_imag;
- 413:../Algorithms/src/doppler.c **** 
- 414:../Algorithms/src/doppler.c **** 	uint8_t motion_detected    = 0U;
- 415:../Algorithms/src/doppler.c **** 	uint8_t motion_departing   = 0U;
- 416:../Algorithms/src/doppler.c **** 	uint8_t motion_approaching = 0U;
- 417:../Algorithms/src/doppler.c **** 	float   doppler_frequency  = 0.0f;
- 418:../Algorithms/src/doppler.c **** 	float   doppler_velocity   = 0.0f;
- 419:../Algorithms/src/doppler.c **** 	float   doppler_level = 0.0f;
- 420:../Algorithms/src/doppler.c **** 
- 421:../Algorithms/src/doppler.c **** 	compute_fft_signal(fft_window, if1_i, if1_q, number_samples, FFT_SIZE, 1.0,
- 488              	 .loc 1 421 0
- 489 0012 664C     	 ldr r4,.L60
- 490 0014 0994     	 str r4,[sp,#36]
- 491 0016 0DAD     	 add r5,sp,#52
- 492 0018 1AAB     	 add r3,sp,#104
- 493 001a 0FCB     	 ldmia r3,{r0,r1,r2,r3}
- 410:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
- 494              	 .loc 1 410 0
- 495 001c 9FED648A 	 flds s16,.L60+4
- 496              	 .loc 1 421 0
- 497 0020 0895     	 str r5,[sp,#32]
- 498 0022 0327     	 movs r7,#3
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 499              	 .loc 1 408 0
- 500 0024 BDF88450 	 ldrh r5,[sp,#132]
- 501              	 .loc 1 421 0
- 502 0028 0697     	 str r7,[sp,#24]
- 503 002a 0CAE     	 add r6,sp,#48
- 504 002c 4FF07E5E 	 mov lr,#1065353216
- 505 0030 4FF4807A 	 mov r10,#256
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 506              	 .loc 1 408 0
- 507 0034 1F9F     	 ldr r7,[sp,#124]
- 508              	 .loc 1 421 0
- 509 0036 0796     	 str r6,[sp,#28]
- 510 0038 0395     	 str r5,[sp,#12]
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 511              	 .loc 1 408 0
- 512 003a 209E     	 ldr r6,[sp,#128]
- 513              	 .loc 1 421 0
- 514 003c 1E9D     	 ldr r5,[sp,#120]
- 515 003e CDF814E0 	 str lr,[sp,#20]
- 409:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 516              	 .loc 1 409 0
- 517 0042 4FF00008 	 mov r8,#0
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 518              	 .loc 1 408 0
- 519 0046 DDF88C90 	 ldr r9,[sp,#140]
- 520              	 .loc 1 421 0
- 521 004a 0197     	 str r7,[sp,#4]
- 522 004c 0296     	 str r6,[sp,#8]
- 523 004e 0095     	 str r5,[sp]
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 524              	 .loc 1 408 0
- 525 0050 229E     	 ldr r6,[sp,#136]
- 526              	 .loc 1 421 0
- 527 0052 CDF810A0 	 str r10,[sp,#16]
- 410:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
- 528              	 .loc 1 410 0
- 529 0056 8DED0B8A 	 fsts s16,[sp,#44]
- 530              	.LVL40:
- 409:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 531              	 .loc 1 409 0
- 532 005a CDF82880 	 str r8,[sp,#40]
- 408:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
- 533              	 .loc 1 408 0
- 534 005e 249D     	 ldr r5,[sp,#144]
- 535              	 .loc 1 421 0
- 536 0060 FFF7FEFF 	 bl compute_fft_signal
- 537              	.LVL41:
- 422:../Algorithms/src/doppler.c **** 			           FFT_INPUT_COMPLEX, &if1_real, &if1_imag, doppler_fft_signal);
- 423:../Algorithms/src/doppler.c **** 
- 424:../Algorithms/src/doppler.c **** 	compute_fft_spectrum(doppler_fft_signal, FFT_SIZE, doppler_spectrum);
- 538              	 .loc 1 424 0
- 539 0064 5146     	 mov r1,r10
- 540 0066 2246     	 mov r2,r4
- 541 0068 2046     	 mov r0,r4
- 542 006a FFF7FEFF 	 bl compute_fft_spectrum
- 543              	.LVL42:
- 425:../Algorithms/src/doppler.c **** 
- 426:../Algorithms/src/doppler.c **** 	doppler_spectrum[0] = 0; // remove DC from spectrum
- 544              	 .loc 1 426 0
- 545 006e 84ED008A 	 fsts s16,[r4]
- 427:../Algorithms/src/doppler.c **** 	doppler_spectrum[FFT_SIZE/2] = 0; // remove DC from middle bin
- 546              	 .loc 1 427 0
- 547 0072 84ED808A 	 fsts s16,[r4,#512]
- 428:../Algorithms/src/doppler.c **** 
- 429:../Algorithms/src/doppler.c **** 	uint32_t fft_min_check = (uint32_t) ceilf(cp_algo_settings->min_speed_kmph*44.4f*FFT_SIZE/cp_dev_s
- 548              	 .loc 1 429 0
- 549 0076 96ED037A 	 flds s14,[r6,#12]
- 550 007a DFED4E7A 	 flds s15,.L60+8
- 551 007e DFED4E6A 	 flds s13,.L60+12
- 552 0082 67EE277A 	 fmuls s15,s14,s15
- 553 0086 99ED057A 	 flds s14,[r9,#20]
- 554 008a 67EEA67A 	 fmuls s15,s15,s13
- 555 008e B8EE477A 	 fuitos s14,s14
- 556 0092 C7EE877A 	 fdivs s15,s15,s14
- 557 0096 17EE900A 	 fmrs r0,s15
- 558 009a FFF7FEFF 	 bl ceilf
- 559              	.LVL43:
- 560 009e 07EE900A 	 fmsr s15,r0
- 561 00a2 FCEEE77A 	 ftouizs s15,s15
- 430:../Algorithms/src/doppler.c **** 
- 431:../Algorithms/src/doppler.c **** 	uint32_t size_check = FFT_SIZE - 2*fft_min_check + 1;
- 432:../Algorithms/src/doppler.c **** 
- 433:../Algorithms/src/doppler.c **** 	/* Calculates maxValue and returns corresponding BIN value */
- 434:../Algorithms/src/doppler.c **** 	arm_max_f32(&doppler_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
- 562              	 .loc 1 434 0
- 563 00a6 0BAA     	 add r2,sp,#44
+ 398:../Algorithms/src/doppler.c **** 	uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
+ 399:../Algorithms/src/doppler.c **** 	uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
+ 400:../Algorithms/src/doppler.c **** 
+ 401:../Algorithms/src/doppler.c **** 	/* Generate FFT window, it will be used for FFT calculation */
+ 402:../Algorithms/src/doppler.c **** 	if (fft_fast_window_flag != Ns)
+ 403:../Algorithms/src/doppler.c **** 	{
+ 404:../Algorithms/src/doppler.c **** 		fft_fast_time_window.fft_window_length = Ns; /* Number of elements in the FFT window  */
+ 405:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
+ 406:../Algorithms/src/doppler.c **** 		{
+ 407:../Algorithms/src/doppler.c **** 			XMC_DEBUG("Invalid FFT window parameters !\n");
+ 408:../Algorithms/src/doppler.c **** 			while (1);
+ 409:../Algorithms/src/doppler.c **** 		}
+ 410:../Algorithms/src/doppler.c **** 		fft_fast_window_flag = Ns;
+ 411:../Algorithms/src/doppler.c **** 	}
+ 412:../Algorithms/src/doppler.c **** 
+ 413:../Algorithms/src/doppler.c **** 	/* clear array values that are not acquired */
+ 414:../Algorithms/src/doppler.c **** 	memset(raw_data_i1, 0, sizeof(raw_data_i1));
+ 415:../Algorithms/src/doppler.c **** 	memset(raw_data_q1, 0, sizeof(raw_data_q1));
+ 416:../Algorithms/src/doppler.c **** 
+ 417:../Algorithms/src/doppler.c **** 	if (cp_algo_settings->use_high_gain_doppler)
+ 418:../Algorithms/src/doppler.c **** 	{
+ 419:../Algorithms/src/doppler.c **** 		/* Only one chirp for Doppler */
+ 420:../Algorithms/src/doppler.c **** 		p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 0, 0);
+ 421:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 422:../Algorithms/src/doppler.c **** 	}
+ 423:../Algorithms/src/doppler.c **** 	else
+ 424:../Algorithms/src/doppler.c **** 	{
+ 425:../Algorithms/src/doppler.c **** 		/* Only one chirp for Doppler */
+ 426:../Algorithms/src/doppler.c **** 		p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
+ 427:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
+ 428:../Algorithms/src/doppler.c **** 	}
  429:../Algorithms/src/doppler.c **** 
- 564              	 .loc 1 429 0
- 565 00a8 17EE907A 	 fmrs r7,s15
- 566              	.LVL44:
- 431:../Algorithms/src/doppler.c **** 
- 567              	 .loc 1 431 0
- 568 00ac 7900     	 lsls r1,r7,#1
- 569              	 .loc 1 434 0
- 570 00ae C1EB0A01 	 rsb r1,r1,r10
- 571 00b2 0AAB     	 add r3,sp,#40
- 572 00b4 04EB8700 	 add r0,r4,r7,lsl#2
- 573 00b8 0131     	 adds r1,r1,#1
- 574 00ba FFF7FEFF 	 bl arm_max_f32
- 575              	.LVL45:
- 435:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
- 436:../Algorithms/src/doppler.c **** 
- 437:../Algorithms/src/doppler.c **** 	doppler_Hz_per_bin =  cp_dev_settings->adc_sampling_freq_Hz / (float)FFT_SIZE;
- 438:../Algorithms/src/doppler.c **** 
- 439:../Algorithms/src/doppler.c **** 	doppler_level = maxVal;
- 440:../Algorithms/src/doppler.c **** 
- 441:../Algorithms/src/doppler.c **** 	if (maxVal > (float) cp_algo_settings->speed_detection_threshold) // if the threshold is exceeded,
- 576              	 .loc 1 441 0
- 577 00be D6ED027A 	 flds s15,[r6,#8]
- 439:../Algorithms/src/doppler.c **** 
- 578              	 .loc 1 439 0
- 579 00c2 9DED0B9A 	 flds s18,[sp,#44]
- 435:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
- 580              	 .loc 1 435 0
- 581 00c6 0A9B     	 ldr r3,[sp,#40]
+ 430:../Algorithms/src/doppler.c **** 	for (uint32_t i = 0; i < Ns; i++)
+ 431:../Algorithms/src/doppler.c **** 	{
+ 432:../Algorithms/src/doppler.c **** 		raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+ 433:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 434:../Algorithms/src/doppler.c **** 	}
+ 435:../Algorithms/src/doppler.c **** 
+ 436:../Algorithms/src/doppler.c **** 	doppler_calc_speed(fft_fast_time_window, raw_data_i1, raw_data_q1, Ns, cp_algo_settings, cp_dev_se
  437:../Algorithms/src/doppler.c **** 
- 582              	 .loc 1 437 0
- 583 00c8 D9F81420 	 ldr r2,[r9,#20]
- 584              	.LVL46:
- 585              	 .loc 1 441 0
- 586 00cc B4EEE79A 	 fcmpes s18,s15
- 435:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
- 587              	 .loc 1 435 0
- 588 00d0 3B44     	 add r3,r3,r7
- 589              	 .loc 1 441 0
- 590 00d2 F1EE10FA 	 fmstat
- 435:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
- 591              	 .loc 1 435 0
- 592 00d6 0A93     	 str r3,[sp,#40]
- 593              	 .loc 1 441 0
- 594 00d8 2CDD     	 ble .L58
- 442:../Algorithms/src/doppler.c **** 	{
- 443:../Algorithms/src/doppler.c **** 		if (maxBin < FFT_SIZE / 2)
- 595              	 .loc 1 443 0
- 596 00da 7F2B     	 cmp r3,#127
- 597 00dc 5DD8     	 bhi .L59
- 444:../Algorithms/src/doppler.c **** 	    {
- 445:../Algorithms/src/doppler.c **** 			motion_departing = 1;
- 598              	 .loc 1 445 0
- 599 00de 0127     	 movs r7,#1
- 600              	.LVL47:
- 601              	.L35:
- 437:../Algorithms/src/doppler.c **** 
- 602              	 .loc 1 437 0
- 603 00e0 08EE902A 	 fmsr s17,r2
- 446:../Algorithms/src/doppler.c **** 			motion_approaching = 0;
- 447:../Algorithms/src/doppler.c **** 	    }
- 448:../Algorithms/src/doppler.c **** 	    else
- 449:../Algorithms/src/doppler.c **** 	    {
- 450:../Algorithms/src/doppler.c **** 	    	motion_departing = 0;
- 451:../Algorithms/src/doppler.c **** 	    	motion_approaching = 1;
- 452:../Algorithms/src/doppler.c **** 
- 453:../Algorithms/src/doppler.c **** 	    	maxBin = FFT_SIZE - maxBin;
- 454:../Algorithms/src/doppler.c **** 	    }
- 455:../Algorithms/src/doppler.c **** 
- 456:../Algorithms/src/doppler.c **** 		doppler_frequency =  maxBin * doppler_Hz_per_bin;
- 604              	 .loc 1 456 0
- 605 00e4 07EE903A 	 fmsr s15,r3
- 437:../Algorithms/src/doppler.c **** 
- 606              	 .loc 1 437 0
- 607 00e8 FBEECC8A 	 vcvt.f32.u32 s17,s17,#8
- 608              	 .loc 1 456 0
- 609 00ec F8EE677A 	 fuitos s15,s15
- 457:../Algorithms/src/doppler.c **** 
- 458:../Algorithms/src/doppler.c **** 		doppler_velocity  =  doppler_frequency / 44.4f;
- 610              	 .loc 1 458 0
- 611 00f0 9FED308A 	 flds s16,.L60+8
- 459:../Algorithms/src/doppler.c **** 
- 460:../Algorithms/src/doppler.c **** 		if (doppler_velocity < cp_algo_settings->min_speed_kmph || doppler_velocity > cp_algo_settings->m
- 612              	 .loc 1 460 0
- 613 00f4 96ED037A 	 flds s14,[r6,#12]
- 456:../Algorithms/src/doppler.c **** 
- 614              	 .loc 1 456 0
- 615 00f8 67EEA88A 	 fmuls s17,s15,s17
- 616              	.LVL48:
+ 438:../Algorithms/src/doppler.c **** 	/* indicated, that the results are taken from dedicated frame */
+ 439:../Algorithms/src/doppler.c **** 	p_algo_result->frame_counter = p_acq_buf->frame_counter;
+ 440:../Algorithms/src/doppler.c **** }
+ 441:../Algorithms/src/doppler.c **** 
+ 442:../Algorithms/src/doppler.c **** //============================================================================
+ 443:../Algorithms/src/doppler.c **** 
+ 444:../Algorithms/src/doppler.c **** void doppler_calc_speed(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q, uint16_t number
+ 445:../Algorithms/src/doppler.c **** 		                const algo_settings_t  *cp_algo_settings, const device_settings_t *cp_dev_setting
+ 446:../Algorithms/src/doppler.c **** {
+ 769              	 .loc 1 446 0
+ 770              	 .cfi_startproc
+ 771              	 
+ 772              	 
+ 773              	.LVL70:
+ 774 0000 84B0     	 sub sp,sp,#16
+ 775              	.LCFI13:
+ 776              	 .cfi_def_cfa_offset 16
+ 777 0002 2DE9F047 	 push {r4,r5,r6,r7,r8,r9,r10,lr}
+ 778              	.LCFI14:
+ 779              	 .cfi_def_cfa_offset 48
+ 780              	 .cfi_offset 4,-48
+ 781              	 .cfi_offset 5,-44
+ 782              	 .cfi_offset 6,-40
+ 783              	 .cfi_offset 7,-36
+ 784              	 .cfi_offset 8,-32
+ 785              	 .cfi_offset 9,-28
+ 786              	 .cfi_offset 10,-24
+ 787              	 .cfi_offset 14,-20
+ 788 0006 2DED048B 	 fstmfdd sp!,{d8,d9}
+ 789              	.LCFI15:
+ 790              	 .cfi_def_cfa_offset 64
+ 791              	 .cfi_offset 80,-64
+ 792              	 .cfi_offset 81,-60
+ 793              	 .cfi_offset 82,-56
+ 794              	 .cfi_offset 83,-52
+ 795 000a 8EB0     	 sub sp,sp,#56
+ 796              	.LCFI16:
+ 797              	 .cfi_def_cfa_offset 120
+ 798              	 .loc 1 446 0
+ 799 000c 1AAC     	 add r4,sp,#104
+ 800 000e 84E80F00 	 stmia r4,{r0,r1,r2,r3}
+ 447:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 448:../Algorithms/src/doppler.c **** 	float maxVal = 0;
+ 449:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
+ 450:../Algorithms/src/doppler.c **** 	float if1_real, if1_imag;
+ 451:../Algorithms/src/doppler.c **** 
+ 452:../Algorithms/src/doppler.c **** 	uint8_t motion_detected    = 0U;
+ 453:../Algorithms/src/doppler.c **** 	uint8_t motion_departing   = 0U;
+ 454:../Algorithms/src/doppler.c **** 	uint8_t motion_approaching = 0U;
+ 455:../Algorithms/src/doppler.c **** 	float   doppler_frequency  = 0.0f;
+ 456:../Algorithms/src/doppler.c **** 	float   doppler_velocity   = 0.0f;
+ 457:../Algorithms/src/doppler.c **** 	float   doppler_level = 0.0f;
  458:../Algorithms/src/doppler.c **** 
- 617              	 .loc 1 458 0
- 618 00fc 88EE888A 	 fdivs s16,s17,s16
- 619              	.LVL49:
- 620              	 .loc 1 460 0
- 621 0100 B4EEC78A 	 fcmpes s16,s14
- 622 0104 F1EE10FA 	 fmstat
- 623 0108 10D4     	 bmi .L45
- 624              	 .loc 1 460 0 is_stmt 0 discriminator 1
- 625 010a D6ED047A 	 flds s15,[r6,#16]
- 626 010e B4EEE78A 	 fcmpes s16,s15
- 627 0112 F1EE10FA 	 fmstat
- 628 0116 09DC     	 bgt .L45
- 461:../Algorithms/src/doppler.c **** 		{
- 462:../Algorithms/src/doppler.c **** 			doppler_frequency = 0.0;
- 463:../Algorithms/src/doppler.c **** 			doppler_velocity = 0.0;
- 464:../Algorithms/src/doppler.c **** 			motion_departing = 0;
- 465:../Algorithms/src/doppler.c **** 			motion_approaching = 0;
- 466:../Algorithms/src/doppler.c **** 		}
+ 459:../Algorithms/src/doppler.c **** 	compute_fft_signal(fft_window, if1_i, if1_q, number_samples, FFT_SIZE, 1.0,
+ 801              	 .loc 1 459 0
+ 802 0012 664C     	 ldr r4,.L111
+ 803 0014 0994     	 str r4,[sp,#36]
+ 804 0016 0DAD     	 add r5,sp,#52
+ 805 0018 1AAB     	 add r3,sp,#104
+ 806 001a 0FCB     	 ldmia r3,{r0,r1,r2,r3}
+ 448:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
+ 807              	 .loc 1 448 0
+ 808 001c 9FED648A 	 flds s16,.L111+4
+ 809              	 .loc 1 459 0
+ 810 0020 0895     	 str r5,[sp,#32]
+ 811 0022 0327     	 movs r7,#3
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 812              	 .loc 1 446 0
+ 813 0024 BDF88450 	 ldrh r5,[sp,#132]
+ 814              	 .loc 1 459 0
+ 815 0028 0697     	 str r7,[sp,#24]
+ 816 002a 0CAE     	 add r6,sp,#48
+ 817 002c 4FF07E5E 	 mov lr,#1065353216
+ 818 0030 4FF4807A 	 mov r10,#256
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 819              	 .loc 1 446 0
+ 820 0034 1F9F     	 ldr r7,[sp,#124]
+ 821              	 .loc 1 459 0
+ 822 0036 0796     	 str r6,[sp,#28]
+ 823 0038 0395     	 str r5,[sp,#12]
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 824              	 .loc 1 446 0
+ 825 003a 209E     	 ldr r6,[sp,#128]
+ 826              	 .loc 1 459 0
+ 827 003c 1E9D     	 ldr r5,[sp,#120]
+ 828 003e CDF814E0 	 str lr,[sp,#20]
+ 447:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 829              	 .loc 1 447 0
+ 830 0042 4FF00008 	 mov r8,#0
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 831              	 .loc 1 446 0
+ 832 0046 DDF88C90 	 ldr r9,[sp,#140]
+ 833              	 .loc 1 459 0
+ 834 004a 0197     	 str r7,[sp,#4]
+ 835 004c 0296     	 str r6,[sp,#8]
+ 836 004e 0095     	 str r5,[sp]
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 837              	 .loc 1 446 0
+ 838 0050 229E     	 ldr r6,[sp,#136]
+ 839              	 .loc 1 459 0
+ 840 0052 CDF810A0 	 str r10,[sp,#16]
+ 448:../Algorithms/src/doppler.c **** 	float doppler_Hz_per_bin;
+ 841              	 .loc 1 448 0
+ 842 0056 8DED0B8A 	 fsts s16,[sp,#44]
+ 843              	.LVL71:
+ 447:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 844              	 .loc 1 447 0
+ 845 005a CDF82880 	 str r8,[sp,#40]
+ 446:../Algorithms/src/doppler.c **** 	uint32_t maxBin = 0;
+ 846              	 .loc 1 446 0
+ 847 005e 249D     	 ldr r5,[sp,#144]
+ 848              	 .loc 1 459 0
+ 849 0060 FFF7FEFF 	 bl compute_fft_signal
+ 850              	.LVL72:
+ 460:../Algorithms/src/doppler.c **** 			           FFT_INPUT_COMPLEX, &if1_real, &if1_imag, doppler_fft_signal);
+ 461:../Algorithms/src/doppler.c **** 
+ 462:../Algorithms/src/doppler.c **** 	compute_fft_spectrum(doppler_fft_signal, FFT_SIZE, doppler_spectrum);
+ 851              	 .loc 1 462 0
+ 852 0064 5146     	 mov r1,r10
+ 853 0066 2246     	 mov r2,r4
+ 854 0068 2046     	 mov r0,r4
+ 855 006a FFF7FEFF 	 bl compute_fft_spectrum
+ 856              	.LVL73:
+ 463:../Algorithms/src/doppler.c **** 
+ 464:../Algorithms/src/doppler.c **** 	doppler_spectrum[0] = 0; // remove DC from spectrum
+ 857              	 .loc 1 464 0
+ 858 006e 84ED008A 	 fsts s16,[r4]
+ 465:../Algorithms/src/doppler.c **** 	doppler_spectrum[FFT_SIZE/2] = 0; // remove DC from middle bin
+ 859              	 .loc 1 465 0
+ 860 0072 84ED808A 	 fsts s16,[r4,#512]
+ 466:../Algorithms/src/doppler.c **** 
+ 467:../Algorithms/src/doppler.c **** 	uint32_t fft_min_check = (uint32_t) ceilf(cp_algo_settings->min_speed_kmph*44.4f*FFT_SIZE/cp_dev_s
+ 861              	 .loc 1 467 0
+ 862 0076 96ED037A 	 flds s14,[r6,#12]
+ 863 007a DFED4E7A 	 flds s15,.L111+8
+ 864 007e DFED4E6A 	 flds s13,.L111+12
+ 865 0082 67EE277A 	 fmuls s15,s14,s15
+ 866 0086 99ED057A 	 flds s14,[r9,#20]
+ 867 008a 67EEA67A 	 fmuls s15,s15,s13
+ 868 008e B8EE477A 	 fuitos s14,s14
+ 869 0092 C7EE877A 	 fdivs s15,s15,s14
+ 870 0096 17EE900A 	 fmrs r0,s15
+ 871 009a FFF7FEFF 	 bl ceilf
+ 872              	.LVL74:
+ 873 009e 07EE900A 	 fmsr s15,r0
+ 874 00a2 FCEEE77A 	 ftouizs s15,s15
+ 468:../Algorithms/src/doppler.c **** 
+ 469:../Algorithms/src/doppler.c **** 	uint32_t size_check = FFT_SIZE - 2*fft_min_check + 1;
+ 470:../Algorithms/src/doppler.c **** 
+ 471:../Algorithms/src/doppler.c **** 	/* Calculates maxValue and returns corresponding BIN value */
+ 472:../Algorithms/src/doppler.c **** 	arm_max_f32(&doppler_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
+ 875              	 .loc 1 472 0
+ 876 00a6 0BAA     	 add r2,sp,#44
  467:../Algorithms/src/doppler.c **** 
- 468:../Algorithms/src/doppler.c **** 		if (motion_departing == 1 && doppler_velocity > 0)
- 629              	 .loc 1 468 0 is_stmt 1
- 630 0118 002F     	 cmp r7,#0
- 631 011a 45D0     	 beq .L46
- 632              	 .loc 1 468 0 is_stmt 0 discriminator 1
- 633 011c B5EEC08A 	 fcmpezs s16
- 634 0120 F1EE10FA 	 fmstat
- 635 0124 09DD     	 ble .L33
- 469:../Algorithms/src/doppler.c **** 		{
- 470:../Algorithms/src/doppler.c **** 			doppler_velocity  =  -doppler_velocity; // negate  speed for departing targets
- 636              	 .loc 1 470 0 is_stmt 1
- 637 0126 B1EE488A 	 fnegs s16,s16
- 638              	.LVL50:
- 639 012a 06E0     	 b .L33
- 640              	.L45:
- 641 012c 9FED208A 	 flds s16,.L60+4
- 642              	.LVL51:
- 643 0130 4FF00008 	 mov r8,#0
- 644              	.LVL52:
- 645              	.L58:
- 646 0134 F0EE488A 	 fcpys s17,s16
- 647 0138 4746     	 mov r7,r8
- 648              	.L33:
- 649              	.LVL53:
- 471:../Algorithms/src/doppler.c **** 		}
- 472:../Algorithms/src/doppler.c **** 	}
- 473:../Algorithms/src/doppler.c **** 	else
- 474:../Algorithms/src/doppler.c **** 	{
- 475:../Algorithms/src/doppler.c **** 		motion_departing = 0;
- 476:../Algorithms/src/doppler.c **** 		motion_approaching = 0;
+ 877              	 .loc 1 467 0
+ 878 00a8 17EE907A 	 fmrs r7,s15
+ 879              	.LVL75:
+ 469:../Algorithms/src/doppler.c **** 
+ 880              	 .loc 1 469 0
+ 881 00ac 7900     	 lsls r1,r7,#1
+ 882              	 .loc 1 472 0
+ 883 00ae C1EB0A01 	 rsb r1,r1,r10
+ 884 00b2 0AAB     	 add r3,sp,#40
+ 885 00b4 04EB8700 	 add r0,r4,r7,lsl#2
+ 886 00b8 0131     	 adds r1,r1,#1
+ 887 00ba FFF7FEFF 	 bl arm_max_f32
+ 888              	.LVL76:
+ 473:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
+ 474:../Algorithms/src/doppler.c **** 
+ 475:../Algorithms/src/doppler.c **** 	doppler_Hz_per_bin =  cp_dev_settings->adc_sampling_freq_Hz / (float)FFT_SIZE;
+ 476:../Algorithms/src/doppler.c **** 
+ 477:../Algorithms/src/doppler.c **** 	doppler_level = maxVal;
+ 478:../Algorithms/src/doppler.c **** 
+ 479:../Algorithms/src/doppler.c **** 	if (maxVal > (float) cp_algo_settings->speed_detection_threshold) // if the threshold is exceeded,
+ 889              	 .loc 1 479 0
+ 890 00be D6ED027A 	 flds s15,[r6,#8]
  477:../Algorithms/src/doppler.c **** 
- 478:../Algorithms/src/doppler.c **** 		doppler_frequency = 0.0;
- 479:../Algorithms/src/doppler.c **** 		doppler_velocity = 0.0;
- 480:../Algorithms/src/doppler.c **** 	}
- 481:../Algorithms/src/doppler.c **** 
- 482:../Algorithms/src/doppler.c **** 	if (maxVal > (float) cp_algo_settings->motion_detection_threshold) // if the threshold is exceeded
- 650              	 .loc 1 482 0
- 651 013a D6ED0A7A 	 flds s15,[r6,#40]
- 652 013e B4EEE79A 	 fcmpes s18,s15
- 653 0142 F1EE10FA 	 fmstat
- 414:../Algorithms/src/doppler.c **** 	uint8_t motion_departing   = 0U;
- 654              	 .loc 1 414 0
- 655 0146 CCBF     	 ite gt
- 656 0148 0122     	 movgt r2,#1
- 657              	.LVL54:
- 658 014a 0022     	 movle r2,#0
- 659              	.LVL55:
- 483:../Algorithms/src/doppler.c **** 	{
- 484:../Algorithms/src/doppler.c **** 		motion_detected = 1;
- 485:../Algorithms/src/doppler.c **** 	}
- 486:../Algorithms/src/doppler.c **** 
- 487:../Algorithms/src/doppler.c **** 	if (p_algo_result)
- 660              	 .loc 1 487 0
- 661 014c 95B1     	 cbz r5,.L32
- 488:../Algorithms/src/doppler.c **** 	{
- 489:../Algorithms/src/doppler.c **** 		p_algo_result->motion_detected = motion_detected;
- 490:../Algorithms/src/doppler.c **** 		/* Store processing results into result structure */
- 491:../Algorithms/src/doppler.c **** 
- 492:../Algorithms/src/doppler.c **** 		if (p_algo_result->p_doppler_spectrum)
- 662              	 .loc 1 492 0
- 663 014e 6869     	 ldr r0,[r5,#20]
- 489:../Algorithms/src/doppler.c **** 		/* Store processing results into result structure */
- 664              	 .loc 1 489 0
- 665 0150 AA72     	 strb r2,[r5,#10]
- 666              	.LVL56:
- 667              	 .loc 1 492 0
- 668 0152 30B1     	 cbz r0,.L38
- 493:../Algorithms/src/doppler.c **** 		{
- 494:../Algorithms/src/doppler.c **** 			if (maxBin > FFT_SIZE / 2) {
- 669              	 .loc 1 494 0
- 670 0154 802B     	 cmp r3,#128
- 671 0156 14D8     	 bhi .L39
- 672              	.LVL57:
- 673              	.L41:
- 495:../Algorithms/src/doppler.c **** 				/* prepare spectrum to be copied to results */
- 496:../Algorithms/src/doppler.c **** 				for (uint32_t idx = 0; idx < FFT_SIZE/2; idx++)
- 497:../Algorithms/src/doppler.c **** 				{
- 498:../Algorithms/src/doppler.c **** 					doppler_spectrum[idx] = doppler_spectrum[FFT_SIZE - 1 - idx];
- 499:../Algorithms/src/doppler.c **** 				}
- 500:../Algorithms/src/doppler.c **** 			}
- 501:../Algorithms/src/doppler.c **** 
- 502:../Algorithms/src/doppler.c **** 			/* transfer spectrum to result structure, if there is memory allocated for it */
- 503:../Algorithms/src/doppler.c **** 			memcpy(p_algo_result->p_doppler_spectrum, doppler_spectrum, p_algo_result->doppler_spectrum_elem
- 674              	 .loc 1 503 0
- 675 0158 AA69     	 ldr r2,[r5,#24]
- 676 015a 1449     	 ldr r1,.L60
- 677 015c 9200     	 lsls r2,r2,#2
- 678 015e FFF7FEFF 	 bl memcpy
- 679              	.LVL58:
- 680              	.L38:
+ 891              	 .loc 1 477 0
+ 892 00c2 9DED0B9A 	 flds s18,[sp,#44]
+ 473:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
+ 893              	 .loc 1 473 0
+ 894 00c6 0A9B     	 ldr r3,[sp,#40]
+ 475:../Algorithms/src/doppler.c **** 
+ 895              	 .loc 1 475 0
+ 896 00c8 D9F81420 	 ldr r2,[r9,#20]
+ 897              	.LVL77:
+ 898              	 .loc 1 479 0
+ 899 00cc B4EEE79A 	 fcmpes s18,s15
+ 473:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
+ 900              	 .loc 1 473 0
+ 901 00d0 3B44     	 add r3,r3,r7
+ 902              	 .loc 1 479 0
+ 903 00d2 F1EE10FA 	 fmstat
+ 473:../Algorithms/src/doppler.c **** 	maxBin += fft_min_check;
+ 904              	 .loc 1 473 0
+ 905 00d6 0A93     	 str r3,[sp,#40]
+ 906              	 .loc 1 479 0
+ 907 00d8 2CDD     	 ble .L109
+ 480:../Algorithms/src/doppler.c **** 	{
+ 481:../Algorithms/src/doppler.c **** 		if (maxBin < FFT_SIZE / 2)
+ 908              	 .loc 1 481 0
+ 909 00da 7F2B     	 cmp r3,#127
+ 910 00dc 5DD8     	 bhi .L110
+ 482:../Algorithms/src/doppler.c **** 	    {
+ 483:../Algorithms/src/doppler.c **** 			motion_departing = 1;
+ 911              	 .loc 1 483 0
+ 912 00de 0127     	 movs r7,#1
+ 913              	.LVL78:
+ 914              	.L86:
+ 475:../Algorithms/src/doppler.c **** 
+ 915              	 .loc 1 475 0
+ 916 00e0 08EE902A 	 fmsr s17,r2
+ 484:../Algorithms/src/doppler.c **** 			motion_approaching = 0;
+ 485:../Algorithms/src/doppler.c **** 	    }
+ 486:../Algorithms/src/doppler.c **** 	    else
+ 487:../Algorithms/src/doppler.c **** 	    {
+ 488:../Algorithms/src/doppler.c **** 	    	motion_departing = 0;
+ 489:../Algorithms/src/doppler.c **** 	    	motion_approaching = 1;
+ 490:../Algorithms/src/doppler.c **** 
+ 491:../Algorithms/src/doppler.c **** 	    	maxBin = FFT_SIZE - maxBin;
+ 492:../Algorithms/src/doppler.c **** 	    }
+ 493:../Algorithms/src/doppler.c **** 
+ 494:../Algorithms/src/doppler.c **** 		doppler_frequency =  maxBin * doppler_Hz_per_bin;
+ 917              	 .loc 1 494 0
+ 918 00e4 07EE903A 	 fmsr s15,r3
+ 475:../Algorithms/src/doppler.c **** 
+ 919              	 .loc 1 475 0
+ 920 00e8 FBEECC8A 	 vcvt.f32.u32 s17,s17,#8
+ 921              	 .loc 1 494 0
+ 922 00ec F8EE677A 	 fuitos s15,s15
+ 495:../Algorithms/src/doppler.c **** 
+ 496:../Algorithms/src/doppler.c **** 		doppler_velocity  =  doppler_frequency / 44.4f;
+ 923              	 .loc 1 496 0
+ 924 00f0 9FED308A 	 flds s16,.L111+8
+ 497:../Algorithms/src/doppler.c **** 
+ 498:../Algorithms/src/doppler.c **** 		if (doppler_velocity < cp_algo_settings->min_speed_kmph || doppler_velocity > cp_algo_settings->m
+ 925              	 .loc 1 498 0
+ 926 00f4 96ED037A 	 flds s14,[r6,#12]
+ 494:../Algorithms/src/doppler.c **** 
+ 927              	 .loc 1 494 0
+ 928 00f8 67EEA88A 	 fmuls s17,s15,s17
+ 929              	.LVL79:
+ 496:../Algorithms/src/doppler.c **** 
+ 930              	 .loc 1 496 0
+ 931 00fc 88EE888A 	 fdivs s16,s17,s16
+ 932              	.LVL80:
+ 933              	 .loc 1 498 0
+ 934 0100 B4EEC78A 	 fcmpes s16,s14
+ 935 0104 F1EE10FA 	 fmstat
+ 936 0108 10D4     	 bmi .L96
+ 937              	 .loc 1 498 0 is_stmt 0 discriminator 1
+ 938 010a D6ED047A 	 flds s15,[r6,#16]
+ 939 010e B4EEE78A 	 fcmpes s16,s15
+ 940 0112 F1EE10FA 	 fmstat
+ 941 0116 09DC     	 bgt .L96
+ 499:../Algorithms/src/doppler.c **** 		{
+ 500:../Algorithms/src/doppler.c **** 			doppler_frequency = 0.0;
+ 501:../Algorithms/src/doppler.c **** 			doppler_velocity = 0.0;
+ 502:../Algorithms/src/doppler.c **** 			motion_departing = 0;
+ 503:../Algorithms/src/doppler.c **** 			motion_approaching = 0;
  504:../Algorithms/src/doppler.c **** 		}
  505:../Algorithms/src/doppler.c **** 
- 506:../Algorithms/src/doppler.c **** 		p_algo_result->level 					= doppler_level;
- 681              	 .loc 1 506 0
- 682 0162 85ED019A 	 fsts s18,[r5,#4]
- 507:../Algorithms/src/doppler.c **** 		p_algo_result->doppler_frequency_hz		= doppler_frequency;
- 683              	 .loc 1 507 0
- 684 0166 C5ED048A 	 fsts s17,[r5,#16]
- 508:../Algorithms/src/doppler.c **** 
- 509:../Algorithms/src/doppler.c **** 		p_algo_result->velocity_kmph 			= doppler_velocity;
- 685              	 .loc 1 509 0
- 686 016a 85ED008A 	 fsts s16,[r5]
- 510:../Algorithms/src/doppler.c **** 		p_algo_result->target_departing 		= motion_departing;
- 687              	 .loc 1 510 0
- 688 016e 2F72     	 strb r7,[r5,#8]
- 511:../Algorithms/src/doppler.c **** 		p_algo_result->target_approaching   	= motion_approaching;
- 689              	 .loc 1 511 0
- 690 0170 85F80980 	 strb r8,[r5,#9]
- 691              	.L32:
- 512:../Algorithms/src/doppler.c **** 	}
- 513:../Algorithms/src/doppler.c **** }
- 692              	 .loc 1 513 0
- 693 0174 0EB0     	 add sp,sp,#56
- 694              	.LCFI17:
- 695              	 .cfi_remember_state
- 696              	 .cfi_def_cfa_offset 64
- 697              	 
- 698 0176 BDEC048B 	 fldmfdd sp!,{d8-d9}
- 699              	.LCFI18:
- 700              	 .cfi_restore 82
- 701              	 .cfi_restore 83
- 702              	 .cfi_restore 80
- 703              	 .cfi_restore 81
- 704              	 .cfi_def_cfa_offset 48
- 705              	.LVL59:
- 706 017a BDE8F047 	 pop {r4,r5,r6,r7,r8,r9,r10,lr}
- 707              	.LCFI19:
- 708              	 .cfi_restore 14
- 709              	 .cfi_restore 10
- 710              	 .cfi_restore 9
- 711              	 .cfi_restore 8
- 712              	 .cfi_restore 7
- 713              	 .cfi_restore 6
- 714              	 .cfi_restore 5
- 715              	 .cfi_restore 4
- 716              	 .cfi_def_cfa_offset 16
- 717              	.LVL60:
- 718 017e 04B0     	 add sp,sp,#16
- 719              	.LCFI20:
- 720              	 .cfi_def_cfa_offset 0
- 721 0180 7047     	 bx lr
- 722              	.LVL61:
- 723              	.L39:
- 724              	.LCFI21:
- 725              	 .cfi_restore_state
- 726 0182 0E4B     	 ldr r3,.L60+16
- 727 0184 A3F58062 	 sub r2,r3,#1024
- 728              	.LVL62:
- 729 0188 02F50074 	 add r4,r2,#512
- 730              	.LVL63:
- 731              	.L40:
- 732              	.LBB6:
- 498:../Algorithms/src/doppler.c **** 				}
- 733              	 .loc 1 498 0 discriminator 3
- 734 018c 53F8041D 	 ldr r1,[r3,#-4]!
- 735 0190 42F8041B 	 str r1,[r2],#4
- 736              	.LVL64:
- 496:../Algorithms/src/doppler.c **** 				{
- 737              	 .loc 1 496 0 discriminator 3
- 738 0194 A342     	 cmp r3,r4
- 739 0196 F9D1     	 bne .L40
- 740 0198 DEE7     	 b .L41
- 741              	.LVL65:
- 742              	.L59:
- 743              	.LBE6:
- 453:../Algorithms/src/doppler.c **** 	    }
- 744              	 .loc 1 453 0
- 745 019a C3EB0A03 	 rsb r3,r3,r10
- 450:../Algorithms/src/doppler.c **** 	    	motion_approaching = 1;
- 746              	 .loc 1 450 0
- 747 019e 4746     	 mov r7,r8
- 748              	.LVL66:
- 453:../Algorithms/src/doppler.c **** 	    }
- 749              	 .loc 1 453 0
- 750 01a0 0A93     	 str r3,[sp,#40]
- 451:../Algorithms/src/doppler.c **** 
- 751              	 .loc 1 451 0
- 752 01a2 4FF00108 	 mov r8,#1
- 753 01a6 9BE7     	 b .L35
- 754              	.LVL67:
- 755              	.L46:
- 756 01a8 0027     	 movs r7,#0
- 757              	.LVL68:
- 758 01aa C6E7     	 b .L33
- 759              	.L61:
- 760              	 .align 2
- 761              	.L60:
- 762 01ac 00000000 	 .word .LANCHOR0
- 763 01b0 00000000 	 .word 0
- 764 01b4 9A993142 	 .word 1110546842
- 765 01b8 00008043 	 .word 1132462080
- 766 01bc 00040000 	 .word .LANCHOR0+1024
- 767              	 .cfi_endproc
- 768              	.LFE532:
- 770              	 .section .text.doppler_do,"ax",%progbits
- 771              	 .align 2
- 772              	 .global doppler_do
- 773              	 .thumb
- 774              	 .thumb_func
- 776              	doppler_do:
- 777              	.LFB531:
- 355:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
- 778              	 .loc 1 355 0
- 779              	 .cfi_startproc
- 780              	 
- 781              	 
- 782              	.LVL69:
- 783 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
- 784              	.LCFI22:
- 785              	 .cfi_def_cfa_offset 36
- 786              	 .cfi_offset 4,-36
- 787              	 .cfi_offset 5,-32
- 788              	 .cfi_offset 6,-28
- 789              	 .cfi_offset 7,-24
- 790              	 .cfi_offset 8,-20
- 791              	 .cfi_offset 9,-16
- 792              	 .cfi_offset 10,-12
- 793              	 .cfi_offset 11,-8
- 794              	 .cfi_offset 14,-4
- 364:../Algorithms/src/doppler.c **** 	{
- 795              	 .loc 1 364 0
- 796 0004 DFF8FCA0 	 ldr r10,.L76+16
- 361:../Algorithms/src/doppler.c **** 
- 797              	 .loc 1 361 0
- 798 0008 4588     	 ldrh r5,[r0,#2]
- 799              	.LVL70:
- 366:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
- 800              	 .loc 1 366 0
- 801 000a 3A4C     	 ldr r4,.L76
- 355:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
- 802              	 .loc 1 355 0
- 803 000c 0646     	 mov r6,r0
- 364:../Algorithms/src/doppler.c **** 	{
- 804              	 .loc 1 364 0
- 805 000e DAF80000 	 ldr r0,[r10]
- 806              	.LVL71:
- 807 0012 8542     	 cmp r5,r0
- 355:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
- 808              	 .loc 1 355 0
- 809 0014 89B0     	 sub sp,sp,#36
- 810              	.LCFI23:
- 811              	 .cfi_def_cfa_offset 72
- 355:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
- 812              	 .loc 1 355 0
- 813 0016 0F46     	 mov r7,r1
- 814 0018 9146     	 mov r9,r2
- 815 001a 9846     	 mov r8,r3
- 364:../Algorithms/src/doppler.c **** 	{
- 816              	 .loc 1 364 0
- 817 001c 07D0     	 beq .L63
- 367:../Algorithms/src/doppler.c **** 		{
- 818              	 .loc 1 367 0
- 819 001e 2046     	 mov r0,r4
- 366:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
- 820              	 .loc 1 366 0
- 821 0020 6560     	 str r5,[r4,#4]
- 367:../Algorithms/src/doppler.c **** 		{
- 822              	 .loc 1 367 0
- 823 0022 FFF7FEFF 	 bl fft_window_gen
- 824              	.LVL72:
- 825 0026 0028     	 cmp r0,#0
- 826 0028 57D0     	 beq .L65
- 372:../Algorithms/src/doppler.c **** 	}
- 827              	 .loc 1 372 0
- 828 002a CAF80050 	 str r5,[r10]
- 829              	.L63:
- 376:../Algorithms/src/doppler.c **** 	memset(raw_data_q1, 0, sizeof(raw_data_q1));
- 830              	 .loc 1 376 0
- 831 002e 0021     	 movs r1,#0
- 832 0030 4FF48062 	 mov r2,#1024
- 833 0034 3048     	 ldr r0,.L76+4
- 834 0036 FFF7FEFF 	 bl memset
- 835              	.LVL73:
- 377:../Algorithms/src/doppler.c **** 
- 836              	 .loc 1 377 0
- 837 003a 3048     	 ldr r0,.L76+8
- 838 003c 0021     	 movs r1,#0
- 839 003e 4FF48062 	 mov r2,#1024
- 840 0042 FFF7FEFF 	 bl memset
- 841              	.LVL74:
- 379:../Algorithms/src/doppler.c **** 	{
- 842              	 .loc 1 379 0
- 843 0046 D7F824B0 	 ldr fp,[r7,#36]
- 844 004a BBF1000F 	 cmp fp,#0
- 845 004e 45D0     	 beq .L66
- 382:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 846              	 .loc 1 382 0
- 847 0050 0021     	 movs r1,#0
- 848 0052 0A46     	 mov r2,r1
- 849 0054 3046     	 mov r0,r6
- 850 0056 FFF7FEFF 	 bl get_buffer_address_by_chirp
- 851              	.LVL75:
- 383:../Algorithms/src/doppler.c **** 	}
- 852              	 .loc 1 383 0
- 853 005a 0121     	 movs r1,#1
- 382:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
- 854              	 .loc 1 382 0
- 855 005c 8246     	 mov r10,r0
- 856              	.LVL76:
- 383:../Algorithms/src/doppler.c **** 	}
- 857              	 .loc 1 383 0
- 858 005e 0022     	 movs r2,#0
- 859 0060 3046     	 mov r0,r6
- 860              	.LVL77:
- 861 0062 FFF7FEFF 	 bl get_buffer_address_by_chirp
- 862              	.LVL78:
- 863              	.L67:
- 864 0066 DFF890C0 	 ldr ip,.L76+4
- 865 006a DFF890B0 	 ldr fp,.L76+8
- 866              	.LBB7:
- 392:../Algorithms/src/doppler.c **** 	{
- 867              	 .loc 1 392 0
- 868 006e F5B1     	 cbz r5,.L70
- 394:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 869              	 .loc 1 394 0
- 870 0070 DFED236A 	 flds s13,.L76+12
- 871 0074 821E     	 subs r2,r0,#2
- 872 0076 AAF1020E 	 sub lr,r10,#2
- 873 007a 6346     	 mov r3,ip
- 874 007c 0CEB8500 	 add r0,ip,r5,lsl#2
- 875              	.LVL79:
- 876 0080 5946     	 mov r1,fp
- 877              	.LVL80:
- 878              	.L69:
- 394:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 879              	 .loc 1 394 0 is_stmt 0 discriminator 3
- 880 0082 3EF802AF 	 ldrh r10,[lr,#2]!
- 881 0086 07EE10AA 	 fmsr s14,r10
- 395:../Algorithms/src/doppler.c **** 	}
- 882              	 .loc 1 395 0 is_stmt 1 discriminator 3
- 883 008a 32F802AF 	 ldrh r10,[r2,#2]!
- 394:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 884              	 .loc 1 394 0 discriminator 3
- 885 008e B8EE477A 	 fuitos s14,s14
- 395:../Algorithms/src/doppler.c **** 	}
- 886              	 .loc 1 395 0 discriminator 3
- 887 0092 07EE90AA 	 fmsr s15,r10
- 394:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 888              	 .loc 1 394 0 discriminator 3
- 889 0096 27EE267A 	 fmuls s14,s14,s13
- 395:../Algorithms/src/doppler.c **** 	}
- 890              	 .loc 1 395 0 discriminator 3
- 891 009a F8EE677A 	 fuitos s15,s15
- 394:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
- 892              	 .loc 1 394 0 discriminator 3
- 893 009e A3EC017A 	 fstmias r3!,{s14}
- 395:../Algorithms/src/doppler.c **** 	}
- 894              	 .loc 1 395 0 discriminator 3
- 895 00a2 67EEA67A 	 fmuls s15,s15,s13
- 392:../Algorithms/src/doppler.c **** 	{
- 896              	 .loc 1 392 0 discriminator 3
- 897 00a6 8342     	 cmp r3,r0
- 395:../Algorithms/src/doppler.c **** 	}
- 898              	 .loc 1 395 0 discriminator 3
- 899 00a8 E1EC017A 	 fstmias r1!,{s15}
- 392:../Algorithms/src/doppler.c **** 	{
- 900              	 .loc 1 392 0 discriminator 3
- 901 00ac E9D1     	 bne .L69
- 902              	.L70:
- 903              	.LBE7:
- 398:../Algorithms/src/doppler.c **** 
- 904              	 .loc 1 398 0
- 905 00ae 2369     	 ldr r3,[r4,#16]
- 906 00b0 0093     	 str r3,[sp]
- 907 00b2 94E80F00 	 ldmia r4,{r0,r1,r2,r3}
- 908 00b6 CDF804C0 	 str ip,[sp,#4]
- 909 00ba CDF808B0 	 str fp,[sp,#8]
- 910 00be 0395     	 str r5,[sp,#12]
- 911 00c0 0497     	 str r7,[sp,#16]
- 912 00c2 CDF81490 	 str r9,[sp,#20]
- 913 00c6 CDF81880 	 str r8,[sp,#24]
- 914 00ca FFF7FEFF 	 bl doppler_calc_speed
- 915              	.LVL81:
- 401:../Algorithms/src/doppler.c **** }
- 916              	 .loc 1 401 0
- 917 00ce 736B     	 ldr r3,[r6,#52]
- 918 00d0 C8F81C30 	 str r3,[r8,#28]
- 402:../Algorithms/src/doppler.c **** 
- 919              	 .loc 1 402 0
- 920 00d4 09B0     	 add sp,sp,#36
- 921              	.LCFI24:
- 922              	 .cfi_remember_state
- 923              	 .cfi_def_cfa_offset 36
- 924              	 
- 925 00d6 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
- 926              	.LVL82:
- 927              	.L65:
- 928              	.LCFI25:
- 929              	 .cfi_restore_state
- 370:../Algorithms/src/doppler.c **** 		}
- 930              	 .loc 1 370 0 discriminator 1
- 931 00da FEE7     	 b .L65
- 932              	.L66:
- 388:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
- 933              	 .loc 1 388 0
- 934 00dc 5A46     	 mov r2,fp
- 935 00de 3046     	 mov r0,r6
- 936 00e0 0221     	 movs r1,#2
- 937 00e2 FFF7FEFF 	 bl get_buffer_address_by_chirp
- 938              	.LVL83:
- 389:../Algorithms/src/doppler.c **** 	}
- 939              	 .loc 1 389 0
- 940 00e6 5A46     	 mov r2,fp
- 388:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
- 941              	 .loc 1 388 0
- 942 00e8 8246     	 mov r10,r0
- 943              	.LVL84:
- 389:../Algorithms/src/doppler.c **** 	}
- 944              	 .loc 1 389 0
- 945 00ea 0321     	 movs r1,#3
- 946 00ec 3046     	 mov r0,r6
- 947              	.LVL85:
- 948 00ee FFF7FEFF 	 bl get_buffer_address_by_chirp
- 949              	.LVL86:
- 950 00f2 B8E7     	 b .L67
- 951              	.L77:
- 952              	 .align 2
- 953              	.L76:
- 954 00f4 00000000 	 .word .LANCHOR3
- 955 00f8 00000000 	 .word .LANCHOR6
- 956 00fc 00000000 	 .word .LANCHOR7
- 957 0100 6740D33B 	 .word 1003700327
- 958 0104 00000000 	 .word .LANCHOR2
- 959              	 .cfi_endproc
- 960              	.LFE531:
- 962              	 .section .bss.raw_data_i1.17690,"aw",%nobits
- 963              	 .align 2
- 964              	 .set .LANCHOR4,.+0
- 967              	raw_data_i1.17690:
- 968 0000 00000000 	 .space 1024
- 968      00000000 
- 968      00000000 
- 968      00000000 
- 968      00000000 
- 969              	 .section .bss.breathing_spectrum,"aw",%nobits
- 970              	 .align 2
- 971              	 .set .LANCHOR1,.+0
- 974              	breathing_spectrum:
- 975 0000 00000000 	 .space 2048
- 975      00000000 
- 975      00000000 
- 975      00000000 
- 975      00000000 
- 976              	 .section .bss.fft_fast_window_buffer,"aw",%nobits
- 977              	 .align 2
- 980              	fft_fast_window_buffer:
- 981 0000 00000000 	 .space 1024
- 981      00000000 
- 981      00000000 
- 981      00000000 
- 981      00000000 
- 982              	 .section .bss.doppler_spectrum,"aw",%nobits
- 983              	 .align 2
- 984              	 .set .LANCHOR0,.+0
- 987              	doppler_spectrum:
- 988 0000 00000000 	 .space 2048
- 988      00000000 
- 988      00000000 
- 988      00000000 
- 988      00000000 
- 989              	 .section .bss.raw_data_i1.17740,"aw",%nobits
- 990              	 .align 2
- 991              	 .set .LANCHOR6,.+0
- 994              	raw_data_i1.17740:
- 995 0000 00000000 	 .space 1024
- 995      00000000 
- 995      00000000 
- 995      00000000 
- 995      00000000 
- 996              	 .section .data.fft_fast_time_window,"aw",%progbits
- 997              	 .align 2
- 998              	 .set .LANCHOR3,.+0
- 1001              	fft_fast_time_window:
- 1002 0000 04       	 .byte 4
- 1003 0001 00       	 .space 1
- 1004 0002 0001     	 .short 256
- 1005 0004 00000000 	 .word 0
- 1006 0008 00007042 	 .word 1114636288
- 1007 000c 00000000 	 .word fft_fast_window_buffer
- 1008 0010 00000000 	 .word 0
- 1009              	 .section .bss.raw_data_q1.17691,"aw",%nobits
- 1010              	 .align 2
- 1011              	 .set .LANCHOR5,.+0
- 1014              	raw_data_q1.17691:
- 1015 0000 00000000 	 .space 1024
- 1015      00000000 
- 1015      00000000 
- 1015      00000000 
- 1015      00000000 
- 1016              	 .section .bss.raw_data_q1.17741,"aw",%nobits
- 1017              	 .align 2
- 1018              	 .set .LANCHOR7,.+0
- 1021              	raw_data_q1.17741:
- 1022 0000 00000000 	 .space 1024
- 1022      00000000 
- 1022      00000000 
- 1022      00000000 
- 1022      00000000 
- 1023              	 .section .bss.fft_fast_window_flag,"aw",%nobits
- 1024              	 .align 2
- 1025              	 .set .LANCHOR2,.+0
- 1028              	fft_fast_window_flag:
- 1029 0000 00000000 	 .space 4
- 1030              	 .text
- 1031              	.Letext0:
- 1032              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
- 1033              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
- 1034              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
- 1035              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
- 1036              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
- 1037              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
- 1038              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
- 1039              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
- 1040              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
- 1041              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
- 1042              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
- 1043              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
- 1044              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/DSP_LIB/inc/dsp_lib.h"
- 1045              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
- 1046              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
- 1047              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
- 1048              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
- 1049              	 .file 19 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\math.h"
+ 506:../Algorithms/src/doppler.c **** 		if (motion_departing == 1 && doppler_velocity > 0)
+ 942              	 .loc 1 506 0 is_stmt 1
+ 943 0118 002F     	 cmp r7,#0
+ 944 011a 45D0     	 beq .L97
+ 945              	 .loc 1 506 0 is_stmt 0 discriminator 1
+ 946 011c B5EEC08A 	 fcmpezs s16
+ 947 0120 F1EE10FA 	 fmstat
+ 948 0124 09DD     	 ble .L84
+ 507:../Algorithms/src/doppler.c **** 		{
+ 508:../Algorithms/src/doppler.c **** 			doppler_velocity  =  -doppler_velocity; // negate  speed for departing targets
+ 949              	 .loc 1 508 0 is_stmt 1
+ 950 0126 B1EE488A 	 fnegs s16,s16
+ 951              	.LVL81:
+ 952 012a 06E0     	 b .L84
+ 953              	.L96:
+ 954 012c 9FED208A 	 flds s16,.L111+4
+ 955              	.LVL82:
+ 956 0130 4FF00008 	 mov r8,#0
+ 957              	.LVL83:
+ 958              	.L109:
+ 959 0134 F0EE488A 	 fcpys s17,s16
+ 960 0138 4746     	 mov r7,r8
+ 961              	.L84:
+ 962              	.LVL84:
+ 509:../Algorithms/src/doppler.c **** 		}
+ 510:../Algorithms/src/doppler.c **** 	}
+ 511:../Algorithms/src/doppler.c **** 	else
+ 512:../Algorithms/src/doppler.c **** 	{
+ 513:../Algorithms/src/doppler.c **** 		motion_departing = 0;
+ 514:../Algorithms/src/doppler.c **** 		motion_approaching = 0;
+ 515:../Algorithms/src/doppler.c **** 
+ 516:../Algorithms/src/doppler.c **** 		doppler_frequency = 0.0;
+ 517:../Algorithms/src/doppler.c **** 		doppler_velocity = 0.0;
+ 518:../Algorithms/src/doppler.c **** 	}
+ 519:../Algorithms/src/doppler.c **** 
+ 520:../Algorithms/src/doppler.c **** 	if (maxVal > (float) cp_algo_settings->motion_detection_threshold) // if the threshold is exceeded
+ 963              	 .loc 1 520 0
+ 964 013a D6ED0A7A 	 flds s15,[r6,#40]
+ 965 013e B4EEE79A 	 fcmpes s18,s15
+ 966 0142 F1EE10FA 	 fmstat
+ 452:../Algorithms/src/doppler.c **** 	uint8_t motion_departing   = 0U;
+ 967              	 .loc 1 452 0
+ 968 0146 CCBF     	 ite gt
+ 969 0148 0122     	 movgt r2,#1
+ 970              	.LVL85:
+ 971 014a 0022     	 movle r2,#0
+ 972              	.LVL86:
+ 521:../Algorithms/src/doppler.c **** 	{
+ 522:../Algorithms/src/doppler.c **** 		motion_detected = 1;
+ 523:../Algorithms/src/doppler.c **** 	}
+ 524:../Algorithms/src/doppler.c **** 
+ 525:../Algorithms/src/doppler.c **** 	if (p_algo_result)
+ 973              	 .loc 1 525 0
+ 974 014c 95B1     	 cbz r5,.L83
+ 526:../Algorithms/src/doppler.c **** 	{
+ 527:../Algorithms/src/doppler.c **** 		p_algo_result->motion_detected = motion_detected;
+ 528:../Algorithms/src/doppler.c **** 		/* Store processing results into result structure */
+ 529:../Algorithms/src/doppler.c **** 
+ 530:../Algorithms/src/doppler.c **** 		if (p_algo_result->p_doppler_spectrum)
+ 975              	 .loc 1 530 0
+ 976 014e 2869     	 ldr r0,[r5,#16]
+ 527:../Algorithms/src/doppler.c **** 		/* Store processing results into result structure */
+ 977              	 .loc 1 527 0
+ 978 0150 AA72     	 strb r2,[r5,#10]
+ 979              	.LVL87:
+ 980              	 .loc 1 530 0
+ 981 0152 30B1     	 cbz r0,.L89
+ 531:../Algorithms/src/doppler.c **** 		{
+ 532:../Algorithms/src/doppler.c **** 			if (maxBin > FFT_SIZE / 2) {
+ 982              	 .loc 1 532 0
+ 983 0154 802B     	 cmp r3,#128
+ 984 0156 14D8     	 bhi .L90
+ 985              	.LVL88:
+ 986              	.L92:
+ 533:../Algorithms/src/doppler.c **** 				/* prepare spectrum to be copied to results */
+ 534:../Algorithms/src/doppler.c **** 				for (uint32_t idx = 0; idx < FFT_SIZE/2; idx++)
+ 535:../Algorithms/src/doppler.c **** 				{
+ 536:../Algorithms/src/doppler.c **** 					doppler_spectrum[idx] = doppler_spectrum[FFT_SIZE - 1 - idx];
+ 537:../Algorithms/src/doppler.c **** 				}
+ 538:../Algorithms/src/doppler.c **** 			}
+ 539:../Algorithms/src/doppler.c **** 
+ 540:../Algorithms/src/doppler.c **** 			/* transfer spectrum to result structure, if there is memory allocated for it */
+ 541:../Algorithms/src/doppler.c **** 			memcpy(p_algo_result->p_doppler_spectrum, doppler_spectrum, p_algo_result->doppler_spectrum_elem
+ 987              	 .loc 1 541 0
+ 988 0158 6A69     	 ldr r2,[r5,#20]
+ 989 015a 1449     	 ldr r1,.L111
+ 990 015c 9200     	 lsls r2,r2,#2
+ 991 015e FFF7FEFF 	 bl memcpy
+ 992              	.LVL89:
+ 993              	.L89:
+ 542:../Algorithms/src/doppler.c **** 		}
+ 543:../Algorithms/src/doppler.c **** 
+ 544:../Algorithms/src/doppler.c **** 		p_algo_result->level 					= doppler_level;
+ 994              	 .loc 1 544 0
+ 995 0162 85ED019A 	 fsts s18,[r5,#4]
+ 545:../Algorithms/src/doppler.c **** 		p_algo_result->doppler_frequency_hz		= doppler_frequency;
+ 996              	 .loc 1 545 0
+ 997 0166 C5ED038A 	 fsts s17,[r5,#12]
+ 546:../Algorithms/src/doppler.c **** 
+ 547:../Algorithms/src/doppler.c **** 		p_algo_result->velocity_kmph 			= doppler_velocity;
+ 998              	 .loc 1 547 0
+ 999 016a 85ED008A 	 fsts s16,[r5]
+ 548:../Algorithms/src/doppler.c **** 		p_algo_result->target_departing 		= motion_departing;
+ 1000              	 .loc 1 548 0
+ 1001 016e 2F72     	 strb r7,[r5,#8]
+ 549:../Algorithms/src/doppler.c **** 		p_algo_result->target_approaching   	= motion_approaching;
+ 1002              	 .loc 1 549 0
+ 1003 0170 85F80980 	 strb r8,[r5,#9]
+ 1004              	.L83:
+ 550:../Algorithms/src/doppler.c **** 	}
+ 551:../Algorithms/src/doppler.c **** }
+ 1005              	 .loc 1 551 0
+ 1006 0174 0EB0     	 add sp,sp,#56
+ 1007              	.LCFI17:
+ 1008              	 .cfi_remember_state
+ 1009              	 .cfi_def_cfa_offset 64
+ 1010              	 
+ 1011 0176 BDEC048B 	 fldmfdd sp!,{d8-d9}
+ 1012              	.LCFI18:
+ 1013              	 .cfi_restore 82
+ 1014              	 .cfi_restore 83
+ 1015              	 .cfi_restore 80
+ 1016              	 .cfi_restore 81
+ 1017              	 .cfi_def_cfa_offset 48
+ 1018              	.LVL90:
+ 1019 017a BDE8F047 	 pop {r4,r5,r6,r7,r8,r9,r10,lr}
+ 1020              	.LCFI19:
+ 1021              	 .cfi_restore 14
+ 1022              	 .cfi_restore 10
+ 1023              	 .cfi_restore 9
+ 1024              	 .cfi_restore 8
+ 1025              	 .cfi_restore 7
+ 1026              	 .cfi_restore 6
+ 1027              	 .cfi_restore 5
+ 1028              	 .cfi_restore 4
+ 1029              	 .cfi_def_cfa_offset 16
+ 1030              	.LVL91:
+ 1031 017e 04B0     	 add sp,sp,#16
+ 1032              	.LCFI20:
+ 1033              	 .cfi_def_cfa_offset 0
+ 1034 0180 7047     	 bx lr
+ 1035              	.LVL92:
+ 1036              	.L90:
+ 1037              	.LCFI21:
+ 1038              	 .cfi_restore_state
+ 1039 0182 0E4B     	 ldr r3,.L111+16
+ 1040 0184 A3F58062 	 sub r2,r3,#1024
+ 1041              	.LVL93:
+ 1042 0188 02F50074 	 add r4,r2,#512
+ 1043              	.LVL94:
+ 1044              	.L91:
+ 1045              	.LBB17:
+ 536:../Algorithms/src/doppler.c **** 				}
+ 1046              	 .loc 1 536 0 discriminator 3
+ 1047 018c 53F8041D 	 ldr r1,[r3,#-4]!
+ 1048 0190 42F8041B 	 str r1,[r2],#4
+ 1049              	.LVL95:
+ 534:../Algorithms/src/doppler.c **** 				{
+ 1050              	 .loc 1 534 0 discriminator 3
+ 1051 0194 A342     	 cmp r3,r4
+ 1052 0196 F9D1     	 bne .L91
+ 1053 0198 DEE7     	 b .L92
+ 1054              	.LVL96:
+ 1055              	.L110:
+ 1056              	.LBE17:
+ 491:../Algorithms/src/doppler.c **** 	    }
+ 1057              	 .loc 1 491 0
+ 1058 019a C3EB0A03 	 rsb r3,r3,r10
+ 488:../Algorithms/src/doppler.c **** 	    	motion_approaching = 1;
+ 1059              	 .loc 1 488 0
+ 1060 019e 4746     	 mov r7,r8
+ 1061              	.LVL97:
+ 491:../Algorithms/src/doppler.c **** 	    }
+ 1062              	 .loc 1 491 0
+ 1063 01a0 0A93     	 str r3,[sp,#40]
+ 489:../Algorithms/src/doppler.c **** 
+ 1064              	 .loc 1 489 0
+ 1065 01a2 4FF00108 	 mov r8,#1
+ 1066 01a6 9BE7     	 b .L86
+ 1067              	.LVL98:
+ 1068              	.L97:
+ 1069 01a8 0027     	 movs r7,#0
+ 1070              	.LVL99:
+ 1071 01aa C6E7     	 b .L84
+ 1072              	.L112:
+ 1073              	 .align 2
+ 1074              	.L111:
+ 1075 01ac 00000000 	 .word .LANCHOR9
+ 1076 01b0 00000000 	 .word 0
+ 1077 01b4 9A993142 	 .word 1110546842
+ 1078 01b8 00008043 	 .word 1132462080
+ 1079 01bc 00040000 	 .word .LANCHOR9+1024
+ 1080              	 .cfi_endproc
+ 1081              	.LFE532:
+ 1083              	 .section .text.doppler_do,"ax",%progbits
+ 1084              	 .align 2
+ 1085              	 .global doppler_do
+ 1086              	 .thumb
+ 1087              	 .thumb_func
+ 1089              	doppler_do:
+ 1090              	.LFB531:
+ 393:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
+ 1091              	 .loc 1 393 0
+ 1092              	 .cfi_startproc
+ 1093              	 
+ 1094              	 
+ 1095              	.LVL100:
+ 1096 0000 2DE9F04F 	 push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+ 1097              	.LCFI22:
+ 1098              	 .cfi_def_cfa_offset 36
+ 1099              	 .cfi_offset 4,-36
+ 1100              	 .cfi_offset 5,-32
+ 1101              	 .cfi_offset 6,-28
+ 1102              	 .cfi_offset 7,-24
+ 1103              	 .cfi_offset 8,-20
+ 1104              	 .cfi_offset 9,-16
+ 1105              	 .cfi_offset 10,-12
+ 1106              	 .cfi_offset 11,-8
+ 1107              	 .cfi_offset 14,-4
+ 402:../Algorithms/src/doppler.c **** 	{
+ 1108              	 .loc 1 402 0
+ 1109 0004 DFF8FCA0 	 ldr r10,.L127+16
+ 399:../Algorithms/src/doppler.c **** 
+ 1110              	 .loc 1 399 0
+ 1111 0008 4588     	 ldrh r5,[r0,#2]
+ 1112              	.LVL101:
+ 404:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
+ 1113              	 .loc 1 404 0
+ 1114 000a 3A4C     	 ldr r4,.L127
+ 393:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
+ 1115              	 .loc 1 393 0
+ 1116 000c 0646     	 mov r6,r0
+ 402:../Algorithms/src/doppler.c **** 	{
+ 1117              	 .loc 1 402 0
+ 1118 000e DAF80000 	 ldr r0,[r10]
+ 1119              	.LVL102:
+ 1120 0012 8542     	 cmp r5,r0
+ 393:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
+ 1121              	 .loc 1 393 0
+ 1122 0014 89B0     	 sub sp,sp,#36
+ 1123              	.LCFI23:
+ 1124              	 .cfi_def_cfa_offset 72
+ 393:../Algorithms/src/doppler.c **** 	/* allocated as static memory, not on call stack */
+ 1125              	 .loc 1 393 0
+ 1126 0016 0F46     	 mov r7,r1
+ 1127 0018 9146     	 mov r9,r2
+ 1128 001a 9846     	 mov r8,r3
+ 402:../Algorithms/src/doppler.c **** 	{
+ 1129              	 .loc 1 402 0
+ 1130 001c 07D0     	 beq .L114
+ 405:../Algorithms/src/doppler.c **** 		{
+ 1131              	 .loc 1 405 0
+ 1132 001e 2046     	 mov r0,r4
+ 404:../Algorithms/src/doppler.c **** 		if (fft_window_gen(&fft_fast_time_window) == 0)
+ 1133              	 .loc 1 404 0
+ 1134 0020 6560     	 str r5,[r4,#4]
+ 405:../Algorithms/src/doppler.c **** 		{
+ 1135              	 .loc 1 405 0
+ 1136 0022 FFF7FEFF 	 bl fft_window_gen
+ 1137              	.LVL103:
+ 1138 0026 0028     	 cmp r0,#0
+ 1139 0028 57D0     	 beq .L116
+ 410:../Algorithms/src/doppler.c **** 	}
+ 1140              	 .loc 1 410 0
+ 1141 002a CAF80050 	 str r5,[r10]
+ 1142              	.L114:
+ 414:../Algorithms/src/doppler.c **** 	memset(raw_data_q1, 0, sizeof(raw_data_q1));
+ 1143              	 .loc 1 414 0
+ 1144 002e 0021     	 movs r1,#0
+ 1145 0030 4FF48062 	 mov r2,#1024
+ 1146 0034 3048     	 ldr r0,.L127+4
+ 1147 0036 FFF7FEFF 	 bl memset
+ 1148              	.LVL104:
+ 415:../Algorithms/src/doppler.c **** 
+ 1149              	 .loc 1 415 0
+ 1150 003a 3048     	 ldr r0,.L127+8
+ 1151 003c 0021     	 movs r1,#0
+ 1152 003e 4FF48062 	 mov r2,#1024
+ 1153 0042 FFF7FEFF 	 bl memset
+ 1154              	.LVL105:
+ 417:../Algorithms/src/doppler.c **** 	{
+ 1155              	 .loc 1 417 0
+ 1156 0046 D7F824B0 	 ldr fp,[r7,#36]
+ 1157 004a BBF1000F 	 cmp fp,#0
+ 1158 004e 45D0     	 beq .L117
+ 420:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 1159              	 .loc 1 420 0
+ 1160 0050 0021     	 movs r1,#0
+ 1161 0052 0A46     	 mov r2,r1
+ 1162 0054 3046     	 mov r0,r6
+ 1163 0056 FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 1164              	.LVL106:
+ 421:../Algorithms/src/doppler.c **** 	}
+ 1165              	 .loc 1 421 0
+ 1166 005a 0121     	 movs r1,#1
+ 420:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+ 1167              	 .loc 1 420 0
+ 1168 005c 8246     	 mov r10,r0
+ 1169              	.LVL107:
+ 421:../Algorithms/src/doppler.c **** 	}
+ 1170              	 .loc 1 421 0
+ 1171 005e 0022     	 movs r2,#0
+ 1172 0060 3046     	 mov r0,r6
+ 1173              	.LVL108:
+ 1174 0062 FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 1175              	.LVL109:
+ 1176              	.L118:
+ 1177 0066 DFF890C0 	 ldr ip,.L127+4
+ 1178 006a DFF890B0 	 ldr fp,.L127+8
+ 1179              	.LBB18:
+ 430:../Algorithms/src/doppler.c **** 	{
+ 1180              	 .loc 1 430 0
+ 1181 006e F5B1     	 cbz r5,.L121
+ 432:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 1182              	 .loc 1 432 0
+ 1183 0070 DFED236A 	 flds s13,.L127+12
+ 1184 0074 821E     	 subs r2,r0,#2
+ 1185 0076 AAF1020E 	 sub lr,r10,#2
+ 1186 007a 6346     	 mov r3,ip
+ 1187 007c 0CEB8500 	 add r0,ip,r5,lsl#2
+ 1188              	.LVL110:
+ 1189 0080 5946     	 mov r1,fp
+ 1190              	.LVL111:
+ 1191              	.L120:
+ 432:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 1192              	 .loc 1 432 0 is_stmt 0 discriminator 3
+ 1193 0082 3EF802AF 	 ldrh r10,[lr,#2]!
+ 1194 0086 07EE10AA 	 fmsr s14,r10
+ 433:../Algorithms/src/doppler.c **** 	}
+ 1195              	 .loc 1 433 0 is_stmt 1 discriminator 3
+ 1196 008a 32F802AF 	 ldrh r10,[r2,#2]!
+ 432:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 1197              	 .loc 1 432 0 discriminator 3
+ 1198 008e B8EE477A 	 fuitos s14,s14
+ 433:../Algorithms/src/doppler.c **** 	}
+ 1199              	 .loc 1 433 0 discriminator 3
+ 1200 0092 07EE90AA 	 fmsr s15,r10
+ 432:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 1201              	 .loc 1 432 0 discriminator 3
+ 1202 0096 27EE267A 	 fmuls s14,s14,s13
+ 433:../Algorithms/src/doppler.c **** 	}
+ 1203              	 .loc 1 433 0 discriminator 3
+ 1204 009a F8EE677A 	 fuitos s15,s15
+ 432:../Algorithms/src/doppler.c **** 		raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+ 1205              	 .loc 1 432 0 discriminator 3
+ 1206 009e A3EC017A 	 fstmias r3!,{s14}
+ 433:../Algorithms/src/doppler.c **** 	}
+ 1207              	 .loc 1 433 0 discriminator 3
+ 1208 00a2 67EEA67A 	 fmuls s15,s15,s13
+ 430:../Algorithms/src/doppler.c **** 	{
+ 1209              	 .loc 1 430 0 discriminator 3
+ 1210 00a6 8342     	 cmp r3,r0
+ 433:../Algorithms/src/doppler.c **** 	}
+ 1211              	 .loc 1 433 0 discriminator 3
+ 1212 00a8 E1EC017A 	 fstmias r1!,{s15}
+ 430:../Algorithms/src/doppler.c **** 	{
+ 1213              	 .loc 1 430 0 discriminator 3
+ 1214 00ac E9D1     	 bne .L120
+ 1215              	.L121:
+ 1216              	.LBE18:
+ 436:../Algorithms/src/doppler.c **** 
+ 1217              	 .loc 1 436 0
+ 1218 00ae 2369     	 ldr r3,[r4,#16]
+ 1219 00b0 0093     	 str r3,[sp]
+ 1220 00b2 94E80F00 	 ldmia r4,{r0,r1,r2,r3}
+ 1221 00b6 CDF804C0 	 str ip,[sp,#4]
+ 1222 00ba CDF808B0 	 str fp,[sp,#8]
+ 1223 00be 0395     	 str r5,[sp,#12]
+ 1224 00c0 0497     	 str r7,[sp,#16]
+ 1225 00c2 CDF81490 	 str r9,[sp,#20]
+ 1226 00c6 CDF81880 	 str r8,[sp,#24]
+ 1227 00ca FFF7FEFF 	 bl doppler_calc_speed
+ 1228              	.LVL112:
+ 439:../Algorithms/src/doppler.c **** }
+ 1229              	 .loc 1 439 0
+ 1230 00ce 736B     	 ldr r3,[r6,#52]
+ 1231 00d0 C8F81830 	 str r3,[r8,#24]
+ 440:../Algorithms/src/doppler.c **** 
+ 1232              	 .loc 1 440 0
+ 1233 00d4 09B0     	 add sp,sp,#36
+ 1234              	.LCFI24:
+ 1235              	 .cfi_remember_state
+ 1236              	 .cfi_def_cfa_offset 36
+ 1237              	 
+ 1238 00d6 BDE8F08F 	 pop {r4,r5,r6,r7,r8,r9,r10,fp,pc}
+ 1239              	.LVL113:
+ 1240              	.L116:
+ 1241              	.LCFI25:
+ 1242              	 .cfi_restore_state
+ 408:../Algorithms/src/doppler.c **** 		}
+ 1243              	 .loc 1 408 0 discriminator 1
+ 1244 00da FEE7     	 b .L116
+ 1245              	.L117:
+ 426:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
+ 1246              	 .loc 1 426 0
+ 1247 00dc 5A46     	 mov r2,fp
+ 1248 00de 3046     	 mov r0,r6
+ 1249 00e0 0221     	 movs r1,#2
+ 1250 00e2 FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 1251              	.LVL114:
+ 427:../Algorithms/src/doppler.c **** 	}
+ 1252              	 .loc 1 427 0
+ 1253 00e6 5A46     	 mov r2,fp
+ 426:../Algorithms/src/doppler.c **** 		p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 3, 0);
+ 1254              	 .loc 1 426 0
+ 1255 00e8 8246     	 mov r10,r0
+ 1256              	.LVL115:
+ 427:../Algorithms/src/doppler.c **** 	}
+ 1257              	 .loc 1 427 0
+ 1258 00ea 0321     	 movs r1,#3
+ 1259 00ec 3046     	 mov r0,r6
+ 1260              	.LVL116:
+ 1261 00ee FFF7FEFF 	 bl get_buffer_address_by_chirp
+ 1262              	.LVL117:
+ 1263 00f2 B8E7     	 b .L118
+ 1264              	.L128:
+ 1265              	 .align 2
+ 1266              	.L127:
+ 1267 00f4 00000000 	 .word .LANCHOR6
+ 1268 00f8 00000000 	 .word .LANCHOR10
+ 1269 00fc 00000000 	 .word .LANCHOR11
+ 1270 0100 6740D33B 	 .word 1003700327
+ 1271 0104 00000000 	 .word .LANCHOR5
+ 1272              	 .cfi_endproc
+ 1273              	.LFE531:
+ 1275              	 .section .bss.raw_data_q1.17757,"aw",%nobits
+ 1276              	 .align 2
+ 1277              	 .set .LANCHOR11,.+0
+ 1280              	raw_data_q1.17757:
+ 1281 0000 00000000 	 .space 1024
+ 1281      00000000 
+ 1281      00000000 
+ 1281      00000000 
+ 1281      00000000 
+ 1282              	 .section .bss.raw_data_i1.17688,"aw",%nobits
+ 1283              	 .align 2
+ 1284              	 .set .LANCHOR7,.+0
+ 1287              	raw_data_i1.17688:
+ 1288 0000 00000000 	 .space 1024
+ 1288      00000000 
+ 1288      00000000 
+ 1288      00000000 
+ 1288      00000000 
+ 1289              	 .section .bss.raw_data_q1.17710,"aw",%nobits
+ 1290              	 .align 2
+ 1291              	 .set .LANCHOR1,.+0
+ 1294              	raw_data_q1.17710:
+ 1295 0000 00000000 	 .space 1024
+ 1295      00000000 
+ 1295      00000000 
+ 1295      00000000 
+ 1295      00000000 
+ 1296              	 .section .bss.background_acquired.17708,"aw",%nobits
+ 1297              	 .set .LANCHOR2,.+0
+ 1300              	background_acquired.17708:
+ 1301 0000 00       	 .space 1
+ 1302              	 .section .bss.fft_fast_window_buffer,"aw",%nobits
+ 1303              	 .align 2
+ 1306              	fft_fast_window_buffer:
+ 1307 0000 00000000 	 .space 1024
+ 1307      00000000 
+ 1307      00000000 
+ 1307      00000000 
+ 1307      00000000 
+ 1308              	 .section .bss.doppler_spectrum,"aw",%nobits
+ 1309              	 .align 2
+ 1310              	 .set .LANCHOR9,.+0
+ 1313              	doppler_spectrum:
+ 1314 0000 00000000 	 .space 2048
+ 1314      00000000 
+ 1314      00000000 
+ 1314      00000000 
+ 1314      00000000 
+ 1315              	 .section .bss.raw_data_i1.17756,"aw",%nobits
+ 1316              	 .align 2
+ 1317              	 .set .LANCHOR10,.+0
+ 1320              	raw_data_i1.17756:
+ 1321 0000 00000000 	 .space 1024
+ 1321      00000000 
+ 1321      00000000 
+ 1321      00000000 
+ 1321      00000000 
+ 1322              	 .section .bss.frame_count.17707,"aw",%nobits
+ 1323              	 .align 2
+ 1324              	 .set .LANCHOR4,.+0
+ 1327              	frame_count.17707:
+ 1328 0000 00000000 	 .space 4
+ 1329              	 .section .bss.background_fft.17706,"aw",%nobits
+ 1330              	 .align 2
+ 1331              	 .set .LANCHOR3,.+0
+ 1334              	background_fft.17706:
+ 1335 0000 00000000 	 .space 512
+ 1335      00000000 
+ 1335      00000000 
+ 1335      00000000 
+ 1335      00000000 
+ 1336              	 .section .rodata.str1.4,"aMS",%progbits,1
+ 1337              	 .align 2
+ 1338              	.LC0:
+ 1339 0000 4261636B 	 .ascii "Background acquisito!\000"
+ 1339      67726F75 
+ 1339      6E642061 
+ 1339      63717569 
+ 1339      7369746F 
+ 1340 0016 0000     	 .space 2
+ 1341              	.LC1:
+ 1342 0018 44454255 	 .ascii "DEBUG: maxBin=%u, breathing_frequency=%.2f Hz, BRPM"
+ 1342      473A206D 
+ 1342      61784269 
+ 1342      6E3D2575 
+ 1342      2C206272 
+ 1343 004b 3D252E32 	 .ascii "=%.2f\012\000"
+ 1343      660A00
+ 1344 0052 0000     	 .section .bss.raw_data_i1.17709,"aw",%nobits
+ 1345              	 .align 2
+ 1346              	 .set .LANCHOR0,.+0
+ 1349              	raw_data_i1.17709:
+ 1350 0000 00000000 	 .space 1024
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1351              	 .section .data.fft_fast_time_window,"aw",%progbits
+ 1352              	 .align 2
+ 1353              	 .set .LANCHOR6,.+0
+ 1356              	fft_fast_time_window:
+ 1357 0000 04       	 .byte 4
+ 1358 0001 00       	 .space 1
+ 1359 0002 0001     	 .short 256
+ 1360 0004 00000000 	 .word 0
+ 1361 0008 00007042 	 .word 1114636288
+ 1362 000c 00000000 	 .word fft_fast_window_buffer
+ 1363 0010 00000000 	 .word 0
+ 1364              	 .section .bss.raw_data_q1.17689,"aw",%nobits
+ 1365              	 .align 2
+ 1366              	 .set .LANCHOR8,.+0
+ 1369              	raw_data_q1.17689:
+ 1370 0000 00000000 	 .space 1024
+ 1370      00000000 
+ 1370      00000000 
+ 1370      00000000 
+ 1370      00000000 
+ 1371              	 .section .bss.fft_fast_window_flag,"aw",%nobits
+ 1372              	 .align 2
+ 1373              	 .set .LANCHOR5,.+0
+ 1376              	fft_fast_window_flag:
+ 1377 0000 00000000 	 .space 4
+ 1378              	 .text
+ 1379              	.Letext0:
+ 1380              	 .file 2 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 1381              	 .file 3 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdint.h"
+ 1382              	 .file 4 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\lib\\gcc\\arm-none-eabi\\4.9.3\\include\\stddef.h"
+ 1383              	 .file 5 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Radar_Control/inc/acq_buffer.h"
+ 1384              	 .file 6 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Store/inc/datastore.h"
+ 1385              	 .file 7 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/XMC4700.h"
+ 1386              	 .file 8 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_vadc.h"
+ 1387              	 .file 9 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/CMSIS_DSP/arm_math.h"
+ 1388              	 .file 10 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd_regs.h"
+ 1389              	 .file 11 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usbd.h"
+ 1390              	 .file 12 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd.h"
+ 1391              	 .file 13 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/XMCLib/inc/xmc_usic.h"
+ 1392              	 .file 14 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/DSP_LIB/inc/dsp_lib.h"
+ 1393              	 .file 15 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Include/core_cm4.h"
+ 1394              	 .file 16 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Libraries/CMSIS/Infineon/XMC4700_series/Include/system_XMC4700.h"
+ 1395              	 .file 17 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/ADC_MEASUREMENT_ADV/adc_measurement_adv.h"
+ 1396              	 .file 18 "C:/Users/Utente/Desktop/Tesi/Firmware_Software/DAVE project/S2GLP_Pulsed_Doppler/Dave/Generated/USBD/usbd_extern.h"
+ 1397              	 .file 19 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\math.h"
+ 1398              	 .file 20 "c:\\infineon\\tools\\dave ide\\4.5.0.202105191637\\eclipse\\arm-gcc-49\\arm-none-eabi\\include\\stdio.h"
+ 1399              	 .file 21 "<built-in>"
 DEFINED SYMBOLS
                             *ABS*:00000000 doppler.c
-    {standard input}:20     .text.breathing_calc_frequency:00000000 $t
-    {standard input}:25     .text.breathing_calc_frequency:00000000 breathing_calc_frequency
-    {standard input}:266    .text.breathing_calc_frequency:00000148 $d
-    {standard input}:277    .text.breathing_do:00000000 $t
-    {standard input}:282    .text.breathing_do:00000000 breathing_do
-    {standard input}:440    .text.breathing_do:000000d0 $d
-    {standard input}:449    .text.doppler_calc_speed:00000000 $t
-    {standard input}:454    .text.doppler_calc_speed:00000000 doppler_calc_speed
-    {standard input}:762    .text.doppler_calc_speed:000001ac $d
-    {standard input}:771    .text.doppler_do:00000000 $t
-    {standard input}:776    .text.doppler_do:00000000 doppler_do
-    {standard input}:954    .text.doppler_do:000000f4 $d
-    {standard input}:963    .bss.raw_data_i1.17690:00000000 $d
-    {standard input}:967    .bss.raw_data_i1.17690:00000000 raw_data_i1.17690
-    {standard input}:970    .bss.breathing_spectrum:00000000 $d
-    {standard input}:974    .bss.breathing_spectrum:00000000 breathing_spectrum
-    {standard input}:977    .bss.fft_fast_window_buffer:00000000 $d
-    {standard input}:980    .bss.fft_fast_window_buffer:00000000 fft_fast_window_buffer
-    {standard input}:983    .bss.doppler_spectrum:00000000 $d
-    {standard input}:987    .bss.doppler_spectrum:00000000 doppler_spectrum
-    {standard input}:990    .bss.raw_data_i1.17740:00000000 $d
-    {standard input}:994    .bss.raw_data_i1.17740:00000000 raw_data_i1.17740
-    {standard input}:997    .data.fft_fast_time_window:00000000 $d
-    {standard input}:1001   .data.fft_fast_time_window:00000000 fft_fast_time_window
-    {standard input}:1010   .bss.raw_data_q1.17691:00000000 $d
-    {standard input}:1014   .bss.raw_data_q1.17691:00000000 raw_data_q1.17691
-    {standard input}:1017   .bss.raw_data_q1.17741:00000000 $d
-    {standard input}:1021   .bss.raw_data_q1.17741:00000000 raw_data_q1.17741
-    {standard input}:1024   .bss.fft_fast_window_flag:00000000 $d
-    {standard input}:1028   .bss.fft_fast_window_flag:00000000 fft_fast_window_flag
+    {standard input}:21     .text.breathing_calc_frequency:00000000 $t
+    {standard input}:26     .text.breathing_calc_frequency:00000000 breathing_calc_frequency
+    {standard input}:574    .text.breathing_calc_frequency:00000450 $d
+    {standard input}:590    .text.breathing_do:00000000 $t
+    {standard input}:595    .text.breathing_do:00000000 breathing_do
+    {standard input}:753    .text.breathing_do:000000d0 $d
+    {standard input}:762    .text.doppler_calc_speed:00000000 $t
+    {standard input}:767    .text.doppler_calc_speed:00000000 doppler_calc_speed
+    {standard input}:1075   .text.doppler_calc_speed:000001ac $d
+    {standard input}:1084   .text.doppler_do:00000000 $t
+    {standard input}:1089   .text.doppler_do:00000000 doppler_do
+    {standard input}:1267   .text.doppler_do:000000f4 $d
+    {standard input}:1276   .bss.raw_data_q1.17757:00000000 $d
+    {standard input}:1280   .bss.raw_data_q1.17757:00000000 raw_data_q1.17757
+    {standard input}:1283   .bss.raw_data_i1.17688:00000000 $d
+    {standard input}:1287   .bss.raw_data_i1.17688:00000000 raw_data_i1.17688
+    {standard input}:1290   .bss.raw_data_q1.17710:00000000 $d
+    {standard input}:1294   .bss.raw_data_q1.17710:00000000 raw_data_q1.17710
+    {standard input}:1300   .bss.background_acquired.17708:00000000 background_acquired.17708
+    {standard input}:1301   .bss.background_acquired.17708:00000000 $d
+    {standard input}:1303   .bss.fft_fast_window_buffer:00000000 $d
+    {standard input}:1306   .bss.fft_fast_window_buffer:00000000 fft_fast_window_buffer
+    {standard input}:1309   .bss.doppler_spectrum:00000000 $d
+    {standard input}:1313   .bss.doppler_spectrum:00000000 doppler_spectrum
+    {standard input}:1316   .bss.raw_data_i1.17756:00000000 $d
+    {standard input}:1320   .bss.raw_data_i1.17756:00000000 raw_data_i1.17756
+    {standard input}:1323   .bss.frame_count.17707:00000000 $d
+    {standard input}:1327   .bss.frame_count.17707:00000000 frame_count.17707
+    {standard input}:1330   .bss.background_fft.17706:00000000 $d
+    {standard input}:1334   .bss.background_fft.17706:00000000 background_fft.17706
+    {standard input}:1337   .rodata.str1.4:00000000 $d
+    {standard input}:1345   .bss.raw_data_i1.17709:00000000 $d
+    {standard input}:1349   .bss.raw_data_i1.17709:00000000 raw_data_i1.17709
+    {standard input}:1352   .data.fft_fast_time_window:00000000 $d
+    {standard input}:1356   .data.fft_fast_time_window:00000000 fft_fast_time_window
+    {standard input}:1365   .bss.raw_data_q1.17689:00000000 $d
+    {standard input}:1369   .bss.raw_data_q1.17689:00000000 raw_data_q1.17689
+    {standard input}:1372   .bss.fft_fast_window_flag:00000000 $d
+    {standard input}:1376   .bss.fft_fast_window_flag:00000000 fft_fast_window_flag
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS
+__aeabi_f2d
+memset
 compute_fft_signal
 compute_fft_spectrum
 ceilf
 arm_max_f32
-bsp_led_red_on
-bsp_led_blue_on
-bsp_led_green_off
-bsp_led_red_off
-bsp_led_blue_off
+printf
 bsp_led_green_on
+bsp_led_red_off
+bsp_led_blue_on
+bsp_led_red_on
+bsp_led_green_off
+puts
 fft_window_gen
-memset
 get_buffer_address_by_chirp
 memcpy

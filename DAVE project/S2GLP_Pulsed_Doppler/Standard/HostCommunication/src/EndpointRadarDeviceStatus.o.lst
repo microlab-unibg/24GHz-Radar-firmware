@@ -1309,10 +1309,10 @@
  582              	 .set .LANCHOR1,.+0
  585              	device_status_endpoint:
  586 0000 00       	 .space 1
- 587              	 .section .bss.message.18087,"aw",%nobits
+ 587              	 .section .bss.message.18085,"aw",%nobits
  588              	 .align 2
  589              	 .set .LANCHOR0,.+0
- 592              	message.18087:
+ 592              	message.18085:
  593 0000 00000000 	 .space 512
  593      00000000 
  593      00000000 
@@ -1354,8 +1354,8 @@ DEFINED SYMBOLS
     {standard input}:578    .rodata.str1.4:00000000 $d
     {standard input}:585    .bss.device_status_endpoint:00000000 device_status_endpoint
     {standard input}:586    .bss.device_status_endpoint:00000000 $d
-    {standard input}:588    .bss.message.18087:00000000 $d
-    {standard input}:592    .bss.message.18087:00000000 message.18087
+    {standard input}:588    .bss.message.18085:00000000 $d
+    {standard input}:592    .bss.message.18085:00000000 message.18085
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS

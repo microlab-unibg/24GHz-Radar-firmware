@@ -542,7 +542,7 @@
  304 0014 4168     	 ldr r1,[r0,#4]
  172:../Radar_Control/src/radar_pulse.c **** 
  305              	 .loc 1 172 0
- 306 0016 0769     	 ldr r7,[r0,#16]
+ 306 0016 C768     	 ldr r7,[r0,#12]
  168:../Radar_Control/src/radar_pulse.c **** 		pulse_result.target_departing_bool   = p_algo_result->target_departing;
  307              	 .loc 1 168 0
  308 0018 0391     	 str r1,[sp,#12]
@@ -555,7 +555,7 @@
  313 0020 01A9     	 add r1,sp,#4
  166:../Radar_Control/src/radar_pulse.c **** 		pulse_result.velocity_mps            = p_algo_result->velocity_kmph / 3.6f;
  314              	 .loc 1 166 0
- 315 0022 DE69     	 ldr r6,[r3,#28]
+ 315 0022 9E69     	 ldr r6,[r3,#24]
  169:../Radar_Control/src/radar_pulse.c **** 		pulse_result.target_approaching_bool = p_algo_result->target_approaching;
  316              	 .loc 1 169 0
  317 0024 1D7A     	 ldrb r5,[r3,#8]

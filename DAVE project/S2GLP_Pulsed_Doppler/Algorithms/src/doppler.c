@@ -35,6 +35,7 @@
 #define DOWNSAMPLING_FACTOR 10
 #define BACKGROUND_FRAMES 100  // Numero di frame per acquisire il background
 #define WAIT_TIME 500000000        // 5 secondi di attesa
+#define BACKGROUND_FRAMES 50
 
 
 /*
@@ -290,63 +291,101 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
 
 //============================================================================
 
-void breathing_calc_frequency(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q, uint16_t number_samples, const algo_settings_t *cp_algo_settings, const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result){
+void breathing_calc_frequency(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q,
+                              uint16_t number_samples, const algo_settings_t *cp_algo_settings,
+                              const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result) {
 
-    uint32_t maxBin = 0;
-    float maxVal = 0;
-    float freq_per_bin;
-    float if1_real, if1_imag;
+    static float background_fft[FFT_SIZE / 2] = {0};
+    static uint32_t frame_count = 0;                 // Contatore fase di background
+    static bool background_acquired = false;         // Flag per sapere se ho terminato acquisizione background
 
-    float breathing_frequency = 0.0f;
-    float breathing_level = 0.0f;
+    static float raw_data_i1[FFT_SIZE];
+    static float raw_data_q1[FFT_SIZE];
+    float breathing_fft_signal[FFT_SIZE * 2] = {0};
+    float breathing_spectrum[FFT_SIZE / 2] = {0};
+
+    uint16_t downsampling_factor = 10; // fattore downsampling
+    uint16_t downsampled_size = FFT_SIZE / downsampling_factor;
+
+    /* Downsampling */
+    for (uint32_t i = 0; i < downsampled_size; i++) {
+        raw_data_i1[i] = if1_i[i * downsampling_factor];
+        raw_data_q1[i] = if1_q[i * downsampling_factor];
+    }
 
     /* Calcolo FFT */
-    compute_fft_signal(fft_window, if1_i, if1_q, number_samples, FFT_SIZE, 1.0, FFT_INPUT_COMPLEX,
-                       &if1_real, &if1_imag, breathing_fft_signal);
-
-    compute_fft_spectrum(breathing_fft_signal, FFT_SIZE, breathing_spectrum);
+    compute_fft_signal(fft_window, raw_data_i1, raw_data_q1, downsampled_size, downsampled_size,
+                       1.0, FFT_INPUT_COMPLEX, NULL, NULL, breathing_fft_signal);
+    compute_fft_spectrum(breathing_fft_signal, downsampled_size, breathing_spectrum);
 
     /* Rimozione DC */
     breathing_spectrum[0] = 0;
-    breathing_spectrum[FFT_SIZE/2] = 0;
+    breathing_spectrum[downsampled_size / 2] = 0;
 
-    /* Setto range respirazione tra 0.1 Hz e 1.0 Hz */
-    uint32_t fft_min_check = (uint32_t) ceilf(0.1f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_Hz);
-    uint32_t fft_max_check = (uint32_t) ceilf(1.0f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_Hz);
+    /* Fase di background */
+    if (!background_acquired) {
+        for (int i = 0; i < downsampled_size / 2; i++) {
+            background_fft[i] += breathing_spectrum[i] / BACKGROUND_FRAMES;
+        }
 
+        frame_count++;
+        if (frame_count >= BACKGROUND_FRAMES) {
+            background_acquired = true;  // Fine fase di background
+            printf("Background acquisito!\n");
+        }
+
+        return;
+    }
+
+    /* Sottrazione del background */
+    float clean_spectrum[FFT_SIZE / 2] = {0};
+    for (int i = 0; i < downsampled_size / 2; i++) {
+        clean_spectrum[i] = breathing_spectrum[i] - background_fft[i];
+        if (clean_spectrum[i] < 0) clean_spectrum[i] = 0;  // Tolgo valori negativi
+    }
+
+    /* Definizione del range respiratorio tra 0.1 Hz e 1.0 Hz */
+    uint32_t fft_min_check = (uint32_t) ceilf(0.1f * downsampled_size / cp_dev_settings->adc_sampling_freq_Hz);
+    uint32_t fft_max_check = (uint32_t) ceilf(1.0f * downsampled_size / cp_dev_settings->adc_sampling_freq_Hz);
     uint32_t size_check = fft_max_check - fft_min_check + 1;
 
-    /* Trovo frequenza dominante */
-    arm_max_f32(&breathing_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
+    /* Trovo la frequenza dominante */
+    uint32_t maxBin = 0;
+    float maxVal = 0;
+    arm_max_f32(&clean_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
     maxBin += fft_min_check;
 
-    freq_per_bin = cp_dev_settings->adc_sampling_freq_Hz / (float)FFT_SIZE;
-    breathing_level = maxVal;
-    breathing_frequency = maxBin * freq_per_bin;
+    float freq_per_bin = cp_dev_settings->adc_sampling_freq_Hz / (float)downsampled_size;
+    float breathing_frequency = maxBin * freq_per_bin;
+    float breathing_rate = breathing_frequency * 60.0f;  // Conversione in respiri al minuto
 
-    /* Converto in respiri per minuto */
-    float breathing_rate = breathing_frequency * 60.0f;
 
-    /* Risultati con i LED */
-    if (breathing_rate < 10.0f) {
-        bsp_led_red_off();
-        bsp_led_blue_on();   // Respirazione bassa
+    /* Classificazione del respiro (uso colori movimento:
+    	->motion_detected 		= respiro basso 	= BLU
+    	->target_approaching 	= respiro alto 		= ROSSO
+    	->target_departing		= respiro normale	= VERDE*/
+    if (breathing_rate < 12.0f) {  // Respirazione bassa
+        p_algo_result->motion_detected = 1;
+        bsp_led_blue_on();
+        bsp_led_red_on();
+        bsp_led_green_on();
+    }
+    else if (breathing_rate > 16.0f) {  // Respirazione alta
+        p_algo_result->target_approaching = 1;
+        bsp_led_red_on();
+        bsp_led_blue_on();
         bsp_led_green_off();
     }
-    else if (breathing_rate >= 10.0f && breathing_rate <= 20.0f) {
+    else {  // Respirazione normale
+        p_algo_result->target_departing = 1;
+        bsp_led_green_on();
         bsp_led_red_off();
-        bsp_led_blue_off();
-        bsp_led_green_on();  // Respirazione normale
-    }
-    else {
-        bsp_led_red_on();    // Respirazione elevata
-        bsp_led_blue_off();
-        bsp_led_green_off();
+        bsp_led_blue_on();
     }
 
     /* Salva i risultati */
     p_algo_result->doppler_frequency_hz = breathing_frequency;
-    p_algo_result->velocity_kmph = breathing_rate; // Uso il campo della velocità per mostrare il respiro
+    p_algo_result->velocity_kmph = breathing_rate; // Uso il campo della velocità per il respiro
 }
 
 

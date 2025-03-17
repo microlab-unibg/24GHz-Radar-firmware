@@ -1558,10 +1558,10 @@
  673              	 .align 2
  676              	g_detected_rf_shield_id:
  677 0000 00000000 	 .space 4
- 678              	 .section .bss.message.18180,"aw",%nobits
+ 678              	 .section .bss.message.18178,"aw",%nobits
  679              	 .align 2
  680              	 .set .LANCHOR1,.+0
- 683              	message.18180:
+ 683              	message.18178:
  684 0000 00000000 	 .space 512
  684      00000000 
  684      00000000 
@@ -1575,26 +1575,26 @@
  688      52616461 
  688      72206261 
  688      7365626F 
- 689 001d 000000   	 .section .bss.message.18189,"aw",%nobits
+ 689 001d 000000   	 .section .bss.message.18187,"aw",%nobits
  690              	 .align 2
  691              	 .set .LANCHOR2,.+0
- 694              	message.18189:
+ 694              	message.18187:
  695 0000 00000000 	 .space 200
  695      00000000 
  695      00000000 
  695      00000000 
  695      00000000 
- 696              	 .section .bss.message.18196,"aw",%nobits
+ 696              	 .section .bss.message.18194,"aw",%nobits
  697              	 .align 2
  698              	 .set .LANCHOR3,.+0
- 701              	message.18196:
+ 701              	message.18194:
  702 0000 00000000 	 .space 10
  702      00000000 
  702      0000
- 703 000a 0000     	 .section .bss.message.18199,"aw",%nobits
+ 703 000a 0000     	 .section .bss.message.18197,"aw",%nobits
  704              	 .align 2
  705              	 .set .LANCHOR4,.+0
- 708              	message.18199:
+ 708              	message.18197:
  709 0000 00000000 	 .space 10
  709      00000000 
  709      0000
@@ -1635,15 +1635,15 @@ DEFINED SYMBOLS
     {standard input}:670    .bss.mcu_base_endpoint:00000000 mcu_base_endpoint
     {standard input}:671    .bss.mcu_base_endpoint:00000000 $d
     {standard input}:673    .bss.g_detected_rf_shield_id:00000000 $d
-    {standard input}:679    .bss.message.18180:00000000 $d
-    {standard input}:683    .bss.message.18180:00000000 message.18180
+    {standard input}:679    .bss.message.18178:00000000 $d
+    {standard input}:683    .bss.message.18178:00000000 message.18178
     {standard input}:686    .rodata.str1.4:00000000 $d
-    {standard input}:690    .bss.message.18189:00000000 $d
-    {standard input}:694    .bss.message.18189:00000000 message.18189
-    {standard input}:697    .bss.message.18196:00000000 $d
-    {standard input}:701    .bss.message.18196:00000000 message.18196
-    {standard input}:704    .bss.message.18199:00000000 $d
-    {standard input}:708    .bss.message.18199:00000000 message.18199
+    {standard input}:690    .bss.message.18187:00000000 $d
+    {standard input}:694    .bss.message.18187:00000000 message.18187
+    {standard input}:697    .bss.message.18194:00000000 $d
+    {standard input}:701    .bss.message.18194:00000000 message.18194
+    {standard input}:704    .bss.message.18197:00000000 $d
+    {standard input}:708    .bss.message.18197:00000000 message.18197
                      .debug_frame:00000010 $d
     {standard input}:281    .text.ep_radar_mcu_base_handle_message:0000002b $d
     {standard input}:281    .text.ep_radar_mcu_base_handle_message:0000002c $t

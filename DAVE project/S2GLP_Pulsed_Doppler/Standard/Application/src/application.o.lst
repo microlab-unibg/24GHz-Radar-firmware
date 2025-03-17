@@ -498,11 +498,8 @@
   31              	 
   32              	 
   33              	.LVL0:
- 469:../Application/src/application.c **** 	/*bsp_led_red_off();
- 470:../Application/src/application.c **** 	bsp_led_blue_off();
- 471:../Application/src/application.c **** 	bsp_led_green_off();*/
- 472:../Application/src/application.c **** 	acq_started += 1;
-  34              	 .loc 1 472 0
+ 469:../Application/src/application.c **** 	acq_started += 1;
+  34              	 .loc 1 469 0
   35 0000 024A     	 ldr r2,.L2
   36 0002 1368     	 ldr r3,[r2]
   37 0004 0133     	 adds r3,r3,#1
@@ -521,84 +518,81 @@
   51              	 .thumb_func
   53              	system_reset:
   54              	.LFB541:
- 473:../Application/src/application.c **** }
- 474:../Application/src/application.c **** 
- 475:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
- 476:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
- 477:../Application/src/application.c ****  */
- 478:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter)
- 479:../Application/src/application.c **** {
- 480:../Application/src/application.c **** 	/*bsp_led_red_off();
- 481:../Application/src/application.c **** 	bsp_led_blue_off();
- 482:../Application/src/application.c **** 	bsp_led_green_off();*/
- 483:../Application/src/application.c **** 	acq_completed += 1;
- 484:../Application/src/application.c **** 	acq_completed_cb();
- 485:../Application/src/application.c **** }
- 486:../Application/src/application.c **** 
- 487:../Application/src/application.c **** //============================================================================
- 488:../Application/src/application.c **** 
- 489:../Application/src/application.c **** void update_leds(algo_result_t *pResult)
- 490:../Application/src/application.c **** {
- 491:../Application/src/application.c **** 	if (pResult->target_approaching)
- 492:../Application/src/application.c **** 	{
- 493:../Application/src/application.c **** 		/*bsp_led_red_off();
- 494:../Application/src/application.c **** 		bsp_led_blue_off();
- 495:../Application/src/application.c **** 		bsp_led_green_on();*/
- 496:../Application/src/application.c **** 
- 497:../Application/src/application.c **** 		bsp_led_red_on();
- 498:../Application/src/application.c **** 		bsp_led_blue_off();
- 499:../Application/src/application.c **** 		bsp_led_green_off();
- 500:../Application/src/application.c **** 
- 501:../Application/src/application.c **** 		/* Arduino status IO */
- 502:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
- 503:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 504:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 505:../Application/src/application.c **** 	}
- 506:../Application/src/application.c **** 	else if (pResult->target_departing)
- 507:../Application/src/application.c **** 	{
- 508:../Application/src/application.c **** 		/*bsp_led_red_on();
- 509:../Application/src/application.c **** 		bsp_led_blue_off();
- 510:../Application/src/application.c **** 		bsp_led_green_off();*/
- 511:../Application/src/application.c **** 
- 512:../Application/src/application.c **** 		bsp_led_red_off();
- 513:../Application/src/application.c **** 		bsp_led_blue_off();
- 514:../Application/src/application.c **** 		bsp_led_green_on();
- 515:../Application/src/application.c **** 
- 516:../Application/src/application.c **** 		/* Arduino IO */
- 517:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);
- 518:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 519:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 520:../Application/src/application.c **** 	}
- 521:../Application/src/application.c **** 	else if (pResult->motion_detected)
- 522:../Application/src/application.c **** 	{
- 523:../Application/src/application.c **** 		bsp_led_red_off();
- 524:../Application/src/application.c **** 		bsp_led_blue_on();
- 525:../Application/src/application.c **** 		bsp_led_green_off();
- 526:../Application/src/application.c **** 
- 527:../Application/src/application.c **** 		/* Arduino IO */
- 528:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D4);
- 529:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 530:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 531:../Application/src/application.c **** 	}
- 532:../Application/src/application.c **** 	else
- 533:../Application/src/application.c **** 	{
- 534:../Application/src/application.c **** 		bsp_led_red_off();
- 535:../Application/src/application.c **** 		bsp_led_blue_off();
- 536:../Application/src/application.c **** 		bsp_led_green_off();
- 537:../Application/src/application.c **** 
- 538:../Application/src/application.c **** 		/* Arduino IO */
- 539:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
- 540:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
- 541:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
- 542:../Application/src/application.c **** 	}
- 543:../Application/src/application.c **** }
- 544:../Application/src/application.c **** 
- 545:../Application/src/application.c **** //============================================================================
- 546:../Application/src/application.c **** 
- 547:../Application/src/application.c **** /* This function yet to be filled in case of software reset */
- 548:../Application/src/application.c **** void system_reset(void)
- 549:../Application/src/application.c **** {
-  55              	 .loc 1 549 0
+ 470:../Application/src/application.c **** }
+ 471:../Application/src/application.c **** 
+ 472:../Application/src/application.c **** /* This callback function will be executed by radar control at the end of data acquisition,
+ 473:../Application/src/application.c ****  * it is used to inform upper layers that data sampling is done and data is ready in user buffer
+ 474:../Application/src/application.c ****  */
+ 475:../Application/src/application.c **** void app_data_acq_done_cb(void *parameter)
+ 476:../Application/src/application.c **** {
+ 477:../Application/src/application.c **** 	acq_completed += 1;
+ 478:../Application/src/application.c **** 	acq_completed_cb();
+ 479:../Application/src/application.c **** }
+ 480:../Application/src/application.c **** 
+ 481:../Application/src/application.c **** //============================================================================
+ 482:../Application/src/application.c **** 
+ 483:../Application/src/application.c **** void update_leds(algo_result_t *pResult)
+ 484:../Application/src/application.c **** {
+ 485:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 486:../Application/src/application.c **** 	{
+ 487:../Application/src/application.c **** 		/*bsp_led_red_off();
+ 488:../Application/src/application.c **** 		bsp_led_blue_off();
+ 489:../Application/src/application.c **** 		bsp_led_green_on();*/
+ 490:../Application/src/application.c **** 
+ 491:../Application/src/application.c **** 		bsp_led_red_on();
+ 492:../Application/src/application.c **** 		bsp_led_blue_off();
+ 493:../Application/src/application.c **** 		bsp_led_green_off();
+ 494:../Application/src/application.c **** 
+ 495:../Application/src/application.c **** 		/* Arduino status IO */
+ 496:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D6);
+ 497:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 498:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 499:../Application/src/application.c **** 	}
+ 500:../Application/src/application.c **** 	else if (pResult->target_departing)
+ 501:../Application/src/application.c **** 	{
+ 502:../Application/src/application.c **** 		/*bsp_led_red_on();
+ 503:../Application/src/application.c **** 		bsp_led_blue_off();
+ 504:../Application/src/application.c **** 		bsp_led_green_off();*/
+ 505:../Application/src/application.c **** 
+ 506:../Application/src/application.c **** 		bsp_led_red_off();
+ 507:../Application/src/application.c **** 		bsp_led_blue_off();
+ 508:../Application/src/application.c **** 		bsp_led_green_on();
+ 509:../Application/src/application.c **** 
+ 510:../Application/src/application.c **** 		/* Arduino IO */
+ 511:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D7);
+ 512:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 513:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 514:../Application/src/application.c **** 	}
+ 515:../Application/src/application.c **** 	else if (pResult->motion_detected)
+ 516:../Application/src/application.c **** 	{
+ 517:../Application/src/application.c **** 		bsp_led_red_off();
+ 518:../Application/src/application.c **** 		bsp_led_blue_on();
+ 519:../Application/src/application.c **** 		bsp_led_green_off();
+ 520:../Application/src/application.c **** 
+ 521:../Application/src/application.c **** 		/* Arduino IO */
+ 522:../Application/src/application.c **** 		DIGITAL_IO_SetOutputHigh(&DIGITAL_IO_ARD_D4);
+ 523:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 524:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 525:../Application/src/application.c **** 	}
+ 526:../Application/src/application.c **** 	else
+ 527:../Application/src/application.c **** 	{
+ 528:../Application/src/application.c **** 		bsp_led_red_off();
+ 529:../Application/src/application.c **** 		bsp_led_blue_off();
+ 530:../Application/src/application.c **** 		bsp_led_green_off();
+ 531:../Application/src/application.c **** 
+ 532:../Application/src/application.c **** 		/* Arduino IO */
+ 533:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D4);
+ 534:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D6);
+ 535:../Application/src/application.c **** 		DIGITAL_IO_SetOutputLow(&DIGITAL_IO_ARD_D7);
+ 536:../Application/src/application.c **** 	}
+ 537:../Application/src/application.c **** }
+ 538:../Application/src/application.c **** 
+ 539:../Application/src/application.c **** //============================================================================
+ 540:../Application/src/application.c **** 
+ 541:../Application/src/application.c **** /* This function yet to be filled in case of software reset */
+ 542:../Application/src/application.c **** void system_reset(void)
+ 543:../Application/src/application.c **** {
+  55              	 .loc 1 543 0
   56              	 .cfi_startproc
   57              	 
   58              	 
@@ -613,21 +607,21 @@
   68              	 .thumb_func
   70              	app_data_acq_done_cb:
   71              	.LFB539:
- 479:../Application/src/application.c **** 	/*bsp_led_red_off();
-  72              	 .loc 1 479 0
+ 476:../Application/src/application.c **** 	acq_completed += 1;
+  72              	 .loc 1 476 0
   73              	 .cfi_startproc
   74              	 
   75              	 
   76              	 
   77              	.LVL1:
- 483:../Application/src/application.c **** 	acq_completed_cb();
-  78              	 .loc 1 483 0
+ 477:../Application/src/application.c **** 	acq_completed_cb();
+  78              	 .loc 1 477 0
   79 0000 024A     	 ldr r2,.L6
   80 0002 1368     	 ldr r3,[r2]
   81 0004 0133     	 adds r3,r3,#1
   82 0006 1360     	 str r3,[r2]
- 484:../Application/src/application.c **** }
-  83              	 .loc 1 484 0
+ 478:../Application/src/application.c **** }
+  83              	 .loc 1 478 0
   84 0008 FFF7FEBF 	 b acq_completed_cb
   85              	.LVL2:
   86              	.L7:
@@ -1330,8 +1324,8 @@
  662              	 .thumb_func
  664              	update_leds:
  665              	.LFB540:
- 490:../Application/src/application.c **** 	if (pResult->target_approaching)
- 666              	 .loc 1 490 0
+ 484:../Application/src/application.c **** 	if (pResult->target_approaching)
+ 666              	 .loc 1 484 0
  667              	 .cfi_startproc
  668              	 
  669              	 
@@ -1345,30 +1339,30 @@
  677              	 .cfi_offset 6,-12
  678              	 .cfi_offset 7,-8
  679              	 .cfi_offset 14,-4
- 491:../Application/src/application.c **** 	{
- 680              	 .loc 1 491 0
+ 485:../Application/src/application.c **** 	{
+ 680              	 .loc 1 485 0
  681 0002 437A     	 ldrb r3,[r0,#9]
  682 0004 002B     	 cmp r3,#0
  683 0006 38D1     	 bne .L62
- 506:../Application/src/application.c **** 	{
- 684              	 .loc 1 506 0
+ 500:../Application/src/application.c **** 	{
+ 684              	 .loc 1 500 0
  685 0008 037A     	 ldrb r3,[r0,#8]
  686 000a 002B     	 cmp r3,#0
  687 000c 3ED1     	 bne .L63
- 521:../Application/src/application.c **** 	{
- 688              	 .loc 1 521 0
+ 515:../Application/src/application.c **** 	{
+ 688              	 .loc 1 515 0
  689 000e 837A     	 ldrb r3,[r0,#10]
  690 0010 CBB9     	 cbnz r3,.L64
- 534:../Application/src/application.c **** 		bsp_led_blue_off();
- 691              	 .loc 1 534 0
+ 528:../Application/src/application.c **** 		bsp_led_blue_off();
+ 691              	 .loc 1 528 0
  692 0012 FFF7FEFF 	 bl bsp_led_red_off
  693              	.LVL49:
- 535:../Application/src/application.c **** 		bsp_led_green_off();
- 694              	 .loc 1 535 0
+ 529:../Application/src/application.c **** 		bsp_led_green_off();
+ 694              	 .loc 1 529 0
  695 0016 FFF7FEFF 	 bl bsp_led_blue_off
  696              	.LVL50:
- 536:../Application/src/application.c **** 
- 697              	 .loc 1 536 0
+ 530:../Application/src/application.c **** 
+ 697              	 .loc 1 530 0
  698 001a FFF7FEFF 	 bl bsp_led_green_off
  699              	.LVL51:
  700 001e 2049     	 ldr r1,.L65
@@ -1735,16 +1729,16 @@
  775              	.LBE78:
  776              	.LBE80:
  777              	.LBE86:
- 523:../Application/src/application.c **** 		bsp_led_blue_on();
- 778              	 .loc 1 523 0
+ 517:../Application/src/application.c **** 		bsp_led_blue_on();
+ 778              	 .loc 1 517 0
  779 0046 FFF7FEFF 	 bl bsp_led_red_off
  780              	.LVL56:
- 524:../Application/src/application.c **** 		bsp_led_green_off();
- 781              	 .loc 1 524 0
+ 518:../Application/src/application.c **** 		bsp_led_green_off();
+ 781              	 .loc 1 518 0
  782 004a FFF7FEFF 	 bl bsp_led_blue_on
  783              	.LVL57:
- 525:../Application/src/application.c **** 
- 784              	 .loc 1 525 0
+ 519:../Application/src/application.c **** 
+ 784              	 .loc 1 519 0
  785 004e FFF7FEFF 	 bl bsp_led_green_off
  786              	.LVL58:
  787 0052 1349     	 ldr r1,.L65
@@ -1844,16 +1838,16 @@
  877              	.LBE107:
  878              	.LBE109:
  879              	.LBE116:
- 497:../Application/src/application.c **** 		bsp_led_blue_off();
- 880              	 .loc 1 497 0
+ 491:../Application/src/application.c **** 		bsp_led_blue_off();
+ 880              	 .loc 1 491 0
  881 007a FFF7FEFF 	 bl bsp_led_red_on
  882              	.LVL63:
- 498:../Application/src/application.c **** 		bsp_led_green_off();
- 883              	 .loc 1 498 0
+ 492:../Application/src/application.c **** 		bsp_led_green_off();
+ 883              	 .loc 1 492 0
  884 007e FFF7FEFF 	 bl bsp_led_blue_off
  885              	.LVL64:
- 499:../Application/src/application.c **** 
- 886              	 .loc 1 499 0
+ 493:../Application/src/application.c **** 
+ 886              	 .loc 1 493 0
  887 0082 FFF7FEFF 	 bl bsp_led_green_off
  888              	.LVL65:
  889 0086 0749     	 ldr r1,.L65+4
@@ -1861,16 +1855,16 @@
  891 008a E4E7     	 b .L61
  892              	.LVL66:
  893              	.L63:
- 512:../Application/src/application.c **** 		bsp_led_blue_off();
- 894              	 .loc 1 512 0
+ 506:../Application/src/application.c **** 		bsp_led_blue_off();
+ 894              	 .loc 1 506 0
  895 008c FFF7FEFF 	 bl bsp_led_red_off
  896              	.LVL67:
- 513:../Application/src/application.c **** 		bsp_led_green_on();
- 897              	 .loc 1 513 0
+ 507:../Application/src/application.c **** 		bsp_led_green_on();
+ 897              	 .loc 1 507 0
  898 0090 FFF7FEFF 	 bl bsp_led_blue_off
  899              	.LVL68:
- 514:../Application/src/application.c **** 
- 900              	 .loc 1 514 0
+ 508:../Application/src/application.c **** 
+ 900              	 .loc 1 508 0
  901 0094 FFF7FEFF 	 bl bsp_led_green_on
  902              	.LVL69:
  903 0098 0349     	 ldr r1,.L65+8
@@ -1974,49 +1968,49 @@
  991 004c 37D0     	 beq .L110
  992              	.LBB125:
  993              	.LBB126:
- 550:../Application/src/application.c **** 
- 551:../Application/src/application.c **** }
- 552:../Application/src/application.c **** 
- 553:../Application/src/application.c **** //============================================================================
- 554:../Application/src/application.c **** 
- 555:../Application/src/application.c **** /* Run the selected algorithm */
- 556:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
- 557:../Application/src/application.c **** 
- 558:../Application/src/application.c **** static algo_result_t algo_result;
- 559:../Application/src/application.c **** 
- 560:../Application/src/application.c **** void do_algo_helper(void)
- 561:../Application/src/application.c **** {
- 562:../Application/src/application.c **** 	acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
- 994              	 .loc 1 562 0
+ 544:../Application/src/application.c **** 
+ 545:../Application/src/application.c **** }
+ 546:../Application/src/application.c **** 
+ 547:../Application/src/application.c **** //============================================================================
+ 548:../Application/src/application.c **** 
+ 549:../Application/src/application.c **** /* Run the selected algorithm */
+ 550:../Application/src/application.c **** #if defined(FMCW_SUPPORTED) || defined(DOPPLER_SUPPORTED)
+ 551:../Application/src/application.c **** 
+ 552:../Application/src/application.c **** static algo_result_t algo_result;
+ 553:../Application/src/application.c **** 
+ 554:../Application/src/application.c **** void do_algo_helper(void)
+ 555:../Application/src/application.c **** {
+ 556:../Application/src/application.c **** 	acq_buf_obj *p_acq_buf = ds_get_active_acq_buf();
+ 994              	 .loc 1 556 0
  995 004e FFF7FEFF 	 bl ds_get_active_acq_buf
  996              	.LVL70:
  997 0052 0746     	 mov r7,r0
  998              	.LVL71:
- 563:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
- 999              	 .loc 1 563 0
+ 557:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 999              	 .loc 1 557 0
  1000 0054 FFF7FEFF 	 bl ds_algo_get_settings
  1001              	.LVL72:
  1002 0058 8046     	 mov r8,r0
  1003              	.LVL73:
- 564:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
- 1004              	 .loc 1 564 0
+ 558:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1004              	 .loc 1 558 0
  1005 005a FFF7FEFF 	 bl ds_device_get_shadow_settings
  1006              	.LVL74:
  1007 005e 0646     	 mov r6,r0
  1008              	.LVL75:
- 565:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
- 566:../Application/src/application.c **** 
- 567:../Application/src/application.c **** 	/* this is the async raw data streaming to host device */
- 568:../Application/src/application.c **** 	radar_pulse_raw_data(p_acq_buf, p_dev_settings);
- 1009              	 .loc 1 568 0
+ 559:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
+ 560:../Application/src/application.c **** 
+ 561:../Application/src/application.c **** 	/* this is the async raw data streaming to host device */
+ 562:../Application/src/application.c **** 	radar_pulse_raw_data(p_acq_buf, p_dev_settings);
+ 1009              	 .loc 1 562 0
  1010 0060 3146     	 mov r1,r6
  1011 0062 3846     	 mov r0,r7
  1012              	.LVL76:
  1013 0064 FFF7FEFF 	 bl radar_pulse_raw_data
  1014              	.LVL77:
- 569:../Application/src/application.c **** 
- 570:../Application/src/application.c **** 	algo_processing_function(p_acq_buf, p_algo_settings, p_dev_settings, p_algo_result);
- 1015              	 .loc 1 570 0
+ 563:../Application/src/application.c **** 
+ 564:../Application/src/application.c **** 	algo_processing_function(p_acq_buf, p_algo_settings, p_dev_settings, p_algo_result);
+ 1015              	 .loc 1 564 0
  1016 0068 3246     	 mov r2,r6
  1017 006a 3F4B     	 ldr r3,.L114+24
  1018 006c 2668     	 ldr r6,[r4]
@@ -2028,31 +2022,31 @@
  1023 006e 3A4C     	 ldr r4,.L114+8
  1024              	.LBB128:
  1025              	.LBB127:
- 1026              	 .loc 1 570 0
+ 1026              	 .loc 1 564 0
  1027 0070 4146     	 mov r1,r8
  1028 0072 3846     	 mov r0,r7
  1029 0074 B047     	 blx r6
  1030              	.LVL79:
- 571:../Application/src/application.c **** 
- 572:../Application/src/application.c **** 	ds_store_algo_result_ptr(p_algo_result);
- 1031              	 .loc 1 572 0
+ 565:../Application/src/application.c **** 
+ 566:../Application/src/application.c **** 	ds_store_algo_result_ptr(p_algo_result);
+ 1031              	 .loc 1 566 0
  1032 0076 3C48     	 ldr r0,.L114+24
  1033 0078 FFF7FEFF 	 bl ds_store_algo_result_ptr
  1034              	.LVL80:
- 573:../Application/src/application.c **** 
- 574:../Application/src/application.c **** 	radar_pulse_results_updates(p_algo_result);
- 1035              	 .loc 1 574 0
+ 567:../Application/src/application.c **** 
+ 568:../Application/src/application.c **** 	radar_pulse_results_updates(p_algo_result);
+ 1035              	 .loc 1 568 0
  1036 007c 3A48     	 ldr r0,.L114+24
  1037 007e FFF7FEFF 	 bl radar_pulse_results_updates
  1038              	.LVL81:
- 575:../Application/src/application.c **** 
- 576:../Application/src/application.c **** 	mcu_base_updates();
- 1039              	 .loc 1 576 0
+ 569:../Application/src/application.c **** 
+ 570:../Application/src/application.c **** 	mcu_base_updates();
+ 1039              	 .loc 1 570 0
  1040 0082 FFF7FEFF 	 bl mcu_base_updates
  1041              	.LVL82:
- 577:../Application/src/application.c **** 
- 578:../Application/src/application.c **** 	update_leds(p_algo_result);
- 1042              	 .loc 1 578 0
+ 571:../Application/src/application.c **** 
+ 572:../Application/src/application.c **** 	update_leds(p_algo_result);
+ 1042              	 .loc 1 572 0
  1043 0086 3848     	 ldr r0,.L114+24
  1044 0088 FFF7FEFF 	 bl update_leds
  1045              	.LVL83:
@@ -2389,33 +2383,33 @@
  1325 0064 37D0     	 beq .L162
  1326              	.LBB145:
  1327              	.LBB146:
- 562:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
- 1328              	 .loc 1 562 0
+ 556:../Application/src/application.c **** 	algo_settings_t *p_algo_settings = ds_algo_get_settings();
+ 1328              	 .loc 1 556 0
  1329 0066 FFF7FEFF 	 bl ds_get_active_acq_buf
  1330              	.LVL107:
  1331 006a 0746     	 mov r7,r0
  1332              	.LVL108:
- 563:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
- 1333              	 .loc 1 563 0
+ 557:../Application/src/application.c **** 	device_settings_t *p_dev_settings = ds_device_get_shadow_settings();
+ 1333              	 .loc 1 557 0
  1334 006c FFF7FEFF 	 bl ds_algo_get_settings
  1335              	.LVL109:
  1336 0070 8046     	 mov r8,r0
  1337              	.LVL110:
- 564:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
- 1338              	 .loc 1 564 0
+ 558:../Application/src/application.c **** 	algo_result_t *p_algo_result = &algo_result;
+ 1338              	 .loc 1 558 0
  1339 0072 FFF7FEFF 	 bl ds_device_get_shadow_settings
  1340              	.LVL111:
  1341 0076 0646     	 mov r6,r0
  1342              	.LVL112:
- 568:../Application/src/application.c **** 
- 1343              	 .loc 1 568 0
+ 562:../Application/src/application.c **** 
+ 1343              	 .loc 1 562 0
  1344 0078 3146     	 mov r1,r6
  1345 007a 3846     	 mov r0,r7
  1346              	.LVL113:
  1347 007c FFF7FEFF 	 bl radar_pulse_raw_data
  1348              	.LVL114:
- 570:../Application/src/application.c **** 
- 1349              	 .loc 1 570 0
+ 564:../Application/src/application.c **** 
+ 1349              	 .loc 1 564 0
  1350 0080 3246     	 mov r2,r6
  1351 0082 424B     	 ldr r3,.L166+28
  1352 0084 2668     	 ldr r6,[r4]
@@ -2427,27 +2421,27 @@
  1357 0086 3D4C     	 ldr r4,.L166+12
  1358              	.LBB148:
  1359              	.LBB147:
- 570:../Application/src/application.c **** 
- 1360              	 .loc 1 570 0
+ 564:../Application/src/application.c **** 
+ 1360              	 .loc 1 564 0
  1361 0088 4146     	 mov r1,r8
  1362 008a 3846     	 mov r0,r7
  1363 008c B047     	 blx r6
  1364              	.LVL116:
- 572:../Application/src/application.c **** 
- 1365              	 .loc 1 572 0
+ 566:../Application/src/application.c **** 
+ 1365              	 .loc 1 566 0
  1366 008e 3F48     	 ldr r0,.L166+28
  1367 0090 FFF7FEFF 	 bl ds_store_algo_result_ptr
  1368              	.LVL117:
- 574:../Application/src/application.c **** 
- 1369              	 .loc 1 574 0
+ 568:../Application/src/application.c **** 
+ 1369              	 .loc 1 568 0
  1370 0094 3D48     	 ldr r0,.L166+28
  1371 0096 FFF7FEFF 	 bl radar_pulse_results_updates
  1372              	.LVL118:
- 576:../Application/src/application.c **** 
- 1373              	 .loc 1 576 0
+ 570:../Application/src/application.c **** 
+ 1373              	 .loc 1 570 0
  1374 009a FFF7FEFF 	 bl mcu_base_updates
  1375              	.LVL119:
- 1376              	 .loc 1 578 0
+ 1376              	 .loc 1 572 0
  1377 009e 3B48     	 ldr r0,.L166+28
  1378 00a0 FFF7FEFF 	 bl update_leds
  1379              	.LVL120:
@@ -2699,7 +2693,7 @@
  1590              	 .align 2
  1591              	 .set .LANCHOR9,.+0
  1594              	algo_result:
- 1595 0000 00000000 	 .space 32
+ 1595 0000 00000000 	 .space 28
  1595      00000000 
  1595      00000000 
  1595      00000000 

@@ -221,7 +221,7 @@
  105:../main.c     ****   /* Register algorithm processing function:
  106:../main.c     ****      Set the algorithm processing function pointer, it will
  107:../main.c     ****      be used by the application for algorithm data processing */
- 108:../main.c     ****     app_register_algo_process(breathing_do);
+ 108:../main.c     ****     app_register_algo_process(doppler_do);
  111              	 .loc 1 108 0
  112 0016 0748     	 ldr r0,.L15+4
  113 0018 FFF7FEFF 	 bl app_register_algo_process
@@ -259,7 +259,7 @@
  133 002e 00BF     	 .align 2
  134              	.L15:
  135 0030 00000000 	 .word TIMER_0
- 136 0034 00000000 	 .word breathing_do
+ 136 0034 00000000 	 .word doppler_do
  137 0038 00000000 	 .word .LC0
  138              	 .cfi_endproc
  139              	.LFE530:
@@ -400,4 +400,4 @@ app_register_algo_process
 app_init
 app_process
 USBD_VCOM_SendString
-breathing_do
+doppler_do
