@@ -34,7 +34,7 @@
 
 #define DOWNSAMPLING_FACTOR 10
 #define BACKGROUND_FRAMES 100  // Numero di frame per acquisire il background
-#define WAIT_TIME 5         // 5 secondi di attesa
+#define WAIT_TIME 500000000        // 5 secondi di attesa
 
 
 /*
@@ -60,6 +60,9 @@
 static float   doppler_spectrum[2*FFT_SIZE];
 static float*  doppler_fft_signal = doppler_spectrum;
 
+static float   breathing_spectrum[2*FFT_SIZE];
+static float*  breathing_fft_signal = doppler_spectrum;
+
 static float   if_scale = (float)DOPPLER_IQ_SCALE * 3.3f / 4095.0f;
 
 /* FFT window */
@@ -79,7 +82,7 @@ static FFT_Window_Struct_t fft_fast_time_window =
 
 //==============================================================================
 /* Struttura per la finestra FFT */
-static FFT_Window_Struct_t fft_window;
+/*static FFT_Window_Struct_t fft_window;
 static float fft_window_buffer[FFT_SIZE] = {0};
 
 /* Funzione per inizializzare la finestra FFT */
@@ -94,18 +97,19 @@ static float fft_window_buffer[FFT_SIZE] = {0};
 }*/
 
 // Stati del sistema
-typedef enum {
+/*typedef enum {
     WAIT_BACKGROUND,
     ACQUIRE_BACKGROUND,
     WAIT_PERSON,
     MEASURE_BREATH
 } SystemState_t;
 
-static SystemState_t state = WAIT_BACKGROUND;
+static SystemState_t state = WAIT_PERSON;
 static float background_fft[FFT_SIZE / 2] = {0};
 static int frame_count = 0;
+static uint32_t start_time = 0;
 
-TIMER_t TIMER_0;
+TIMER_t TIMER_0;*/
 
 /*
 ==============================================================================
@@ -119,15 +123,16 @@ TIMER_t TIMER_0;
 ==============================================================================
  */
 
+/*void delay_ms(uint32_t ms) {
+    uint32_t start = TIMER_GetTime(&TIMER_0);
+    while (TIMER_GetTime(&TIMER_0) - start < ms * 1000);
+}
+
 void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
                 const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
 {
     static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
     static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
-    static float background_fft[FFT_SIZE / 2] = {0};
-    static uint32_t frame_count = 0;
-    static enum { WAIT_BACKGROUND, ACQUIRE_BACKGROUND, WAIT_PERSON, MEASURE_BREATH } state = WAIT_BACKGROUND;
-    static uint32_t start_time = 0;
     uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
     uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
 
@@ -137,9 +142,9 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
             USBD_VCOM_SendString("Inizio acquisizione background tra 5 secondi...\r\n");
             start_time = TIMER_GetTime(&TIMER_0);
             while(TIMER_GetTime(&TIMER_0) - start_time < WAIT_TIME){
-            	bsp_led_red_on();
-            	bsp_led_blue_on();
-            	bsp_led_green_off();
+            bsp_led_red_on();
+            bsp_led_blue_on();
+            bsp_led_green_off();
             }
             state = ACQUIRE_BACKGROUND;
             break;
@@ -147,7 +152,7 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
         case ACQUIRE_BACKGROUND:
 
         	bsp_led_red_off();
-        	bsp_led_blue_off();
+        	bsp_led_blue_on();
         	bsp_led_green_off();
 
             p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 2, 0);
@@ -180,7 +185,7 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
                 	bsp_led_blue_on();
                 	bsp_led_green_on();
                 }
-                state = WAIT_PERSON;
+            state = WAIT_PERSON;
             }
             break;
 
@@ -188,7 +193,7 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
 
         	bsp_led_red_off();
         	bsp_led_blue_off();
-        	bsp_led_green_off();
+        	bsp_led_green_on();
 
             USBD_VCOM_SendString("Inizio misurazione respiro...\r\n");
             state = MEASURE_BREATH;
@@ -212,7 +217,7 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
             compute_fft_spectrum(complex_fft_signal2, FFT_SIZE, fft_result2);
 
             for (int i = 0; i < FFT_SIZE / 2; i++) {
-                clean_fft[i] = fft_result2[i] - background_fft[i];
+                clean_fft[i] = fft_result2[i];//- background_fft[i];
             }
 
             float max_amplitude = 0;
@@ -231,7 +236,7 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
 
             if (BRPM < 12) {
                 bsp_led_blue_on();
-                bsp_led_red_off();
+                bsp_led_red_on();
                 bsp_led_green_off();
             } else if (BRPM > 16) {
                 bsp_led_red_on();
@@ -240,11 +245,110 @@ void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_setting
             } else {
                 bsp_led_green_on();
                 bsp_led_red_off();
-                bsp_led_blue_off();
-            }
+                bsp_led_blue_on();
+             }
             break;
     }
+}*/
+void breathing_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings, const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result){
+
+    static float raw_data_i1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+    static float raw_data_q1[BSP_MAX_NUM_SAMPLES_PER_CHIRP];
+
+    uint16_t *p_temp[BSP_NUM_OF_ADC_CHANNELS];
+    uint16_t Ns = p_acq_buf->params.num_of_samples_per_chirp;
+
+    /* Genera finestra FFT */
+    if (fft_fast_window_flag != Ns) {
+        fft_fast_time_window.fft_window_length = Ns;
+        if (fft_window_gen(&fft_fast_time_window) == 0) {
+            XMC_DEBUG("Errore generazione finestra FFT!\n");
+            while (1);
+        }
+        fft_fast_window_flag = Ns;
+    }
+
+    /* Pulizia buffer */
+    memset(raw_data_i1, 0, sizeof(raw_data_i1));
+    memset(raw_data_q1, 0, sizeof(raw_data_q1));
+
+    /* Acquisizione dati */
+    p_temp[0] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 0, 0);
+    p_temp[1] = (uint16_t *)get_buffer_address_by_chirp(p_acq_buf, 1, 0);
+
+    for (uint32_t i = 0; i < Ns; i++) {
+        raw_data_i1[i] = (float)((p_temp[0])[i]) * if_scale;
+        raw_data_q1[i] = (float)((p_temp[1])[i]) * if_scale;
+    }
+
+    /* Calcolo frequenza respiratoria */
+    breathing_calc_frequency(fft_fast_time_window, raw_data_i1, raw_data_q1, Ns, cp_algo_settings, cp_dev_settings, p_algo_result);
+
+    /* Salva frame corrente */
+    p_algo_result->frame_counter = p_acq_buf->frame_counter;
 }
+
+//============================================================================
+
+void breathing_calc_frequency(FFT_Window_Struct_t fft_window, float* if1_i, float* if1_q, uint16_t number_samples, const algo_settings_t *cp_algo_settings, const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result){
+
+    uint32_t maxBin = 0;
+    float maxVal = 0;
+    float freq_per_bin;
+    float if1_real, if1_imag;
+
+    float breathing_frequency = 0.0f;
+    float breathing_level = 0.0f;
+
+    /* Calcolo FFT */
+    compute_fft_signal(fft_window, if1_i, if1_q, number_samples, FFT_SIZE, 1.0, FFT_INPUT_COMPLEX,
+                       &if1_real, &if1_imag, breathing_fft_signal);
+
+    compute_fft_spectrum(breathing_fft_signal, FFT_SIZE, breathing_spectrum);
+
+    /* Rimozione DC */
+    breathing_spectrum[0] = 0;
+    breathing_spectrum[FFT_SIZE/2] = 0;
+
+    /* Setto range respirazione tra 0.1 Hz e 1.0 Hz */
+    uint32_t fft_min_check = (uint32_t) ceilf(0.1f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_Hz);
+    uint32_t fft_max_check = (uint32_t) ceilf(1.0f * FFT_SIZE / cp_dev_settings->adc_sampling_freq_Hz);
+
+    uint32_t size_check = fft_max_check - fft_min_check + 1;
+
+    /* Trovo frequenza dominante */
+    arm_max_f32(&breathing_spectrum[fft_min_check], size_check, &maxVal, &maxBin);
+    maxBin += fft_min_check;
+
+    freq_per_bin = cp_dev_settings->adc_sampling_freq_Hz / (float)FFT_SIZE;
+    breathing_level = maxVal;
+    breathing_frequency = maxBin * freq_per_bin;
+
+    /* Converto in respiri per minuto */
+    float breathing_rate = breathing_frequency * 60.0f;
+
+    /* Risultati con i LED */
+    if (breathing_rate < 10.0f) {
+        bsp_led_red_off();
+        bsp_led_blue_on();   // Respirazione bassa
+        bsp_led_green_off();
+    }
+    else if (breathing_rate >= 10.0f && breathing_rate <= 20.0f) {
+        bsp_led_red_off();
+        bsp_led_blue_off();
+        bsp_led_green_on();  // Respirazione normale
+    }
+    else {
+        bsp_led_red_on();    // Respirazione elevata
+        bsp_led_blue_off();
+        bsp_led_green_off();
+    }
+
+    /* Salva i risultati */
+    p_algo_result->doppler_frequency_hz = breathing_frequency;
+    p_algo_result->velocity_kmph = breathing_rate; // Uso il campo della velocità per mostrare il respiro
+}
+
 
 void doppler_do(acq_buf_obj *p_acq_buf, const algo_settings_t *cp_algo_settings,
 				const device_settings_t *cp_dev_settings, algo_result_t *p_algo_result)
